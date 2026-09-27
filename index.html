@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Bot — Telegram orqali sun'iy intellekt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0B0620;
+    --bg-panel:#150C33;
+    --bg-panel-2:#1C1140;
+    --cyan:#45F0C4;
+    --violet:#9B6BFF;
+    --pink:#FF6FB0;
+    --text:#F4F1FF;
+    --muted:#A79EC9;
+    --radius:22px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg-deep);
+    color:var(--text);
+    font-family:'Manrope',sans-serif;
+    overflow-x:hidden;
+    line-height:1.6;
+  }
+  h1,h2,h3{font-family:'Sora',sans-serif; line-height:1.15;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1140px; margin:0 auto; padding:0 28px;}
+
+  /* ---------- Aurora background ---------- */
+  .aurora{position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
+  .blob{position:absolute; border-radius:50%; filter:blur(90px); opacity:.55; mix-blend-mode:screen;}
+  .blob1{width:560px; height:560px; background:var(--violet); top:-160px; left:-120px; animation:drift1 22s ease-in-out infinite;}
+  .blob2{width:480px; height:480px; background:var(--cyan); top:20%; right:-160px; animation:drift2 26s ease-in-out infinite;}
+  .blob3{width:420px; height:420px; background:var(--pink); bottom:-140px; left:30%; animation:drift3 30s ease-in-out infinite;}
+  @keyframes drift1{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(80px,60px) scale(1.15);}}
+  @keyframes drift2{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-70px,50px) scale(1.1);}}
+  @keyframes drift3{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(50px,-40px) scale(1.2);}}
+
+  /* ---------- Nav ---------- */
+  nav{position:relative; z-index:5; display:flex; align-items:center; justify-content:space-between; padding:26px 0;}
+  .brand{font-family:'Sora',sans-serif; font-weight:700; font-size:1.15rem; letter-spacing:.2px;}
+  .nav-btn{border:1px solid rgba(244,241,255,.25); padding:10px 20px; border-radius:999px; font-weight:600; font-size:.92rem; transition:border-color .2s, transform .2s;}
+  .nav-btn:hover{border-color:var(--cyan); transform:translateY(-2px);}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative; z-index:2; padding:60px 0 40px; display:grid; grid-template-columns:1.1fr .9fr; gap:56px; align-items:center;}
+  .hero h1{font-size:clamp(2.3rem,4.6vw,3.6rem); font-weight:800; letter-spacing:-.5px;}
+  .hero p.lead{margin-top:22px; font-size:1.15rem; color:var(--muted); max-width:480px;}
+  .cta-row{display:flex; gap:16px; margin-top:36px; flex-wrap:wrap;}
+  .btn-primary, .btn-ghost{display:inline-flex; align-items:center; gap:10px; padding:16px 28px; border-radius:16px; font-weight:700; font-size:1rem;}
+  .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--violet)); color:#0B0620; box-shadow:0 14px 40px -12px rgba(155,107,255,.6); transition:transform .2s, box-shadow .2s;}
+  .btn-primary:hover{transform:translateY(-3px); box-shadow:0 18px 46px -10px rgba(155,107,255,.75);}
+  .btn-ghost{border:1px solid rgba(244,241,255,.28); color:var(--text); transition:border-color .2s;}
+  .btn-ghost:hover{border-color:var(--cyan);}
+
+  /* ---------- Phone mock ---------- */
+  .phone{justify-self:center; width:290px; background:var(--bg-panel); border:1px solid rgba(244,241,255,.08); border-radius:36px; padding:18px; box-shadow:0 40px 80px -30px rgba(0,0,0,.7); animation:floaty 6s ease-in-out infinite;}
+  @keyframes floaty{0%,100%{transform:translateY(0);} 50%{transform:translateY(-14px);}}
+  .phone-head{text-align:center; font-size:.8rem; color:var(--muted); margin-bottom:14px;}
+  .chat{display:flex; flex-direction:column; gap:12px; min-height:290px;}
+  .bubble{max-width:85%; padding:12px 15px; border-radius:16px; font-size:.88rem; opacity:0; transform:translateY(10px); transition:opacity .5s, transform .5s;}
+  .bubble.show{opacity:1; transform:translateY(0);}
+  .bot{align-self:flex-start; background:var(--bg-panel-2); border-bottom-left-radius:4px;}
+  .user{align-self:flex-end; background:linear-gradient(135deg,var(--cyan),var(--violet)); color:#0B0620; border-bottom-right-radius:4px; font-weight:600;}
+  .dots{align-self:flex-start; display:flex; gap:4px; padding:12px 15px; background:var(--bg-panel-2); border-radius:16px; border-bottom-left-radius:4px; opacity:0; transition:opacity .3s;}
+  .dots.show{opacity:1;}
+  .dots span{width:6px; height:6px; border-radius:50%; background:var(--muted); animation:blink 1.2s infinite;}
+  .dots span:nth-child(2){animation-delay:.2s;} .dots span:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,80%,100%{opacity:.25;} 40%{opacity:1;}}
+
+  /* ---------- Sections ---------- */
+  section{position:relative; z-index:2; padding:90px 0;}
+  .kicker-title{font-size:clamp(1.7rem,3vw,2.4rem); font-weight:800; margin-bottom:50px; max-width:640px;}
+
+  .features{display:grid; grid-template-columns:1.3fr 1fr; grid-template-rows:auto auto; gap:24px;}
+  .feature{background:var(--bg-panel); border:1px solid rgba(244,241,255,.07); border-radius:var(--radius); padding:34px;}
+  .feature.big{grid-row:span 2;}
+  .feature .icon{width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; margin-bottom:20px;}
+  .icon.c1{background:rgba(69,240,196,.15);} .icon.c2{background:rgba(155,107,255,.18);} .icon.c3{background:rgba(255,111,176,.16);}
+  .feature h3{font-size:1.25rem; margin-bottom:10px;}
+  .feature p{color:var(--muted); font-size:.98rem;}
+
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:24px;}
+  .step{border-left:2px solid rgba(244,241,255,.15); padding-left:20px;}
+  .step .num{font-family:'Sora',sans-serif; font-weight:700; color:var(--cyan); font-size:1.4rem; display:block; margin-bottom:10px;}
+  .step h4{font-size:1.05rem; margin-bottom:8px;}
+  .step p{color:var(--muted); font-size:.92rem;}
+
+  .cta-final{text-align:center; padding:80px 0 40px;}
+  .cta-final h2{font-size:clamp(1.8rem,3.4vw,2.6rem); max-width:600px; margin:0 auto 30px;}
+
+  footer{position:relative; z-index:2; text-align:center; padding:34px 0 50px; color:var(--muted); font-size:.88rem;}
+
+  @media (max-width:860px){
+    .hero{grid-template-columns:1fr; text-align:center;}
+    .hero p.lead{margin-left:auto; margin-right:auto;}
+    .cta-row{justify-content:center;}
+    .phone{order:-1;}
+    .features{grid-template-columns:1fr;}
+    .feature.big{grid-row:auto;}
+    .steps{grid-template-columns:1fr;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .blob, .phone{animation:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="aurora">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+
+<div class="wrap">
+  <nav>
+    <div class="brand">AI Bot</div>
+    <a class="nav-btn" href="https://t.me/Bilolsai_bot" target="_blank" rel="noopener">Botni ochish</a>
+  </nav>
+
+  <section class="hero" style="padding-top:20px;">
+    <div>
+      <h1>Savolingiz bormi? Sun'iy intellekt Telegram'da javob berishga tayyor.</h1>
+      <p class="lead">Ro'yxatdan o'ting, istalgan savolni bering, rasm yuboring — bot sizga zudlik bilan, tabiiy tilda javob qaytaradi.</p>
+      <div class="cta-row">
+        <a class="btn-primary" href="https://t.me/your_bot_username" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 4L2.5 11.5c-1 .4-1 1.7.1 2l4.4 1.4 1.7 5.2c.3.9 1.5 1.1 2.1.3l2.4-2.9 4.6 3.4c.9.6 2.1.1 2.3-1L23 5.3c.2-1-.9-1.7-2-1.3z" fill="currentColor"/></svg>
+          Telegram botga o'tish
+        </a>
+        <a class="btn-ghost" href="#imkoniyat">Imkoniyatlar</a>
+      </div>
+    </div>
+
+    <div class="phone">
+      <div class="phone-head">AI Bot • onlayn</div>
+      <div class="chat" id="chat">
+        <div class="bubble bot" data-i="0">Assalomu alaykum! Menga savol bering yoki rasm yuboring 👋</div>
+        <div class="bubble user" data-i="1">Bu rasmda nima bor?</div>
+        <div class="dots" id="dots">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="bubble bot" data-i="2">Rasmda tog' manzarasi va quyosh botishi tasvirlangan 🌄</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section id="imkoniyat">
+  <div class="wrap">
+    <h2 class="kicker-title">Bitta botda uchta imkoniyat</h2>
+    <div class="features">
+      <div class="feature big">
+        <div class="icon c1">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M8 12h8M12 8v8" stroke="#45F0C4" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="#45F0C4" stroke-width="2"/></svg>
+        </div>
+        <h3>Har qanday savolga tabiiy javob</h3>
+        <p>Matematikadan tarixgacha, oddiy savoldan murakkab masalagacha — botga yozing, u sizga tushunarli, aniq javob beradi. Suhbat tarixini eslab qoladi, shuning uchun izchil dialog yuritish mumkin.</p>
+      </div>
+      <div class="feature">
+        <div class="icon c2">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 7h4l1.5-2h5L16 7h4v12H4z" stroke="#9B6BFF" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3" stroke="#9B6BFF" stroke-width="2"/></svg>
+        </div>
+        <h3>Rasmni tushuntirib beradi</h3>
+        <p>Fotosurat yuboring — bot nima tasvirlanganini batafsil, o'zbek tilida izohlab beradi.</p>
+      </div>
+      <div class="feature">
+        <div class="icon c3">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M22 16.9V21a1 1 0 0 1-1.1 1 19 19 0 0 1-8.3-3 19 19 0 0 1-6-6 19 19 0 0 1-3-8.3A1 1 0 0 1 4.6 3H9a1 1 0 0 1 1 .8c.1 1.1.4 2.2.8 3.2a1 1 0 0 1-.2 1L9 9.6a15 15 0 0 0 6 6l1.6-1.6a1 1 0 0 1 1-.2c1 .4 2.1.7 3.2.8a1 1 0 0 1 .8 1.1z" stroke="#FF6FB0" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Bir marta ro'yxatdan o'tish</h3>
+        <p>Telefon raqamingizni ulashasiz, xolos — keyingi safar bot sizni darhol taniydi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2 class="kicker-title">Ishga tushirish uch qadamdan iborat</h2>
+    <div class="steps">
+      <div class="step"><span class="num">01</span><h4>Botni oching</h4><p>Telegram'da botni toping va /start buyrug'ini bosing.</p></div>
+      <div class="step"><span class="num">02</span><h4>Ro'yxatdan o'ting</h4><p>Telefon raqamingizni tugma orqali ulashing.</p></div>
+      <div class="step"><span class="num">03</span><h4>Foydalanishni boshlang</h4><p>Savol bering yoki rasm yuboring — javob darhol keladi.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-final">
+  <div class="wrap">
+    <h2>Endi navbat sizda — botni oching va birinchi savolingizni bering.</h2>
+    <a class="btn-primary" href="https://t.me/your_bot_username" target="_blank" rel="noopener" style="display:inline-flex;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 4L2.5 11.5c-1 .4-1 1.7.1 2l4.4 1.4 1.7 5.2c.3.9 1.5 1.1 2.1.3l2.4-2.9 4.6 3.4c.9.6 2.1.1 2.3-1L23 5.3c.2-1-.9-1.7-2-1.3z" fill="currentColor"/></svg>
+      Telegram botga o'tish
+    </a>
+  </div>
+</section>
+
+<footer>Yaratdi: Bilol</footer>
+
+<script>
+  const bubbles = Array.from(document.querySelectorAll('.bubble'));
+  const dots = document.getElementById('dots');
+  function playSequence(){
+    bubbles.forEach(b=>b.classList.remove('show'));
+    dots.classList.remove('show');
+    setTimeout(()=>bubbles[0].classList.add('show'),300);
+    setTimeout(()=>bubbles[1].classList.add('show'),1400);
+    setTimeout(()=>dots.classList.add('show'),2200);
+    setTimeout(()=>{dots.classList.remove('show'); bubbles[2].classList.add('show');},3600);
+  }
+  playSequence();
+  setInterval(playSequence,7000);
+</script>
+
+</body>
+</html>
