@@ -32,15 +32,19 @@
   a{color:inherit; text-decoration:none;}
   .wrap{max-width:1140px; margin:0 auto; padding:0 28px;}
 
-  /* ---------- Aurora background ---------- */
-  .aurora{position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
-  .blob{position:absolute; border-radius:50%; filter:blur(90px); opacity:.55; mix-blend-mode:screen;}
-  .blob1{width:560px; height:560px; background:var(--violet); top:-160px; left:-120px; animation:drift1 22s ease-in-out infinite;}
-  .blob2{width:480px; height:480px; background:var(--cyan); top:20%; right:-160px; animation:drift2 26s ease-in-out infinite;}
-  .blob3{width:420px; height:420px; background:var(--pink); bottom:-140px; left:30%; animation:drift3 30s ease-in-out infinite;}
-  @keyframes drift1{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(80px,60px) scale(1.15);}}
-  @keyframes drift2{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-70px,50px) scale(1.1);}}
-  @keyframes drift3{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(50px,-40px) scale(1.2);}}
+  body::before{
+    content:"";
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:radial-gradient(rgba(244,241,255,.07) 1px, transparent 1px);
+    background-size:26px 26px;
+    mask-image:radial-gradient(ellipse 90% 70% at 50% 0%, black 40%, transparent 90%);
+  }
+  .halo{position:absolute; top:-260px; left:50%; width:900px; height:900px; margin-left:-450px; z-index:0; pointer-events:none;
+    background:conic-gradient(from 0deg, var(--violet), var(--cyan), var(--pink), var(--violet));
+    filter:blur(120px); opacity:.35; border-radius:50%;
+    animation:spin 30s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
 
   /* ---------- Nav ---------- */
   nav{position:relative; z-index:5; display:flex; align-items:center; justify-content:space-between; padding:26px 0;}
@@ -107,7 +111,7 @@
     .steps{grid-template-columns:1fr;}
   }
   @media (prefers-reduced-motion:reduce){
-    .blob, .phone{animation:none !important;}
+    .halo, .phone{animation:none !important;}
   }
 
   /* ---------- Live chat widget ---------- */
@@ -140,11 +144,7 @@
 </head>
 <body>
 
-<div class="aurora">
-  <div class="blob blob1"></div>
-  <div class="blob blob2"></div>
-  <div class="blob blob3"></div>
-</div>
+<div class="halo"></div>
 
 <div class="wrap">
   <nav>
