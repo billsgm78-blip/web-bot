@@ -2,11 +2,11 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI Bot — Telegram orqali sun'iy intellekt</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>AI Bot — suhbat</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg-deep:#0B0620;
@@ -17,288 +17,134 @@
     --pink:#FF6FB0;
     --text:#F4F1FF;
     --muted:#A79EC9;
-    --radius:22px;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
+  html,body{height:100%;}
   body{
     background:var(--bg-deep);
     color:var(--text);
     font-family:'Manrope',sans-serif;
-    overflow-x:hidden;
-    line-height:1.6;
+    display:flex; flex-direction:column;
+    overflow:hidden;
   }
-  h1,h2,h3{font-family:'Sora',sans-serif; line-height:1.15;}
-  a{color:inherit; text-decoration:none;}
-  .wrap{max-width:1140px; margin:0 auto; padding:0 28px;}
+  h1{font-family:'Sora',sans-serif;}
 
-  body::before{
-    content:"";
-    position:fixed; inset:0; z-index:0; pointer-events:none;
-    background-image:radial-gradient(rgba(244,241,255,.07) 1px, transparent 1px);
-    background-size:26px 26px;
-    mask-image:radial-gradient(ellipse 90% 70% at 50% 0%, black 40%, transparent 90%);
-  }
-  .halo{position:absolute; top:-260px; left:50%; width:900px; height:900px; margin-left:-450px; z-index:0; pointer-events:none;
-    background:conic-gradient(from 0deg, var(--violet), var(--cyan), var(--pink), var(--violet));
-    filter:blur(120px); opacity:.35; border-radius:50%;
-    animation:spin 30s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(360deg);}}
+  /* ---------- Header ---------- */
+  header{flex:0 0 auto; padding:16px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(244,241,255,.08);}
+  header .dot{width:9px; height:9px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px var(--cyan);}
+  header .title{font-family:'Sora',sans-serif; font-weight:700;}
 
-  /* ---------- Nav ---------- */
-  nav{position:relative; z-index:5; display:flex; align-items:center; justify-content:space-between; padding:26px 0;}
-  .brand{font-family:'Sora',sans-serif; font-weight:700; font-size:1.15rem; letter-spacing:.2px;}
-  .nav-btn{border:1px solid rgba(244,241,255,.25); padding:10px 20px; border-radius:999px; font-weight:600; font-size:.92rem; transition:border-color .2s, transform .2s;}
-  .nav-btn:hover{border-color:var(--cyan); transform:translateY(-2px);}
+  /* ---------- Screens ---------- */
+  .screen{flex:1; display:flex; min-height:0;}
+  .screen[hidden]{display:none;}
 
-  /* ---------- Hero ---------- */
-  .hero{position:relative; z-index:2; padding:60px 0 40px; display:grid; grid-template-columns:1.1fr .9fr; gap:56px; align-items:center;}
-  .hero h1{font-size:clamp(2.3rem,4.6vw,3.6rem); font-weight:800; letter-spacing:-.5px;}
-  .hero p.lead{margin-top:22px; font-size:1.15rem; color:var(--muted); max-width:480px;}
-  .cta-row{display:flex; gap:16px; margin-top:36px; flex-wrap:wrap;}
-  .btn-primary, .btn-ghost{display:inline-flex; align-items:center; gap:10px; padding:16px 28px; border-radius:16px; font-weight:700; font-size:1rem;}
-  .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--violet)); color:#0B0620; box-shadow:0 14px 40px -12px rgba(155,107,255,.6); transition:transform .2s, box-shadow .2s;}
-  .btn-primary:hover{transform:translateY(-3px); box-shadow:0 18px 46px -10px rgba(155,107,255,.75);}
-  .btn-ghost{border:1px solid rgba(244,241,255,.28); color:var(--text); transition:border-color .2s;}
-  .btn-ghost:hover{border-color:var(--cyan);}
+  /* ---------- Registration ---------- */
+  #regScreen{align-items:center; justify-content:center; padding:24px;}
+  .reg-card{width:100%; max-width:360px; text-align:center;}
+  .reg-card h1{font-size:1.5rem; margin-bottom:8px;}
+  .reg-card p{color:var(--muted); font-size:.95rem; margin-bottom:26px;}
+  #regForm{display:flex; flex-direction:column; gap:12px;}
+  #regForm input{background:var(--bg-panel); border:1px solid rgba(244,241,255,.12); border-radius:14px; padding:14px 16px; color:var(--text); font-family:'Manrope',sans-serif; font-size:1rem;}
+  #regForm input:focus{outline:2px solid var(--cyan);}
+  #regForm button{margin-top:6px; background:linear-gradient(135deg,var(--cyan),var(--violet)); border:none; border-radius:14px; padding:15px; font-weight:700; color:#0B0620; font-size:1rem; cursor:pointer;}
+  .reg-error{color:var(--pink); font-size:.85rem; min-height:1.2em; margin-top:10px;}
 
-  /* ---------- Phone mock ---------- */
-  .phone{justify-self:center; width:290px; background:var(--bg-panel); border:1px solid rgba(244,241,255,.08); border-radius:36px; padding:18px; box-shadow:0 40px 80px -30px rgba(0,0,0,.7); animation:floaty 6s ease-in-out infinite;}
-  @keyframes floaty{0%,100%{transform:translateY(0);} 50%{transform:translateY(-14px);}}
-  .phone-head{text-align:center; font-size:.8rem; color:var(--muted); margin-bottom:14px;}
-  .chat{display:flex; flex-direction:column; gap:12px; min-height:290px;}
-  .bubble{max-width:85%; padding:12px 15px; border-radius:16px; font-size:.88rem; opacity:0; transform:translateY(10px); transition:opacity .5s, transform .5s;}
-  .bubble.show{opacity:1; transform:translateY(0);}
-  .bot{align-self:flex-start; background:var(--bg-panel-2); border-bottom-left-radius:4px;}
-  .user{align-self:flex-end; background:linear-gradient(135deg,var(--cyan),var(--violet)); color:#0B0620; border-bottom-right-radius:4px; font-weight:600;}
-  .dots{align-self:flex-start; display:flex; gap:4px; padding:12px 15px; background:var(--bg-panel-2); border-radius:16px; border-bottom-left-radius:4px; opacity:0; transition:opacity .3s;}
-  .dots.show{opacity:1;}
-  .dots span{width:6px; height:6px; border-radius:50%; background:var(--muted); animation:blink 1.2s infinite;}
-  .dots span:nth-child(2){animation-delay:.2s;} .dots span:nth-child(3){animation-delay:.4s;}
-  @keyframes blink{0%,80%,100%{opacity:.25;} 40%{opacity:1;}}
-
-  /* ---------- Sections ---------- */
-  section{position:relative; z-index:2; padding:90px 0;}
-  .kicker-title{font-size:clamp(1.7rem,3vw,2.4rem); font-weight:800; margin-bottom:50px; max-width:640px;}
-
-  .features{display:grid; grid-template-columns:1.3fr 1fr; grid-template-rows:auto auto; gap:24px;}
-  .feature{background:var(--bg-panel); border:1px solid rgba(244,241,255,.07); border-radius:var(--radius); padding:34px;}
-  .feature.big{grid-row:span 2;}
-  .feature .icon{width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; margin-bottom:20px;}
-  .icon.c1{background:rgba(69,240,196,.15);} .icon.c2{background:rgba(155,107,255,.18);} .icon.c3{background:rgba(255,111,176,.16);}
-  .feature h3{font-size:1.25rem; margin-bottom:10px;}
-  .feature p{color:var(--muted); font-size:.98rem;}
-
-  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:24px;}
-  .step{border-left:2px solid rgba(244,241,255,.15); padding-left:20px;}
-  .step .num{font-family:'Sora',sans-serif; font-weight:700; color:var(--cyan); font-size:1.4rem; display:block; margin-bottom:10px;}
-  .step h4{font-size:1.05rem; margin-bottom:8px;}
-  .step p{color:var(--muted); font-size:.92rem;}
-
-  .cta-final{text-align:center; padding:80px 0 40px;}
-  .cta-final h2{font-size:clamp(1.8rem,3.4vw,2.6rem); max-width:600px; margin:0 auto 30px;}
-
-  footer{position:relative; z-index:2; text-align:center; padding:34px 0 50px; color:var(--muted); font-size:.88rem;}
-
-  @media (max-width:860px){
-    .hero{grid-template-columns:1fr; text-align:center;}
-    .hero p.lead{margin-left:auto; margin-right:auto;}
-    .cta-row{justify-content:center;}
-    .phone{order:-1;}
-    .features{grid-template-columns:1fr;}
-    .feature.big{grid-row:auto;}
-    .steps{grid-template-columns:1fr;}
-  }
-  @media (prefers-reduced-motion:reduce){
-    .halo, .phone{animation:none !important;}
-  }
-
-  /* ---------- Live chat widget ---------- */
-  .chat-fab{position:fixed; bottom:90px; right:26px; z-index:99999; width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg,var(--cyan),var(--violet)); display:flex; align-items:center; justify-content:center; box-shadow:0 16px 40px -12px rgba(155,107,255,.7); border:none; cursor:pointer; transition:transform .2s;}
-  .chat-fab:hover{transform:scale(1.07);}
-  .chat-panel{position:fixed; bottom:164px; right:26px; z-index:99999; width:340px; max-width:calc(100vw - 40px); height:460px; max-height:60vh; background:var(--bg-panel); border:1px solid rgba(244,241,255,.1); border-radius:20px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 70px -20px rgba(0,0,0,.6); opacity:0; transform:translateY(16px) scale(.97); pointer-events:none; transition:opacity .25s, transform .25s;}
-  .chat-panel.open{opacity:1; transform:translateY(0) scale(1); pointer-events:auto;}
-  .chat-panel-head{padding:16px 18px; font-family:'Sora',sans-serif; font-weight:700; border-bottom:1px solid rgba(244,241,255,.08); display:flex; justify-content:space-between; align-items:center;}
-  .chat-panel-head span.status{font-family:'Manrope',sans-serif; font-weight:500; font-size:.75rem; color:var(--cyan);}
-  .chat-body{flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px;}
-  .msg{max-width:85%; padding:10px 14px; border-radius:14px; font-size:.88rem;}
+  /* ---------- Chat ---------- */
+  #chatScreen{flex-direction:column; min-height:0;}
+  .chat-body{flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px;}
+  .msg{max-width:82%; padding:11px 15px; border-radius:16px; font-size:.94rem; line-height:1.45;}
   .msg.bot{align-self:flex-start; background:var(--bg-panel-2); border-bottom-left-radius:4px;}
   .msg.user{align-self:flex-end; background:linear-gradient(135deg,var(--cyan),var(--violet)); color:#0B0620; font-weight:600; border-bottom-right-radius:4px;}
-  .msg.typing{align-self:flex-start; background:var(--bg-panel-2); border-bottom-left-radius:4px; display:flex; gap:4px; padding:12px 14px;}
+  .msg img{max-width:100%; border-radius:10px; display:block; margin-top:6px;}
+  .msg.typing{align-self:flex-start; background:var(--bg-panel-2); border-bottom-left-radius:4px; display:flex; gap:4px; padding:13px 15px;}
   .msg.typing span{width:6px; height:6px; border-radius:50%; background:var(--muted); animation:blink 1.2s infinite;}
   .msg.typing span:nth-child(2){animation-delay:.2s;} .msg.typing span:nth-child(3){animation-delay:.4s;}
-  .chat-input-row{display:flex; gap:8px; padding:12px; border-top:1px solid rgba(244,241,255,.08);}
-  .chat-input-row input{flex:1; background:var(--bg-panel-2); border:1px solid rgba(244,241,255,.1); border-radius:12px; padding:10px 12px; color:var(--text); font-family:'Manrope',sans-serif; font-size:.88rem;}
-  .chat-input-row input:focus{outline:2px solid var(--cyan);}
-  .chat-input-row button{background:linear-gradient(135deg,var(--cyan),var(--violet)); border:none; border-radius:12px; padding:0 16px; font-weight:700; color:#0B0620; cursor:pointer;}
+  @keyframes blink{0%,80%,100%{opacity:.25;} 40%{opacity:1;}}
 
-  .reg-view{flex:1; display:flex; flex-direction:column; gap:12px; padding:20px 18px;}
-  .reg-view p{color:var(--muted); font-size:.9rem;}
-  .reg-view input{background:var(--bg-panel-2); border:1px solid rgba(244,241,255,.1); border-radius:12px; padding:11px 13px; color:var(--text); font-family:'Manrope',sans-serif; font-size:.9rem;}
-  .reg-view input:focus{outline:2px solid var(--cyan);}
-  .reg-view button{background:linear-gradient(135deg,var(--cyan),var(--violet)); border:none; border-radius:12px; padding:12px; font-weight:700; color:#0B0620; cursor:pointer; font-size:.92rem;}
-  .reg-error{color:var(--pink); font-size:.82rem; min-height:1em;}
+  .preview-row{padding:0 16px; display:none; align-items:center; gap:10px;}
+  .preview-row.show{display:flex;}
+  .preview-row img{width:52px; height:52px; object-fit:cover; border-radius:10px;}
+  .preview-row button{background:none; border:none; color:var(--pink); font-size:.85rem; cursor:pointer;}
 
+  #chatForm{flex:0 0 auto; display:flex; gap:8px; padding:12px 14px; border-top:1px solid rgba(244,241,255,.08);}
+  #photoBtn{flex:0 0 auto; width:46px; height:46px; border-radius:12px; border:1px solid rgba(244,241,255,.15); background:var(--bg-panel-2); color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer;}
+  #chatInput{flex:1; min-width:0; background:var(--bg-panel-2); border:1px solid rgba(244,241,255,.12); border-radius:12px; padding:0 14px; color:var(--text); font-family:'Manrope',sans-serif; font-size:.95rem;}
+  #chatInput:focus{outline:2px solid var(--cyan);}
+  #chatForm button[type="submit"]{flex:0 0 auto; background:linear-gradient(135deg,var(--cyan),var(--violet)); border:none; border-radius:12px; padding:0 18px; font-weight:700; color:#0B0620; cursor:pointer;}
 </style>
 </head>
 <body>
 
-<div class="halo"></div>
+<header>
+  <span class="dot"></span>
+  <span class="title">AI Bot</span>
+</header>
 
-<div class="wrap">
-  <nav>
-    <div class="brand">AI Bot</div>
-    <a class="nav-btn" href="https://t.me/your_bot_username" target="_blank" rel="noopener">Botni ochish</a>
-  </nav>
-
-  <section class="hero" style="padding-top:20px;">
-    <div>
-      <h1>Savolingiz bormi? Sun'iy intellekt Telegram'da javob berishga tayyor.</h1>
-      <p class="lead">Ro'yxatdan o'ting, istalgan savolni bering, rasm yuboring — bot sizga zudlik bilan, tabiiy tilda javob qaytaradi.</p>
-      <div class="cta-row">
-        <a class="btn-primary" href="https://t.me/your_bot_username" target="_blank" rel="noopener">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 4L2.5 11.5c-1 .4-1 1.7.1 2l4.4 1.4 1.7 5.2c.3.9 1.5 1.1 2.1.3l2.4-2.9 4.6 3.4c.9.6 2.1.1 2.3-1L23 5.3c.2-1-.9-1.7-2-1.3z" fill="currentColor"/></svg>
-          Telegram botga o'tish
-        </a>
-        <a class="btn-ghost" href="#imkoniyat">Imkoniyatlar</a>
-      </div>
-    </div>
-
-    <div class="phone">
-      <div class="phone-head">AI Bot • onlayn</div>
-      <div class="chat" id="chat">
-        <div class="bubble bot" data-i="0">Assalomu alaykum! Menga savol bering yoki rasm yuboring 👋</div>
-        <div class="bubble user" data-i="1">Bu rasmda nima bor?</div>
-        <div class="dots" id="dots">
-          <span></span><span></span><span></span>
-        </div>
-        <div class="bubble bot" data-i="2">Rasmda tog' manzarasi va quyosh botishi tasvirlangan 🌄</div>
-      </div>
-    </div>
-  </section>
-</div>
-
-<section id="imkoniyat">
-  <div class="wrap">
-    <h2 class="kicker-title">Bitta botda uchta imkoniyat</h2>
-    <div class="features">
-      <div class="feature big">
-        <div class="icon c1">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M8 12h8M12 8v8" stroke="#45F0C4" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="#45F0C4" stroke-width="2"/></svg>
-        </div>
-        <h3>Har qanday savolga tabiiy javob</h3>
-        <p>Matematikadan tarixgacha, oddiy savoldan murakkab masalagacha — botga yozing, u sizga tushunarli, aniq javob beradi. Suhbat tarixini eslab qoladi, shuning uchun izchil dialog yuritish mumkin.</p>
-      </div>
-      <div class="feature">
-        <div class="icon c2">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 7h4l1.5-2h5L16 7h4v12H4z" stroke="#9B6BFF" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3" stroke="#9B6BFF" stroke-width="2"/></svg>
-        </div>
-        <h3>Rasmni tushuntirib beradi</h3>
-        <p>Fotosurat yuboring — bot nima tasvirlanganini batafsil, o'zbek tilida izohlab beradi.</p>
-      </div>
-      <div class="feature">
-        <div class="icon c3">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M22 16.9V21a1 1 0 0 1-1.1 1 19 19 0 0 1-8.3-3 19 19 0 0 1-6-6 19 19 0 0 1-3-8.3A1 1 0 0 1 4.6 3H9a1 1 0 0 1 1 .8c.1 1.1.4 2.2.8 3.2a1 1 0 0 1-.2 1L9 9.6a15 15 0 0 0 6 6l1.6-1.6a1 1 0 0 1 1-.2c1 .4 2.1.7 3.2.8a1 1 0 0 1 .8 1.1z" stroke="#FF6FB0" stroke-width="2" stroke-linejoin="round"/></svg>
-        </div>
-        <h3>Bir marta ro'yxatdan o'tish</h3>
-        <p>Telefon raqamingizni ulashasiz, xolos — keyingi safar bot sizni darhol taniydi.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <h2 class="kicker-title">Ishga tushirish uch qadamdan iborat</h2>
-    <div class="steps">
-      <div class="step"><span class="num">01</span><h4>Botni oching</h4><p>Telegram'da botni toping va /start buyrug'ini bosing.</p></div>
-      <div class="step"><span class="num">02</span><h4>Ro'yxatdan o'ting</h4><p>Telefon raqamingizni tugma orqali ulashing.</p></div>
-      <div class="step"><span class="num">03</span><h4>Foydalanishni boshlang</h4><p>Savol bering yoki rasm yuboring — javob darhol keladi.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="cta-final">
-  <div class="wrap">
-    <h2>Endi navbat sizda — botni oching va birinchi savolingizni bering.</h2>
-    <a class="btn-primary" href="https://t.me/your_bot_username" target="_blank" rel="noopener" style="display:inline-flex;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 4L2.5 11.5c-1 .4-1 1.7.1 2l4.4 1.4 1.7 5.2c.3.9 1.5 1.1 2.1.3l2.4-2.9 4.6 3.4c.9.6 2.1.1 2.3-1L23 5.3c.2-1-.9-1.7-2-1.3z" fill="currentColor"/></svg>
-      Telegram botga o'tish
-    </a>
-  </div>
-</section>
-
-<footer>Yaratdi: Bilol</footer>
-
-<button class="chat-fab" id="fabBtn" aria-label="AI bilan suhbat">
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M21 12a8 8 0 0 1-8 8H6l-3 3v-3.4A8 8 0 1 1 21 12z" stroke="#0B0620" stroke-width="2" stroke-linejoin="round"/></svg>
-</button>
-
-<div class="chat-panel" id="chatPanel">
-  <div class="chat-panel-head">
-    AI bilan suhbat <span class="status">● onlayn</span>
-  </div>
-
-  <div class="reg-view" id="regView">
-    <p>AI bilan suhbatlashish uchun avval ro'yxatdan o'ting.</p>
-    <input type="text" id="regName" placeholder="Ismingiz">
-    <input type="tel" id="regPhone" placeholder="Telefon raqamingiz (+998...)">
-    <button id="regSubmit">Ro'yxatdan o'tish</button>
+<div class="screen" id="regScreen">
+  <div class="reg-card">
+    <h1>AI bilan suhbat</h1>
+    <p>Boshlash uchun ismingiz va telefon raqamingizni kiriting.</p>
+    <form id="regForm">
+      <input type="text" id="regName" placeholder="Ismingiz" autocomplete="name" required>
+      <input type="tel" id="regPhone" placeholder="+998 90 123 45 67" autocomplete="tel" required>
+      <button type="submit">Boshlash</button>
+    </form>
     <div class="reg-error" id="regError"></div>
   </div>
+</div>
 
-  <div class="chat-body" id="chatBody" style="display:none;"></div>
-  <div class="chat-input-row" id="chatInputRow" style="display:none;">
-    <input type="text" id="chatInput" placeholder="Xabar yozing..." autocomplete="off">
-    <button id="chatSend">Yuborish</button>
+<div class="screen" id="chatScreen" hidden style="flex-direction:column;">
+  <div class="chat-body" id="chatBody"></div>
+  <div class="preview-row" id="previewRow">
+    <img id="previewImg" alt="">
+    <button type="button" id="previewRemove">olib tashlash</button>
   </div>
+  <form id="chatForm">
+    <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+    <button type="button" id="photoBtn" aria-label="Rasm yuborish">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h4l1.5-2h5L16 7h4v12H4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+    <input type="text" id="chatInput" placeholder="Xabar yozing..." autocomplete="off">
+    <button type="submit">Yuborish</button>
+  </form>
 </div>
 
 <script>
-  const bubbles = Array.from(document.querySelectorAll('.bubble'));
-  const dots = document.getElementById('dots');
-  function playSequence(){
-    bubbles.forEach(b=>b.classList.remove('show'));
-    dots.classList.remove('show');
-    setTimeout(()=>bubbles[0].classList.add('show'),300);
-    setTimeout(()=>bubbles[1].classList.add('show'),1400);
-    setTimeout(()=>dots.classList.add('show'),2200);
-    setTimeout(()=>{dots.classList.remove('show'); bubbles[2].classList.add('show');},3600);
-  }
-  playSequence();
-  setInterval(playSequence,7000);
-
-  // ---------- Live chat widget ----------
-  const fabBtn = document.getElementById('fabBtn');
-  const chatPanel = document.getElementById('chatPanel');
-  const chatBody = document.getElementById('chatBody');
-  const chatInput = document.getElementById('chatInput');
-  const chatInputRow = document.getElementById('chatInputRow');
-  const chatSend = document.getElementById('chatSend');
-  const regView = document.getElementById('regView');
+  const regScreen = document.getElementById('regScreen');
+  const chatScreen = document.getElementById('chatScreen');
+  const regForm = document.getElementById('regForm');
   const regName = document.getElementById('regName');
   const regPhone = document.getElementById('regPhone');
-  const regSubmit = document.getElementById('regSubmit');
   const regError = document.getElementById('regError');
+
+  const chatBody = document.getElementById('chatBody');
+  const chatForm = document.getElementById('chatForm');
+  const chatInput = document.getElementById('chatInput');
+  const photoBtn = document.getElementById('photoBtn');
+  const photoInput = document.getElementById('photoInput');
+  const previewRow = document.getElementById('previewRow');
+  const previewImg = document.getElementById('previewImg');
+  const previewRemove = document.getElementById('previewRemove');
+
   let history = [];
+  let pendingImageBase64 = null;
 
-  fabBtn.addEventListener('click', () => chatPanel.classList.toggle('open'));
-
-  function unlockChat(name){
-    regView.style.display = 'none';
-    chatBody.style.display = 'flex';
-    chatInputRow.style.display = 'flex';
+  function showChat(name){
+    regScreen.hidden = true;
+    chatScreen.hidden = false;
     if (!chatBody.hasChildNodes()){
-      addMessage('bot', (name ? `Salom, ${name}! ` : 'Salom! ') + 'Savolingizni yozing, javob beraman.');
+      addMessage('bot', (name ? `Salom, ${name}! ` : 'Salom! ') + 'Savolingizni yozing yoki rasm yuboring.');
     }
   }
 
   const savedPhone = localStorage.getItem('web_user_phone');
   const savedName = localStorage.getItem('web_user_name') || '';
-  if (savedPhone) unlockChat(savedName);
+  if (savedPhone) showChat(savedName);
 
-  regSubmit.addEventListener('click', async () => {
+  regForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    regName.blur();
+    regPhone.blur();
     const name = regName.value.trim();
     const phone = regPhone.value.trim();
     regError.textContent = '';
@@ -308,7 +154,6 @@
       return;
     }
 
-    regSubmit.disabled = true;
     try {
       const resp = await fetch('/.netlify/functions/register', {
         method: 'POST',
@@ -320,18 +165,21 @@
 
       localStorage.setItem('web_user_phone', phone);
       localStorage.setItem('web_user_name', name);
-      unlockChat(name);
-    } catch (e) {
-      regError.textContent = 'Xatolik: ' + e.message;
-    } finally {
-      regSubmit.disabled = false;
+      showChat(name);
+    } catch (err) {
+      regError.textContent = 'Xatolik: ' + err.message;
     }
   });
 
-  function addMessage(role, text){
+  function addMessage(role, text, imgSrc){
     const div = document.createElement('div');
     div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
-    div.textContent = text;
+    if (text) div.appendChild(document.createTextNode(text));
+    if (imgSrc){
+      const img = document.createElement('img');
+      img.src = imgSrc;
+      div.appendChild(img);
+    }
     chatBody.appendChild(div);
     chatBody.scrollTop = chatBody.scrollHeight;
     return div;
@@ -346,15 +194,64 @@
     return div;
   }
 
-  async function sendMessage(){
+  function resizeImage(file){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          const maxW = 1024;
+          const scale = Math.min(1, maxW / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.75));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  photoBtn.addEventListener('click', () => photoInput.click());
+
+  photoInput.addEventListener('change', async () => {
+    const file = photoInput.files[0];
+    if (!file) return;
+    const dataUrl = await resizeImage(file);
+    pendingImageBase64 = dataUrl.split(',')[1];
+    previewImg.src = dataUrl;
+    previewRow.classList.add('show');
+  });
+
+  previewRemove.addEventListener('click', () => {
+    pendingImageBase64 = null;
+    photoInput.value = '';
+    previewRow.classList.remove('show');
+  });
+
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    chatInput.blur();
     const text = chatInput.value.trim();
-    if (!text) return;
+    if (!text && !pendingImageBase64) return;
+
+    const parts = [];
+    if (pendingImageBase64) parts.push({ inline_data: { mime_type: 'image/jpeg', data: pendingImageBase64 } });
+    parts.push({ text: text || "Rasmda nima tasvirlangan? O'zbek tilida qisqa tushuntir." });
+
+    addMessage('user', text, pendingImageBase64 ? previewImg.src : null);
+    history.push({ role: 'user', parts });
+
     chatInput.value = '';
-    addMessage('user', text);
-    history.push({ role: 'user', parts: [{ text }] });
+    pendingImageBase64 = null;
+    photoInput.value = '';
+    previewRow.classList.remove('show');
 
     const typingEl = addTyping();
-    chatSend.disabled = true;
 
     try {
       const resp = await fetch('/.netlify/functions/chat', {
@@ -364,22 +261,16 @@
       });
       const data = await resp.json();
       typingEl.remove();
-
       if (!resp.ok) throw new Error(data.error || 'Xatolik yuz berdi');
 
       addMessage('bot', data.text);
       history.push({ role: 'model', parts: [{ text: data.text }] });
       if (history.length > 20) history = history.slice(-20);
-    } catch (e) {
+    } catch (err) {
       typingEl.remove();
-      addMessage('bot', 'Xatolik: ' + e.message);
-    } finally {
-      chatSend.disabled = false;
+      addMessage('bot', 'Xatolik: ' + err.message);
     }
-  }
-
-  chatSend.addEventListener('click', sendMessage);
-  chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+  });
 </script>
 
 </body>
