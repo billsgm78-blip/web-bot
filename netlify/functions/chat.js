@@ -39,6 +39,7 @@ exports.handler = async function (event) {
       body: JSON.stringify({
         contents: history,
         system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+        tools: [{ google_search: {} }],
       }),
     });
 
