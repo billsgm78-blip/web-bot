@@ -90,6 +90,13 @@
 
   #chatForm{flex:0 0 auto; display:flex; gap:8px; padding:12px 14px; border-top:1px solid rgba(244,241,255,.08);}
   #photoBtn, #cameraBtn{flex:0 0 auto; width:46px; height:46px; border-radius:12px; border:1px solid rgba(244,241,255,.15); background:var(--bg-panel-2); color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer;}
+
+  .camera-overlay{position:fixed; inset:0; z-index:100000; background:#000; display:flex; flex-direction:column;}
+  .camera-overlay[hidden]{display:none;}
+  .camera-overlay video{flex:1; width:100%; object-fit:cover; background:#000;}
+  #cameraClose{position:absolute; top:18px; right:18px; z-index:2; width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.3); color:#fff; font-size:1.1rem; cursor:pointer;}
+  .camera-controls{flex:0 0 auto; padding:22px; display:flex; justify-content:center; background:#000;}
+  #captureBtn{width:70px; height:70px; border-radius:50%; background:#fff; border:5px solid rgba(255,255,255,.35); cursor:pointer;}
   #chatInput{flex:1; min-width:0; background:var(--bg-panel-2); border:1px solid rgba(244,241,255,.12); border-radius:12px; padding:0 14px; color:var(--text); font-family:'Manrope',sans-serif; font-size:.95rem;}
   #chatInput:focus{outline:2px solid var(--cyan);}
   #chatForm button[type="submit"]{flex:0 0 auto; background:linear-gradient(135deg,var(--cyan),var(--violet)); border:none; border-radius:12px; padding:0 18px; font-weight:700; color:#0B0620; cursor:pointer;}
@@ -140,6 +147,14 @@
     <input type="text" id="chatInput" placeholder="Xabar yozing..." autocomplete="off">
     <button type="submit">Yuborish</button>
   </form>
+</div>
+
+<div class="camera-overlay" id="cameraOverlay" hidden>
+  <button type="button" id="cameraClose" aria-label="Yopish">✕</button>
+  <video id="cameraVideo" autoplay playsinline muted></video>
+  <div class="camera-controls">
+    <button type="button" id="captureBtn" aria-label="Suratga olish"></button>
+  </div>
 </div>
 
 </div>
@@ -265,8 +280,53 @@
     });
   }
 
+  const cameraOverlay = document.getElementById('cameraOverlay');
+  const cameraVideo = document.getElementById('cameraVideo');
+  const cameraClose = document.getElementById('cameraClose');
+  const captureBtn = document.getElementById('captureBtn');
+  let mediaStream = null;
+
+  async function openCamera(){
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false,
+      });
+      cameraVideo.srcObject = mediaStream;
+      cameraOverlay.hidden = false;
+    } catch (err) {
+      // Brauzer/qurilma jonli kamerani qo'llamasa, standart fayl tanlovchiga qaytamiz
+      cameraInput.click();
+    }
+  }
+
+  function closeCamera(){
+    if (mediaStream){
+      mediaStream.getTracks().forEach((t) => t.stop());
+      mediaStream = null;
+    }
+    cameraOverlay.hidden = true;
+  }
+
+  captureBtn.addEventListener('click', () => {
+    const w = cameraVideo.videoWidth, h = cameraVideo.videoHeight;
+    if (!w || !h) return;
+    const maxW = 1024;
+    const scale = Math.min(1, maxW / w);
+    const canvas = document.createElement('canvas');
+    canvas.width = w * scale;
+    canvas.height = h * scale;
+    canvas.getContext('2d').drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+    pendingImageBase64 = dataUrl.split(',')[1];
+    previewImg.src = dataUrl;
+    previewRow.classList.add('show');
+    closeCamera();
+  });
+
+  cameraClose.addEventListener('click', closeCamera);
   photoBtn.addEventListener('click', () => photoInput.click());
-  cameraBtn.addEventListener('click', () => cameraInput.click());
+  cameraBtn.addEventListener('click', openCamera);
 
   async function handlePickedFile(input){
     const file = input.files[0];
