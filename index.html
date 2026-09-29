@@ -293,6 +293,9 @@
         audio: false,
       });
       cameraVideo.srcObject = mediaStream;
+      cameraVideo.onloadedmetadata = () => {
+        cameraVideo.play().catch(() => {});
+      };
       cameraOverlay.hidden = false;
     } catch (err) {
       // Brauzer/qurilma jonli kamerani qo'llamasa, standart fayl tanlovchiga qaytamiz
