@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>AI Bot — suhbat</title>
+<title>Bilols AI — suhbat</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -89,7 +89,7 @@
   .preview-row button{background:none; border:none; color:var(--pink); font-size:.85rem; cursor:pointer;}
 
   #chatForm{flex:0 0 auto; display:flex; gap:8px; padding:12px 14px; border-top:1px solid rgba(244,241,255,.08);}
-  #photoBtn{flex:0 0 auto; width:46px; height:46px; border-radius:12px; border:1px solid rgba(244,241,255,.15); background:var(--bg-panel-2); color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer;}
+  #photoBtn, #cameraBtn{flex:0 0 auto; width:46px; height:46px; border-radius:12px; border:1px solid rgba(244,241,255,.15); background:var(--bg-panel-2); color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer;}
   #chatInput{flex:1; min-width:0; background:var(--bg-panel-2); border:1px solid rgba(244,241,255,.12); border-radius:12px; padding:0 14px; color:var(--text); font-family:'Manrope',sans-serif; font-size:.95rem;}
   #chatInput:focus{outline:2px solid var(--cyan);}
   #chatForm button[type="submit"]{flex:0 0 auto; background:linear-gradient(135deg,var(--cyan),var(--violet)); border:none; border-radius:12px; padding:0 18px; font-weight:700; color:#0B0620; cursor:pointer;}
@@ -130,8 +130,12 @@
   </div>
   <form id="chatForm">
     <input type="file" id="photoInput" accept="image/*" hidden>
-    <button type="button" id="photoBtn" aria-label="Rasm yuborish">
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+    <button type="button" id="photoBtn" aria-label="Galereyadan tanlash">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h4l1.5-2h5L16 7h4v12H4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+    <button type="button" id="cameraBtn" aria-label="Kamerani ochish">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 8a2 2 0 0 1 2-2h1l1.5-2h7L17 6h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="2"/></svg>
     </button>
     <input type="text" id="chatInput" placeholder="Xabar yozing..." autocomplete="off">
     <button type="submit">Yuborish</button>
@@ -165,6 +169,8 @@
   const chatInput = document.getElementById('chatInput');
   const photoBtn = document.getElementById('photoBtn');
   const photoInput = document.getElementById('photoInput');
+  const cameraBtn = document.getElementById('cameraBtn');
+  const cameraInput = document.getElementById('cameraInput');
   const previewRow = document.getElementById('previewRow');
   const previewImg = document.getElementById('previewImg');
   const previewRemove = document.getElementById('previewRemove');
@@ -260,19 +266,24 @@
   }
 
   photoBtn.addEventListener('click', () => photoInput.click());
+  cameraBtn.addEventListener('click', () => cameraInput.click());
 
-  photoInput.addEventListener('change', async () => {
-    const file = photoInput.files[0];
+  async function handlePickedFile(input){
+    const file = input.files[0];
     if (!file) return;
     const dataUrl = await resizeImage(file);
     pendingImageBase64 = dataUrl.split(',')[1];
     previewImg.src = dataUrl;
     previewRow.classList.add('show');
-  });
+  }
+
+  photoInput.addEventListener('change', () => handlePickedFile(photoInput));
+  cameraInput.addEventListener('change', () => handlePickedFile(cameraInput));
 
   previewRemove.addEventListener('click', () => {
     pendingImageBase64 = null;
     photoInput.value = '';
+    cameraInput.value = '';
     previewRow.classList.remove('show');
   });
 
@@ -292,6 +303,7 @@
     chatInput.value = '';
     pendingImageBase64 = null;
     photoInput.value = '';
+    cameraInput.value = '';
     previewRow.classList.remove('show');
 
     const typingEl = addTyping();
