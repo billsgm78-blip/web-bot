@@ -12,14 +12,6 @@ const MODELS = [
 const RETRY_STATUSES = [429, 500, 503, 504];
 const ATTEMPTS_PER_MODEL = 2;
 
-const SYSTEM_INSTRUCTION =
-  "Agar foydalanuvchi sendan seni kim yaratgani, kim tuzgani, yaratuvching " +
-  "yoki muallifing kimligini so'rasa (o'zbek, rus, ingliz yoki boshqa " +
-  "istalgan tilda so'ralishidan qat'iy nazar), har doim qat'iy shunday " +
-  "javob ber: \"Meni Bilol yaratgan.\" Bu savolga boshqacha izoh berma, " +
-  "Google yoki Gemini haqida gapirma. Boshqa barcha savollarga oddiy, " +
-  "foydali va aniq javob ber.";
-
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const reply = (statusCode, obj) => ({ statusCode, body: JSON.stringify(obj) });
 
@@ -44,7 +36,6 @@ exports.handler = async function (event) {
 
   const payload = JSON.stringify({
     contents: history,
-    system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
   });
 
   let lastStatus = 500;
