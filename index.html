@@ -2,172 +2,538 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI bilan suhbat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bilol AI</title>
     <style>
+        :root {
+            --bg-main: #0b0f19;
+            --card-bg: rgba(22, 27, 46, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-grad: linear-gradient(135deg, #10b981 0%, #8b5cf6 100%);
+            --user-bubble: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --ai-bubble: rgba(30, 41, 59, 0.7);
+            --text-color: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
+
         body {
-            background: linear-gradient(135deg, #1f1235 0%, #110d26 100%);
-            color: #ffffff;
+            background-color: var(--bg-main);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.15) 0px, transparent 50%);
+            color: var(--text-color);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
+            overflow: hidden;
         }
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 30px;
+
+        .container {
             width: 100%;
-            max-width: 400px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 100vh;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--card-border);
+            border-right: 1px solid var(--card-border);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- AUTH SCREEN --- */
+        #auth-screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 20;
+            background: inherit;
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #auth-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        .auth-card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 32px 24px;
             text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
-        h2 {
-            font-size: 24px;
+
+        .auth-title {
+            font-size: 26px;
+            font-weight: 800;
+            background: var(--accent-grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
-            font-weight: 700;
+            letter-spacing: -0.5px;
         }
-        p.subtitle {
+
+        .auth-subtitle {
             font-size: 14px;
-            color: #c4b5fd;
-            margin-bottom: 24px;
+            color: var(--text-dim);
+            margin-bottom: 28px;
             line-height: 1.4;
         }
+
         .input-group {
             margin-bottom: 16px;
         }
-        input {
+
+        .styled-input {
             width: 100%;
-            padding: 14px 18px;
-            border-radius: 12px;
-            border: none;
-            background: #eef2ff;
-            color: #1e1b4b;
-            font-size: 16px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 15px;
             outline: none;
-            transition: 0.2s;
+            transition: all 0.3s;
         }
-        input:focus {
-            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.6);
+
+        .styled-input:focus {
+            border-color: #8b5cf6;
+            background: rgba(255, 255, 255, 0.09);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
         }
-        button.start-btn {
+
+        .primary-btn {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
+            border-radius: 16px;
             border: none;
-            border-radius: 14px;
-            background: linear-gradient(90deg, #4ade80 0%, #a855f7 100%);
-            color: #111827;
-            font-size: 18px;
+            background: var(--accent-grad);
+            color: #fff;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: 0.3s;
+            transition: transform 0.2s, box-shadow 0.2s;
             margin-top: 10px;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
         }
-        button.start-btn:hover {
-            opacity: 0.95;
-            transform: translateY(-1px);
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(16, 185, 129, 0.4);
         }
-        button.start-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+
+        .primary-btn:active {
+            transform: scale(0.98);
         }
-        #result-box {
-            margin-top: 18px;
+
+        .status-msg {
+            margin-top: 16px;
             font-size: 14px;
             min-height: 20px;
-            word-break: break-word;
+            transition: all 0.3s;
         }
-        .error {
-            color: #f43f5e;
+
+        /* --- CHAT SCREEN --- */
+        #chat-screen {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease 0.2s;
         }
-        .success {
-            color: #4ade80;
+
+        #chat-screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--card-border);
+            background: rgba(11, 15, 25, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: var(--accent-grad);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .title-block h3 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .title-block span {
+            font-size: 12px;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .title-block span::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            scroll-behavior: smooth;
+        }
+
+        .messages-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .msg-bubble {
+            max-width: 82%;
+            padding: 14px 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-user {
+            align-self: flex-end;
+            background: var(--user-bubble);
+            border-radius: 20px 20px 4px 20px;
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.25);
+        }
+
+        .msg-ai {
+            align-self: flex-start;
+            background: var(--ai-bubble);
+            border-radius: 20px 20px 20px 4px;
+            border: 1px solid var(--card-border);
+            color: #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 12px 18px;
+            background: var(--ai-bubble);
+            border-radius: 18px;
+            align-self: flex-start;
+            width: fit-content;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            background: var(--text-dim);
+            border-radius: 50%;
+            animation: pulse 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* --- INPUT BAR --- */
+        .input-bar {
+            padding: 14px 20px;
+            background: rgba(11, 15, 25, 0.7);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-bar input {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-bar input:focus {
+            border-color: #8b5cf6;
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            border: none;
+            background: var(--accent-grad);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        .send-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>AI bilan suhbat</h2>
-    <p class="subtitle">Boshlash uchun ismingiz va telefon raqamingizni kiriting.</p>
+<div class="container">
+    <!-- EKRAN 1: RO'YXATDAN O'TISH -->
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h1 class="auth-title">Bilol AI</h1>
+            <p class="auth-subtitle">Aqlli suhbatdosh bilan bog'lanish uchun o'zingizni tanishtiring</p>
 
-    <div class="input-group">
-        <input type="text" id="name-input" placeholder="Ismingiz">
-    </div>
-    <div class="input-group">
-        <input type="text" id="phone-input" placeholder="Telefon raqamingiz (masalan, +998901234567)">
+            <div class="input-group">
+                <input type="text" id="name-input" class="styled-input" placeholder="Ismingiz">
+            </div>
+            <div class="input-group">
+                <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqamingiz">
+            </div>
+
+            <button id="start-btn" class="primary-btn">Boshlash</button>
+            <div id="status-box" class="status-msg"></div>
+        </div>
     </div>
 
-    <button id="start-btn" class="start-btn">Boshlash</button>
-    <div id="result-box"></div>
+    <!-- EKRAN 2: CHAT OYNASI -->
+    <div id="chat-screen">
+        <header class="chat-header">
+            <div class="chat-header-info">
+                <div class="avatar">⚡</div>
+                <div class="title-block">
+                    <h3>Bilol AI</h3>
+                    <span>Onlayn</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="messages-container" id="messages-container">
+            <div class="msg-bubble msg-ai" id="welcome-bubble">
+                Salom! Men sizning aqlli yordamchingizman. Menga xohlagan savolingizni berishingiz mumkin! 🚀
+            </div>
+        </main>
+
+        <footer class="input-bar">
+            <input type="text" id="chat-input" placeholder="Savol yoki xabar yozing..." autocomplete="off">
+            <button id="send-btn" class="send-btn" aria-label="Yuborish">
+                <svg viewBox="0 0 24 24">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </footer>
+    </div>
 </div>
 
 <script>
+    const authScreen = document.getElementById("auth-screen");
+    const chatScreen = document.getElementById("chat-screen");
     const startBtn = document.getElementById("start-btn");
     const nameInput = document.getElementById("name-input");
     const phoneInput = document.getElementById("phone-input");
-    const resultBox = document.getElementById("result-box");
+    const statusBox = document.getElementById("status-box");
+    const messagesContainer = document.getElementById("messages-container");
+    const chatInput = document.getElementById("chat-input");
+    const sendBtn = document.getElementById("send-btn");
 
+    let chatHistory = [];
+
+    // RO'YXATDAN O'TISH VA CHATGA KIRISH
     startBtn.addEventListener("click", async () => {
         const name = nameInput.value.trim();
         const phone = phoneInput.value.trim();
 
         if (!phone) {
-            resultBox.className = "error";
-            resultBox.innerText = "Iltimos, telefon raqamingizni kiriting!";
+            statusBox.style.color = "#f43f5e";
+            statusBox.innerText = "Iltimos, telefon raqamingizni kiriting!";
             return;
         }
 
-        resultBox.className = "";
-        resultBox.innerText = "Yuborilmoqda... ⏳";
+        statusBox.style.color = "#94a3b8";
+        statusBox.innerText = "Tekshirilmoqda... ⏳";
         startBtn.disabled = true;
 
         try {
-            // Запрос отправляется напрямую к серверной функции Vercel
-            const response = await fetch("/api/register", {
+            const resp = await fetch("/api/register", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, phone })
             });
 
-            const rawText = await response.text();
-            let data = {};
-            try {
-                data = JSON.parse(rawText);
-            } catch (jsonErr) {
-                throw new Error("Serverdan kutilmagan javob keldi (404 yoki xato sahifasi)");
+            const data = await resp.json().catch(() => ({}));
+
+            if (!resp.ok) {
+                throw new Error(data.error || "Ulanishda xatolik yuz berdi");
             }
 
-            if (!response.ok) {
-                throw new Error(data.error || `Server xatosi: ${response.status}`);
-            }
+            statusBox.style.color = "#10b981";
+            statusBox.innerText = "Muvaffaqiyatli! Chatga ulanmoqda... ✅";
 
-            resultBox.className = "success";
-            resultBox.innerText = "Muvaffaqiyatli ro'yxatdan o'tdingiz! ✅";
-            
-            // Если требуется переход на страницу чата или очистка полей:
+            // Silliq o'tish animatsiyasi
             setTimeout(() => {
-                nameInput.value = "";
-                phoneInput.value = "";
-            }, 2000);
+                authScreen.classList.add("hidden");
+                chatScreen.classList.add("active");
+                if (name) {
+                    document.getElementById("welcome-bubble").innerText = 
+                        `Assalomu alaykum, ${name}! Men sizning aqlli yordamchingizman. Menga xohlagan savolingizni berishingiz mumkin! 🚀`;
+                }
+                chatInput.focus();
+            }, 800);
 
         } catch (err) {
-            resultBox.className = "error";
-            resultBox.innerText = `Xatolik: ${err.message}`;
-        } finally {
+            statusBox.style.color = "#f43f5e";
+            statusBox.innerText = `Xatolik: ${err.message}`;
             startBtn.disabled = false;
         }
+    });
+
+    // CHATGA XABAR QO'SHISH FUNKSIYALARI
+    function appendMessage(text, role) {
+        const bubble = document.createElement("div");
+        bubble.className = `msg-bubble msg-${role}`;
+        bubble.innerText = text;
+        messagesContainer.appendChild(bubble);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const typing = document.createElement("div");
+        typing.className = "typing-indicator";
+        typing.id = "active-typing";
+        typing.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+        messagesContainer.appendChild(typing);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typing = document.getElementById("active-typing");
+        if (typing) typing.remove();
+    }
+
+    // AI GA XABAR YUBORISH
+    async function sendMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        chatInput.value = "";
+        appendMessage(text, "user");
+
+        // Format Gemini uchun:
+        chatHistory.push({ role: "user", parts: [{ text }] });
+        showTypingIndicator();
+
+        try {
+            const resp = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ history: chatHistory })
+            });
+
+            removeTypingIndicator();
+
+            const data = await resp.json().catch(() => ({}));
+
+            if (!resp.ok) {
+                appendMessage(`⚠️ Xatolik: ${data.error || "Javob olib bo'lmadi"}`, "ai");
+                chatHistory.pop();
+                return;
+            }
+
+            const aiReply = data.text || "Javob bo'sh qaytdi.";
+            appendMessage(aiReply, "ai");
+            chatHistory.push({ role: "model", parts: [{ text: aiReply }] });
+
+        } catch (err) {
+            removeTypingIndicator();
+            appendMessage("⚠️️ Tarmoq xatosi: Serverga ulanib bo'lmadi.", "ai");
+            chatHistory.pop();
+        }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") sendMessage();
     });
 </script>
 
