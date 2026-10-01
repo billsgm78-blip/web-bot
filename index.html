@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>AI Bot — suhbat</title>
+<title>AI Bot — Suhbat va Hamyon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,6 +15,7 @@
     --cyan:#45F0C4;
     --violet:#9B6BFF;
     --pink:#FF6FB0;
+    --gold:#FFD166;
     --text:#F4F1FF;
     --muted:#A79EC9;
   }
@@ -51,14 +52,53 @@
       box-shadow:0 40px 90px -30px rgba(0,0,0,.7);}
   }
 
-  /* ---------- Header ---------- */
-  header{flex:0 0 auto; padding:16px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(244,241,255,.08);}
-  header .dot{width:9px; height:9px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px var(--cyan);}
-  header .title{font-family:'Sora',sans-serif; font-weight:700;}
+  /* ---------- Header (Chapda AI Bot, O'ng tarafda Hamyon) ---------- */
+  header{
+    flex:0 0 auto; 
+    padding:14px 20px; 
+    display:flex; 
+    align-items:center; 
+    justify-content:space-between; /* Chap va o'ngga tarqatish */
+    border-bottom:1px solid rgba(244,241,255,.08);
+  }
+  .header-left{display:flex; align-items:center; gap:10px;}
+  .header-left .dot{width:9px; height:9px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px var(--cyan);}
+  .header-left .title{font-family:'Sora',sans-serif; font-weight:700;}
+
+  /* Header O'ng taraf: Hamyon widgeti */
+  .wallet-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 209, 102, 0.35);
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(8px);
+  }
+  .wallet-pill:hover {
+    background: rgba(255, 209, 102, 0.15);
+    border-color: var(--gold);
+    transform: translateY(-1px);
+  }
+  .wallet-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+  }
+  .wallet-balance {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
 
   /* ---------- Screens ---------- */
   .screen{flex:1; display:flex; min-height:0;}
-  .screen[hidden]{display:none;}
+  .screen[hidden]{display:none !important;}
 
   /* ---------- Registration ---------- */
   #regScreen{align-items:center; justify-content:center; padding:24px;}
@@ -111,9 +151,26 @@
 
 <div class="app">
 
+<!-- Header: Chap tarafda AI Bot nomi, o'ng tarafda Hamyon tugmasi -->
 <header>
-  <span class="dot"></span>
-  <span class="title">AI Bot</span>
+  <div class="header-left">
+    <span class="dot"></span>
+    <span class="title">AI Bot</span>
+  </div>
+  
+  <div class="header-right">
+    <!-- Hamyon tugmasi (chapdan o'ng tomonda) -->
+    <div class="wallet-pill" id="walletBtn" title="Hamyon balansi va to'lovlar" style="display:none;">
+      <span class="wallet-icon">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          <circle cx="16" cy="14" r="1.5"></circle>
+        </svg>
+      </span>
+      <span class="wallet-balance" id="walletBalanceText">Hamyon</span>
+    </div>
+  </div>
 </header>
 
 <div class="screen" id="regScreen">
@@ -159,6 +216,7 @@
 
 </div>
 
+<!-- Yulduzlar generatori -->
 <script>
   (function(){
     const box = document.getElementById('stars');
@@ -171,6 +229,7 @@
   })();
 </script>
 
+<!-- Asosiy mantiq -->
 <script>
   const regScreen = document.getElementById('regScreen');
   const chatScreen = document.getElementById('chatScreen');
@@ -178,6 +237,7 @@
   const regName = document.getElementById('regName');
   const regPhone = document.getElementById('regPhone');
   const regError = document.getElementById('regError');
+  const walletBtn = document.getElementById('walletBtn');
 
   const chatBody = document.getElementById('chatBody');
   const chatForm = document.getElementById('chatForm');
@@ -196,10 +256,22 @@
   function showChat(name){
     regScreen.hidden = true;
     chatScreen.hidden = false;
+    walletBtn.style.display = 'inline-flex'; // Ro'yxatdan o'tgach hamyon tugmasi faollashadi
     if (!chatBody.hasChildNodes()){
       addMessage('bot', (name ? `Salom, ${name}! ` : 'Salom! ') + 'Savolingizni yozing yoki rasm yuboring.');
     }
   }
+
+  // Hamyon tugmasi bosilganda wallet.js modal oynasini chaqirish
+  walletBtn.addEventListener('click', () => {
+    if (window.openWalletModal) {
+      window.openWalletModal();
+    } else if (window.Wallet && typeof window.Wallet.open === 'function') {
+      window.Wallet.open();
+    } else {
+      console.log("Hamyon ochilmoqda...");
+    }
+  });
 
   const savedPhone = localStorage.getItem('web_user_phone');
   const savedName = localStorage.getItem('web_user_name') || '';
@@ -298,7 +370,6 @@
       };
       cameraOverlay.hidden = false;
     } catch (err) {
-      // Brauzer/qurilma jonli kamerani qo'llamasa, standart fayl tanlovchiga qaytamiz
       cameraInput.click();
     }
   }
@@ -375,7 +446,10 @@
       const resp = await fetch('/.netlify/functions/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ history }),
+        body: JSON.stringify({ 
+          history,
+          phone: localStorage.getItem('web_user_phone') 
+        }),
       });
       const data = await resp.json();
       typingEl.remove();
