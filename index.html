@@ -1,473 +1,175 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>AI Bot — Suhbat va Hamyon</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg-deep:#0B0620;
-    --bg-panel:#150C33;
-    --bg-panel-2:#1C1140;
-    --cyan:#45F0C4;
-    --violet:#9B6BFF;
-    --pink:#FF6FB0;
-    --gold:#FFD166;
-    --text:#F4F1FF;
-    --muted:#A79EC9;
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{height:100%;}
-  body{
-    background:var(--bg-deep);
-    color:var(--text);
-    font-family:'Manrope',sans-serif;
-    display:flex; flex-direction:column;
-    overflow:hidden;
-  }
-  h1{font-family:'Sora',sans-serif;}
-
-  /* ---------- Animated background ---------- */
-  .bg{position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;
-    background:radial-gradient(120% 90% at 50% 0%, #1a0f45 0%, var(--bg-deep) 62%);}
-  .orb{position:absolute; border-radius:50%; filter:blur(70px); mix-blend-mode:screen; will-change:transform;}
-  .o1{width:52vmax; height:52vmax; background:var(--violet); opacity:.5; top:-18vmax; left:-14vmax; animation:d1 24s ease-in-out infinite;}
-  .o2{width:46vmax; height:46vmax; background:var(--cyan); opacity:.32; bottom:-16vmax; right:-12vmax; animation:d2 28s ease-in-out infinite;}
-  .o3{width:38vmax; height:38vmax; background:var(--pink); opacity:.28; top:35%; left:40%; animation:d3 32s ease-in-out infinite;}
-  @keyframes d1{50%{transform:translate(18vmax,12vmax) scale(1.15);}}
-  @keyframes d2{50%{transform:translate(-16vmax,-10vmax) scale(1.2);}}
-  @keyframes d3{50%{transform:translate(-14vmax,10vmax) scale(.85);}}
-  .stars i{position:absolute; border-radius:50%; background:#fff; opacity:.2; animation:twinkle ease-in-out infinite;}
-  @keyframes twinkle{0%,100%{opacity:.12; transform:scale(1);} 50%{opacity:.9; transform:scale(1.7);}}
-  @media (prefers-reduced-motion:reduce){.orb,.stars i{animation:none;}}
-
-  .app{flex:1; min-height:0; width:100%; max-width:760px; margin:0 auto; position:relative; z-index:1;
-    display:flex; flex-direction:column;
-    background:rgba(11,6,32,.55); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);}
-  @media (min-width:800px){
-    .app{margin:24px auto; border-radius:26px; border:1px solid rgba(244,241,255,.12); overflow:hidden;
-      box-shadow:0 40px 90px -30px rgba(0,0,0,.7);}
-  }
-
-  /* ---------- Header (Chapda AI Bot, O'ng tarafda Hamyon) ---------- */
-  header{
-    flex:0 0 auto; 
-    padding:14px 20px; 
-    display:flex; 
-    align-items:center; 
-    justify-content:space-between; /* Chap va o'ngga tarqatish */
-    border-bottom:1px solid rgba(244,241,255,.08);
-  }
-  .header-left{display:flex; align-items:center; gap:10px;}
-  .header-left .dot{width:9px; height:9px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px var(--cyan);}
-  .header-left .title{font-family:'Sora',sans-serif; font-weight:700;}
-
-  /* Header O'ng taraf: Hamyon widgeti */
-  .wallet-pill {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 209, 102, 0.35);
-    padding: 6px 14px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    backdrop-filter: blur(8px);
-  }
-  .wallet-pill:hover {
-    background: rgba(255, 209, 102, 0.15);
-    border-color: var(--gold);
-    transform: translateY(-1px);
-  }
-  .wallet-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gold);
-  }
-  .wallet-balance {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 0.3px;
-  }
-
-  /* ---------- Screens ---------- */
-  .screen{flex:1; display:flex; min-height:0;}
-  .screen[hidden]{display:none !important;}
-
-  /* ---------- Registration ---------- */
-  #regScreen{align-items:center; justify-content:center; padding:24px;}
-  .reg-card{width:100%; max-width:360px; text-align:center;}
-  .reg-card h1{font-size:1.5rem; margin-bottom:8px;}
-  .reg-card p{color:var(--muted); font-size:.95rem; margin-bottom:26px;}
-  #regForm{display:flex; flex-direction:column; gap:12px;}
-  #regForm input{background:var(--bg-panel); border:1px solid rgba(244,241,255,.12); border-radius:14px; padding:14px 16px; color:var(--text); font-family:'Manrope',sans-serif; font-size:1rem;}
-  #regForm input:focus{outline:2px solid var(--cyan);}
-  #regForm button{margin-top:6px; background:linear-gradient(135deg,var(--cyan),var(--violet)); border:none; border-radius:14px; padding:15px; font-weight:700; color:#0B0620; font-size:1rem; cursor:pointer;}
-  .reg-error{color:var(--pink); font-size:.85rem; min-height:1.2em; margin-top:10px;}
-
-  /* ---------- Chat ---------- */
-  #chatScreen{flex-direction:column; min-height:0;}
-  .chat-body{flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px;}
-  .msg{max-width:82%; padding:11px 15px; border-radius:16px; font-size:.94rem; line-height:1.45;}
-  .msg.bot{align-self:flex-start; background:var(--bg-panel-2); border-bottom-left-radius:4px;}
-  .msg.user{align-self:flex-end; background:linear-gradient(135deg,var(--cyan),var(--violet)); color:#0B0620; font-weight:600; border-bottom-right-radius:4px;}
-  .msg img{max-width:100%; border-radius:10px; display:block; margin-top:6px;}
-  .msg.typing{align-self:flex-start; background:var(--bg-panel-2); border-bottom-left-radius:4px; display:flex; gap:4px; padding:13px 15px;}
-  .msg.typing span{width:6px; height:6px; border-radius:50%; background:var(--muted); animation:blink 1.2s infinite;}
-  .msg.typing span:nth-child(2){animation-delay:.2s;} .msg.typing span:nth-child(3){animation-delay:.4s;}
-  @keyframes blink{0%,80%,100%{opacity:.25;} 40%{opacity:1;}}
-
-  .preview-row{padding:0 16px; display:none; align-items:center; gap:10px;}
-  .preview-row.show{display:flex;}
-  .preview-row img{width:52px; height:52px; object-fit:cover; border-radius:10px;}
-  .preview-row button{background:none; border:none; color:var(--pink); font-size:.85rem; cursor:pointer;}
-
-  #chatForm{flex:0 0 auto; display:flex; gap:8px; padding:12px 14px; border-top:1px solid rgba(244,241,255,.08);}
-  #photoBtn, #cameraBtn{flex:0 0 auto; width:46px; height:46px; border-radius:12px; border:1px solid rgba(244,241,255,.15); background:var(--bg-panel-2); color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer;}
-
-  .camera-overlay{position:fixed; inset:0; z-index:100000; background:#000; display:flex; flex-direction:column;}
-  .camera-overlay[hidden]{display:none;}
-  .camera-overlay video{flex:1; width:100%; object-fit:cover; background:#000;}
-  #cameraClose{position:absolute; top:18px; right:18px; z-index:2; width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.3); color:#fff; font-size:1.1rem; cursor:pointer;}
-  .camera-controls{flex:0 0 auto; padding:22px; display:flex; justify-content:center; background:#000;}
-  #captureBtn{width:70px; height:70px; border-radius:50%; background:#fff; border:5px solid rgba(255,255,255,.35); cursor:pointer;}
-  #chatInput{flex:1; min-width:0; background:var(--bg-panel-2); border:1px solid rgba(244,241,255,.12); border-radius:12px; padding:0 14px; color:var(--text); font-family:'Manrope',sans-serif; font-size:.95rem;}
-  #chatInput:focus{outline:2px solid var(--cyan);}
-  #chatForm button[type="submit"]{flex:0 0 auto; background:linear-gradient(135deg,var(--cyan),var(--violet)); border:none; border-radius:12px; padding:0 18px; font-weight:700; color:#0B0620; cursor:pointer;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI bilan suhbat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1f1235 0%, #110d26 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        p.subtitle {
+            font-size: 14px;
+            color: #c4b5fd;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: none;
+            background: #eef2ff;
+            color: #1e1b4b;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+        }
+        input:focus {
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.6);
+        }
+        button.start-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(90deg, #4ade80 0%, #a855f7 100%);
+            color: #111827;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        button.start-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+        button.start-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #result-box {
+            margin-top: 18px;
+            font-size: 14px;
+            min-height: 20px;
+            word-break: break-word;
+        }
+        .error {
+            color: #f43f5e;
+        }
+        .success {
+            color: #4ade80;
+        }
+    </style>
 </head>
 <body>
 
-<div class="bg" aria-hidden="true">
-  <i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i>
-  <div class="stars" id="stars"></div>
-</div>
+<div class="card">
+    <h2>AI bilan suhbat</h2>
+    <p class="subtitle">Boshlash uchun ismingiz va telefon raqamingizni kiriting.</p>
 
-<div class="app">
-
-<!-- Header: Chap tarafda AI Bot nomi, o'ng tarafda Hamyon tugmasi -->
-<header>
-  <div class="header-left">
-    <span class="dot"></span>
-    <span class="title">AI Bot</span>
-  </div>
-  
-  <div class="header-right">
-    <!-- Hamyon tugmasi (chapdan o'ng tomonda) -->
-    <div class="wallet-pill" id="walletBtn" title="Hamyon balansi va to'lovlar" style="display:none;">
-      <span class="wallet-icon">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          <circle cx="16" cy="14" r="1.5"></circle>
-        </svg>
-      </span>
-      <span class="wallet-balance" id="walletBalanceText">Hamyon</span>
+    <div class="input-group">
+        <input type="text" id="name-input" placeholder="Ismingiz">
     </div>
-  </div>
-</header>
+    <div class="input-group">
+        <input type="text" id="phone-input" placeholder="Telefon raqamingiz (masalan, +998901234567)">
+    </div>
 
-<div class="screen" id="regScreen">
-  <div class="reg-card">
-    <h1>AI bilan suhbat</h1>
-    <p>Boshlash uchun ismingiz va telefon raqamingizni kiriting.</p>
-    <form id="regForm">
-      <input type="text" id="regName" placeholder="Ismingiz" autocomplete="name" required>
-      <input type="tel" id="regPhone" placeholder="+998 90 123 45 67" autocomplete="tel" required>
-      <button type="submit">Boshlash</button>
-    </form>
-    <div class="reg-error" id="regError"></div>
-  </div>
+    <button id="start-btn" class="start-btn">Boshlash</button>
+    <div id="result-box"></div>
 </div>
 
-<div class="screen" id="chatScreen" hidden style="flex-direction:column;">
-  <div class="chat-body" id="chatBody"></div>
-  <div class="preview-row" id="previewRow">
-    <img id="previewImg" alt="">
-    <button type="button" id="previewRemove">olib tashlash</button>
-  </div>
-  <form id="chatForm">
-    <input type="file" id="photoInput" accept="image/*" hidden>
-    <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
-    <button type="button" id="photoBtn" aria-label="Galereyadan tanlash">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.6" stroke="currentColor" stroke-width="2"/><path d="M21 15l-5.2-5.2a1.5 1.5 0 0 0-2.1 0L5 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-    <button type="button" id="cameraBtn" aria-label="Kamerani ochish">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 8a2 2 0 0 1 2-2h1l1.5-2h7L17 6h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="2"/></svg>
-    </button>
-    <input type="text" id="chatInput" placeholder="Xabar yozing..." autocomplete="off">
-    <button type="submit">Yuborish</button>
-  </form>
-</div>
-
-<div class="camera-overlay" id="cameraOverlay" hidden>
-  <button type="button" id="cameraClose" aria-label="Yopish">✕</button>
-  <video id="cameraVideo" autoplay playsinline muted></video>
-  <div class="camera-controls">
-    <button type="button" id="captureBtn" aria-label="Suratga olish"></button>
-  </div>
-</div>
-
-</div>
-
-<!-- Yulduzlar generatori -->
 <script>
-  (function(){
-    const box = document.getElementById('stars');
-    for (let i = 0; i < 50; i++){
-      const s = document.createElement('i');
-      const size = Math.random() * 2.2 + 0.8;
-      s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${size}px;height:${size}px;animation-duration:${3+Math.random()*5}s;animation-delay:${-Math.random()*6}s`;
-      box.appendChild(s);
-    }
-  })();
-</script>
+    const startBtn = document.getElementById("start-btn");
+    const nameInput = document.getElementById("name-input");
+    const phoneInput = document.getElementById("phone-input");
+    const resultBox = document.getElementById("result-box");
 
-<!-- Asosiy mantiq -->
-<script>
-  const regScreen = document.getElementById('regScreen');
-  const chatScreen = document.getElementById('chatScreen');
-  const regForm = document.getElementById('regForm');
-  const regName = document.getElementById('regName');
-  const regPhone = document.getElementById('regPhone');
-  const regError = document.getElementById('regError');
-  const walletBtn = document.getElementById('walletBtn');
+    startBtn.addEventListener("click", async () => {
+        const name = nameInput.value.trim();
+        const phone = phoneInput.value.trim();
 
-  const chatBody = document.getElementById('chatBody');
-  const chatForm = document.getElementById('chatForm');
-  const chatInput = document.getElementById('chatInput');
-  const photoBtn = document.getElementById('photoBtn');
-  const photoInput = document.getElementById('photoInput');
-  const cameraBtn = document.getElementById('cameraBtn');
-  const cameraInput = document.getElementById('cameraInput');
-  const previewRow = document.getElementById('previewRow');
-  const previewImg = document.getElementById('previewImg');
-  const previewRemove = document.getElementById('previewRemove');
+        if (!phone) {
+            resultBox.className = "error";
+            resultBox.innerText = "Iltimos, telefon raqamingizni kiriting!";
+            return;
+        }
 
-  let history = [];
-  let pendingImageBase64 = null;
+        resultBox.className = "";
+        resultBox.innerText = "Yuborilmoqda... ⏳";
+        startBtn.disabled = true;
 
-  function showChat(name){
-    regScreen.hidden = true;
-    chatScreen.hidden = false;
-    walletBtn.style.display = 'inline-flex'; // Ro'yxatdan o'tgach hamyon tugmasi faollashadi
-    if (!chatBody.hasChildNodes()){
-      addMessage('bot', (name ? `Salom, ${name}! ` : 'Salom! ') + 'Savolingizni yozing yoki rasm yuboring.');
-    }
-  }
+        try {
+            // Запрос отправляется напрямую к серверной функции Vercel
+            const response = await fetch("/api/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ name, phone })
+            });
 
-  // Hamyon tugmasi bosilganda wallet.js modal oynasini chaqirish
-  walletBtn.addEventListener('click', () => {
-    if (window.openWalletModal) {
-      window.openWalletModal();
-    } else if (window.Wallet && typeof window.Wallet.open === 'function') {
-      window.Wallet.open();
-    } else {
-      console.log("Hamyon ochilmoqda...");
-    }
-  });
+            const rawText = await response.text();
+            let data = {};
+            try {
+                data = JSON.parse(rawText);
+            } catch (jsonErr) {
+                throw new Error("Serverdan kutilmagan javob keldi (404 yoki xato sahifasi)");
+            }
 
-  const savedPhone = localStorage.getItem('web_user_phone');
-  const savedName = localStorage.getItem('web_user_name') || '';
-  if (savedPhone) showChat(savedName);
+            if (!response.ok) {
+                throw new Error(data.error || `Server xatosi: ${response.status}`);
+            }
 
-  regForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    regName.blur();
-    regPhone.blur();
-    const name = regName.value.trim();
-    const phone = regPhone.value.trim();
-    regError.textContent = '';
+            resultBox.className = "success";
+            resultBox.innerText = "Muvaffaqiyatli ro'yxatdan o'tdingiz! ✅";
+            
+            // Если требуется переход на страницу чата или очистка полей:
+            setTimeout(() => {
+                nameInput.value = "";
+                phoneInput.value = "";
+            }, 2000);
 
-    if (!phone){
-      regError.textContent = 'Telefon raqamingizni kiriting.';
-      return;
-    }
-
-    try {
-      const resp = await fetch('/.netlify/functions/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone }),
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data.error || 'Xatolik yuz berdi');
-
-      localStorage.setItem('web_user_phone', phone);
-      localStorage.setItem('web_user_name', name);
-      showChat(name);
-    } catch (err) {
-      regError.textContent = 'Xatolik: ' + err.message;
-    }
-  });
-
-  function addMessage(role, text, imgSrc){
-    const div = document.createElement('div');
-    div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
-    if (text) div.appendChild(document.createTextNode(text));
-    if (imgSrc){
-      const img = document.createElement('img');
-      img.src = imgSrc;
-      div.appendChild(img);
-    }
-    chatBody.appendChild(div);
-    chatBody.scrollTop = chatBody.scrollHeight;
-    return div;
-  }
-
-  function addTyping(){
-    const div = document.createElement('div');
-    div.className = 'msg typing';
-    div.innerHTML = '<span></span><span></span><span></span>';
-    chatBody.appendChild(div);
-    chatBody.scrollTop = chatBody.scrollHeight;
-    return div;
-  }
-
-  function resizeImage(file){
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = reject;
-      reader.onload = () => {
-        const img = new Image();
-        img.onerror = reject;
-        img.onload = () => {
-          const maxW = 1024;
-          const scale = Math.min(1, maxW / img.width);
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', 0.75));
-        };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
+        } catch (err) {
+            resultBox.className = "error";
+            resultBox.innerText = `Xatolik: ${err.message}`;
+        } finally {
+            startBtn.disabled = false;
+        }
     });
-  }
-
-  const cameraOverlay = document.getElementById('cameraOverlay');
-  const cameraVideo = document.getElementById('cameraVideo');
-  const cameraClose = document.getElementById('cameraClose');
-  const captureBtn = document.getElementById('captureBtn');
-  let mediaStream = null;
-
-  async function openCamera(){
-    try {
-      mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' } },
-        audio: false,
-      });
-      cameraVideo.srcObject = mediaStream;
-      cameraVideo.onloadedmetadata = () => {
-        cameraVideo.play().catch(() => {});
-      };
-      cameraOverlay.hidden = false;
-    } catch (err) {
-      cameraInput.click();
-    }
-  }
-
-  function closeCamera(){
-    if (mediaStream){
-      mediaStream.getTracks().forEach((t) => t.stop());
-      mediaStream = null;
-    }
-    cameraOverlay.hidden = true;
-  }
-
-  captureBtn.addEventListener('click', () => {
-    const w = cameraVideo.videoWidth, h = cameraVideo.videoHeight;
-    if (!w || !h) return;
-    const maxW = 1024;
-    const scale = Math.min(1, maxW / w);
-    const canvas = document.createElement('canvas');
-    canvas.width = w * scale;
-    canvas.height = h * scale;
-    canvas.getContext('2d').drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-    pendingImageBase64 = dataUrl.split(',')[1];
-    previewImg.src = dataUrl;
-    previewRow.classList.add('show');
-    closeCamera();
-  });
-
-  cameraClose.addEventListener('click', closeCamera);
-  photoBtn.addEventListener('click', () => photoInput.click());
-  cameraBtn.addEventListener('click', openCamera);
-
-  async function handlePickedFile(input){
-    const file = input.files[0];
-    if (!file) return;
-    const dataUrl = await resizeImage(file);
-    pendingImageBase64 = dataUrl.split(',')[1];
-    previewImg.src = dataUrl;
-    previewRow.classList.add('show');
-  }
-
-  photoInput.addEventListener('change', () => handlePickedFile(photoInput));
-  cameraInput.addEventListener('change', () => handlePickedFile(cameraInput));
-
-  previewRemove.addEventListener('click', () => {
-    pendingImageBase64 = null;
-    photoInput.value = '';
-    cameraInput.value = '';
-    previewRow.classList.remove('show');
-  });
-
-  chatForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    chatInput.blur();
-    const text = chatInput.value.trim();
-    if (!text && !pendingImageBase64) return;
-
-    const parts = [];
-    if (pendingImageBase64) parts.push({ inline_data: { mime_type: 'image/jpeg', data: pendingImageBase64 } });
-    parts.push({ text: text || "Rasmda nima tasvirlangan? O'zbek tilida qisqa tushuntir." });
-
-    addMessage('user', text, pendingImageBase64 ? previewImg.src : null);
-    history.push({ role: 'user', parts });
-
-    chatInput.value = '';
-    pendingImageBase64 = null;
-    photoInput.value = '';
-    cameraInput.value = '';
-    previewRow.classList.remove('show');
-
-    const typingEl = addTyping();
-
-    try {
-      const resp = await fetch('/.netlify/functions/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          history,
-          phone: localStorage.getItem('web_user_phone') 
-        }),
-      });
-      const data = await resp.json();
-      typingEl.remove();
-      if (!resp.ok) throw new Error(data.error || 'Xatolik yuz berdi');
-
-      addMessage('bot', data.text);
-      history.push({ role: 'model', parts: [{ text: data.text }] });
-      if (history.length > 20) history = history.slice(-20);
-    } catch (err) {
-      typingEl.remove();
-      addMessage('bot', 'Xatolik: ' + err.message);
-    }
-  });
 </script>
-
-<!-- Hamyon: balans tugmasi, sovg'alar, pul tushganda musiqa -->
-<script>window.WALLET_API = "https://ai2-production-80d2.up.railway.app";</script>
-<script src="wallet.js"></script>
 
 </body>
 </html>
