@@ -51,7 +51,7 @@
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
         }
 
-        /* --- AUTH EKRANI --- */
+        /* --- AUTH SCREEN --- */
         #auth-screen {
             position: absolute;
             inset: 0;
@@ -109,7 +109,7 @@
             cursor: pointer;
         }
 
-        /* --- CHAT EKRANI --- */
+        /* --- CHAT SCREEN --- */
         #chat-screen {
             display: flex;
             flex-direction: column;
@@ -287,7 +287,7 @@
             font-weight: bold;
         }
 
-        /* --- PASTKI INPUT BAR --- */
+        /* --- INPUT BAR --- */
         .input-bar {
             padding: 10px 14px;
             background: rgba(11, 15, 25, 0.85);
@@ -358,7 +358,7 @@
             flex-shrink: 0;
         }
 
-        /* --- LIVE KAMERA MODAL OYNASI --- */
+        /* --- LIVE CAMERA MODAL --- */
         #camera-modal {
             position: absolute;
             inset: 0;
@@ -444,7 +444,7 @@
             border-radius: 50%;
         }
 
-        /* --- HAMYON MODAL --- */
+        /* --- WALLET MODAL --- */
         #wallet-modal {
             position: absolute;
             inset: 0;
@@ -550,7 +550,7 @@
             </div>
         </main>
 
-        <!-- RASM PREVYU BLOKI -->
+        <!-- PREVIEW BAR -->
         <div id="image-preview-container">
             <div class="preview-box">
                 <img id="preview-img-element" src="" alt="Prevyu">
@@ -559,21 +559,19 @@
             <span style="font-size: 12px; color: #c4b5fd;">Rasm biriktirildi. Savol yozing yoki darhol yuboring.</span>
         </div>
 
-        <!-- PASTKI INPUT BAR -->
+        <!-- INPUT BAR -->
         <footer class="input-bar">
-            <!-- Galereya uchun oddiy input -->
             <input type="file" id="gallery-input" accept="image/*" style="display: none;">
 
-            <!-- Media Tugmalari -->
             <div class="media-buttons">
-                <!-- Jonli Kamera Tugmasi -->
+                <!-- Live Camera -->
                 <button type="button" class="media-btn" id="live-camera-btn" title="Jonli kamerani ochish">
                     <svg viewBox="0 0 24 24">
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                         <circle cx="12" cy="13" r="4"></circle>
                     </svg>
                 </button>
-                <!-- Galereya Tugmasi -->
+                <!-- Gallery -->
                 <button type="button" class="media-btn" id="gallery-btn" title="Galereyadan tanlash">
                     <svg viewBox="0 0 24 24">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -593,7 +591,7 @@
         </footer>
     </div>
 
-    <!-- 📷 LIVE KAMERA MODAL OYNASI -->
+    <!-- LIVE CAMERA MODAL -->
     <div id="camera-modal">
         <div class="cam-top-bar">
             <button class="cam-close-btn" id="close-camera-btn">&times;</button>
@@ -610,7 +608,7 @@
         <canvas id="camera-canvas" style="display: none;"></canvas>
     </div>
 
-    <!-- HAMYON MODAL -->
+    <!-- WALLET MODAL -->
     <div id="wallet-modal">
         <div class="modal-header">
             <h2>Hamyon</h2>
@@ -675,14 +673,14 @@
     const sendBtn = document.getElementById("send-btn");
     const logoutBtn = document.getElementById("logout-btn");
 
-    // Media elementlari
+    // Media
     const galleryBtn = document.getElementById("gallery-btn");
     const galleryInput = document.getElementById("gallery-input");
     const previewContainer = document.getElementById("image-preview-container");
     const previewImgElement = document.getElementById("preview-img-element");
     const cancelImageBtn = document.getElementById("cancel-image-btn");
 
-    // Live Camera Elementlari
+    // Live Camera
     const liveCameraBtn = document.getElementById("live-camera-btn");
     const cameraModal = document.getElementById("camera-modal");
     const cameraVideo = document.getElementById("camera-video");
@@ -696,11 +694,26 @@
     let chatHistory = [];
     let selectedImageBase64 = null;
     let selectedImageMime = "image/jpeg";
-
     let mediaStream = null;
-    let currentFacingMode = "environment"; // "environment" (orqa) yoki "user" (oldi)
+    let currentFacingMode = "environment";
 
-    // Tanga/kassa ovozi
+    // 🎵 MP3 fayli aynan siz yuklagan money_2.mp3 ga ulandi
+    const incomeAudio = new Audio("money_2.mp3");
+
+    function playIncomeMusic() {
+        try {
+            incomeAudio.currentTime = 0;
+            const playPromise = incomeAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                    console.log("Brauzer avtomatik musiqani chekladi:", err);
+                });
+            }
+        } catch (e) {
+            console.error("Audio xatosi:", e);
+        }
+    }
+
     function playCashSound() {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -719,7 +732,57 @@
         } catch (e) {}
     }
 
-    // Saqlangan sessiyani tekshirish
+    function showNotification(text) {
+        const notifyDiv = document.createElement("div");
+        notifyDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+            z-index: 9999;
+            transition: all 0.4s ease;
+        `;
+        notifyDiv.innerText = text;
+        document.body.appendChild(notifyDiv);
+
+        setTimeout(() => {
+            notifyDiv.style.opacity = "0";
+            notifyDiv.style.transform = "translateX(-50%) translateY(-20px)";
+            setTimeout(() => notifyDiv.remove(), 400);
+        }, 4000);
+    }
+
+    let lastKnownBalance = null;
+
+    async function refreshBalance() {
+        if (!currentPhone) return;
+        try {
+            const res = await fetch(`${RAILWAY_URL}/api/balance?phone=${currentPhone}`);
+            const data = await res.json();
+            const currentBal = Number(data.balance || 0);
+
+            if (lastKnownBalance !== null && currentBal > lastKnownBalance) {
+                const addedAmount = currentBal - lastKnownBalance;
+                playIncomeMusic();
+                showNotification(`🎉 Hisobingizga +${addedAmount.toLocaleString()} so'm tushdi!`);
+            }
+
+            lastKnownBalance = currentBal;
+            const bal = currentBal.toLocaleString();
+            headerBalance.innerText = bal;
+            modalBalance.innerText = bal;
+        } catch (e) {}
+    }
+
+    setInterval(refreshBalance, 4000);
+
     window.addEventListener("DOMContentLoaded", () => {
         const savedPhone = localStorage.getItem("bilol_ai_phone");
         const savedName = localStorage.getItem("bilol_ai_name");
@@ -768,17 +831,6 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    async function refreshBalance() {
-        if (!currentPhone) return;
-        try {
-            const res = await fetch(`${RAILWAY_URL}/api/balance?phone=${currentPhone}`);
-            const data = await res.json();
-            const bal = (data.balance || 0).toLocaleString();
-            headerBalance.innerText = bal;
-            modalBalance.innerText = bal;
-        } catch (e) {}
-    }
-
     document.getElementById("open-wallet-btn").onclick = () => {
         refreshBalance();
         walletModal.style.display = "flex";
@@ -804,6 +856,7 @@
             }
             playCashSound();
             const newBal = (data.balance || 0).toLocaleString();
+            lastKnownBalance = Number(data.balance || 0);
             headerBalance.innerText = newBal;
             modalBalance.innerText = newBal;
             alert(`🎉 Tabriklaymiz! ${itemName} xarid qilindi!\nQolgan balans: ${newBal} so'm.`);
@@ -851,7 +904,7 @@
         }
     };
 
-    // --- GALEREYA ---
+    // Gallery
     galleryBtn.onclick = () => galleryInput.click();
     galleryInput.onchange = (e) => {
         const file = e.target.files[0];
@@ -869,7 +922,7 @@
         e.target.value = "";
     };
 
-    // --- 📷 JONLI (LIVE) KAMERA FUNKSIYALARI ---
+    // Live Camera
     async function startCamera() {
         if (mediaStream) {
             mediaStream.getTracks().forEach(track => track.stop());
@@ -889,7 +942,6 @@
             cameraModal.style.display = "flex";
         } catch (err) {
             console.error("Kamera xatosi:", err);
-            // Agar Live Camera brauzer xavfsizligi tufayli bloklansa, standart fayl kiritgichga yo'naltirish
             galleryInput.click();
         }
     }
@@ -921,7 +973,6 @@
         cameraCanvas.height = cameraVideo.videoHeight;
         const ctx = cameraCanvas.getContext("2d");
 
-        // Agar old kamera bo'lsa oynadek teskari tushmasligi uchun to'g'irlash
         if (currentFacingMode === "user") {
             ctx.translate(cameraCanvas.width, 0);
             ctx.scale(-1, 1);
@@ -946,7 +997,7 @@
         previewImgElement.src = "";
     };
 
-    // --- CHAT VA GEMINI ---
+    // Chat
     function appendMsg(text, role, imgSrc = null) {
         const div = document.createElement("div");
         div.className = `msg-bubble msg-${role}`;
