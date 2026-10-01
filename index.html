@@ -169,15 +169,8 @@
             transition: 0.2s;
         }
 
-        .wallet-pill:hover {
-            background: rgba(255, 255, 255, 0.14);
-        }
-
-        .wallet-pill span {
-            font-size: 13px;
-            font-weight: 700;
-            color: #fbbf24;
-        }
+        .wallet-pill:hover { background: rgba(255, 255, 255, 0.14); }
+        .wallet-pill span { font-size: 13px; font-weight: 700; color: #fbbf24; }
 
         .logout-btn {
             background: rgba(244, 63, 94, 0.15);
@@ -219,15 +212,128 @@
             border: 1px solid var(--card-border);
         }
 
+        .msg-img-preview {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 14px;
+            background: var(--ai-bubble);
+            border-radius: 16px;
+            align-self: flex-start;
+            width: fit-content;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-dim);
+            border-radius: 50%;
+            animation: pulse 1.4s infinite ease-in-out;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* --- PREVIEW BAR (YUBORILAYOTGAN RASM) --- */
+        #image-preview-container {
+            display: none;
+            padding: 8px 16px;
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid var(--card-border);
+            align-items: center;
+            gap: 12px;
+        }
+
+        .preview-box {
+            position: relative;
+            width: 50px;
+            height: 50px;
+        }
+
+        .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #8b5cf6;
+        }
+
+        .remove-img-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            background: #f43f5e;
+            color: #fff;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* --- PASTKI INPUT BAR VA TUGMALAR --- */
         .input-bar {
-            padding: 12px 16px;
+            padding: 10px 14px;
             background: rgba(11, 15, 25, 0.85);
             border-top: 1px solid var(--card-border);
             display: flex;
-            gap: 10px;
+            align-items: center;
+            gap: 8px;
         }
 
-        .input-bar input {
+        .media-buttons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .media-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--card-border);
+            color: #c4b5fd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .media-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .media-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .input-bar input[type="text"] {
             flex: 1;
             padding: 12px 16px;
             border-radius: 14px;
@@ -235,12 +341,13 @@
             border: 1px solid var(--card-border);
             color: #fff;
             outline: none;
+            font-size: 14px;
         }
 
         .send-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
             border: none;
             background: var(--accent-grad);
             color: #fff;
@@ -248,9 +355,10 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            flex-shrink: 0;
         }
 
-        /* --- HAMYON MODAL OYNASI --- */
+        /* --- HAMYON MODAL --- */
         #wallet-modal {
             position: absolute;
             inset: 0;
@@ -310,38 +418,28 @@
             transform: translateY(-2px);
         }
 
-        .pack-val {
-            font-size: 15px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 4px;
-        }
-
-        .pack-price {
-            font-size: 13px;
-            color: #10b981;
-            font-weight: 600;
-        }
+        .pack-val { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .pack-price { font-size: 13px; color: #10b981; font-weight: 600; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- AUTH SCREEN -->
+    <!-- 1. RO'YXATDAN O'TISH -->
     <div id="auth-screen">
         <div class="auth-card">
-            <h1 class="auth-title">Bilols AI</h1>
+            <h1 class="auth-title">Bilol AI</h1>
             <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">Suhbatni boshlash uchun telefon raqamingizni kiriting</p>
 
             <input type="text" id="name-input" class="styled-input" placeholder="Ismingiz">
-            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqamingiz (+998773773377)">
+            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqam (masalan, 883863377)">
 
             <button id="start-btn" class="primary-btn">Boshlash</button>
             <div id="status-box" style="margin-top: 14px; font-size: 14px;"></div>
         </div>
     </div>
 
-    <!-- CHAT SCREEN -->
+    <!-- 2. CHAT OYNASI -->
     <div id="chat-screen">
         <header class="chat-header">
             <div class="chat-header-info">
@@ -362,12 +460,45 @@
 
         <main class="messages-container" id="messages-container">
             <div class="msg-bubble msg-ai" id="welcome-bubble">
-                Salom! Sizning AI yordamchingiz tayyor. Menga savol berishingiz mumkin! 🚀
+                Salom! Sizning aqlli yordamchingiz tayyor. Menga matnli savol bering yoki rasm yuboring, uni tahlil qilib beraman! 🚀
             </div>
         </main>
 
+        <!-- RASM TANLANGANDA PREVYU BLOKI -->
+        <div id="image-preview-container">
+            <div class="preview-box">
+                <img id="preview-img-element" src="" alt="Prevyu">
+                <button class="remove-img-btn" id="cancel-image-btn" title="Bekor qilish">&times;</button>
+            </div>
+            <span style="font-size: 12px; color: #c4b5fd;">Rasm biriktirildi. Savolingizni yozing yoki to'g'ridan-to'g'ri yuboring.</span>
+        </div>
+
+        <!-- INPUT VA PASTKI CHAPDA MEDIA TUGMALAR -->
         <footer class="input-bar">
-            <input type="text" id="chat-input" placeholder="Xabar yozing..." autocomplete="off">
+            <!-- Yashirin Fayl Inputlari -->
+            <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
+            <input type="file" id="gallery-input" accept="image/*" style="display: none;">
+
+            <!-- Pastdan chapdagi tugmalar -->
+            <div class="media-buttons">
+                <!-- Kamera tugmasi -->
+                <button type="button" class="media-btn" id="camera-btn" title="Kamera orqali rasmga olish">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                </button>
+                <!-- Galereya tugmasi -->
+                <button type="button" class="media-btn" id="gallery-btn" title="Galereyadan rasm tanlash">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+            <input type="text" id="chat-input" placeholder="Xabar yozing yoki rasm bo'yicha savol bering..." autocomplete="off">
             <button id="send-btn" class="send-btn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -377,7 +508,7 @@
         </footer>
     </div>
 
-    <!-- WALLET MODAL -->
+    <!-- 3. HAMYON MODAL -->
     <div id="wallet-modal">
         <div class="modal-header">
             <h2>Hamyon</h2>
@@ -385,7 +516,7 @@
         </div>
 
         <div class="balance-badge">
-            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">Joriy hisobingiz:</div>
+            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">Sizning hisobingiz:</div>
             <div style="font-size: 26px; font-weight: 800; color: #fbbf24;">
                 <span id="modal-balance">0</span> so'm
             </div>
@@ -395,11 +526,11 @@
         <div class="pack-grid" style="margin-bottom: 16px;">
             <div class="pack-card" onclick="buyItem('50 Stars', 15000)">
                 <div class="pack-val">⭐ 50 Stars</div>
-                <div class="pack-price">12,000 so'm</div>
+                <div class="pack-price">15,000 so'm</div>
             </div>
             <div class="pack-card" onclick="buyItem('100 Stars', 29000)">
                 <div class="pack-val">⭐ 100 Stars</div>
-                <div class="pack-price">25,000 so'm</div>
+                <div class="pack-price">29,000 so'm</div>
             </div>
             <div class="pack-card" onclick="buyItem('250 Stars', 70000)">
                 <div class="pack-val">⭐ 250 Stars</div>
@@ -442,11 +573,22 @@
     const sendBtn = document.getElementById("send-btn");
     const logoutBtn = document.getElementById("logout-btn");
 
+    // Rasm elementlari
+    const cameraBtn = document.getElementById("camera-btn");
+    const galleryBtn = document.getElementById("gallery-btn");
+    const cameraInput = document.getElementById("camera-input");
+    const galleryInput = document.getElementById("gallery-input");
+    const previewContainer = document.getElementById("image-preview-container");
+    const previewImgElement = document.getElementById("preview-img-element");
+    const cancelImageBtn = document.getElementById("cancel-image-btn");
+
     let currentPhone = "";
     let currentName = "";
     let chatHistory = [];
+    let selectedImageBase64 = null;
+    let selectedImageMime = "image/jpeg";
 
-    // --- ЗВУК ДЕНЕГ (ДЗЫНЬ-ДЗЫНЬ / ЧА-ЧИНГ) ---
+    // --- KASSA/TANGA OVOZI (PUL TUSHGANDA / YECHILGANDA) ---
     function playCashSound() {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -480,7 +622,7 @@
         }
     }
 
-    // Сохраненная сессия
+    // Saqlangan profilni yuklash
     window.addEventListener("DOMContentLoaded", () => {
         const savedPhone = localStorage.getItem("bilol_ai_phone");
         const savedName = localStorage.getItem("bilol_ai_name");
@@ -507,18 +649,29 @@
     function renderSavedMessages() {
         chatHistory.forEach(item => {
             const role = item.role === "user" ? "user" : "ai";
-            const text = item.parts?.[0]?.text || "";
-            if (text) {
-                const div = document.createElement("div");
-                div.className = `msg-bubble msg-${role}`;
-                div.innerText = text;
-                messagesContainer.appendChild(div);
+            const textPart = item.parts?.find(p => p.text);
+            const imgPart = item.parts?.find(p => p.inline_data);
+            
+            const div = document.createElement("div");
+            div.className = `msg-bubble msg-${role}`;
+            
+            if (imgPart) {
+                const img = document.createElement("img");
+                img.className = "msg-img-preview";
+                img.src = `data:${imgPart.inline_data.mime_type};base64,${imgPart.inline_data.data}`;
+                div.appendChild(img);
             }
+            if (textPart && textPart.text) {
+                const txt = document.createElement("div");
+                txt.innerText = textPart.text;
+                div.appendChild(txt);
+            }
+            messagesContainer.appendChild(div);
         });
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // Обновление баланса с сервера
+    // Balans
     async function refreshBalance() {
         if (!currentPhone) return;
         try {
@@ -540,10 +693,10 @@
         walletModal.style.display = "none";
     };
 
-    // --- РЕАЛЬНАЯ ПОКУПКА СО СПИСАНИЕМ С БАЛАНСА ---
+    // Xarid qilish
     window.buyItem = async function(itemName, price) {
         if (!currentPhone) {
-            alert("Foydalanuvchi aniqlanmadi. Iltimos qayta kiring.");
+            alert("Foydalanuvchi aniqlanmadi.");
             return;
         }
 
@@ -569,10 +722,8 @@
                 return;
             }
 
-            // Воспроизводим звук монет
             playCashSound();
 
-            // Обновляем отображение баланса
             const newBal = (data.balance || 0).toLocaleString();
             headerBalance.innerText = newBal;
             modalBalance.innerText = newBal;
@@ -583,7 +734,7 @@
         }
     };
 
-    // Выход
+    // Chiqish
     logoutBtn.onclick = () => {
         if (confirm("Akkauntdan chiqasizmi?")) {
             localStorage.clear();
@@ -591,7 +742,7 @@
         }
     };
 
-    // Авторизация
+    // Ro'yxatdan o'tish
     startBtn.onclick = async () => {
         const name = nameInput.value.trim();
         const phone = phoneInput.value.replace(/[^0-9]/g, "");
@@ -632,23 +783,114 @@
         }
     };
 
-    // Чат
-    function appendMsg(text, role) {
+    // --- KAMERA VA GALEREYA FUNKSIYALARI ---
+    cameraBtn.onclick = () => cameraInput.click();
+    galleryBtn.onclick = () => galleryInput.click();
+
+    function handleImageSelected(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        selectedImageMime = file.type || "image/jpeg";
+        const reader = new FileReader();
+
+        reader.onload = function(evt) {
+            const dataUrl = evt.target.result;
+            // Base64 qismini ajratib olish
+            selectedImageBase64 = dataUrl.split(",")[1];
+            
+            // Prevyu ko'rsatish
+            previewImgElement.src = dataUrl;
+            previewContainer.style.display = "flex";
+            chatInput.focus();
+        };
+
+        reader.readAsDataURL(file);
+        e.target.value = ""; // Tozalab qo'yamiz
+    }
+
+    cameraInput.onchange = handleImageSelected;
+    galleryInput.onchange = handleImageSelected;
+
+    // Rasm tanlashni bekor qilish
+    cancelImageBtn.onclick = () => {
+        selectedImageBase64 = null;
+        previewContainer.style.display = "none";
+        previewImgElement.src = "";
+    };
+
+    // --- CHATGA XABAR YUBORISH (MATN + RASM TAHLILI) ---
+    function appendMsg(text, role, imgSrc = null) {
         const div = document.createElement("div");
         div.className = `msg-bubble msg-${role}`;
-        div.innerText = text;
+        
+        if (imgSrc) {
+            const img = document.createElement("img");
+            img.className = "msg-img-preview";
+            img.src = imgSrc;
+            div.appendChild(img);
+        }
+        
+        if (text) {
+            const txt = document.createElement("div");
+            txt.innerText = text;
+            div.appendChild(txt);
+        }
+        
         messagesContainer.appendChild(div);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
+    function showTyping() {
+        const typing = document.createElement("div");
+        typing.className = "typing-indicator";
+        typing.id = "active-typing";
+        typing.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+        messagesContainer.appendChild(typing);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function hideTyping() {
+        const typing = document.getElementById("active-typing");
+        if (typing) typing.remove();
+    }
+
     async function sendChat() {
         const text = chatInput.value.trim();
-        if (!text) return;
-        chatInput.value = "";
-        appendMsg(text, "user");
+        const hasImage = !!selectedImageBase64;
 
-        chatHistory.push({ role: "user", parts: [{ text }] });
+        if (!text && !hasImage) return;
+
+        const currentImgB64 = selectedImageBase64;
+        const currentImgMime = selectedImageMime;
+
+        // Ekranni tozalash
+        chatInput.value = "";
+        selectedImageBase64 = null;
+        previewContainer.style.display = "none";
+
+        // Gemini uchun partslar
+        const parts = [];
+        let imgSrcForBubble = null;
+
+        if (hasImage) {
+            parts.push({
+                inline_data: {
+                    mime_type: currentImgMime,
+                    data: currentImgB64
+                }
+            });
+            imgSrcForBubble = `data:${currentImgMime};base64,${currentImgB64}`;
+        }
+
+        const promptText = text || (hasImage ? "Ushbu rasmda nima tasvirlangan? To'liq tahlil qilib ber." : "");
+        parts.push({ text: promptText });
+
+        appendMsg(text, "user", imgSrcForBubble);
+
+        chatHistory.push({ role: "user", parts: parts });
         localStorage.setItem("bilol_ai_history", JSON.stringify(chatHistory));
+        showTyping();
 
         try {
             const res = await fetch("/api/chat", {
@@ -656,13 +898,17 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ history: chatHistory })
             });
+
+            hideTyping();
             const data = await res.json();
             const reply = data.text || "Javob olib bo'lmadi.";
+            
             appendMsg(reply, "ai");
             chatHistory.push({ role: "model", parts: [{ text: reply }] });
             localStorage.setItem("bilol_ai_history", JSON.stringify(chatHistory));
         } catch (e) {
-            appendMsg("⚠️ AI javob berishda xatolik yuz berdi.", "ai");
+            hideTyping();
+            appendMsg("⚠️ AI javob berishda yoki rasmni tahlil qilishda xatolik yuz berdi.", "ai");
         }
     }
 
