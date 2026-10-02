@@ -2,53 +2,121 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bilols AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Bilol AI — Intelligent Neural Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-main: #0b0f19;
-            --card-bg: rgba(22, 27, 46, 0.85);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --accent-grad: linear-gradient(135deg, #10b981 0%, #8b5cf6 100%);
-            --user-bubble: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            --ai-bubble: rgba(30, 41, 59, 0.7);
-            --text-color: #f8fafc;
-            --text-dim: #94a3b8;
+            --bg-deep: #07090e;
+            --surface-glass: rgba(18, 24, 38, 0.72);
+            --surface-card: rgba(255, 255, 255, 0.035);
+            --surface-card-hover: rgba(255, 255, 255, 0.07);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(139, 92, 246, 0.35);
+            
+            --emerald-accent: #10b981;
+            --emerald-glow: rgba(16, 185, 129, 0.4);
+            --violet-accent: #8b5cf6;
+            --violet-glow: rgba(139, 92, 246, 0.45);
+            --amber-accent: #f59e0b;
+            --rose-accent: #f43f5e;
+            
+            --user-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --accent-grad: linear-gradient(135deg, #10b981 0%, #6366f1 50%, #8b5cf6 100%);
+            --btn-glow: 0 8px 24px -4px rgba(99, 102, 241, 0.45);
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-main);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.15) 0px, transparent 50%);
-            color: var(--text-color);
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
 
+        /* 🌌 Aylanuvchi fon auralari (Glow Mesh) */
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.38;
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 18s ease-in-out infinite alternate;
+        }
+        .orb-1 {
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            top: -100px;
+            left: -80px;
+        }
+        .orb-2 {
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, #10b981 0%, transparent 70%);
+            bottom: -120px;
+            right: -80px;
+            animation-duration: 22s;
+            animation-delay: -5s;
+        }
+        .orb-3 {
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.18;
+        }
+
+        @keyframes orbFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 40px) scale(1.08); }
+            100% { transform: translate(-20px, 20px) scale(0.96); }
+        }
+
+        /* 📱 Asosiy mobil/veb ramka */
         .container {
             width: 100%;
             height: 100vh;
-            max-width: 480px;
+            max-width: 460px;
             display: flex;
             flex-direction: column;
             position: relative;
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border-left: 1px solid var(--card-border);
-            border-right: 1px solid var(--card-border);
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            background: var(--surface-glass);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            border-left: 1px solid var(--border-glass);
+            border-right: 1px solid var(--border-glass);
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            z-index: 10;
+        }
+
+        @media (min-width: 461px) {
+            .container {
+                height: 94vh;
+                border-radius: 36px;
+                border: 1px solid var(--border-glass);
+                overflow: hidden;
+            }
         }
 
         /* --- AUTH SCREEN --- */
@@ -58,56 +126,116 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
-            z-index: 30;
+            padding: 28px;
+            z-index: 40;
             background: inherit;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-
-        #auth-screen.hidden {
-            display: none !important;
-        }
+        #auth-screen.hidden { display: none !important; }
 
         .auth-card {
             width: 100%;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 32px 24px;
+            background: var(--surface-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 28px;
+            padding: 36px 26px;
             text-align: center;
+            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .auth-logo-badge {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            border-radius: 22px;
+            background: var(--accent-grad);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 12px 28px -4px var(--emerald-glow);
+            animation: floatBadge 3.6s ease-in-out infinite;
+        }
+
+        @keyframes floatBadge {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
         }
 
         .auth-title {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 800;
-            background: var(--accent-grad);
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
         }
 
+        .auth-desc {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
         .styled-input {
             width: 100%;
-            padding: 16px 20px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
+            padding: 16px 18px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: var(--text-primary);
             font-size: 15px;
             outline: none;
-            margin-bottom: 14px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .styled-input:focus {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: var(--violet-accent);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
         }
 
         .primary-btn {
+            position: relative;
             width: 100%;
             padding: 16px;
-            border-radius: 16px;
+            border-radius: 18px;
             border: none;
             background: var(--accent-grad);
             color: #fff;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
+            letter-spacing: 0.2px;
             cursor: pointer;
+            box-shadow: var(--btn-glow);
+            overflow: hidden;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 8px;
         }
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px -4px rgba(99, 102, 241, 0.6);
+        }
+        .primary-btn:active {
+            transform: scale(0.98);
+        }
+        .primary-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+            transition: 0.5s;
+        }
+        .primary-btn:hover::after { left: 140%; }
 
         /* --- CHAT SCREEN --- */
         #chat-screen {
@@ -117,38 +245,67 @@
             height: 100%;
             opacity: 0;
             pointer-events: none;
+            transition: opacity 0.3s ease;
         }
-
         #chat-screen.active {
             opacity: 1;
             pointer-events: auto;
         }
 
+        /* Header */
         .chat-header {
-            padding: 12px 16px;
+            padding: 14px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid var(--card-border);
-            background: rgba(11, 15, 25, 0.75);
-            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-glass);
+            background: rgba(11, 15, 25, 0.7);
+            backdrop-filter: blur(16px);
+            z-index: 20;
         }
 
         .chat-header-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
+        .avatar-wrap {
+            position: relative;
+        }
         .avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
             background: var(--accent-grad);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 17px;
+            font-size: 18px;
+            box-shadow: 0 6px 16px -2px var(--violet-glow);
+        }
+        .status-dot {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: var(--emerald-accent);
+            border: 2px solid var(--bg-deep);
+            box-shadow: 0 0 8px var(--emerald-accent);
+        }
+
+        .header-text h3 {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            color: #fff;
+        }
+        .header-text span {
+            font-size: 12px;
+            color: var(--emerald-accent);
+            font-weight: 600;
         }
 
         .header-actions {
@@ -161,137 +318,175 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--card-border);
-            padding: 6px 12px;
-            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            padding: 7px 14px;
+            border-radius: 20px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(10px);
         }
-
-        .wallet-pill:hover { background: rgba(255, 255, 255, 0.14); }
-        .wallet-pill span { font-size: 13px; font-weight: 700; color: #fbbf24; }
+        .wallet-pill:hover {
+            background: rgba(245, 158, 11, 0.12);
+            border-color: rgba(245, 158, 11, 0.5);
+            transform: translateY(-1px);
+        }
+        .wallet-pill:active { transform: scale(0.96); }
+        .wallet-pill span {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--amber-accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
 
         .logout-btn {
-            background: rgba(244, 63, 94, 0.15);
-            border: 1px solid rgba(244, 63, 94, 0.3);
-            color: #f43f5e;
-            padding: 6px 10px;
-            border-radius: 14px;
+            background: rgba(244, 63, 94, 0.08);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            color: var(--rose-accent);
+            padding: 7px 12px;
+            border-radius: 16px;
             font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover {
+            background: rgba(244, 63, 94, 0.18);
+            border-color: rgba(244, 63, 94, 0.4);
         }
 
+        /* Xabarlar maydoni */
         .messages-container {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
+            padding: 18px 16px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
+            scroll-behavior: smooth;
+        }
+        .messages-container::-webkit-scrollbar { width: 5px; }
+        .messages-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
         }
 
         .msg-bubble {
             max-width: 82%;
-            padding: 12px 16px;
-            font-size: 15px;
-            line-height: 1.5;
+            padding: 13px 17px;
+            font-size: 14.5px;
+            line-height: 1.55;
             word-wrap: break-word;
+            position: relative;
+            animation: msgPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes msgPop {
+            0% { opacity: 0; transform: translateY(10px) scale(0.97); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .msg-user {
             align-self: flex-end;
-            background: var(--user-bubble);
-            border-radius: 18px 18px 4px 18px;
+            background: var(--user-grad);
+            border-radius: 20px 20px 4px 20px;
+            color: #ffffff;
+            box-shadow: 0 6px 20px -4px rgba(99, 102, 241, 0.5);
         }
 
         .msg-ai {
             align-self: flex-start;
-            background: var(--ai-bubble);
-            border-radius: 18px 18px 18px 4px;
-            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px 20px 20px 4px;
+            color: var(--text-primary);
+            backdrop-filter: blur(12px);
         }
 
         .msg-img-preview {
             max-width: 100%;
-            border-radius: 12px;
+            border-radius: 14px;
             margin-bottom: 8px;
             display: block;
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
+        /* Typing animatsiyasi */
         .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 10px 14px;
-            background: var(--ai-bubble);
-            border-radius: 16px;
+            gap: 6px;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
             align-self: flex-start;
             width: fit-content;
+            animation: msgPop 0.3s ease;
         }
-
         .dot {
-            width: 6px;
-            height: 6px;
-            background: var(--text-dim);
+            width: 7px;
+            height: 7px;
+            background: var(--violet-accent);
             border-radius: 50%;
-            animation: pulse 1.4s infinite ease-in-out;
+            animation: dotGlow 1.4s infinite ease-in-out;
         }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
+        .dot:nth-child(2) { animation-delay: 0.2s; background: #a855f7; }
+        .dot:nth-child(3) { animation-delay: 0.4s; background: var(--emerald-accent); }
 
-        @keyframes pulse {
-            0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
-            40% { transform: scale(1.2); opacity: 1; }
+        @keyframes dotGlow {
+            0%, 80%, 100% { transform: scale(0.7); opacity: 0.3; }
+            40% { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 6px currentColor); }
         }
 
-        /* --- PREVIEW BAR --- */
+        /* Prevyu bloki */
         #image-preview-container {
             display: none;
-            padding: 8px 16px;
-            background: rgba(15, 23, 42, 0.9);
-            border-top: 1px solid var(--card-border);
+            padding: 10px 16px;
+            background: rgba(13, 17, 28, 0.95);
+            border-top: 1px solid var(--border-glass);
             align-items: center;
             gap: 12px;
+            animation: slideUp 0.25s ease;
         }
-
         .preview-box {
             position: relative;
-            width: 50px;
-            height: 50px;
+            width: 52px;
+            height: 52px;
         }
-
         .preview-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 10px;
-            border: 1px solid #8b5cf6;
+            border-radius: 12px;
+            border: 2px solid var(--violet-accent);
         }
-
         .remove-img-btn {
             position: absolute;
             top: -6px;
             right: -6px;
-            width: 18px;
-            height: 18px;
-            background: #f43f5e;
+            width: 20px;
+            height: 20px;
+            background: var(--rose-accent);
             color: #fff;
             border-radius: 50%;
             border: none;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 13px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            box-shadow: 0 2px 8px rgba(244, 63, 94, 0.5);
         }
 
-        /* --- INPUT BAR --- */
+        /* Pastki kiritish qismi (Bottom Dock) */
         .input-bar {
             padding: 10px 14px;
             background: rgba(11, 15, 25, 0.85);
-            border-top: 1px solid var(--card-border);
+            border-top: 1px solid var(--border-glass);
+            backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -304,50 +499,48 @@
         }
 
         .media-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--card-border);
-            color: #c4b5fd;
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: #cbd5e1;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-
         .media-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.1);
             color: #fff;
-            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
-
-        .media-btn svg {
-            width: 20px;
-            height: 20px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
+        .media-btn:active { transform: scale(0.92); }
+        .media-btn svg { width: 21px; height: 21px; stroke-width: 2; }
 
         .input-bar input[type="text"] {
             flex: 1;
-            padding: 12px 16px;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
+            padding: 13px 18px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.045);
+            border: 1px solid var(--border-glass);
             color: #fff;
             outline: none;
-            font-size: 14px;
+            font-size: 14.5px;
+            transition: all 0.2s ease;
+        }
+        .input-bar input[type="text"]:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--violet-accent);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
         }
 
         .send-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
             border: none;
             background: var(--accent-grad);
             color: #fff;
@@ -356,42 +549,52 @@
             justify-content: center;
             cursor: pointer;
             flex-shrink: 0;
+            box-shadow: var(--btn-glow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .send-btn:hover {
+            transform: scale(1.06) translateY(-1px);
+            box-shadow: 0 10px 26px -3px rgba(99, 102, 241, 0.6);
+        }
+        .send-btn:active { transform: scale(0.92); }
 
-        /* --- LIVE CAMERA MODAL --- */
+        /* --- 📷 LIVE KAMERA MODAL --- */
         #camera-modal {
             position: absolute;
             inset: 0;
             background: #000;
-            z-index: 60;
+            z-index: 80;
             display: none;
             flex-direction: column;
             justify-content: space-between;
+            animation: fadeIn 0.3s ease;
         }
 
         .cam-top-bar {
             position: absolute;
-            top: 16px;
-            left: 16px;
-            right: 16px;
+            top: 20px;
+            left: 20px;
+            right: 20px;
             display: flex;
             justify-content: space-between;
             z-index: 10;
         }
-
-        .cam-close-btn, .cam-flip-btn {
-            background: rgba(0, 0, 0, 0.6);
+        .cam-tool-btn {
+            background: rgba(20, 24, 38, 0.65);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
             border-radius: 50%;
-            width: 44px;
-            height: 44px;
+            width: 46px;
+            height: 46px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
             cursor: pointer;
+            backdrop-filter: blur(16px);
+            transition: all 0.2s;
         }
+        .cam-tool-btn:active { transform: scale(0.9); }
 
         .video-container {
             width: 100%;
@@ -400,17 +603,27 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
-
         #camera-video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
+        /* Kamera burchak fokus ramkalari */
+        .cam-viewfinder {
+            position: absolute;
+            width: 72%;
+            height: 52%;
+            pointer-events: none;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+        }
+
         .cam-controls {
             position: absolute;
-            bottom: 30px;
+            bottom: 34px;
             left: 0;
             right: 0;
             display: flex;
@@ -418,10 +631,9 @@
             justify-content: center;
             z-index: 10;
         }
-
         .capture-btn {
-            width: 72px;
-            height: 72px;
+            width: 78px;
+            height: 78px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.2);
             border: 4px solid #fff;
@@ -430,13 +642,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: 0.15s transform;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
         }
-
-        .capture-btn:active {
-            transform: scale(0.9);
-        }
-
+        .capture-btn:active { transform: scale(0.88); }
         .capture-inner {
             width: 100%;
             height: 100%;
@@ -444,84 +653,148 @@
             border-radius: 50%;
         }
 
-        /* --- WALLET MODAL --- */
+        /* --- 👛 WALLET MODAL --- */
         #wallet-modal {
             position: absolute;
             inset: 0;
-            background: rgba(11, 15, 25, 0.92);
-            backdrop-filter: blur(16px);
-            z-index: 50;
+            background: rgba(9, 12, 22, 0.94);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            z-index: 70;
             display: none;
             flex-direction: column;
-            padding: 20px;
+            padding: 24px 20px;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
-
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
         .modal-close {
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
             color: #fff;
-            font-size: 26px;
+            font-size: 22px;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            transition: 0.2s;
         }
+        .modal-close:hover { background: rgba(255, 255, 255, 0.12); }
 
         .balance-badge {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            border-radius: 18px;
-            padding: 16px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            box-shadow: 0 16px 36px -10px rgba(245, 158, 11, 0.18);
+            border-radius: 24px;
+            padding: 20px;
             text-align: center;
-            margin-bottom: 16px;
+            margin-bottom: 22px;
+            position: relative;
+            overflow: hidden;
+        }
+        .balance-badge::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -50%;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         .pack-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
             overflow-y: auto;
             max-height: 52vh;
+            padding-right: 2px;
+        }
+        .pack-grid::-webkit-scrollbar { width: 4px; }
+        .pack-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
         }
 
         .pack-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--card-border);
-            padding: 14px;
-            border-radius: 16px;
+            background: var(--surface-card);
+            border: 1px solid var(--border-glass);
+            padding: 16px 12px;
+            border-radius: 20px;
             text-align: center;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
         }
-
         .pack-card:hover {
-            border-color: #10b981;
+            border-color: var(--emerald-accent);
             background: rgba(16, 185, 129, 0.08);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px -6px var(--emerald-glow);
+        }
+        .pack-card:active { transform: scale(0.96); }
+
+        .pack-val {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .pack-price {
+            font-size: 13.5px;
+            color: var(--emerald-accent);
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .pack-val { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-        .pack-price { font-size: 13px; color: #10b981; font-weight: 600; }
+        /* Umumiy animatsiyalar */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
+
+<!-- 🌌 Ambient fon sferalari -->
+<div class="ambient-orb orb-1"></div>
+<div class="ambient-orb orb-2"></div>
+<div class="ambient-orb orb-3"></div>
 
 <div class="container">
     <!-- AUTH SCREEN -->
     <div id="auth-screen">
         <div class="auth-card">
-            <h1 class="auth-title">Bilols AI</h1>
-            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">Suhbatni boshlash uchun telefon raqamingizni kiriting Eslatma telefon raqam telegramda ochiq bolishi kerak sababi admin siz bilan boglanishi uchun</p>
+            <div class="auth-logo-badge">⚡</div>
+            <h1 class="auth-title">Bilol AI</h1>
+            <p class="auth-desc">Intellektual suhbat va multimedia tahlilidan foydalanish uchun hisobingizga kiring</p>
 
-            <input type="text" id="name-input" class="styled-input" placeholder="Ismingiz">
-            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqam (masalan, +998775677733)">
+            <div class="input-group">
+                <input type="text" id="name-input" class="styled-input" placeholder="Ismingizni kiriting" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqam (masalan, 883863377)">
+            </div>
 
-            <button id="start-btn" class="primary-btn">Boshlash</button>
-            <div id="status-box" style="margin-top: 14px; font-size: 14px;"></div>
+            <button id="start-btn" class="primary-btn">Suhbatni boshlash</button>
+            <div id="status-box" style="margin-top: 14px; font-size: 13.5px; font-weight: 500;"></div>
         </div>
     </div>
 
@@ -529,15 +802,18 @@
     <div id="chat-screen">
         <header class="chat-header">
             <div class="chat-header-info">
-                <div class="avatar">⚡</div>
-                <div>
-                    <h3 style="font-size: 15px;">Bilol AI</h3>
-                    <span style="font-size: 11px; color: #10b981;">● Onlayn</span>
+                <div class="avatar-wrap">
+                    <div class="avatar">⚡</div>
+                    <div class="status-dot"></div>
+                </div>
+                <div class="header-text">
+                    <h3>Bilol AI</h3>
+                    <span>● Faol tizim</span>
                 </div>
             </div>
 
             <div class="header-actions">
-                <div class="wallet-pill" id="open-wallet-btn">
+                <div class="wallet-pill" id="open-wallet-btn" title="Hamyonni ko'rish">
                     <span>👛 <span id="header-balance">0</span> so'm</span>
                 </div>
                 <button class="logout-btn" id="logout-btn">Chiqish</button>
@@ -546,34 +822,34 @@
 
         <main class="messages-container" id="messages-container">
             <div class="msg-bubble msg-ai" id="welcome-bubble">
-                Salom! Sizning aqlli yordamchingiz tayyor. Menga matnli savol bering yoki jonli kamera orqali rasm yuboring, uni tahlil qilib beraman! 🚀
+                Assalomu alaykum! Men Bilol AI intellektual yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali surat yuboring, darhol tahlil qilib beraman! 🚀
             </div>
         </main>
 
-        <!-- PREVIEW BAR -->
+        <!-- RASM PREVYU BLOKI -->
         <div id="image-preview-container">
             <div class="preview-box">
                 <img id="preview-img-element" src="" alt="Prevyu">
                 <button class="remove-img-btn" id="cancel-image-btn" title="Bekor qilish">&times;</button>
             </div>
-            <span style="font-size: 12px; color: #c4b5fd;">Rasm biriktirildi. Savol yozing yoki darhol yuboring.</span>
+            <span style="font-size: 13px; color: #cbd5e1; font-weight: 500;">Rasm yuklandi. Savolingizni yozib yuboring.</span>
         </div>
 
-        <!-- INPUT BAR -->
+        <!-- PASTKI DOCK (INPUT BAR) -->
         <footer class="input-bar">
             <input type="file" id="gallery-input" accept="image/*" style="display: none;">
 
             <div class="media-buttons">
-                <!-- Live Camera -->
+                <!-- Jonli Kamera -->
                 <button type="button" class="media-btn" id="live-camera-btn" title="Jonli kamerani ochish">
-                    <svg viewBox="0 0 24 24">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                         <circle cx="12" cy="13" r="4"></circle>
                     </svg>
                 </button>
-                <!-- Gallery -->
+                <!-- Galereya -->
                 <button type="button" class="media-btn" id="gallery-btn" title="Galereyadan tanlash">
-                    <svg viewBox="0 0 24 24">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                         <circle cx="8.5" cy="8.5" r="1.5"></circle>
                         <polyline points="21 15 16 10 5 21"></polyline>
@@ -581,9 +857,9 @@
                 </button>
             </div>
 
-            <input type="text" id="chat-input" placeholder="Xabar yozing yoki rasm bo'yicha savol bering..." autocomplete="off">
-            <button id="send-btn" class="send-btn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <input type="text" id="chat-input" placeholder="Xabar yoki savolingizni yozing..." autocomplete="off">
+            <button id="send-btn" class="send-btn" title="Yuborish">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                 </svg>
@@ -591,39 +867,40 @@
         </footer>
     </div>
 
-    <!-- LIVE CAMERA MODAL -->
+    <!-- 📷 LIVE KAMERA MODAL -->
     <div id="camera-modal">
         <div class="cam-top-bar">
-            <button class="cam-close-btn" id="close-camera-btn">&times;</button>
-            <button class="cam-flip-btn" id="flip-camera-btn" title="Kamerani almashtirish">🔄</button>
+            <button class="cam-tool-btn" id="close-camera-btn" title="Yopish">&times;</button>
+            <button class="cam-tool-btn" id="flip-camera-btn" title="Kamerani almashtirish">🔄</button>
         </div>
         <div class="video-container">
             <video id="camera-video" autoplay playsinline muted></video>
+            <div class="cam-viewfinder"></div>
         </div>
         <div class="cam-controls">
-            <div class="capture-btn" id="take-photo-btn">
+            <div class="capture-btn" id="take-photo-btn" title="Suratga olish">
                 <div class="capture-inner"></div>
             </div>
         </div>
         <canvas id="camera-canvas" style="display: none;"></canvas>
     </div>
 
-    <!-- WALLET MODAL -->
+    <!-- 👛 HAMYON MODAL -->
     <div id="wallet-modal">
         <div class="modal-header">
-            <h2>Hamyon</h2>
+            <h2>Xizmatlar hamyoni</h2>
             <button class="modal-close" id="close-wallet-btn">&times;</button>
         </div>
 
         <div class="balance-badge">
-            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">Sizning hisobingiz:</div>
-            <div style="font-size: 26px; font-weight: 800; color: #fbbf24;">
+            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 600;">Joriy hisobingiz:</div>
+            <div style="font-size: 28px; font-weight: 800; color: #fbbf24; font-family: 'JetBrains Mono', monospace;">
                 <span id="modal-balance">0</span> so'm
             </div>
         </div>
 
-        <h4 style="margin-bottom: 10px; font-size: 15px;">⭐ Telegram Stars</h4>
-        <div class="pack-grid" style="margin-bottom: 16px;">
+        <h4 style="margin: 6px 0 12px; font-size: 14px; color: #a5b4fc; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">⭐ Telegram Stars</h4>
+        <div class="pack-grid" style="margin-bottom: 18px;">
             <div class="pack-card" onclick="buyItem('50 Stars', 15000)">
                 <div class="pack-val">⭐ 50 Stars</div>
                 <div class="pack-price">15,000 so'm</div>
@@ -642,7 +919,7 @@
             </div>
         </div>
 
-        <h4 style="margin-bottom: 10px; font-size: 15px;">💎 Telegram Premium</h4>
+        <h4 style="margin: 6px 0 12px; font-size: 14px; color: #a5b4fc; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">💎 Telegram Premium</h4>
         <div class="pack-grid">
             <div class="pack-card" onclick="buyItem('Premium 3 oy', 160000)">
                 <div class="pack-val">💎 3 Oylik</div>
@@ -673,14 +950,12 @@
     const sendBtn = document.getElementById("send-btn");
     const logoutBtn = document.getElementById("logout-btn");
 
-    // Media
     const galleryBtn = document.getElementById("gallery-btn");
     const galleryInput = document.getElementById("gallery-input");
     const previewContainer = document.getElementById("image-preview-container");
     const previewImgElement = document.getElementById("preview-img-element");
     const cancelImageBtn = document.getElementById("cancel-image-btn");
 
-    // Live Camera
     const liveCameraBtn = document.getElementById("live-camera-btn");
     const cameraModal = document.getElementById("camera-modal");
     const cameraVideo = document.getElementById("camera-video");
@@ -697,8 +972,25 @@
     let mediaStream = null;
     let currentFacingMode = "environment";
 
-    // 🎵 MP3 fayli aynan siz yuklagan money_2.mp3 ga ulandi
+    // 🎵 ANDROID UCHUN MAXSUS AUDIO SOZLAMASI (money_2.mp3)
     const incomeAudio = new Audio("money_2.mp3");
+    incomeAudio.preload = "auto";
+    let audioUnlocked = false;
+
+    function unlockAudioForAndroid() {
+        if (audioUnlocked) return;
+        incomeAudio.play().then(() => {
+            incomeAudio.pause();
+            incomeAudio.currentTime = 0;
+            audioUnlocked = true;
+        }).catch(() => {});
+
+        document.removeEventListener("touchstart", unlockAudioForAndroid);
+        document.removeEventListener("click", unlockAudioForAndroid);
+    }
+
+    document.addEventListener("touchstart", unlockAudioForAndroid, { once: true });
+    document.addEventListener("click", unlockAudioForAndroid, { once: true });
 
     function playIncomeMusic() {
         try {
@@ -706,7 +998,7 @@
             const playPromise = incomeAudio.play();
             if (playPromise !== undefined) {
                 playPromise.catch(err => {
-                    console.log("Brauzer avtomatik musiqani chekladi:", err);
+                    console.log("Brauzer avtomatik musiqani to'xtatdi:", err);
                 });
             }
         } catch (e) {
@@ -736,25 +1028,27 @@
         const notifyDiv = document.createElement("div");
         notifyDiv.style.cssText = `
             position: fixed;
-            top: 20px;
+            top: 24px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(16px);
             color: #fff;
-            padding: 12px 24px;
-            border-radius: 20px;
+            padding: 14px 26px;
+            border-radius: 24px;
             font-weight: 700;
-            font-size: 14px;
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
-            z-index: 9999;
-            transition: all 0.4s ease;
+            font-size: 14.5px;
+            box-shadow: 0 16px 36px -6px rgba(16, 185, 129, 0.5);
+            z-index: 99999;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         `;
         notifyDiv.innerText = text;
         document.body.appendChild(notifyDiv);
 
         setTimeout(() => {
             notifyDiv.style.opacity = "0";
-            notifyDiv.style.transform = "translateX(-50%) translateY(-20px)";
+            notifyDiv.style.transform = "translateX(-50%) translateY(-24px) scale(0.95)";
             setTimeout(() => notifyDiv.remove(), 400);
         }, 4000);
     }
@@ -781,7 +1075,7 @@
         } catch (e) {}
     }
 
-    setInterval(refreshBalance, 4000);
+    setInterval(refreshBalance, 3000);
 
     window.addEventListener("DOMContentLoaded", () => {
         const savedPhone = localStorage.getItem("bilol_ai_phone");
@@ -841,7 +1135,7 @@
 
     window.buyItem = async function(itemName, price) {
         if (!currentPhone) return;
-        if (!confirm(`${itemName} sotib olasizmi?\nHisobingizdan ${price.toLocaleString()} so'm yechiladi.`)) return;
+        if (!confirm(`${itemName} xarid qilasizmi?\nHisobingizdan ${price.toLocaleString()} so'm yechiladi.`)) return;
 
         try {
             const res = await fetch(`${RAILWAY_URL}/api/deduct-balance`, {
@@ -859,14 +1153,14 @@
             lastKnownBalance = Number(data.balance || 0);
             headerBalance.innerText = newBal;
             modalBalance.innerText = newBal;
-            alert(`🎉 Tabriklaymiz! ${itemName} xarid qilindi!\nQolgan balans: ${newBal} so'm.`);
+            showNotification(`🎉 ${itemName} muvaffaqiyatli xarid qilindi!`);
         } catch (e) {
             alert("⚠️ Server bilan bog'lanishda xatolik.");
         }
     };
 
     logoutBtn.onclick = () => {
-        if (confirm("Akkauntdan chiqasizmi?")) {
+        if (confirm("Hisobingizdan chiqishni tasdiqlaysizmi?")) {
             localStorage.clear();
             location.reload();
         }
@@ -877,7 +1171,7 @@
         const phone = phoneInput.value.replace(/[^0-9]/g, "");
         if (!phone) {
             statusBox.style.color = "#f43f5e";
-            statusBox.innerText = "Telefon raqamingizni kiriting!";
+            statusBox.innerText = "Iltimos, telefon raqamingizni kiriting!";
             return;
         }
         currentPhone = phone;
