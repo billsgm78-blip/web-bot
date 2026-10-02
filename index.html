@@ -12,9 +12,7 @@
             --bg-deep: #07090e;
             --surface-glass: rgba(18, 24, 38, 0.72);
             --surface-card: rgba(255, 255, 255, 0.035);
-            --surface-card-hover: rgba(255, 255, 255, 0.07);
             --border-glass: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(139, 92, 246, 0.35);
             
             --emerald-accent: #10b981;
             --emerald-glow: rgba(16, 185, 129, 0.4);
@@ -29,7 +27,6 @@
             
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
-            --text-muted: #64748b;
         }
 
         * {
@@ -38,6 +35,7 @@
             padding: 0;
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
+            outline: none !important;
         }
 
         body {
@@ -51,7 +49,6 @@
             position: relative;
         }
 
-        /* 🌌 Aylanuvchi fon auralari (Glow Mesh) */
         .ambient-orb {
             position: fixed;
             border-radius: 50%;
@@ -62,29 +59,15 @@
             animation: orbFloat 18s ease-in-out infinite alternate;
         }
         .orb-1 {
-            width: 380px;
-            height: 380px;
+            width: 380px; height: 380px;
             background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
-            top: -100px;
-            left: -80px;
+            top: -100px; left: -80px;
         }
         .orb-2 {
-            width: 420px;
-            height: 420px;
+            width: 420px; height: 420px;
             background: radial-gradient(circle, #10b981 0%, transparent 70%);
-            bottom: -120px;
-            right: -80px;
+            bottom: -120px; right: -80px;
             animation-duration: 22s;
-            animation-delay: -5s;
-        }
-        .orb-3 {
-            width: 280px;
-            height: 280px;
-            background: radial-gradient(circle, #6366f1 0%, transparent 70%);
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 0.18;
         }
 
         @keyframes orbFloat {
@@ -93,7 +76,6 @@
             100% { transform: translate(-20px, 20px) scale(0.96); }
         }
 
-        /* 📱 Asosiy mobil/veb ramka */
         .container {
             width: 100%;
             height: 100vh;
@@ -106,7 +88,7 @@
             -webkit-backdrop-filter: blur(28px) saturate(180%);
             border-left: 1px solid var(--border-glass);
             border-right: 1px solid var(--border-glass);
-            box-shadow: 0 0 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.7);
             z-index: 10;
         }
 
@@ -129,7 +111,6 @@
             padding: 28px;
             z-index: 40;
             background: inherit;
-            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         #auth-screen.hidden { display: none !important; }
 
@@ -142,12 +123,10 @@
             text-align: center;
             box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(20px);
-            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .auth-logo-badge {
-            width: 64px;
-            height: 64px;
+            width: 64px; height: 64px;
             margin: 0 auto 16px;
             border-radius: 22px;
             background: var(--accent-grad);
@@ -156,34 +135,15 @@
             justify-content: center;
             font-size: 28px;
             box-shadow: 0 12px 28px -4px var(--emerald-glow);
-            animation: floatBadge 3.6s ease-in-out infinite;
-        }
-
-        @keyframes floatBadge {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
         }
 
         .auth-title {
             font-size: 28px;
             font-weight: 800;
-            letter-spacing: -0.5px;
             background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
-        }
-
-        .auth-desc {
-            color: var(--text-secondary);
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 24px;
-        }
-
-        .input-group {
-            position: relative;
-            margin-bottom: 12px;
         }
 
         .styled-input {
@@ -195,16 +155,10 @@
             color: var(--text-primary);
             font-size: 15px;
             outline: none;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .styled-input:focus {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: var(--violet-accent);
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+            margin-bottom: 12px;
         }
 
         .primary-btn {
-            position: relative;
             width: 100%;
             padding: 16px;
             border-radius: 18px;
@@ -213,29 +167,11 @@
             color: #fff;
             font-size: 15px;
             font-weight: 700;
-            letter-spacing: 0.2px;
             cursor: pointer;
             box-shadow: var(--btn-glow);
-            overflow: hidden;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            margin-top: 8px;
+            transition: all 0.25s ease;
         }
-        .primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px -4px rgba(99, 102, 241, 0.6);
-        }
-        .primary-btn:active {
-            transform: scale(0.98);
-        }
-        .primary-btn::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 60%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
-            transition: 0.5s;
-        }
-        .primary-btn:hover::after { left: 140%; }
+        .primary-btn:active { transform: scale(0.98); }
 
         /* --- CHAT SCREEN --- */
         #chat-screen {
@@ -245,14 +181,12 @@
             height: 100%;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
         }
         #chat-screen.active {
             opacity: 1;
             pointer-events: auto;
         }
 
-        /* Header */
         .chat-header {
             padding: 14px 18px;
             display: flex;
@@ -270,12 +204,8 @@
             gap: 12px;
         }
 
-        .avatar-wrap {
-            position: relative;
-        }
         .avatar {
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             border-radius: 14px;
             background: var(--accent-grad);
             display: flex;
@@ -283,29 +213,6 @@
             justify-content: center;
             font-size: 18px;
             box-shadow: 0 6px 16px -2px var(--violet-glow);
-        }
-        .status-dot {
-            position: absolute;
-            bottom: -2px;
-            right: -2px;
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-            background: var(--emerald-accent);
-            border: 2px solid var(--bg-deep);
-            box-shadow: 0 0 8px var(--emerald-accent);
-        }
-
-        .header-text h3 {
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: -0.2px;
-            color: #fff;
-        }
-        .header-text span {
-            font-size: 12px;
-            color: var(--emerald-accent);
-            font-weight: 600;
         }
 
         .header-actions {
@@ -319,19 +226,11 @@
             align-items: center;
             gap: 6px;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(245, 158, 11, 0.25);
+            border: 1px solid rgba(245, 158, 11, 0.3);
             padding: 7px 14px;
             border-radius: 20px;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            backdrop-filter: blur(10px);
         }
-        .wallet-pill:hover {
-            background: rgba(245, 158, 11, 0.12);
-            border-color: rgba(245, 158, 11, 0.5);
-            transform: translateY(-1px);
-        }
-        .wallet-pill:active { transform: scale(0.96); }
         .wallet-pill span {
             font-size: 13px;
             font-weight: 700;
@@ -348,14 +247,8 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-        .logout-btn:hover {
-            background: rgba(244, 63, 94, 0.18);
-            border-color: rgba(244, 63, 94, 0.4);
         }
 
-        /* Xabarlar maydoni */
         .messages-container {
             flex: 1;
             overflow-y: auto;
@@ -363,12 +256,6 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
-            scroll-behavior: smooth;
-        }
-        .messages-container::-webkit-scrollbar { width: 5px; }
-        .messages-container::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
         }
 
         .msg-bubble {
@@ -377,31 +264,18 @@
             font-size: 14.5px;
             line-height: 1.55;
             word-wrap: break-word;
-            position: relative;
-            animation: msgPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
         }
-
-        @keyframes msgPop {
-            0% { opacity: 0; transform: translateY(10px) scale(0.97); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
         .msg-user {
             align-self: flex-end;
             background: var(--user-grad);
             border-radius: 20px 20px 4px 20px;
             color: #ffffff;
-            box-shadow: 0 6px 20px -4px rgba(99, 102, 241, 0.5);
         }
-
         .msg-ai {
             align-self: flex-start;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-glass);
             border-radius: 20px 20px 20px 4px;
-            color: var(--text-primary);
-            backdrop-filter: blur(12px);
         }
 
         .msg-img-preview {
@@ -409,10 +283,8 @@
             border-radius: 14px;
             margin-bottom: 8px;
             display: block;
-            border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
-        /* Typing animatsiyasi */
         .typing-indicator {
             display: flex;
             align-items: center;
@@ -422,71 +294,26 @@
             border: 1px solid var(--border-glass);
             border-radius: 18px;
             align-self: flex-start;
-            width: fit-content;
-            animation: msgPop 0.3s ease;
         }
         .dot {
-            width: 7px;
-            height: 7px;
+            width: 7px; height: 7px;
             background: var(--violet-accent);
             border-radius: 50%;
             animation: dotGlow 1.4s infinite ease-in-out;
         }
-        .dot:nth-child(2) { animation-delay: 0.2s; background: #a855f7; }
-        .dot:nth-child(3) { animation-delay: 0.4s; background: var(--emerald-accent); }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
 
         @keyframes dotGlow {
             0%, 80%, 100% { transform: scale(0.7); opacity: 0.3; }
-            40% { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 6px currentColor); }
+            40% { transform: scale(1.2); opacity: 1; }
         }
 
-        /* Prevyu bloki */
-        #image-preview-container {
-            display: none;
-            padding: 10px 16px;
-            background: rgba(13, 17, 28, 0.95);
-            border-top: 1px solid var(--border-glass);
-            align-items: center;
-            gap: 12px;
-            animation: slideUp 0.25s ease;
-        }
-        .preview-box {
-            position: relative;
-            width: 52px;
-            height: 52px;
-        }
-        .preview-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 12px;
-            border: 2px solid var(--violet-accent);
-        }
-        .remove-img-btn {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            width: 20px;
-            height: 20px;
-            background: var(--rose-accent);
-            color: #fff;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            box-shadow: 0 2px 8px rgba(244, 63, 94, 0.5);
-        }
-
-        /* Pastki kiritish qismi (Bottom Dock) */
+        /* Input Bar */
         .input-bar {
             padding: 10px 14px;
             background: rgba(11, 15, 25, 0.85);
             border-top: 1px solid var(--border-glass);
-            backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -499,8 +326,7 @@
         }
 
         .media-btn {
-            width: 42px;
-            height: 42px;
+            width: 42px; height: 42px;
             border-radius: 14px;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-glass);
@@ -509,16 +335,8 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .media-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-        .media-btn:active { transform: scale(0.92); }
-        .media-btn svg { width: 21px; height: 21px; stroke-width: 2; }
+        .media-btn svg { width: 21px; height: 21px; }
 
         .input-bar input[type="text"] {
             flex: 1;
@@ -527,19 +345,11 @@
             background: rgba(255, 255, 255, 0.045);
             border: 1px solid var(--border-glass);
             color: #fff;
-            outline: none;
             font-size: 14.5px;
-            transition: all 0.2s ease;
-        }
-        .input-bar input[type="text"]:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--violet-accent);
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
         }
 
         .send-btn {
-            width: 44px;
-            height: 44px;
+            width: 44px; height: 44px;
             border-radius: 14px;
             border: none;
             background: var(--accent-grad);
@@ -549,16 +359,148 @@
             justify-content: center;
             cursor: pointer;
             flex-shrink: 0;
-            box-shadow: var(--btn-glow);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .send-btn:hover {
-            transform: scale(1.06) translateY(-1px);
-            box-shadow: 0 10px 26px -3px rgba(99, 102, 241, 0.6);
-        }
-        .send-btn:active { transform: scale(0.92); }
 
-        /* --- 📷 LIVE KAMERA MODAL --- */
+        /* --- 👛 WALLET MODAL TO'LIQ TO'G'RILANDI --- */
+        #wallet-modal {
+            position: absolute;
+            inset: 0;
+            background: rgba(9, 12, 22, 0.96);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            z-index: 70;
+            display: none;
+            flex-direction: column;
+            padding: 20px 16px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+        .modal-header h2 { font-size: 19px; font-weight: 800; }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            color: #fff;
+            font-size: 22px;
+            border-radius: 50%;
+            width: 36px; height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Balans qutisi aniq formatda */
+        .balance-badge {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 12px 28px -8px rgba(245, 158, 11, 0.2);
+            border-radius: 20px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+        .balance-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .balance-amount-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: nowrap;
+        }
+        .balance-num {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fbbf24;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.5px;
+        }
+        .balance-currency {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fbbf24;
+        }
+
+        .pack-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+            padding-bottom: 20px;
+        }
+        .pack-scroll-area::-webkit-scrollbar { width: 4px; }
+        .pack-scroll-area::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .section-label {
+            margin: 10px 0 8px;
+            font-size: 12.5px;
+            color: #a5b4fc;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        .pack-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .pack-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-glass) !important;
+            padding: 14px 10px;
+            border-radius: 18px;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: none !important;
+        }
+        .pack-card:hover {
+            border-color: var(--emerald-accent) !important;
+            background: rgba(16, 185, 129, 0.08);
+            transform: translateY(-2px);
+        }
+        .pack-card:active {
+            transform: scale(0.96);
+        }
+
+        .pack-val {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+            white-space: nowrap;
+        }
+        .pack-price {
+            font-size: 13px;
+            color: var(--emerald-accent);
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        /* 📷 Kamera Modali */
         #camera-modal {
             position: absolute;
             inset: 0;
@@ -567,16 +509,11 @@
             display: none;
             flex-direction: column;
             justify-content: space-between;
-            animation: fadeIn 0.3s ease;
         }
-
         .cam-top-bar {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
+            top: 20px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between;
             z-index: 10;
         }
         .cam-tool-btn {
@@ -584,199 +521,54 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
             border-radius: 50%;
-            width: 46px;
-            height: 46px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            backdrop-filter: blur(16px);
-            transition: all 0.2s;
+            width: 46px; height: 46px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; cursor: pointer;
         }
-        .cam-tool-btn:active { transform: scale(0.9); }
-
         .video-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
         }
-        #camera-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Kamera burchak fokus ramkalari */
-        .cam-viewfinder {
-            position: absolute;
-            width: 72%;
-            height: 52%;
-            pointer-events: none;
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            border-radius: 24px;
-        }
-
+        #camera-video { width: 100%; height: 100%; object-fit: cover; }
         .cam-controls {
-            position: absolute;
-            bottom: 34px;
-            left: 0;
-            right: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; bottom: 34px; left: 0; right: 0;
+            display: flex; align-items: center; justify-content: center;
             z-index: 10;
         }
         .capture-btn {
-            width: 78px;
-            height: 78px;
+            width: 76px; height: 76px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.2);
             border: 4px solid #fff;
-            padding: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-            transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 4px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
-        .capture-btn:active { transform: scale(0.88); }
-        .capture-inner {
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            border-radius: 50%;
-        }
+        .capture-inner { width: 100%; height: 100%; background: #fff; border-radius: 50%; }
 
-        /* --- 👛 WALLET MODAL --- */
-        #wallet-modal {
-            position: absolute;
-            inset: 0;
-            background: rgba(9, 12, 22, 0.94);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            z-index: 70;
+        #image-preview-container {
             display: none;
-            flex-direction: column;
-            padding: 24px 20px;
-            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
+            padding: 10px 16px;
+            background: rgba(13, 17, 28, 0.95);
+            border-top: 1px solid var(--border-glass);
             align-items: center;
-            margin-bottom: 20px;
-        }
-        .modal-header h2 {
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-        }
-        .modal-close {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--border-glass);
-            color: #fff;
-            font-size: 22px;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .modal-close:hover { background: rgba(255, 255, 255, 0.12); }
-
-        .balance-badge {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border: 1px solid rgba(245, 158, 11, 0.35);
-            box-shadow: 0 16px 36px -10px rgba(245, 158, 11, 0.18);
-            border-radius: 24px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 22px;
-            position: relative;
-            overflow: hidden;
-        }
-        .balance-badge::before {
-            content: '';
-            position: absolute;
-            top: -50%; right: -50%;
-            width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .pack-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
             gap: 12px;
-            overflow-y: auto;
-            max-height: 52vh;
-            padding-right: 2px;
         }
-        .pack-grid::-webkit-scrollbar { width: 4px; }
-        .pack-grid::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        .pack-card {
-            background: var(--surface-card);
-            border: 1px solid var(--border-glass);
-            padding: 16px 12px;
-            border-radius: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .pack-card:hover {
-            border-color: var(--emerald-accent);
-            background: rgba(16, 185, 129, 0.08);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 24px -6px var(--emerald-glow);
-        }
-        .pack-card:active { transform: scale(0.96); }
-
-        .pack-val {
-            font-size: 15px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 6px;
-        }
-        .pack-price {
-            font-size: 13.5px;
-            color: var(--emerald-accent);
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Umumiy animatsiyalar */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(18px); }
-            to { opacity: 1; transform: translateY(0); }
+        .preview-box { position: relative; width: 50px; height: 50px; }
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; border: 2px solid var(--violet-accent); }
+        .remove-img-btn {
+            position: absolute; top: -6px; right: -6px;
+            width: 20px; height: 20px;
+            background: var(--rose-accent); color: #fff;
+            border-radius: 50%; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
     </style>
 </head>
 <body>
 
-<!-- 🌌 Ambient fon sferalari -->
 <div class="ambient-orb orb-1"></div>
 <div class="ambient-orb orb-2"></div>
-<div class="ambient-orb orb-3"></div>
 
 <div class="container">
     <!-- AUTH SCREEN -->
@@ -784,17 +576,13 @@
         <div class="auth-card">
             <div class="auth-logo-badge">⚡</div>
             <h1 class="auth-title">Bilol AI</h1>
-            <p class="auth-desc">Intellektual suhbat va multimedia tahlilidan foydalanish uchun hisobingizga kiring</p>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 22px;">Intellektual yordamchidan foydalanish uchun profilingizga kiring</p>
 
-            <div class="input-group">
-                <input type="text" id="name-input" class="styled-input" placeholder="Ismingizni kiriting" autocomplete="off">
-            </div>
-            <div class="input-group">
-                <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqam (masalan, 883863377)">
-            </div>
+            <input type="text" id="name-input" class="styled-input" placeholder="Ismingizni kiriting" autocomplete="off">
+            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqam (masalan, 883863377)">
 
             <button id="start-btn" class="primary-btn">Suhbatni boshlash</button>
-            <div id="status-box" style="margin-top: 14px; font-size: 13.5px; font-weight: 500;"></div>
+            <div id="status-box" style="margin-top: 14px; font-size: 13.5px;"></div>
         </div>
     </div>
 
@@ -802,13 +590,10 @@
     <div id="chat-screen">
         <header class="chat-header">
             <div class="chat-header-info">
-                <div class="avatar-wrap">
-                    <div class="avatar">⚡</div>
-                    <div class="status-dot"></div>
-                </div>
-                <div class="header-text">
-                    <h3>Bilol AI</h3>
-                    <span>● Faol tizim</span>
+                <div class="avatar">⚡</div>
+                <div>
+                    <h3 style="font-size: 15px; font-weight: 700;">Bilol AI</h3>
+                    <span style="font-size: 12px; color: var(--emerald-accent); font-weight: 600;">● Faol tizim</span>
                 </div>
             </div>
 
@@ -822,33 +607,29 @@
 
         <main class="messages-container" id="messages-container">
             <div class="msg-bubble msg-ai" id="welcome-bubble">
-                Assalomu alaykum! Men Bilol AI intellektual yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali surat yuboring, darhol tahlil qilib beraman! 🚀
+                Assalomu alaykum! Men Bilol AI yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali rasm yuboring, darhol tahlil qilib beraman! 🚀
             </div>
         </main>
 
-        <!-- RASM PREVYU BLOKI -->
         <div id="image-preview-container">
             <div class="preview-box">
                 <img id="preview-img-element" src="" alt="Prevyu">
-                <button class="remove-img-btn" id="cancel-image-btn" title="Bekor qilish">&times;</button>
+                <button class="remove-img-btn" id="cancel-image-btn">&times;</button>
             </div>
-            <span style="font-size: 13px; color: #cbd5e1; font-weight: 500;">Rasm yuklandi. Savolingizni yozib yuboring.</span>
+            <span style="font-size: 13px; color: #cbd5e1;">Rasm biriktirildi. Savolingizni yozing.</span>
         </div>
 
-        <!-- PASTKI DOCK (INPUT BAR) -->
         <footer class="input-bar">
             <input type="file" id="gallery-input" accept="image/*" style="display: none;">
 
             <div class="media-buttons">
-                <!-- Jonli Kamera -->
-                <button type="button" class="media-btn" id="live-camera-btn" title="Jonli kamerani ochish">
+                <button type="button" class="media-btn" id="live-camera-btn" title="Jonli kamera">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                         <circle cx="12" cy="13" r="4"></circle>
                     </svg>
                 </button>
-                <!-- Galereya -->
-                <button type="button" class="media-btn" id="gallery-btn" title="Galereyadan tanlash">
+                <button type="button" class="media-btn" id="gallery-btn" title="Galereya">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                         <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -858,7 +639,7 @@
             </div>
 
             <input type="text" id="chat-input" placeholder="Xabar yoki savolingizni yozing..." autocomplete="off">
-            <button id="send-btn" class="send-btn" title="Yuborish">
+            <button id="send-btn" class="send-btn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -870,15 +651,14 @@
     <!-- 📷 LIVE KAMERA MODAL -->
     <div id="camera-modal">
         <div class="cam-top-bar">
-            <button class="cam-tool-btn" id="close-camera-btn" title="Yopish">&times;</button>
-            <button class="cam-tool-btn" id="flip-camera-btn" title="Kamerani almashtirish">🔄</button>
+            <button class="cam-tool-btn" id="close-camera-btn">&times;</button>
+            <button class="cam-tool-btn" id="flip-camera-btn">🔄</button>
         </div>
         <div class="video-container">
             <video id="camera-video" autoplay playsinline muted></video>
-            <div class="cam-viewfinder"></div>
         </div>
         <div class="cam-controls">
-            <div class="capture-btn" id="take-photo-btn" title="Suratga olish">
+            <div class="capture-btn" id="take-photo-btn">
                 <div class="capture-inner"></div>
             </div>
         </div>
@@ -893,41 +673,44 @@
         </div>
 
         <div class="balance-badge">
-            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 600;">Joriy hisobingiz:</div>
-            <div style="font-size: 28px; font-weight: 800; color: #fbbf24; font-family: 'JetBrains Mono', monospace;">
-                <span id="modal-balance">0</span> so'm
+            <div class="balance-title">Joriy hisobingiz:</div>
+            <div class="balance-amount-row">
+                <span class="balance-num" id="modal-balance">0</span>
+                <span class="balance-currency">so'm</span>
             </div>
         </div>
 
-        <h4 style="margin: 6px 0 12px; font-size: 14px; color: #a5b4fc; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">⭐ Telegram Stars</h4>
-        <div class="pack-grid" style="margin-bottom: 18px;">
-            <div class="pack-card" onclick="buyItem('50 Stars', 15000)">
-                <div class="pack-val">⭐ 50 Stars</div>
-                <div class="pack-price">15,000 so'm</div>
+        <div class="pack-scroll-area">
+            <div class="section-label">⭐ Telegram Stars</div>
+            <div class="pack-grid">
+                <div class="pack-card" onclick="buyItem('50 Stars', 15000)">
+                    <div class="pack-val">⭐ 50 Stars</div>
+                    <div class="pack-price">15,000 so'm</div>
+                </div>
+                <div class="pack-card" onclick="buyItem('100 Stars', 29000)">
+                    <div class="pack-val">⭐ 100 Stars</div>
+                    <div class="pack-price">29,000 so'm</div>
+                </div>
+                <div class="pack-card" onclick="buyItem('250 Stars', 70000)">
+                    <div class="pack-val">⭐ 250 Stars</div>
+                    <div class="pack-price">70,000 so'm</div>
+                </div>
+                <div class="pack-card" onclick="buyItem('500 Stars', 135000)">
+                    <div class="pack-val">⭐ 500 Stars</div>
+                    <div class="pack-price">135,000 so'm</div>
+                </div>
             </div>
-            <div class="pack-card" onclick="buyItem('100 Stars', 29000)">
-                <div class="pack-val">⭐ 100 Stars</div>
-                <div class="pack-price">29,000 so'm</div>
-            </div>
-            <div class="pack-card" onclick="buyItem('250 Stars', 70000)">
-                <div class="pack-val">⭐ 250 Stars</div>
-                <div class="pack-price">70,000 so'm</div>
-            </div>
-            <div class="pack-card" onclick="buyItem('500 Stars', 135000)">
-                <div class="pack-val">⭐ 500 Stars</div>
-                <div class="pack-price">135,000 so'm</div>
-            </div>
-        </div>
 
-        <h4 style="margin: 6px 0 12px; font-size: 14px; color: #a5b4fc; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">💎 Telegram Premium</h4>
-        <div class="pack-grid">
-            <div class="pack-card" onclick="buyItem('Premium 3 oy', 160000)">
-                <div class="pack-val">💎 3 Oylik</div>
-                <div class="pack-price">160,000 so'm</div>
-            </div>
-            <div class="pack-card" onclick="buyItem('Premium 6 oy', 240000)">
-                <div class="pack-val">💎 6 Oylik</div>
-                <div class="pack-price">240,000 so'm</div>
+            <div class="section-label">💎 Telegram Premium</div>
+            <div class="pack-grid">
+                <div class="pack-card" onclick="buyItem('Premium 3 oy', 160000)">
+                    <div class="pack-val">💎 3 Oylik</div>
+                    <div class="pack-price">160,000 so'm</div>
+                </div>
+                <div class="pack-card" onclick="buyItem('Premium 6 oy', 240000)">
+                    <div class="pack-val">💎 6 Oylik</div>
+                    <div class="pack-price">240,000 so'm</div>
+                </div>
             </div>
         </div>
     </div>
@@ -972,7 +755,6 @@
     let mediaStream = null;
     let currentFacingMode = "environment";
 
-    // 🎵 ANDROID UCHUN MAXSUS AUDIO SOZLAMASI (money_2.mp3)
     const incomeAudio = new Audio("money_2.mp3");
     incomeAudio.preload = "auto";
     let audioUnlocked = false;
@@ -998,7 +780,7 @@
             const playPromise = incomeAudio.play();
             if (playPromise !== undefined) {
                 playPromise.catch(err => {
-                    console.log("Brauzer avtomatik musiqani to'xtatdi:", err);
+                    console.log("Audio cheklandi:", err);
                 });
             }
         } catch (e) {
@@ -1041,7 +823,7 @@
             font-size: 14.5px;
             box-shadow: 0 16px 36px -6px rgba(16, 185, 129, 0.5);
             z-index: 99999;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.4s ease;
         `;
         notifyDiv.innerText = text;
         document.body.appendChild(notifyDiv);
@@ -1198,7 +980,6 @@
         }
     };
 
-    // Gallery
     galleryBtn.onclick = () => galleryInput.click();
     galleryInput.onchange = (e) => {
         const file = e.target.files[0];
@@ -1216,7 +997,6 @@
         e.target.value = "";
     };
 
-    // Live Camera
     async function startCamera() {
         if (mediaStream) {
             mediaStream.getTracks().forEach(track => track.stop());
@@ -1291,7 +1071,6 @@
         previewImgElement.src = "";
     };
 
-    // Chat
     function appendMsg(text, role, imgSrc = null) {
         const div = document.createElement("div");
         div.className = `msg-bubble msg-${role}`;
