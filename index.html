@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Bilols AI — Intelligent Neural Assistant</title>
+    <title>Bilol AI — Intelligent Neural Assistant</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-deep: #07090e;
-            --surface-glass: rgba(18, 24, 38, 0.72);
+            --surface-glass: rgba(18, 24, 38, 0.75);
             --surface-card: rgba(255, 255, 255, 0.035);
             --border-glass: rgba(255, 255, 255, 0.08);
             
@@ -101,14 +101,14 @@
             }
         }
 
-        /* --- AUTH SCREEN --- */
+        /* --- AUTH SCREEN (LOGIN & REGISTER) --- */
         #auth-screen {
             position: absolute;
             inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 28px;
+            padding: 24px;
             z-index: 40;
             background: inherit;
         }
@@ -119,49 +119,81 @@
             background: var(--surface-card);
             border: 1px solid var(--border-glass);
             border-radius: 28px;
-            padding: 36px 26px;
+            padding: 30px 22px;
             text-align: center;
             box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(20px);
         }
 
         .auth-logo-badge {
-            width: 64px; height: 64px;
-            margin: 0 auto 16px;
-            border-radius: 22px;
+            width: 58px; height: 58px;
+            margin: 0 auto 12px;
+            border-radius: 20px;
             background: var(--accent-grad);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 12px 28px -4px var(--emerald-glow);
+            font-size: 26px;
+            box-shadow: 0 10px 24px -4px var(--emerald-glow);
         }
 
         .auth-title {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 800;
             background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+        }
+
+        /* 🔘 TABLAR (KIRISH / REGISTRATSIYA) */
+        .auth-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 4px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border-glass);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            font-size: 13.5px;
+            font-weight: 700;
+            border-radius: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .auth-tab.active {
+            background: var(--accent-grad);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
         }
 
         .styled-input {
             width: 100%;
-            padding: 16px 18px;
-            border-radius: 18px;
+            padding: 14px 16px;
+            border-radius: 16px;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-glass);
             color: var(--text-primary);
-            font-size: 15px;
+            font-size: 14.5px;
             outline: none;
             margin-bottom: 12px;
+            transition: 0.2s border-color;
+        }
+        .styled-input:focus {
+            border-color: var(--violet-accent);
         }
 
         .primary-btn {
             width: 100%;
-            padding: 16px;
-            border-radius: 18px;
+            padding: 15px;
+            border-radius: 16px;
             border: none;
             background: var(--accent-grad);
             color: #fff;
@@ -170,6 +202,7 @@
             cursor: pointer;
             box-shadow: var(--btn-glow);
             transition: all 0.25s ease;
+            margin-top: 4px;
         }
         .primary-btn:active { transform: scale(0.98); }
 
@@ -309,7 +342,6 @@
             40% { transform: scale(1.2); opacity: 1; }
         }
 
-        /* Input Bar */
         .input-bar {
             padding: 10px 14px;
             background: rgba(11, 15, 25, 0.85);
@@ -361,7 +393,7 @@
             flex-shrink: 0;
         }
 
-        /* --- 👛 WALLET MODAL TO'LIQ TO'G'RILANDI --- */
+        /* --- 👛 WALLET MODAL --- */
         #wallet-modal {
             position: absolute;
             inset: 0;
@@ -397,7 +429,6 @@
             cursor: pointer;
         }
 
-        /* Balans qutisi aniq formatda */
         .balance-badge {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
             border: 1px solid rgba(245, 158, 11, 0.4);
@@ -426,7 +457,6 @@
             font-weight: 800;
             color: #fbbf24;
             font-family: 'JetBrains Mono', monospace;
-            letter-spacing: -0.5px;
         }
         .balance-currency {
             font-size: 16px;
@@ -474,31 +504,16 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
-            box-shadow: none !important;
         }
         .pack-card:hover {
             border-color: var(--emerald-accent) !important;
             background: rgba(16, 185, 129, 0.08);
             transform: translateY(-2px);
         }
-        .pack-card:active {
-            transform: scale(0.96);
-        }
+        .pack-card:active { transform: scale(0.96); }
 
-        .pack-val {
-            font-size: 14px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 4px;
-            white-space: nowrap;
-        }
-        .pack-price {
-            font-size: 13px;
-            color: var(--emerald-accent);
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-            white-space: nowrap;
-        }
+        .pack-val { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .pack-price { font-size: 13px; color: var(--emerald-accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 
         /* 📷 Kamera Modali */
         #camera-modal {
@@ -575,13 +590,23 @@
     <div id="auth-screen">
         <div class="auth-card">
             <div class="auth-logo-badge">⚡</div>
-            <h1 class="auth-title">Bilols AI</h1>
-            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 22px;">Intellektual yordamchidan foydalanish uchun profilingizga kiring Iltimos +998bilan boshlang va telegramga ulangan ochiq raqam bolsin</p>
+            <h1 class="auth-title">Bilol AI</h1>
 
-            <input type="text" id="name-input" class="styled-input" placeholder="Ismingizni kiriting" autocomplete="off">
-            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqam (masalan, +998972342323)">
+            <!-- TAB TUGMALARI -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Kirish</button>
+                <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Ro'yxatdan o'tish</button>
+            </div>
 
-            <button id="start-btn" class="primary-btn">Suhbatni boshlash</button>
+            <!-- ISM INPUT (Faqat registratsiyada ko'rinadi) -->
+            <div id="name-field-wrap" style="display: none;">
+                <input type="text" id="name-input" class="styled-input" placeholder="Ismingiz" autocomplete="off">
+            </div>
+
+            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqam (masalan, 883863377)">
+            <input type="password" id="pass-input" class="styled-input" placeholder="Parol">
+
+            <button id="auth-action-btn" class="primary-btn">Tizimga kirish</button>
             <div id="status-box" style="margin-top: 14px; font-size: 13.5px;"></div>
         </div>
     </div>
@@ -592,8 +617,8 @@
             <div class="chat-header-info">
                 <div class="avatar">⚡</div>
                 <div>
-                    <h3 style="font-size: 15px; font-weight: 700;">Bilols AI</h3>
-                    <span style="font-size: 12px; color: var(--emerald-accent); font-weight: 600;">● Tizim Faol</span>
+                    <h3 style="font-size: 15px; font-weight: 700;">Bilol AI</h3>
+                    <span style="font-size: 12px; color: var(--emerald-accent); font-weight: 600;">● Faol tizim</span>
                 </div>
             </div>
 
@@ -607,7 +632,7 @@
 
         <main class="messages-container" id="messages-container">
             <div class="msg-bubble msg-ai" id="welcome-bubble">
-                Assalomu alaykum! Men Bilols AI yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali rasm yuboring, darhol tahlil qilib beraman! 🚀
+                Assalomu alaykum! Men Bilol AI yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali rasm yuboring, darhol tahlil qilib beraman! 🚀
             </div>
         </main>
 
@@ -722,9 +747,11 @@
     const authScreen = document.getElementById("auth-screen");
     const chatScreen = document.getElementById("chat-screen");
     const walletModal = document.getElementById("wallet-modal");
-    const startBtn = document.getElementById("start-btn");
+    const authActionBtn = document.getElementById("auth-action-btn");
     const nameInput = document.getElementById("name-input");
     const phoneInput = document.getElementById("phone-input");
+    const passInput = document.getElementById("pass-input");
+    const nameFieldWrap = document.getElementById("name-field-wrap");
     const statusBox = document.getElementById("status-box");
     const headerBalance = document.getElementById("header-balance");
     const modalBalance = document.getElementById("modal-balance");
@@ -754,7 +781,26 @@
     let selectedImageMime = "image/jpeg";
     let mediaStream = null;
     let currentFacingMode = "environment";
+    let activeAuthMode = "login"; // "login" yoki "register"
 
+    // Tab almashtirish
+    window.switchTab = function(mode) {
+        activeAuthMode = mode;
+        statusBox.innerText = "";
+        if (mode === "login") {
+            document.getElementById("tab-login").classList.add("active");
+            document.getElementById("tab-register").classList.remove("active");
+            nameFieldWrap.style.display = "none";
+            authActionBtn.innerText = "Tizimga kirish";
+        } else {
+            document.getElementById("tab-register").classList.add("active");
+            document.getElementById("tab-login").classList.remove("active");
+            nameFieldWrap.style.display = "block";
+            authActionBtn.innerText = "Ro'yxatdan o'tish";
+        }
+    };
+
+    // 🎵 Audio sozlamalari
     const incomeAudio = new Audio("money_2.mp3");
     incomeAudio.preload = "auto";
     let audioUnlocked = false;
@@ -859,6 +905,7 @@
 
     setInterval(refreshBalance, 3000);
 
+    // Sessiyani tekshirish
     window.addEventListener("DOMContentLoaded", () => {
         const savedPhone = localStorage.getItem("bilol_ai_phone");
         const savedName = localStorage.getItem("bilol_ai_name");
@@ -948,35 +995,60 @@
         }
     };
 
-    startBtn.onclick = async () => {
-        const name = nameInput.value.trim();
+    // KIRISH VA REGISTRATSIYA TUGMASI
+    authActionBtn.onclick = async () => {
         const phone = phoneInput.value.replace(/[^0-9]/g, "");
+        const password = passInput.value.trim();
+        const name = nameInput.value.trim();
+
         if (!phone) {
             statusBox.style.color = "#f43f5e";
-            statusBox.innerText = "Iltimos, telefon raqamingizni kiriting!";
+            statusBox.innerText = "Telefon raqamingizni kiriting!";
             return;
         }
-        currentPhone = phone;
-        currentName = name;
+        if (!password) {
+            statusBox.style.color = "#f43f5e";
+            statusBox.innerText = "Parolni kiriting!";
+            return;
+        }
+
         statusBox.style.color = "#94a3b8";
-        statusBox.innerText = "Ulanmoqda... ⏳";
-        startBtn.disabled = true;
+        statusBox.innerText = "Tekshirilmoqda... ⏳";
+        authActionBtn.disabled = true;
+
+        const endpoint = (activeAuthMode === "login") ? "/api/login" : "/api/register";
+        const payload = (activeAuthMode === "login") ? { phone, password } : { phone, password, name };
 
         try {
-            await fetch("/api/register", {
+            const res = await fetch(`${RAILWAY_URL}${endpoint}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, phone })
+                body: JSON.stringify(payload)
             });
+
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                statusBox.style.color = "#f43f5e";
+                statusBox.innerText = `Xatolik: ${data.error || "Ulanib bo'lmadi"}`;
+                authActionBtn.disabled = false;
+                return;
+            }
+
+            currentPhone = phone;
+            currentName = data.name || name || "";
             localStorage.setItem("bilol_ai_phone", phone);
-            localStorage.setItem("bilol_ai_name", name);
+            localStorage.setItem("bilol_ai_name", currentName);
+
             await refreshBalance();
             authScreen.classList.add("hidden");
             chatScreen.classList.add("active");
+            if (currentName) {
+                document.getElementById("welcome-bubble").innerText = `Hush kelibsiz, ${currentName}! Qanday yordam bera olaman? 🚀`;
+            }
         } catch (err) {
             statusBox.style.color = "#f43f5e";
-            statusBox.innerText = "Xatolik: Serverga ulanib bo'lmadi";
-            startBtn.disabled = false;
+            statusBox.innerText = "Serverga ulanishda xatolik yuz berdi.";
+            authActionBtn.disabled = false;
         }
     };
 
