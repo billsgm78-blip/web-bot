@@ -622,7 +622,7 @@
                 <input type="text" id="name-input" class="styled-input" placeholder="Ismingiz" autocomplete="off">
             </div>
 
-            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqamingiz +998 bilan botdan royhatdan otgan raqam!!">
+            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqamingiz (+998 boshlang) ">
             <input type="password" id="pass-input" class="styled-input" placeholder="Parol">
 
             <button id="auth-action-btn" class="primary-btn">Tizimga kirish</button>
@@ -1017,12 +1017,12 @@
         const name = nameInput.value.trim();
 
         if (!phone) {
-            statusBox.style.color = "#f43f5e";
-            statusBox.innerText = "Telefon raqamingizni kiriting! +998 bilan boshlang";
+            statusBox.style.color = "#f33f5e";
+            statusBox.innerText = "Telefon raqamingizni kiriting! ";
             return;
         }
         if (!password) {
-            statusBox.style.color = "#f43f5e";
+            statusBox.style.color = "#f13f5e";
             statusBox.innerText = "Parolni kiriting!";
             return;
         }
