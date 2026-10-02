@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Bilols AI — Intelligent Neural Assistant</title>
+    <title>Bilol AI — Intelligent Neural Assistant</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -101,7 +101,7 @@
             }
         }
 
-        /* --- AUTH SCREEN (LOGIN & REGISTER) --- */
+        /* --- AUTH SCREEN --- */
         #auth-screen {
             position: absolute;
             inset: 0;
@@ -146,7 +146,6 @@
             margin-bottom: 6px;
         }
 
-        /* 🔘 TABLAR (KIRISH / REGISTRATSIYA) */
         .auth-tabs {
             display: flex;
             background: rgba(255, 255, 255, 0.05);
@@ -431,11 +430,18 @@
             text-align: center;
             line-height: 0;
             padding: 0;
-            padding-bottom: 2px; /* Shrift siljishini to'g'irlab, x ni qoq o'rtaga keltiradi */
+            padding-bottom: 2px;
             cursor: pointer;
             box-sizing: border-box;
             transition: all 0.2s ease;
         }
+        .modal-close:hover {
+            background: rgba(244, 63, 94, 0.2);
+            border-color: rgba(244, 63, 94, 0.4);
+            color: #f43f5e;
+            transform: scale(1.05);
+        }
+        .modal-close:active { transform: scale(0.92); }
 
         .balance-badge {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
@@ -523,7 +529,7 @@
         .pack-val { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
         .pack-price { font-size: 13px; color: var(--emerald-accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 
-        /* 📷 Kamera Modali */
+        /* --- 📷 LIVE KAMERA MODAL --- */
         #camera-modal {
             position: absolute;
             inset: 0;
@@ -540,20 +546,25 @@
             z-index: 10;
         }
         .cam-tool-btn {
-            background: rgba(20, 24, 38, 0.65);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(20, 24, 38, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             color: #fff;
             border-radius: 50%;
             width: 46px; height: 46px;
             display: flex; align-items: center; justify-content: center;
             font-size: 20px; cursor: pointer;
+            backdrop-filter: blur(10px);
         }
         .video-container {
             width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; position: relative;
         }
-        #camera-video { width: 100%; height: 100%; object-fit: cover; }
+        #camera-video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
         .cam-controls {
             position: absolute; bottom: 34px; left: 0; right: 0;
             display: flex; align-items: center; justify-content: center;
@@ -566,7 +577,9 @@
             border: 4px solid #fff;
             padding: 4px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 24px rgba(255, 255, 255, 0.35);
         }
+        .capture-btn:active { transform: scale(0.9); }
         .capture-inner { width: 100%; height: 100%; background: #fff; border-radius: 50%; }
 
         #image-preview-container {
@@ -598,20 +611,18 @@
     <div id="auth-screen">
         <div class="auth-card">
             <div class="auth-logo-badge">⚡</div>
-            <h1 class="auth-title">Bilols AI</h1>
+            <h1 class="auth-title">Bilol AI</h1>
 
-            <!-- TAB TUGMALARI -->
             <div class="auth-tabs">
                 <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Kirish</button>
                 <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Ro'yxatdan o'tish</button>
             </div>
 
-            <!-- ISM INPUT (Faqat registratsiyada ko'rinadi) -->
             <div id="name-field-wrap" style="display: none;">
                 <input type="text" id="name-input" class="styled-input" placeholder="Ismingiz" autocomplete="off">
             </div>
 
-            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqam (masalan,+998972343435)">
+            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqamingiz">
             <input type="password" id="pass-input" class="styled-input" placeholder="Parol">
 
             <button id="auth-action-btn" class="primary-btn">Tizimga kirish</button>
@@ -625,8 +636,8 @@
             <div class="chat-header-info">
                 <div class="avatar">⚡</div>
                 <div>
-                    <h3 style="font-size: 15px; font-weight: 700;">Bilols AI</h3>
-                    <span style="font-size: 12px; color: var(--emerald-accent); font-weight: 600;">● Tizim Faol</span>
+                    <h3 style="font-size: 15px; font-weight: 700;">Bilol AI</h3>
+                    <span style="font-size: 12px; color: var(--emerald-accent); font-weight: 600;">● Faol tizim</span>
                 </div>
             </div>
 
@@ -640,7 +651,7 @@
 
         <main class="messages-container" id="messages-container">
             <div class="msg-bubble msg-ai" id="welcome-bubble">
-                Assalomu alaykum! Men Bilols AI yordamchingizman. Menga istalgan savolingizni bering yoki jonli kamera orqali rasm yuboring, darhol tahlil qilib beraman! 🚀
+                Assalomu alaykum! Men Bilol AI yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali rasm yuboring, darhol tahlil qilib beraman! 🚀
             </div>
         </main>
 
@@ -681,14 +692,14 @@
         </footer>
     </div>
 
-    <!-- 📷 LIVE KAMERA MODAL -->
+    <!-- 📷 LIVE KAMERA MODAL (Android uchun to'liq moslangan video) -->
     <div id="camera-modal">
         <div class="cam-top-bar">
             <button class="cam-tool-btn" id="close-camera-btn">&times;</button>
             <button class="cam-tool-btn" id="flip-camera-btn">🔄</button>
         </div>
         <div class="video-container">
-            <video id="camera-video" autoplay playsinline muted></video>
+            <video id="camera-video" autoplay playsinline webkit-playsinline muted></video>
         </div>
         <div class="cam-controls">
             <div class="capture-btn" id="take-photo-btn">
@@ -789,9 +800,8 @@
     let selectedImageMime = "image/jpeg";
     let mediaStream = null;
     let currentFacingMode = "environment";
-    let activeAuthMode = "login"; // "login" yoki "register"
+    let activeAuthMode = "login";
 
-    // Tab almashtirish
     window.switchTab = function(mode) {
         activeAuthMode = mode;
         statusBox.innerText = "";
@@ -808,7 +818,6 @@
         }
     };
 
-    // 🎵 Audio sozlamalari
     const incomeAudio = new Audio("money_2.mp3");
     incomeAudio.preload = "auto";
     let audioUnlocked = false;
@@ -913,7 +922,6 @@
 
     setInterval(refreshBalance, 3000);
 
-    // Sessiyani tekshirish
     window.addEventListener("DOMContentLoaded", () => {
         const savedPhone = localStorage.getItem("bilol_ai_phone");
         const savedName = localStorage.getItem("bilol_ai_name");
@@ -1003,7 +1011,6 @@
         }
     };
 
-    // KIRISH VA REGISTRATSIYA TUGMASI
     authActionBtn.onclick = async () => {
         const phone = phoneInput.value.replace(/[^0-9]/g, "");
         const password = passInput.value.trim();
@@ -1077,26 +1084,49 @@
         e.target.value = "";
     };
 
+    // 📱 ANDROID VA IPHONE UCHUN TO'LIQ ISHONCHLI KAMERA FUNKSIYALARI
     async function startCamera() {
-        if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
+        stopCamera();
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("Brauzeringiz kamerani qo'llab-quvvatlamaydi. Galereya ochiladi.");
+            galleryInput.click();
+            return;
         }
 
+        const constraints = {
+            audio: false,
+            video: {
+                facingMode: currentFacingMode,
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }
+        };
+
         try {
-            const constraints = {
-                video: {
-                    facingMode: currentFacingMode,
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                },
-                audio: false
-            };
             mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
             cameraVideo.srcObject = mediaStream;
+            cameraVideo.setAttribute("playsinline", "true");
+            cameraVideo.setAttribute("webkit-playsinline", "true");
+            cameraVideo.muted = true;
+            await cameraVideo.play();
             cameraModal.style.display = "flex";
         } catch (err) {
-            console.error("Kamera xatosi:", err);
-            galleryInput.click();
+            console.warn("Asosiy kamerada xatolik, zaxira rejimga o'tish:", err);
+            try {
+                // Zaxira: cheklovlarsiz oddiy video rejimida ochish
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                cameraVideo.srcObject = mediaStream;
+                cameraVideo.setAttribute("playsinline", "true");
+                cameraVideo.setAttribute("webkit-playsinline", "true");
+                cameraVideo.muted = true;
+                await cameraVideo.play();
+                cameraModal.style.display = "flex";
+            } catch (fallbackErr) {
+                console.error("Kamera ruxsati berilmadi:", fallbackErr);
+                alert("Kameraga ulanib bo'lmadi. Brauzer sozlamalarida kameraga ruxsat bering yoki rasmni galereyadan tanlang.");
+                galleryInput.click();
+            }
         }
     }
 
@@ -1104,6 +1134,9 @@
         if (mediaStream) {
             mediaStream.getTracks().forEach(track => track.stop());
             mediaStream = null;
+        }
+        if (cameraVideo) {
+            cameraVideo.srcObject = null;
         }
         cameraModal.style.display = "none";
     }
@@ -1121,7 +1154,10 @@
     };
 
     takePhotoBtn.onclick = () => {
-        if (!cameraVideo.videoWidth) return;
+        if (!cameraVideo.videoWidth || !cameraVideo.videoHeight) {
+            alert("Kamera to'liq yuklanmoqda, kuting...");
+            return;
+        }
 
         cameraCanvas.width = cameraVideo.videoWidth;
         cameraCanvas.height = cameraVideo.videoHeight;
