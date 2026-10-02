@@ -417,16 +417,24 @@
         .modal-header h2 { font-size: 19px; font-weight: 800; }
 
         .modal-close {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--border-glass);
-            color: #fff;
-            font-size: 22px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+            font-size: 20px;
+            font-weight: 300;
             border-radius: 50%;
-            width: 36px; height: 36px;
-            display: flex;
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            text-align: center;
+            line-height: 0;
+            padding: 0;
+            padding-bottom: 2px; /* Shrift siljishini to'g'irlab, x ni qoq o'rtaga keltiradi */
             cursor: pointer;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
         }
 
         .balance-badge {
