@@ -611,7 +611,7 @@
     <div id="auth-screen">
         <div class="auth-card">
             <div class="auth-logo-badge">⚡</div>
-            <h1 class="auth-title">Bilols AI</h1>
+            <h1 class="auth-title">Bilol AI</h1>
 
             <div class="auth-tabs">
                 <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Kirish</button>
@@ -622,7 +622,7 @@
                 <input type="text" id="name-input" class="styled-input" placeholder="Ismingiz" autocomplete="off">
             </div>
 
-            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqamingiz (+998 boshlang) ">
+            <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqamingiz (+998 bilan">
             <input type="password" id="pass-input" class="styled-input" placeholder="Parol">
 
             <button id="auth-action-btn" class="primary-btn">Tizimga kirish</button>
@@ -636,8 +636,8 @@
             <div class="chat-header-info">
                 <div class="avatar">⚡</div>
                 <div>
-                    <h3 style="font-size: 15px; font-weight: 700;">Bilols AI</h3>
-                    <span style="font-size: 12px; color: var(--emerald-accent); font-weight: 600;">● Tizim Faol</span>
+                    <h3 style="font-size: 15px; font-weight: 700;">Bilol AI</h3>
+                    <span style="font-size: 12px; color: var(--emerald-accent); font-weight: 600;">● Faol tizim</span>
                 </div>
             </div>
 
@@ -651,7 +651,7 @@
 
         <main class="messages-container" id="messages-container">
             <div class="msg-bubble msg-ai" id="welcome-bubble">
-                Assalomu alaykum! Men Bilols AI yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali rasm yuboring, darhol tahlil qilib beraman! 🚀
+                Assalomu alaykum! Men Bilol AI yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali rasm yuboring, darhol tahlil qilib beraman! 🚀
             </div>
         </main>
 
@@ -692,7 +692,7 @@
         </footer>
     </div>
 
-    <!-- 📷 LIVE KAMERA MODAL (Android uchun to'liq moslangan video) -->
+    <!-- 📷 LIVE KAMERA MODAL -->
     <div id="camera-modal">
         <div class="cam-top-bar">
             <button class="cam-tool-btn" id="close-camera-btn">&times;</button>
@@ -818,24 +818,9 @@
         }
     };
 
+    // 🎵 YALNIZ VƏ YALNIZ YENİ PUL GƏLƏNDƏ İŞLƏYƏN AUDİO SİSTEMİ
     const incomeAudio = new Audio("money_2.mp3");
     incomeAudio.preload = "auto";
-    let audioUnlocked = false;
-
-    function unlockAudioForAndroid() {
-        if (audioUnlocked) return;
-        incomeAudio.play().then(() => {
-            incomeAudio.pause();
-            incomeAudio.currentTime = 0;
-            audioUnlocked = true;
-        }).catch(() => {});
-
-        document.removeEventListener("touchstart", unlockAudioForAndroid);
-        document.removeEventListener("click", unlockAudioForAndroid);
-    }
-
-    document.addEventListener("touchstart", unlockAudioForAndroid, { once: true });
-    document.addEventListener("click", unlockAudioForAndroid, { once: true });
 
     function playIncomeMusic() {
         try {
@@ -843,11 +828,11 @@
             const playPromise = incomeAudio.play();
             if (playPromise !== undefined) {
                 playPromise.catch(err => {
-                    console.log("Audio cheklandi:", err);
+                    console.log("Audio icazəsi gözlənilir:", err);
                 });
             }
         } catch (e) {
-            console.error("Audio xatosi:", e);
+            console.error("Audio xətası:", e);
         }
     }
 
@@ -899,6 +884,7 @@
     }
 
     let lastKnownBalance = null;
+    let isInitialLoad = true;
 
     async function refreshBalance() {
         if (!currentPhone) return;
@@ -907,13 +893,16 @@
             const data = await res.json();
             const currentBal = Number(data.balance || 0);
 
-            if (lastKnownBalance !== null && currentBal > lastKnownBalance) {
+            // Səhifə ilk açılanda və ya modal açılanda musiqi ÇALINMIR!
+            if (!isInitialLoad && lastKnownBalance !== null && currentBal > lastKnownBalance) {
                 const addedAmount = currentBal - lastKnownBalance;
                 playIncomeMusic();
                 showNotification(`🎉 Hisobingizga +${addedAmount.toLocaleString()} so'm tushdi!`);
             }
 
             lastKnownBalance = currentBal;
+            isInitialLoad = false;
+
             const bal = currentBal.toLocaleString();
             headerBalance.innerText = bal;
             modalBalance.innerText = bal;
@@ -971,7 +960,6 @@
     }
 
     document.getElementById("open-wallet-btn").onclick = () => {
-        refreshBalance();
         walletModal.style.display = "flex";
     };
     document.getElementById("close-wallet-btn").onclick = () => {
@@ -1017,12 +1005,12 @@
         const name = nameInput.value.trim();
 
         if (!phone) {
-            statusBox.style.color = "#f33f5e";
-            statusBox.innerText = "Telefon raqamingizni kiriting! ";
+            statusBox.style.color = "#f43f5e";
+            statusBox.innerText = "Telefon raqamingizni kiriting!";
             return;
         }
         if (!password) {
-            statusBox.style.color = "#f13f5e";
+            statusBox.style.color = "#f43f5e";
             statusBox.innerText = "Parolni kiriting!";
             return;
         }
@@ -1084,7 +1072,6 @@
         e.target.value = "";
     };
 
-    // 📱 ANDROID VA IPHONE UCHUN TO'LIQ ISHONCHLI KAMERA FUNKSIYALARI
     async function startCamera() {
         stopCamera();
 
@@ -1112,9 +1099,7 @@
             await cameraVideo.play();
             cameraModal.style.display = "flex";
         } catch (err) {
-            console.warn("Asosiy kamerada xatolik, zaxira rejimga o'tish:", err);
             try {
-                // Zaxira: cheklovlarsiz oddiy video rejimida ochish
                 mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 cameraVideo.srcObject = mediaStream;
                 cameraVideo.setAttribute("playsinline", "true");
@@ -1123,8 +1108,7 @@
                 await cameraVideo.play();
                 cameraModal.style.display = "flex";
             } catch (fallbackErr) {
-                console.error("Kamera ruxsati berilmadi:", fallbackErr);
-                alert("Kameraga ulanib bo'lmadi. Brauzer sozlamalarida kameraga ruxsat bering yoki rasmni galereyadan tanlang.");
+                alert("Kameraga ulanib bo'lmadi. Brauzer sozlamalarida ruxsat bering yoki galereyadan tanlang.");
                 galleryInput.click();
             }
         }
@@ -1154,10 +1138,7 @@
     };
 
     takePhotoBtn.onclick = () => {
-        if (!cameraVideo.videoWidth || !cameraVideo.videoHeight) {
-            alert("Kamera to'liq yuklanmoqda, kuting...");
-            return;
-        }
+        if (!cameraVideo.videoWidth || !cameraVideo.videoHeight) return;
 
         cameraCanvas.width = cameraVideo.videoWidth;
         cameraCanvas.height = cameraVideo.videoHeight;
