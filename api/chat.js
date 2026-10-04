@@ -1,9 +1,9 @@
 // api/chat.js - Vercel Serverless Function
 
 const MODELS = [
-  process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite",
+  process.env.GEMINI_MODEL || "gemini-2.5-flash",
+  "gemini-1.5-flash",
+  "gemini-1.5-pro",
 ];
 
 const RETRY_STATUSES = [429, 500, 503, 504];
