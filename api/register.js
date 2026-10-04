@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   const cleanPhone = String(phone).replace(/[^0-9]/g, "");
   
   // Render'dagi backend botingizning asosiy URL manzilini shu yerga yozing (masalan: https://inglizcha-nom.onrender.com)
-  const backendUrl = "https://SIZNING-RENDER-DOMENINGIZ.onrender.com"; 
+  const backendUrl = "https://ai2-flfl.onrender.com"; 
 
   try {
     // 1. Render'dagi Python bot bazasiga foydalanuvchini saqlash uchun so'rov yuboramiz
