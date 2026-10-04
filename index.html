@@ -761,7 +761,8 @@
 </div>
 
 <script>
-   const RAILWAY_URL = "";
+    // Vercel uchun bo'sh qoldirildi (so'rovlar to'g'ridan-to'g'ri /api/chat ga boradi)
+    const RAILWAY_URL = "";
 
     const authScreen = document.getElementById("auth-screen");
     const chatScreen = document.getElementById("chat-screen");
@@ -801,6 +802,7 @@
     let mediaStream = null;
     let currentFacingMode = "environment";
     let activeAuthMode = "login";
+    let userBalance = 50000; // Vercel uchun lokal balans
 
     window.switchTab = function(mode) {
         activeAuthMode = mode;
@@ -817,23 +819,6 @@
             authActionBtn.innerText = "Ro'yxatdan o'tish";
         }
     };
-
-    const incomeAudio = new Audio("money_2.mp3");
-    incomeAudio.preload = "auto";
-
-    function playIncomeMusic() {
-        try {
-            incomeAudio.currentTime = 0;
-            const playPromise = incomeAudio.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(err => {
-                    console.log("Audio icazəsi gözlənilir:", err);
-                });
-            }
-        } catch (e) {
-            console.error("Audio xətası:", e);
-        }
-    }
 
     function playCashSound() {
         try {
@@ -857,24 +842,18 @@
         const notifyDiv = document.createElement("div");
         notifyDiv.style.cssText = `
             position: fixed;
-            top: 24px;
-            left: 50%;
+            top: 24px; left: 50%;
             transform: translateX(-50%);
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
             border: 1px solid rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(16px);
-            color: #fff;
-            padding: 14px 26px;
-            border-radius: 24px;
-            font-weight: 700;
-            font-size: 14.5px;
+            backdrop-filter: blur(16px); color: #fff;
+            padding: 14px 26px; border-radius: 24px;
+            font-weight: 700; font-size: 14.5px;
             box-shadow: 0 16px 36px -6px rgba(16, 185, 129, 0.5);
-            z-index: 99999;
-            transition: all 0.4s ease;
+            z-index: 99999; transition: all 0.4s ease;
         `;
         notifyDiv.innerText = text;
         document.body.appendChild(notifyDiv);
-
         setTimeout(() => {
             notifyDiv.style.opacity = "0";
             notifyDiv.style.transform = "translateX(-50%) translateY(-24px) scale(0.95)";
@@ -882,38 +861,19 @@
         }, 4000);
     }
 
-    let lastKnownBalance = null;
-    let isInitialLoad = true;
-
-    async function refreshBalance() {
-        if (!currentPhone) return;
-        try {
-            const cleanPhone = currentPhone.replace(/[^0-9]/g, "");
-            const res = await fetch(`${RAILWAY_URL}/api/balance?phone=${cleanPhone}`);
-            const data = await res.json();
-            const currentBal = Number(data.balance || 0);
-
-            if (!isInitialLoad && lastKnownBalance !== null && currentBal > lastKnownBalance) {
-                const addedAmount = currentBal - lastKnownBalance;
-                playIncomeMusic();
-                showNotification(`🎉 Hisobingizga +${addedAmount.toLocaleString()} so'm tushdi!`);
-            }
-
-            lastKnownBalance = currentBal;
-            isInitialLoad = false;
-
-            const bal = currentBal.toLocaleString();
-            headerBalance.innerText = bal;
-            modalBalance.innerText = bal;
-        } catch (e) {}
+    function updateBalanceDisplay() {
+        const bal = userBalance.toLocaleString();
+        headerBalance.innerText = bal;
+        modalBalance.innerText = bal;
     }
-
-    setInterval(refreshBalance, 3000);
 
     window.addEventListener("DOMContentLoaded", () => {
         const savedPhone = localStorage.getItem("bilol_ai_phone");
         const savedName = localStorage.getItem("bilol_ai_name");
         const savedHistory = localStorage.getItem("bilol_ai_history");
+        const savedBal = localStorage.getItem("bilol_ai_balance");
+
+        if (savedBal !== null) userBalance = Number(savedBal);
 
         if (savedPhone) {
             currentPhone = savedPhone;
@@ -929,7 +889,7 @@
                     renderSavedMessages();
                 } catch (e) { chatHistory = []; }
             }
-            refreshBalance();
+            updateBalanceDisplay();
         }
     });
 
@@ -958,38 +918,21 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    document.getElementById("open-wallet-btn").onclick = () => {
-        walletModal.style.display = "flex";
-    };
-    document.getElementById("close-wallet-btn").onclick = () => {
-        walletModal.style.display = "none";
-    };
+    document.getElementById("open-wallet-btn").onclick = () => { walletModal.style.display = "flex"; };
+    document.getElementById("close-wallet-btn").onclick = () => { walletModal.style.display = "none"; };
 
-    window.buyItem = async function(itemName, price) {
-        if (!currentPhone) return;
+    window.buyItem = function(itemName, price) {
+        if (userBalance < price) {
+            alert("❌ Xatolik: Hisobingizda mablag' yetarli emas!");
+            return;
+        }
         if (!confirm(`${itemName} xarid qilasizmi?\nHisobingizdan ${price.toLocaleString()} so'm yechiladi.`)) return;
 
-        try {
-            const cleanPhone = currentPhone.replace(/[^0-9]/g, "");
-            const res = await fetch(`${RAILWAY_URL}/api/deduct-balance`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ phone: cleanPhone, amount: price, item: itemName })
-            });
-            const data = await res.json();
-            if (!res.ok || !data.success) {
-                alert(`❌ Xatolik: ${data.error || "Balans yetarli emas"}`);
-                return;
-            }
-            playCashSound();
-            const newBal = (data.balance || 0).toLocaleString();
-            lastKnownBalance = Number(data.balance || 0);
-            headerBalance.innerText = newBal;
-            modalBalance.innerText = newBal;
-            showNotification(`🎉 ${itemName} muvaffaqiyatli xarid qilindi!`);
-        } catch (e) {
-            alert("⚠️ Server bilan bog'lanishda xatolik.");
-        }
+        userBalance -= price;
+        localStorage.setItem("bilol_ai_balance", userBalance);
+        updateBalanceDisplay();
+        playCashSound();
+        showNotification(`🎉 ${itemName} muvaffaqiyatli xarid qilindi!`);
     };
 
     logoutBtn.onclick = () => {
@@ -999,7 +942,7 @@
         }
     };
 
-    authActionBtn.onclick = async () => {
+    authActionBtn.onclick = () => {
         const rawPhone = phoneInput.value.trim();
         const phone = rawPhone.replace(/[^0-9]/g, "");
         const password = passInput.value.trim();
@@ -1016,44 +959,16 @@
             return;
         }
 
-        statusBox.style.color = "#94a3b8";
-        statusBox.innerText = "Tekshirilmoqda... ⏳";
-        authActionBtn.disabled = true;
+        currentPhone = phone;
+        currentName = name || "Foydalanuvchi";
+        localStorage.setItem("bilol_ai_phone", phone);
+        localStorage.setItem("bilol_ai_name", currentName);
+        localStorage.setItem("bilol_ai_balance", userBalance);
 
-        const endpoint = (activeAuthMode === "login") ? "/api/login" : "/api/register";
-        const payload = (activeAuthMode === "login") ? { phone, password } : { phone, password, name };
-
-        try {
-            const res = await fetch(`${RAILWAY_URL}${endpoint}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await res.json();
-            if (!res.ok || !data.success) {
-                statusBox.style.color = "#f43f5e";
-                statusBox.innerText = `Xatolik: ${data.error || "Ulanib bo'lmadi"}`;
-                authActionBtn.disabled = false;
-                return;
-            }
-
-            currentPhone = phone;
-            currentName = data.name || name || "";
-            localStorage.setItem("bilol_ai_phone", phone);
-            localStorage.setItem("bilol_ai_name", currentName);
-
-            await refreshBalance();
-            authScreen.classList.add("hidden");
-            chatScreen.classList.add("active");
-            if (currentName) {
-                document.getElementById("welcome-bubble").innerText = `Hush kelibsiz, ${currentName}! Qanday yordam bera olaman? 🚀`;
-            }
-        } catch (err) {
-            statusBox.style.color = "#f43f5e";
-            statusBox.innerText = "Serverga ulanishda xatolik yuz berdi.";
-            authActionBtn.disabled = false;
-        }
+        authScreen.classList.add("hidden");
+        chatScreen.classList.add("active");
+        document.getElementById("welcome-bubble").innerText = `Hush kelibsiz, ${currentName}! Qanday yordam bera olaman? 🚀`;
+        updateBalanceDisplay();
     };
 
     galleryBtn.onclick = () => galleryInput.click();
@@ -1075,43 +990,20 @@
 
     async function startCamera() {
         stopCamera();
-
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            alert("Brauzeringiz kamerani qo'llab-quvvatlamaydi. Galereya ochiladi.");
             galleryInput.click();
             return;
         }
-
-        const constraints = {
-            audio: false,
-            video: {
-                facingMode: currentFacingMode,
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            }
-        };
-
         try {
-            mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+            mediaStream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } }
+            });
             cameraVideo.srcObject = mediaStream;
-            cameraVideo.setAttribute("playsinline", "true");
-            cameraVideo.setAttribute("webkit-playsinline", "true");
-            cameraVideo.muted = true;
             await cameraVideo.play();
             cameraModal.style.display = "flex";
         } catch (err) {
-            try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                cameraVideo.srcObject = mediaStream;
-                cameraVideo.setAttribute("playsinline", "true");
-                cameraVideo.setAttribute("webkit-playsinline", "true");
-                cameraVideo.muted = true;
-                await cameraVideo.play();
-                cameraModal.style.display = "flex";
-            } catch (fallbackErr) {
-                alert("Kameraga ulanib bo'lmadi. Brauzer sozlamalarida ruxsat bering yoki galereyadan tanlang.");
-                galleryInput.click();
-            }
+            galleryInput.click();
         }
     }
 
@@ -1120,19 +1012,12 @@
             mediaStream.getTracks().forEach(track => track.stop());
             mediaStream = null;
         }
-        if (cameraVideo) {
-            cameraVideo.srcObject = null;
-        }
+        if (cameraVideo) cameraVideo.srcObject = null;
         cameraModal.style.display = "none";
     }
 
-    liveCameraBtn.onclick = () => {
-        currentFacingMode = "environment";
-        startCamera();
-    };
-
+    liveCameraBtn.onclick = () => { currentFacingMode = "environment"; startCamera(); };
     closeCameraBtn.onclick = stopCamera;
-
     flipCameraBtn.onclick = () => {
         currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
         startCamera();
@@ -1140,25 +1025,19 @@
 
     takePhotoBtn.onclick = () => {
         if (!cameraVideo.videoWidth || !cameraVideo.videoHeight) return;
-
         cameraCanvas.width = cameraVideo.videoWidth;
         cameraCanvas.height = cameraVideo.videoHeight;
         const ctx = cameraCanvas.getContext("2d");
-
         if (currentFacingMode === "user") {
             ctx.translate(cameraCanvas.width, 0);
             ctx.scale(-1, 1);
         }
-
         ctx.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
-        
         const dataUrl = cameraCanvas.toDataURL("image/jpeg", 0.85);
         selectedImageBase64 = dataUrl.split(",")[1];
         selectedImageMime = "image/jpeg";
-
         previewImgElement.src = dataUrl;
         previewContainer.style.display = "flex";
-
         stopCamera();
         chatInput.focus();
     };
@@ -1232,7 +1111,7 @@
         showTyping();
 
         try {
-            const res = await fetch(`${RAILWAY_URL}/api/chat`, {
+            const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ history: chatHistory })
@@ -1240,7 +1119,7 @@
 
             hideTyping();
             const data = await res.json();
-            const reply = data.text || "Javob olib bo'lmadi.";
+            const reply = data.text || data.error || "Javob olib bo'lmadi.";
             appendMsg(reply, "ai");
             chatHistory.push({ role: "model", parts: [{ text: reply }] });
             localStorage.setItem("bilol_ai_history", JSON.stringify(chatHistory));
