@@ -7,6 +7,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Matematik formulalar (darajalar, ildizlar) chiroyli chiqishi uchun KaTeX kutubxonasi -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
     <style>
         :root {
             --bg-deep: #05070b;
@@ -101,7 +106,7 @@
             }
         }
 
-        /* --- LANDING INFO SCREEN --- */
+        /* LANDING */
         #landing-screen {
             position: absolute;
             inset: 0;
@@ -118,7 +123,6 @@
         .landing-hero {
             text-align: center;
             padding: 20px 10px 16px;
-            animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .landing-logo {
@@ -131,12 +135,6 @@
             justify-content: center;
             font-size: 34px;
             box-shadow: 0 14px 32px -4px var(--emerald-glow);
-            animation: emojiBounce 3s ease-in-out infinite;
-        }
-
-        @keyframes emojiBounce {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(3deg); }
         }
 
         .landing-title {
@@ -146,7 +144,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
-            letter-spacing: -0.5px;
         }
 
         .landing-subtitle {
@@ -170,19 +167,6 @@
             display: flex;
             align-items: center;
             gap: 16px;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
-        }
-        .feature-card:nth-child(1) { animation-delay: 0.2s; }
-        .feature-card:nth-child(2) { animation-delay: 0.35s; }
-        .feature-card:nth-child(3) { animation-delay: 0.5s; }
-
-        .feature-card:hover {
-            transform: translateY(-4px) scale(1.01);
-            border-color: var(--violet-accent);
-            background: rgba(255, 255, 255, 0.06);
         }
 
         .feature-icon {
@@ -192,13 +176,6 @@
             border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            animation: pulseIcon 4s ease-in-out infinite;
-        }
-
-        @keyframes pulseIcon {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
         }
 
         .feature-info h4 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: #fff; }
@@ -207,26 +184,9 @@
         .landing-actions {
             margin-top: auto;
             padding-bottom: 24px;
-            animation: fadeIn 1s ease 0.6s forwards;
-            opacity: 0;
         }
 
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* --- AUTH MODAL --- */
+        /* AUTH MODAL */
         #auth-modal {
             position: absolute;
             inset: 0;
@@ -237,7 +197,6 @@
             z-index: 50;
             background: rgba(5, 7, 11, 0.94);
             backdrop-filter: blur(24px);
-            animation: fadeIn 0.3s ease forwards;
         }
         #auth-modal.active { display: flex; }
 
@@ -248,14 +207,7 @@
             border-radius: 32px;
             padding: 32px 24px;
             text-align: center;
-            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8);
             position: relative;
-            animation: scaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes scaleUp {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
         }
 
         .auth-close {
@@ -269,9 +221,7 @@
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .auth-close:hover { background: rgba(244, 63, 94, 0.2); color: var(--rose-accent); }
 
         .auth-tabs {
             display: flex;
@@ -292,12 +242,10 @@
             background: transparent;
             color: var(--text-secondary);
             cursor: pointer;
-            transition: all 0.3s ease;
         }
         .auth-tab.active {
             background: var(--accent-grad);
             color: #fff;
-            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
         }
 
         .styled-input {
@@ -310,11 +258,6 @@
             font-size: 15px;
             outline: none;
             margin-bottom: 14px;
-            transition: 0.3s border-color, 0.3s box-shadow;
-        }
-        .styled-input:focus {
-            border-color: var(--violet-accent);
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.25);
         }
 
         .primary-btn {
@@ -328,13 +271,9 @@
             font-weight: 700;
             cursor: pointer;
             box-shadow: var(--btn-glow);
-            transition: all 0.3s ease;
-            margin-top: 6px;
         }
-        .primary-btn:active { transform: scale(0.97); }
-        .primary-btn:hover { opacity: 0.95; transform: translateY(-1px); }
 
-        /* --- CHAT SCREEN --- */
+        /* CHAT SCREEN */
         #chat-screen {
             display: flex;
             flex-direction: column;
@@ -345,7 +284,6 @@
             position: absolute;
             inset: 0;
             background: var(--surface-glass);
-            transition: opacity 0.4s ease;
         }
         #chat-screen.active {
             opacity: 1;
@@ -378,8 +316,6 @@
             align-items: center;
             justify-content: center;
             font-size: 18px;
-            box-shadow: 0 6px 16px -2px var(--violet-glow);
-            animation: emojiBounce 3s ease-in-out infinite;
         }
 
         .header-actions {
@@ -397,9 +333,7 @@
             padding: 6px 10px;
             border-radius: 18px;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .wallet-pill:hover { background: rgba(245, 158, 11, 0.1); }
         .wallet-pill span {
             font-size: 12.5px;
             font-weight: 700;
@@ -416,9 +350,7 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .logout-btn:hover { background: rgba(244, 63, 94, 0.2); }
 
         .messages-container {
             flex: 1;
@@ -430,21 +362,11 @@
         }
 
         .msg-bubble {
-            max-width: 84%;
+            max-width: 86%;
             padding: 14px 18px;
             font-size: 14.5px;
             line-height: 1.6;
             word-wrap: break-word;
-            opacity: 0;
-            transform: translateY(20px) scale(0.95);
-            animation: bubblePopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes bubblePopIn {
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
         }
 
         .msg-user {
@@ -452,7 +374,6 @@
             background: var(--user-grad);
             border-radius: 22px 22px 4px 22px;
             color: #ffffff;
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
             white-space: pre-wrap;
         }
         
@@ -461,7 +382,6 @@
             background: rgba(255, 255, 255, 0.055);
             border: 1px solid var(--border-glass);
             border-radius: 22px 22px 22px 4px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             white-space: pre-wrap;
         }
 
@@ -481,7 +401,6 @@
             border: 1px solid var(--border-glass);
             border-radius: 18px;
             align-self: flex-start;
-            animation: bubblePopIn 0.3s ease forwards;
         }
         .dot {
             width: 7px; height: 7px;
@@ -495,20 +414,6 @@
         @keyframes dotGlow {
             0%, 80%, 100% { transform: scale(0.7); opacity: 0.3; }
             40% { transform: scale(1.25); opacity: 1; }
-        }
-
-        .typing-cursor::after {
-            content: '▋';
-            display: inline-block;
-            color: var(--violet-accent);
-            animation: cursorBlink 0.8s infinite;
-            margin-left: 2px;
-            font-size: 12px;
-        }
-
-        @keyframes cursorBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
         }
 
         .input-bar {
@@ -536,9 +441,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .media-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--violet-accent); }
         .media-btn svg { width: 21px; height: 21px; }
 
         .input-bar input[type="text"] {
@@ -549,9 +452,7 @@
             border: 1px solid var(--border-glass);
             color: #fff;
             font-size: 14.5px;
-            transition: 0.2s border-color;
         }
-        .input-bar input[type="text"]:focus { border-color: var(--violet-accent); }
 
         .send-btn {
             width: 46px; height: 46px;
@@ -564,24 +465,19 @@
             justify-content: center;
             cursor: pointer;
             flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-            transition: transform 0.2s;
         }
-        .send-btn:active { transform: scale(0.92); }
 
-        /* --- 👛 WALLET MODAL --- */
+        /* WALLET MODAL */
         #wallet-modal {
             position: absolute;
             inset: 0;
             background: rgba(7, 10, 18, 0.97);
             backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
             z-index: 70;
             display: none;
             flex-direction: column;
             padding: 24px 18px;
             overflow: hidden;
-            animation: fadeIn 0.3s ease forwards;
         }
 
         .modal-header {
@@ -589,7 +485,6 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 18px;
-            flex-shrink: 0;
         }
         .modal-header h2 { font-size: 20px; font-weight: 800; }
 
@@ -604,173 +499,26 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .modal-close:hover {
-            background: rgba(244, 63, 94, 0.2);
-            border-color: rgba(244, 63, 94, 0.4);
-            color: #f43f5e;
-            transform: scale(1.05);
         }
 
         .balance-badge {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
             border: 1px solid rgba(245, 158, 11, 0.4);
-            box-shadow: 0 12px 30px -8px rgba(245, 158, 11, 0.25);
             border-radius: 22px;
             padding: 18px;
             text-align: center;
             margin-bottom: 18px;
-            flex-shrink: 0;
         }
-        .balance-title {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-        .balance-amount-row {
-            display: flex;
-            align-items: baseline;
-            justify-content: center;
-            gap: 6px;
-        }
-        .balance-num {
-            font-size: 30px;
-            font-weight: 800;
-            color: #fbbf24;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .balance-currency {
-            font-size: 16px;
-            font-weight: 700;
-            color: #fbbf24;
-        }
+        .balance-title { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+        .balance-num { font-size: 30px; font-weight: 800; color: #fbbf24; font-family: 'JetBrains Mono', monospace; }
 
-        .pack-scroll-area {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 4px;
-            padding-bottom: 20px;
-        }
-        .pack-scroll-area::-webkit-scrollbar { width: 4px; }
-        .pack-scroll-area::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 10px;
-        }
-
-        .section-label {
-            margin: 12px 0 10px;
-            font-size: 13px;
-            color: #a5b4fc;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            font-weight: 700;
-        }
-
-        .pack-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-
-        .pack-card {
-            background: var(--surface-card);
-            border: 1px solid var(--border-glass) !important;
-            padding: 16px 12px;
-            border-radius: 20px;
-            text-align: center;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.25s ease;
-        }
-        .pack-card:hover {
-            border-color: var(--emerald-accent) !important;
-            background: rgba(16, 185, 129, 0.08);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.15);
-        }
-
+        .pack-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+        .section-label { margin: 12px 0 10px; font-size: 13px; color: #a5b4fc; text-transform: uppercase; font-weight: 700; }
+        .pack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+        .pack-card { background: var(--surface-card); border: 1px solid var(--border-glass); padding: 16px 12px; border-radius: 20px; text-align: center; cursor: pointer; }
         .pack-val { font-size: 14.5px; font-weight: 700; color: #fff; margin-bottom: 6px; }
         .pack-price { font-size: 13.5px; color: var(--emerald-accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 
-        /* --- 📷 LIVE KAMERA MODAL --- */
-        #camera-modal {
-            position: absolute;
-            inset: 0;
-            background: #000;
-            z-index: 80;
-            display: none;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .cam-top-bar {
-            position: absolute;
-            top: 20px; left: 20px; right: 20px;
-            display: flex; justify-content: space-between;
-            z-index: 10;
-        }
-        .cam-tool-btn {
-            background: rgba(20, 24, 38, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #fff;
-            border-radius: 50%;
-            width: 48px; height: 48px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; cursor: pointer;
-            backdrop-filter: blur(12px);
-        }
-        .video-container {
-            width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; position: relative;
-        }
-        #camera-video {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            background: #000;
-        }
-        .cam-controls {
-            position: absolute; bottom: 36px; left: 0; right: 0;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 10;
-        }
-        .capture-btn {
-            width: 78px; height: 78px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            border: 4px solid #fff;
-            padding: 4px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
-            transition: transform 0.2s;
-        }
-        .capture-btn:active { transform: scale(0.88); }
-        .capture-inner { width: 100%; height: 100%; background: #fff; border-radius: 50%; }
-
-        #image-preview-container {
-            display: none;
-            padding: 12px 18px;
-            background: rgba(13, 17, 28, 0.96);
-            border-top: 1px solid var(--border-glass);
-            align-items: center;
-            gap: 12px;
-        }
-        .preview-box { position: relative; width: 52px; height: 52px; }
-        .preview-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; border: 2px solid var(--violet-accent); }
-        .remove-img-btn {
-            position: absolute; top: -6px; right: -6px;
-            width: 22px; height: 22px;
-            background: var(--rose-accent); color: #fff;
-            border-radius: 50%; border: none; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        /* --- TOZALASH TUGMASI (HAMYON ICHIDA) --- */
         .clear-chat-wallet-btn {
             width: 100%;
             padding: 15px;
@@ -785,13 +533,38 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            margin-top: 12px;
-            transition: 0.2s;
+            margin-top: 14px;
         }
-        .clear-chat-wallet-btn:hover {
-            background: rgba(139, 92, 246, 0.2);
-            border-color: var(--violet-accent);
+
+        /* KAMERA MODAL */
+        #camera-modal {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            z-index: 80;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
         }
+        .cam-top-bar { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; z-index: 10; }
+        .cam-tool-btn { background: rgba(20, 24, 38, 0.75); border: 1px solid rgba(255, 255, 255, 0.25); color: #fff; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+        .video-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        #camera-video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+        .cam-controls { position: absolute; bottom: 36px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        .capture-btn { width: 78px; height: 78px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); border: 4px solid #fff; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .capture-inner { width: 100%; height: 100%; background: #fff; border-radius: 50%; }
+
+        #image-preview-container {
+            display: none;
+            padding: 12px 18px;
+            background: rgba(13, 17, 28, 0.96);
+            border-top: 1px solid var(--border-glass);
+            align-items: center;
+            gap: 12px;
+        }
+        .preview-box { position: relative; width: 52px; height: 52px; }
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; border: 2px solid var(--violet-accent); }
+        .remove-img-btn { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; background: var(--rose-accent); color: #fff; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -800,12 +573,11 @@
 <div class="ambient-orb orb-2"></div>
 
 <div class="container">
-    <!-- LANDING INFO SCREEN -->
     <div id="landing-screen">
         <div class="landing-hero">
             <div class="landing-logo">✨</div>
             <h1 class="landing-title">Bilols AI</h1>
-            <p class="landing-subtitle">Sizning shaxsiy sun'iy intellekt yordamchingiz. Qulay matnli muloqot, jonli kamera orqali rasm tahlili va eng tezkor yechimlar.</p>
+            <p class="landing-subtitle">Sizning shaxsiy sun'iy intellekt yordamchingiz. Qulay muloqot va kamera orqali tezkor tahlil.</p>
         </div>
 
         <div class="features-list">
@@ -820,14 +592,14 @@
                 <div class="feature-icon">📸</div>
                 <div class="feature-info">
                     <h4>Jonli Kamera & Galereya</h4>
-                    <p>Rasmlarni to'g'ridan-to'g'ri kamera orqali yoki galereyadan yuklab tahlil qildiring.</p>
+                    <p>Rasmlarni kamera yoki galereyadan yuklab bemalol tahlil qildiring.</p>
                 </div>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">💎</div>
                 <div class="feature-info">
                     <h4>Hamyon va Xizmatlar</h4>
-                    <p>Telegram Stars hamda Premium obunalarini shaxsiy balansingiz orqali xarid qiling.</p>
+                    <p>Telegram Stars hamda Premium obunalarini hisobingizdan xarid qiling.</p>
                 </div>
             </div>
         </div>
@@ -837,12 +609,11 @@
         </div>
     </div>
 
-    <!-- AUTH MODAL -->
     <div id="auth-modal">
         <div class="auth-card">
             <button class="auth-close" onclick="closeAuthModal()">&times;</button>
             <div style="font-size:30px; margin-bottom:8px;">⚡</div>
-            <h2 style="font-size:24px; font-weight:800; margin-bottom:16px; background:linear-gradient(135deg,#fff,#a5b4fc); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Xush kelibsiz</h2>
+            <h2 style="font-size:24px; font-weight:800; margin-bottom:16px;">Xush kelibsiz</h2>
 
             <div class="auth-tabs">
                 <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Kirish</button>
@@ -861,7 +632,6 @@
         </div>
     </div>
 
-    <!-- CHAT SCREEN -->
     <div id="chat-screen">
         <header class="chat-header">
             <div class="chat-header-info">
@@ -882,7 +652,7 @@
 
         <main class="messages-container" id="messages-container">
             <div class="msg-bubble msg-ai" id="welcome-bubble">
-                Assalomu alaykum! Men Bilols AI yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali rasm yuboring, darhol tahlil qilib beraman! 🚀
+                Assalomu alaykum! Men Bilols AI yordamchisiman. Menga istalgan savolingizni bering yoki rasm yuboring, darhol tahlil qilib beraman! 🚀
             </div>
         </main>
 
@@ -923,7 +693,6 @@
         </footer>
     </div>
 
-    <!-- 📷 LIVE KAMERA MODAL -->
     <div id="camera-modal">
         <div class="cam-top-bar">
             <button class="cam-tool-btn" id="close-camera-btn">&times;</button>
@@ -940,7 +709,6 @@
         <canvas id="camera-canvas" style="display: none;"></canvas>
     </div>
 
-    <!-- 👛 HAMYON MODAL (TOZALASH TUGMASI BILAN BIRGA) -->
     <div id="wallet-modal">
         <div class="modal-header">
             <h2>Xizmatlar hamyoni</h2>
@@ -958,37 +726,18 @@
         <div class="pack-scroll-area">
             <div class="section-label">⭐ Telegram Stars</div>
             <div class="pack-grid">
-                <div class="pack-card" onclick="buyItem('50 Stars', 15000)">
-                    <div class="pack-val">⭐ 50 Stars</div>
-                    <div class="pack-price">15,000 so'm</div>
-                </div>
-                <div class="pack-card" onclick="buyItem('100 Stars', 29000)">
-                    <div class="pack-val">⭐ 100 Stars</div>
-                    <div class="pack-price">29,000 so'm</div>
-                </div>
-                <div class="pack-card" onclick="buyItem('250 Stars', 70000)">
-                    <div class="pack-val">⭐ 250 Stars</div>
-                    <div class="pack-price">70,000 so'm</div>
-                </div>
-                <div class="pack-card" onclick="buyItem('500 Stars', 135000)">
-                    <div class="pack-val">⭐ 500 Stars</div>
-                    <div class="pack-price">135,000 so'm</div>
-                </div>
+                <div class="pack-card" onclick="buyItem('50 Stars', 15000)"><div class="pack-val">⭐ 50 Stars</div><div class="pack-price">15,000 so'm</div></div>
+                <div class="pack-card" onclick="buyItem('100 Stars', 29000)"><div class="pack-val">⭐ 100 Stars</div><div class="pack-price">29,000 so'm</div></div>
+                <div class="pack-card" onclick="buyItem('250 Stars', 70000)"><div class="pack-val">⭐ 250 Stars</div><div class="pack-price">70,000 so'm</div></div>
+                <div class="pack-card" onclick="buyItem('500 Stars', 135000)"><div class="pack-val">⭐ 500 Stars</div><div class="pack-price">135,000 so'm</div></div>
             </div>
 
             <div class="section-label">💎 Telegram Premium</div>
             <div class="pack-grid">
-                <div class="pack-card" onclick="buyItem('Premium 3 oy', 160000)">
-                    <div class="pack-val">💎 3 Oylik</div>
-                    <div class="pack-price">160,000 so'm</div>
-                </div>
-                <div class="pack-card" onclick="buyItem('Premium 6 oy', 240000)">
-                    <div class="pack-val">💎 6 Oylik</div>
-                    <div class="pack-price">240,000 so'm</div>
-                </div>
+                <div class="pack-card" onclick="buyItem('Premium 3 oy', 160000)"><div class="pack-val">💎 3 Oylik</div><div class="pack-price">160,000 so'm</div></div>
+                <div class="pack-card" onclick="buyItem('Premium 6 oy', 240000)"><div class="pack-val">💎 6 Oylik</div><div class="pack-price">240,000 so'm</div></div>
             </div>
 
-            <!-- CHATNI TOZALASH TUGMASI ENDI HAMYON MENYUSINING ICHIDA -->
             <button class="clear-chat-wallet-btn" id="clear-chat-btn">
                 🧹 Chat tarixini tozalash
             </button>
@@ -1040,13 +789,20 @@
     let currentFacingMode = "environment";
     let activeAuthMode = "login";
 
-    window.openAuthModal = function() {
-        authModal.classList.add("active");
-    };
+    // MATEMATIK DARAJALAR VA BELGILARNI FORMATLASH FUNKSIYASI
+    function formatMath(text) {
+        if (!text) return "";
+        let formatted = text
+            .replace(/\\bm\{([^}]+)\}/g, "$1")
+            .replace(/\\\{([^}]+)\\\}/g, "($1)")
+            .replace(/\^2/g, "²")
+            .replace(/\^3/g, "³")
+            .replace(/\^([0-9]+)/g, "<sup>$1</sup>");
+        return formatted;
+    }
 
-    window.closeAuthModal = function() {
-        authModal.classList.remove("active");
-    };
+    window.openAuthModal = function() { authModal.classList.add("active"); };
+    window.closeAuthModal = function() { authModal.classList.remove("active"); };
 
     window.switchTab = function(mode) {
         activeAuthMode = mode;
@@ -1063,34 +819,6 @@
             authActionBtn.innerText = "Ro'yxatdan o'tish";
         }
     };
-
-    const incomeAudio = new Audio("money_2.mp3");
-    incomeAudio.preload = "auto";
-
-    function playIncomeMusic() {
-        try {
-            incomeAudio.currentTime = 0;
-            incomeAudio.play().catch(err => {});
-        } catch (e) {}
-    }
-
-    function playCashSound() {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const now = ctx.currentTime;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(1200, now);
-            osc.frequency.exponentialRampToValueAtTime(1800, now + 0.1);
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 0.4);
-        } catch (e) {}
-    }
 
     function showNotification(text) {
         const notifyDiv = document.createElement("div");
@@ -1112,9 +840,6 @@
         }, 4000);
     }
 
-    let lastKnownBalance = null;
-    let isInitialLoad = true;
-
     async function refreshBalance() {
         if (!currentPhone) return;
         try {
@@ -1122,23 +847,13 @@
             const res = await fetch(`${RAILWAY_URL}/api/balance?phone=${cleanPhone}`);
             const data = await res.json();
             const currentBal = Number(data.balance || 0);
-
-            if (!isInitialLoad && lastKnownBalance !== null && currentBal > lastKnownBalance) {
-                const addedAmount = currentBal - lastKnownBalance;
-                playIncomeMusic();
-                showNotification(`🎉 Hisobingizga +${addedAmount.toLocaleString()} so'm tushdi!`);
-            }
-
-            lastKnownBalance = currentBal;
-            isInitialLoad = false;
-
             const bal = currentBal.toLocaleString();
             headerBalance.innerText = bal;
             modalBalance.innerText = bal;
         } catch (e) {}
     }
 
-    setInterval(refreshBalance, 3000);
+    setInterval(refreshBalance, 4000);
 
     window.addEventListener("DOMContentLoaded", () => {
         const savedPhone = localStorage.getItem("bilol_ai_phone");
@@ -1182,7 +897,7 @@
             if (textPart && textPart.text) {
                 const txt = document.createElement("div");
                 txt.style.whiteSpace = "pre-wrap";
-                txt.innerText = textPart.text;
+                txt.innerHTML = formatMath(textPart.text);
                 div.appendChild(txt);
             }
             messagesContainer.appendChild(div);
@@ -1209,9 +924,7 @@
                 alert(`❌ Xatolik: ${data.error || "Balans yetarli emas"}`);
                 return;
             }
-            playCashSound();
             const newBal = (data.balance || 0).toLocaleString();
-            lastKnownBalance = Number(data.balance || 0);
             headerBalance.innerText = newBal;
             modalBalance.innerText = newBal;
             showNotification(`🎉 ${itemName} muvaffaqiyatli xarid qilindi!`);
@@ -1234,11 +947,11 @@
                 chatHistory = [];
                 messagesContainer.innerHTML = `
                     <div class="msg-bubble msg-ai" id="welcome-bubble">
-                        Assalomu alaykum! Men Bilols AI yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali rasm yuboring, darhol tahlil qilib beraman! 🚀
+                        Assalomu alaykum! Men Bilols AI yordamchisiman. Menga istalgan savolingizni bering yoki rasm yuboring, darhol tahlil qilib beraman! 🚀
                     </div>
                 `;
                 walletModal.style.display = "none";
-                showNotification("🧹 Chat tarixi tozalandi!");
+                showNotification("🧹 Chat tarixi muvaffaqiyatli tozalandi!");
             }
         };
     }
@@ -1249,14 +962,9 @@
         const password = passInput.value.trim();
         const name = nameInput.value.trim();
 
-        if (!phone) {
+        if (!phone || !password) {
             statusBox.style.color = "#f43f5e";
-            statusBox.innerText = "Telefon raqamingizni kiriting!";
-            return;
-        }
-        if (!password) {
-            statusBox.style.color = "#f43f5e";
-            statusBox.innerText = "Parolni kiriting!";
+            statusBox.innerText = "Ma'lumotlarni to'liq kiriting!";
             return;
         }
 
@@ -1390,7 +1098,7 @@
         if (text) {
             const txt = document.createElement("div");
             txt.style.whiteSpace = "pre-wrap";
-            txt.innerText = text;
+            txt.innerHTML = formatMath(text);
             div.appendChild(txt);
         }
         messagesContainer.appendChild(div);
@@ -1400,7 +1108,7 @@
 
     function appendTypewriterMsg(text, imgSrc = null) {
         const div = document.createElement("div");
-        div.className = "msg-bubble msg-ai typing-cursor";
+        div.className = "msg-bubble msg-ai";
         if (imgSrc) {
             const img = document.createElement("img");
             img.className = "msg-img-preview";
@@ -1409,21 +1117,10 @@
         }
         const txt = document.createElement("div");
         txt.style.whiteSpace = "pre-wrap";
+        txt.innerHTML = formatMath(text);
         div.appendChild(txt);
         messagesContainer.appendChild(div);
-
-        let i = 0;
-        function typeWriter() {
-            if (i < text.length) {
-                txt.textContent += text.charAt(i);
-                i++;
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                setTimeout(typeWriter, 12);
-            } else {
-                div.classList.remove("typing-cursor");
-            }
-        }
-        typeWriter();
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
         return div;
     }
 
@@ -1471,8 +1168,9 @@
         localStorage.setItem("bilol_ai_history", JSON.stringify(chatHistory));
         showTyping();
 
+        // KUTISH VAQTI 90 SONIYAGA UZAYTIRILDI
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000);
+        const timeoutId = setTimeout(() => controller.abort(), 90000);
 
         try {
             const res = await fetch("/api/chat", {
