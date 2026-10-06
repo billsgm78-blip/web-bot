@@ -19,7 +19,9 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  // Rasmli va matnli xabarlarni OpenRouter formatiga o'tkazish
+  // Tarixda rasm bor-yo'qligini tekshiramiz
+  let hasImage = false;
+
   const messages = history.map(h => {
     let role = h.role === "model" ? "assistant" : h.role;
     let content = h.content;
@@ -29,6 +31,7 @@ export default async function handler(req, res) {
         if (p.text) {
           return { type: "text", text: p.text };
         } else if (p.inline_data) {
+          hasImage = true; // Rasm topildi!
           return {
             type: "image_url",
             image_url: {
@@ -43,12 +46,16 @@ export default async function handler(req, res) {
     return { role, content };
   });
 
-  // Rasmni aniq taniydigan bepul modellar ro'yxati
-  const candidateModels = [
-    "meta-llama/llama-3.2-11b-vision-instruct:free",
-    "google/gemini-2.0-flash-exp:free",
-    "google/gemini-2.0-flash-thinking-exp:free"
-  ];
+  // Agar rasm bo'lsa - Vision modellari, agar faqat matn bo'lsa - openrouter/auto
+  const candidateModels = hasImage 
+    ? [
+        "google/gemini-2.0-flash-exp:free",
+        "meta-llama/llama-3.2-11b-vision-instruct:free",
+        "google/gemini-2.0-flash-thinking-exp:free"
+      ]
+    : [
+        "openrouter/auto"
+      ];
 
   let lastError = null;
 
@@ -80,5 +87,5 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(500).json({ error: lastError || "Vision modellar bilan bog'lanib bo'lmadi." });
+  return res.status(500).json({ error: lastError || "Server bilan bog'lanishda xatolik." });
 }
