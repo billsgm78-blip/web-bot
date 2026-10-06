@@ -18,28 +18,44 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent`;
+  // Bir nechta modellarni ketma-ket sinab ko'rish uchun ro'yxat
+  const models = [
+    "gemini-3.8-flash",
+    "gemini-2.5-flash",
+    "gemini-1.5-flash"
+  ];
 
-  try {
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: {
-        "x-goog-api-key": apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ contents: history }),
-    });
+  let data = null;
+  let success = false;
 
-    const data = await resp.json();
+  for (const model of models) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "x-goog-api-key": apiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ contents: history }),
+      });
 
-    if (!resp.ok) {
-      return res.status(resp.status).json({ error: data?.error?.message || "Google API xatosi" });
+      data = await resp.json();
+
+      if (resp.ok) {
+        success = true;
+        break; // Agar modellar ishlasa, tsiklni to'xtatamiz
+      }
+    } catch (e) {
+      // Keyingi modelga o'tib ketadi
     }
-
-    const parts = data?.candidates?.[0]?.content?.parts || [];
-    const text = parts.map((p) => p.text || "").join("").trim();
-    return res.status(200).json({ text: text || "Javob topilmadi." });
-  } catch (e) {
-    return res.status(500).json({ error: "Server tarmoq xatosi." });
   }
+
+  if (!success) {
+    return res.status(503).json({ error: "Hozirda serverlar band. Iltimos, bir ozdan keyin qayta urinib ko'ring." });
+  }
+
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  const text = parts.map((p) => p.text || "").join("").trim();
+  return res.status(200).json({ text: text || "Javob topilmadi." });
 }
