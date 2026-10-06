@@ -429,7 +429,6 @@
             gap: 14px;
         }
 
-        /* CHAT BUBBLE ANIMATIONS */
         .msg-bubble {
             max-width: 84%;
             padding: 14px 18px;
@@ -462,7 +461,7 @@
             border: 1px solid var(--border-glass);
             border-radius: 22px 22px 22px 4px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            white-space: pre-wrap; /* Bo'shliqlar va qatorlarni to'g'ri saqlaydi */
+            white-space: pre-wrap;
         }
 
         .msg-img-preview {
@@ -1186,7 +1185,7 @@
             modalBalance.innerText = newBal;
             showNotification(`🎉 ${itemName} muvaffaqiyatli xarid qilindi!`);
         } catch (e) {
-            alert("⚠️️ Server bilan bog'lanishda xatolik.");
+            alert("⚠️ Server bilan bog'lanishda xatolik.");
         }
     };
 
@@ -1351,7 +1350,7 @@
         return div;
     }
 
-    // AI matnini to'g'ri va xatosiz chiqarish uchun tuzatilgan typewriter funksiyasi
+    // Xatosiz va silliq ishlaydigan Typewriter funksiyasi
     function appendTypewriterMsg(text, imgSrc = null) {
         const div = document.createElement("div");
         div.className = "msg-bubble msg-ai typing-cursor";
@@ -1424,14 +1423,20 @@
         localStorage.setItem("bilol_ai_history", JSON.stringify(chatHistory));
         showTyping();
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000);
+
         try {
             const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ history: chatHistory })
+                body: JSON.stringify({ history: chatHistory }),
+                signal: controller.signal
             });
 
+            clearTimeout(timeoutId);
             hideTyping();
+            
             const data = await res.json();
             const reply = data.text || data.error || "Javob olib bo'lmadi.";
             
@@ -1439,8 +1444,13 @@
             chatHistory.push({ role: "model", parts: [{ text: reply }] });
             localStorage.setItem("bilol_ai_history", JSON.stringify(chatHistory));
         } catch (e) {
+            clearTimeout(timeoutId);
             hideTyping();
-            appendTypewriterMsg("⚠️ AI javob berishda yoki rasmni tahlil qilishda xatolik yuz berdi.");
+            if (e.name === "AbortError") {
+                appendTypewriterMsg("⚠️ Server javob berishi juda cho'zilib ketdi. Iltimos, boshaqattan urinib ko'ring.");
+            } else {
+                appendTypewriterMsg("⚠️ AI javob berishda yoki server bilan ulanishda xatolik yuz berdi.");
+            }
         }
     }
 
