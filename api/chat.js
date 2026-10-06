@@ -1,3 +1,5 @@
+export const maxDuration = 80; // Server kutish vaqtini 60 sekundga uzaytiramiz
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -63,7 +65,7 @@ export default async function handler(req, res) {
       return res.status(resp.status).json({ error: data?.error?.message || "OpenRouter API xatosi" });
     }
 
-    const text = data?.choices?.[0]?.message?.content || "Javob topilmadi.";
+    const text = data?.choices?<code>[0]?.message?.content || "Javob topilmadi.";
     return res.status(200).json({ text });
   } catch (e) {
     return res.status(500).json({ error: "Server tarmoq xatosi." });
