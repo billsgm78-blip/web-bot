@@ -429,7 +429,7 @@
             gap: 14px;
         }
 
-        /* SUPER CHAT ANIMATIONS */
+        /* CHAT BUBBLE ANIMATIONS */
         .msg-bubble {
             max-width: 84%;
             padding: 14px 18px;
@@ -462,6 +462,7 @@
             border: 1px solid var(--border-glass);
             border-radius: 22px 22px 22px 4px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            white-space: pre-wrap; /* Bo'shliqlar va qatorlarni to'g'ri saqlaydi */
         }
 
         .msg-img-preview {
@@ -471,7 +472,6 @@
             display: block;
         }
 
-        /* Typing indicator */
         .typing-indicator {
             display: flex;
             align-items: center;
@@ -497,7 +497,6 @@
             40% { transform: scale(1.25); opacity: 1; }
         }
 
-        /* Cursor effect for typewriter */
         .typing-cursor::after {
             content: '▋';
             display: inline-block;
@@ -1187,7 +1186,7 @@
             modalBalance.innerText = newBal;
             showNotification(`🎉 ${itemName} muvaffaqiyatli xarid qilindi!`);
         } catch (e) {
-            alert("⚠️ Server bilan bog'lanishda xatolik.");
+            alert("⚠️️ Server bilan bog'lanishda xatolik.");
         }
     };
 
@@ -1352,7 +1351,7 @@
         return div;
     }
 
-    // AI matnni harfma-harf animatsiya (typewriter) bilan chiqarish
+    // AI matnini to'g'ri va xatosiz chiqarish uchun tuzatilgan typewriter funksiyasi
     function appendTypewriterMsg(text, imgSrc = null) {
         const div = document.createElement("div");
         div.className = "msg-bubble msg-ai typing-cursor";
@@ -1369,10 +1368,10 @@
         let i = 0;
         function typeWriter() {
             if (i < text.length) {
-                txt.innerText += text.charAt(i);
+                txt.textContent += text.charAt(i);
                 i++;
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                setTimeout(typeWriter, 15); // Harflar chiqish tezligi
+                setTimeout(typeWriter, 12);
             } else {
                 div.classList.remove("typing-cursor");
             }
