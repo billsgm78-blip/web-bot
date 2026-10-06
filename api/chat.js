@@ -1,5 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
+// api/chat.js - Vercel Serverless Function
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -19,25 +18,29 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  // Ishlaydigan zamonaviy model nomi
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
 
-    // Oxirgi xabarni olib yuborish yoki chat history'ni moslashtirish
-    const chat = model.startChat({
-      history: history.slice(0, -1).map(h => ({
-        role: h.role === "model" ? "model" : "user",
-        parts: h.parts
-      }))
+  try {
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "x-goog-api-key": apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ contents: history }),
     });
 
-    const lastMessage = history[history.length - 1];
-    const result = await chat.sendMessage(lastMessage.parts);
-    const response = await result.response;
-    const text = response.text();
+    const data = await resp.json();
 
+    if (!resp.ok) {
+      return res.status(resp.status).json({ error: data?.error?.message || "Google API xatosi" });
+    }
+
+    const parts = data?.candidates?.[0]?.content?.parts || [];
+    const text = parts.map((p) => p.text || "").join("").trim();
     return res.status(200).json({ text: text || "Javob topilmadi." });
   } catch (e) {
-    return res.status(500).json({ error: e.message || "Server xatosi." });
+    return res.status(500).json({ error: "Server tarmoq xatosi." });
   }
 }
