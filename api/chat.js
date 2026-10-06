@@ -19,7 +19,15 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  const messages = history.map(h => {
+  // Modelga o'zbek tilida gapirishni buyuruvchi ko'rsatma
+  const formattedMessages = [
+    {
+      role: "system",
+      content: "Sen Bilols AI yordamchisisan. Foydalanuvchi bilan doimo chiroyli, tushunarli o'zbek tilida muloqot qil. Texnik xavfsizlik hisobotlarini yozma, faqat foydalanuvchining savoliga to'g'ridan-to'g'ri javob ber."
+    }
+  ];
+
+  history.forEach(h => {
     let role = h.role === "model" ? "assistant" : h.role;
     let content = h.content;
 
@@ -39,7 +47,7 @@ export default async function handler(req, res) {
       }).filter(Boolean);
     }
 
-    return { role, content };
+    formattedMessages.push({ role, content });
   });
 
   try {
@@ -52,8 +60,8 @@ export default async function handler(req, res) {
         "X-Title": "Bilols AI"
       },
       body: JSON.stringify({
-        model: "openrouter/free", // Ham matn, ham rasmlarni o'zi avtomatik bepul modellar orqali taniydi
-        messages: messages
+        model: "openrouter/free",
+        messages: formattedMessages
       }),
     });
 
