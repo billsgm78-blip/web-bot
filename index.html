@@ -853,6 +853,7 @@
                 <div class="wallet-pill" id="open-wallet-btn" title="Hamyonni ko'rish">
                     <span>👛 <span id="header-balance">0</span> so'm</span>
                 </div>
+                <button class="logout-btn" id="clear-chat-btn" title="Chatni tozalash" style="background: rgba(139, 92, 246, 0.08); border-color: rgba(139, 92, 246, 0.25); color: #c4b5fd;">🧹 Tozalash</button>
                 <button class="logout-btn" id="logout-btn">Chiqish</button>
             </div>
         </header>
@@ -987,6 +988,7 @@
     const chatInput = document.getElementById("chat-input");
     const sendBtn = document.getElementById("send-btn");
     const logoutBtn = document.getElementById("logout-btn");
+    const clearChatBtn = document.getElementById("clear-chat-btn");
 
     const galleryBtn = document.getElementById("gallery-btn");
     const galleryInput = document.getElementById("gallery-input");
@@ -1198,6 +1200,21 @@
         }
     };
 
+    if (clearChatBtn) {
+        clearChatBtn.onclick = () => {
+            if (confirm("Chat tarixini to'liq tozalashni tasdiqlaysizmi?")) {
+                localStorage.removeItem("bilol_ai_history");
+                chatHistory = [];
+                messagesContainer.innerHTML = `
+                    <div class="msg-bubble msg-ai" id="welcome-bubble">
+                        Assalomu alaykum! Men Bilols AI yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali rasm yuboring, darhol tahlil qilib beraman! 🚀
+                    </div>
+                `;
+                showNotification("🧹 Chat tarixi tozalandi!");
+            }
+        };
+    }
+
     authActionBtn.onclick = async () => {
         const rawPhone = phoneInput.value.trim();
         const phone = rawPhone.replace(/[^0-9]/g, "");
@@ -1353,7 +1370,6 @@
         return div;
     }
 
-    // PROBELLAR VA BO'SHLIQLARNI TO'G'RI SAQLOVCHI TYPEWRITER
     function appendTypewriterMsg(text, imgSrc = null) {
         const div = document.createElement("div");
         div.className = "msg-bubble msg-ai typing-cursor";
