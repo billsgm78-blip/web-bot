@@ -19,8 +19,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  const url = "https://openrouter.ai/api/v1/chat/completions";
-
+  // Rasmli va matnli xabarlarni OpenRouter formatiga o'tkazish
   const messages = history.map(h => {
     let role = h.role === "model" ? "assistant" : h.role;
     let content = h.content;
@@ -44,30 +43,42 @@ export default async function handler(req, res) {
     return { role, content };
   });
 
-  try {
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://bilolsai.uz",
-        "X-Title": "Bilols AI"
-      },
-      body: JSON.stringify({
-        model: "openrouter/auto",
-        messages: messages
-      }),
-    });
+  // Rasmni aniq taniydigan bepul modellar ro'yxati
+  const candidateModels = [
+    "meta-llama/llama-3.2-11b-vision-instruct:free",
+    "google/gemini-2.0-flash-exp:free",
+    "google/gemini-2.0-flash-thinking-exp:free"
+  ];
 
-    const data = await resp.json();
+  let lastError = null;
 
-    if (!resp.ok) {
-      return res.status(resp.status).json({ error: data?.error?.message || "OpenRouter API xatosi" });
+  for (const model of candidateModels) {
+    try {
+      const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://bilolsai.uz",
+          "X-Title": "Bilols AI"
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: messages
+        })
+      });
+
+      const data = await resp.json();
+
+      if (resp.ok && data?.choices?.[0]?.message?.content) {
+        return res.status(200).json({ text: data.choices[0].message.content });
+      } else {
+        lastError = data?.error?.message || "Model javob bermadi";
+      }
+    } catch (err) {
+      lastError = err.message;
     }
-
-    const text = data?.choices?.[0]?.message?.content || "Javob topilmadi.";
-    return res.status(200).json({ text });
-  } catch (e) {
-    return res.status(500).json({ error: "Server tarmoq xatosi." });
   }
+
+  return res.status(500).json({ error: lastError || "Vision modellar bilan bog'lanib bo'lmadi." });
 }
