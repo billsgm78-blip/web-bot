@@ -17,7 +17,31 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  const url = "https://api.groq.com/openai/v1/chat/completions";
+  const url = "https://openrouter.ai/api/v1/chat/completions";
+
+  // Xabarlarni OpenRouter (OpenAI) formatiga moslash (rasm va matnni qo'llab-quvvatlaydi)
+  const messages = history.map(h => {
+    let role = h.role === "model" ? "assistant" : h.role;
+    let content = h.content;
+
+    if (h.parts) {
+      content = h.parts.map(p => {
+        if (p.text) {
+          return { type: "text", text: p.text };
+        } else if (p.inline_data) {
+          return {
+            type: "image_url",
+            image_url: {
+              url: `data:${p.inline_data.mime_type};base64,${p.inline_data.data}`
+            }
+          };
+        }
+        return null;
+      }).filter(Boolean);
+    }
+
+    return { role, content };
+  });
 
   try {
     const resp = await fetch(url, {
@@ -25,20 +49,19 @@ export default async function handler(req, res) {
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://bilolsai.uz",
+        "X-Title": "Bilols AI"
       },
       body: JSON.stringify({
-        model: "openai/gpt-oss-20b",
-        messages: history.map(h => ({
-          role: h.role === "model" ? "assistant" : h.role,
-          content: h.parts ? h.parts.map(p => p.text || "").join("") : h.content
-        }))
+        model: "google/gemini-flash-1.5", // Rasm va matnni birdek o'qiydigan model
+        messages: messages
       }),
     });
 
     const data = await resp.json();
 
     if (!resp.ok) {
-      return res.status(resp.status).json({ error: data?.error?.message || "Groq API xatosi" });
+      return res.status(resp.status).json({ error: data?.error?.message || "OpenRouter API xatosi" });
     }
 
     const text = data?.choices?.[0]?.message?.content || "Javob topilmadi.";
