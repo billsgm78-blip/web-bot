@@ -52,7 +52,7 @@ export default async function handler(req, res) {
         "X-Title": "Bilols AI"
       },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash-exp:free",
+        model: "meta-llama/llama-3.2-11b-vision-instruct:free",
         messages: messages
       }),
     });
