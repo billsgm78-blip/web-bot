@@ -1,4 +1,4 @@
-// api/chat.js - Vercel Serverless Function
+// api/chat.js - Vercel Serverless Function (Groq API uchun)
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   const apiKey = (process.env.GEMINI_API_KEY || "").trim();
   if (!apiKey) {
-    return res.status(500).json({ error: "GEMINI_API_KEY sozlanmagan." });
+    return res.status(500).json({ error: "API key sozlanmagan." });
   }
 
   const { history } = req.body || {};
@@ -18,44 +18,34 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  // Bir nechta modellarni ketma-ket sinab ko'rish uchun ro'yxat
-  const models = [
-    "gemini-3.8-flash",
-    "gemini-2.5-flash",
-    "gemini-1.5-flash"
-  ];
+  // Groq API manzili
+  const url = "https://api.groq.com/openai/v1/chat/completions";
 
-  let data = null;
-  let success = false;
+  try {
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: history.map(h => ({
+          role: h.role === "model" ? "assistant" : h.role,
+          content: h.parts ? h.parts.map(p => p.text || "").join("") : h.content
+        }))
+      }),
+    });
 
-  for (const model of models) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-    try {
-      const resp = await fetch(url, {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": apiKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ contents: history }),
-      });
+    const data = await resp.json();
 
-      data = await resp.json();
-
-      if (resp.ok) {
-        success = true;
-        break; // Agar modellar ishlasa, tsiklni to'xtatamiz
-      }
-    } catch (e) {
-      // Keyingi modelga o'tib ketadi
+    if (!resp.ok) {
+      return res.status(resp.status).json({ error: data?.error?.message || "Groq API xatosi" });
     }
-  }
 
-  if (!success) {
-    return res.status(503).json({ error: "Hozirda serverlar band. Iltimos, bir ozdan keyin qayta urinib ko'ring." });
+    const text = data?.choices?.[0]?.message?.content || "Javob topilmadi.";
+    return res.status(200).json({ text });
+  } catch (e) {
+    return res.status(500).json({ error: "Server tarmoq xatosi." });
   }
-
-  const parts = data?.candidates?.[0]?.content?.parts || [];
-  const text = parts.map((p) => p.text || "").join("").trim();
-  return res.status(200).json({ text: text || "Javob topilmadi." });
 }
