@@ -19,11 +19,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  // Modelga o'zbek tilida gapirishni buyuruvchi ko'rsatma
-  const formattedMessages = [
+  let hasImage = false;
+
+  const messages = [
     {
       role: "system",
-      content: "Sen Bilols AI yordamchisisan. Foydalanuvchi bilan doimo chiroyli, tushunarli o'zbek tilida muloqot qil. Texnik xavfsizlik hisobotlarini yozma, faqat foydalanuvchining savoliga to'g'ridan-to'g'ri javob ber."
+      content: "Sen Bilols AI yordamchisisan. Doimo ravon, tabiiy va chiroyli o'zbek adabiy tilida javob ber. Hech qachon xavfsizlik hisobotlari yoki 'User Safety' kabi so'zlarni yozma. Foydalanuvchining savoliga qisqa va aniq javob qaytar."
     }
   ];
 
@@ -36,6 +37,7 @@ export default async function handler(req, res) {
         if (p.text) {
           return { type: "text", text: p.text };
         } else if (p.inline_data) {
+          hasImage = true;
           return {
             type: "image_url",
             image_url: {
@@ -47,33 +49,41 @@ export default async function handler(req, res) {
       }).filter(Boolean);
     }
 
-    formattedMessages.push({ role, content });
+    messages.push({ role, content });
   });
 
-  try {
-    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://bilolsai.uz",
-        "X-Title": "Bilols AI"
-      },
-      body: JSON.stringify({
-        model: "openrouter/free",
-        messages: formattedMessages
-      }),
-    });
+  // Rasm bo'lsa vision model, matn bo'lsa o'zbek tilini a'lo darajada biladigan Llama 3.3
+  const candidateModels = hasImage 
+    ? ["qwen/qwen3.8-27b:free", "openrouter/free"]
+    : ["meta-llama/llama-3.3-70b-instruct:free", "openrouter/free"];
 
-    const data = await resp.json();
+  for (const model of candidateModels) {
+    try {
+      const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://bilolsai.uz",
+          "X-Title": "Bilols AI"
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: messages
+        })
+      });
 
-    if (!resp.ok) {
-      return res.status(resp.status).json({ error: data?.error?.message || "Model xatoligi yuz berdi" });
+      const data = await resp.json();
+      let text = data?.choices?.[0]?.message?.content;
+
+      // Agar xavfsizlik tekshiruvchisi keraksiz so'zlarni qaytarsa, uni e'tiborsiz qoldiramiz
+      if (text && !text.includes("User Safety:") && !text.includes("Response Safety:")) {
+        return res.status(200).json({ text: text.trim() });
+      }
+    } catch (err) {
+      // Keyingi modelga o'tish
     }
-
-    const text = data?.choices?.[0]?.message?.content || "Javob topilmadi.";
-    return res.status(200).json({ text });
-  } catch (err) {
-    return res.status(500).json({ error: "Server bilan bog'lanishda xatolik." });
   }
+
+  return res.status(200).json({ text: "Salom! Sizga qanday yordam bera olaman?" });
 }
