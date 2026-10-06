@@ -19,8 +19,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  let hasImage = false;
-
   const messages = history.map(h => {
     let role = h.role === "model" ? "assistant" : h.role;
     let content = h.content;
@@ -30,7 +28,6 @@ export default async function handler(req, res) {
         if (p.text) {
           return { type: "text", text: p.text };
         } else if (p.inline_data) {
-          hasImage = true;
           return {
             type: "image_url",
             image_url: {
@@ -45,10 +42,6 @@ export default async function handler(req, res) {
     return { role, content };
   });
 
-  const selectedModel = hasImage 
-    ? "google/gemini-2.0-flash-lite-preview-02-05:free"
-    : "openrouter/auto";
-
   try {
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -59,7 +52,7 @@ export default async function handler(req, res) {
         "X-Title": "Bilols AI"
       },
       body: JSON.stringify({
-        model: selectedModel,
+        model: "openrouter/free", // Ham matn, ham rasmlarni o'zi avtomatik bepul modellar orqali taniydi
         messages: messages
       }),
     });
