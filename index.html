@@ -453,6 +453,7 @@
             border-radius: 22px 22px 4px 22px;
             color: #ffffff;
             box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+            white-space: pre-wrap;
         }
         
         .msg-ai {
@@ -1151,6 +1152,7 @@
             }
             if (textPart && textPart.text) {
                 const txt = document.createElement("div");
+                txt.style.whiteSpace = "pre-wrap";
                 txt.innerText = textPart.text;
                 div.appendChild(txt);
             }
@@ -1342,6 +1344,7 @@
         }
         if (text) {
             const txt = document.createElement("div");
+            txt.style.whiteSpace = "pre-wrap";
             txt.innerText = text;
             div.appendChild(txt);
         }
@@ -1350,7 +1353,7 @@
         return div;
     }
 
-    // Xatosiz va silliq ishlaydigan Typewriter funksiyasi
+    // PROBELLAR VA BO'SHLIQLARNI TO'G'RI SAQLOVCHI TYPEWRITER
     function appendTypewriterMsg(text, imgSrc = null) {
         const div = document.createElement("div");
         div.className = "msg-bubble msg-ai typing-cursor";
@@ -1361,6 +1364,7 @@
             div.appendChild(img);
         }
         const txt = document.createElement("div");
+        txt.style.whiteSpace = "pre-wrap";
         div.appendChild(txt);
         messagesContainer.appendChild(div);
 
