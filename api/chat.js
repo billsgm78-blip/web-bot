@@ -19,8 +19,7 @@ export default async function handler(req, res) {
   }
 
   // To'g'ri ishlaydigan model nomi
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
-
+ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`;
   try {
     const resp = await fetch(url, {
       method: "POST",
