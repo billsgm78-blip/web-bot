@@ -19,7 +19,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  // Tarixda rasm bor-yo'qligini tekshiramiz
   let hasImage = false;
 
   const messages = history.map(h => {
@@ -31,7 +30,7 @@ export default async function handler(req, res) {
         if (p.text) {
           return { type: "text", text: p.text };
         } else if (p.inline_data) {
-          hasImage = true; // Rasm topildi!
+          hasImage = true;
           return {
             type: "image_url",
             image_url: {
@@ -46,46 +45,34 @@ export default async function handler(req, res) {
     return { role, content };
   });
 
-  // Agar rasm bo'lsa - Vision modellari, agar faqat matn bo'lsa - openrouter/auto
-  const candidateModels = hasImage 
-    ? [
-        "google/gemini-2.0-flash-exp:free",
-        "meta-llama/llama-3.2-11b-vision-instruct:free",
-        "google/gemini-2.0-flash-thinking-exp:free"
-      ]
-    : [
-        "openrouter/auto"
-      ];
+  const selectedModel = hasImage 
+    ? "google/gemini-2.0-flash-lite-preview-02-05:free"
+    : "openrouter/auto";
 
-  let lastError = null;
+  try {
+    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://bilolsai.uz",
+        "X-Title": "Bilols AI"
+      },
+      body: JSON.stringify({
+        model: selectedModel,
+        messages: messages
+      }),
+    });
 
-  for (const model of candidateModels) {
-    try {
-      const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://bilolsai.uz",
-          "X-Title": "Bilols AI"
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: messages
-        })
-      });
+    const data = await resp.json();
 
-      const data = await resp.json();
-
-      if (resp.ok && data?.choices?.[0]?.message?.content) {
-        return res.status(200).json({ text: data.choices[0].message.content });
-      } else {
-        lastError = data?.error?.message || "Model javob bermadi";
-      }
-    } catch (err) {
-      lastError = err.message;
+    if (!resp.ok) {
+      return res.status(resp.status).json({ error: data?.error?.message || "Model xatoligi yuz berdi" });
     }
-  }
 
-  return res.status(500).json({ error: lastError || "Server bilan bog'lanishda xatolik." });
+    const text = data?.choices?.[0]?.message?.content || "Javob topilmadi.";
+    return res.status(200).json({ text });
+  } catch (err) {
+    return res.status(500).json({ error: "Server bilan bog'lanishda xatolik." });
+  }
 }
