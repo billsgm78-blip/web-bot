@@ -1,4 +1,3 @@
-// api/chat.js - Vercel Serverless Function (Groq API uchun)
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -18,7 +17,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  // Groq API manzili
   const url = "https://api.groq.com/openai/v1/chat/completions";
 
   try {
@@ -29,7 +27,7 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.1-8b-instant",
         messages: history.map(h => ({
           role: h.role === "model" ? "assistant" : h.role,
           content: h.parts ? h.parts.map(p => p.text || "").join("") : h.content
