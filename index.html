@@ -10,7 +10,7 @@
     <style>
         :root {
             --bg-deep: #07090e;
-            --surface-glass: rgba(18, 24, 38, 0.75);
+            --surface-glass: rgba(18, 24, 38, 0.85);
             --surface-card: rgba(255, 255, 255, 0.035);
             --border-glass: rgba(255, 255, 255, 0.08);
             
@@ -90,6 +90,7 @@
             border-right: 1px solid var(--border-glass);
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.7);
             z-index: 10;
+            overflow: hidden;
         }
 
         @media (min-width: 461px) {
@@ -97,22 +98,95 @@
                 height: 94vh;
                 border-radius: 36px;
                 border: 1px solid var(--border-glass);
-                overflow: hidden;
             }
         }
 
-        /* --- AUTH SCREEN --- */
-        #auth-screen {
+        /* --- LANDING INFO SCREEN --- */
+        #landing-screen {
             position: absolute;
             inset: 0;
             display: flex;
+            flex-direction: column;
+            z-index: 30;
+            background: var(--bg-deep);
+            overflow-y: auto;
+            padding: 24px 20px;
+        }
+        #landing-screen.hidden { display: none !important; }
+
+        .landing-hero {
+            text-align: center;
+            padding: 30px 10px 20px;
+        }
+        .landing-logo {
+            width: 64px; height: 64px;
+            margin: 0 auto 16px;
+            border-radius: 22px;
+            background: var(--accent-grad);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 12px 28px -4px var(--emerald-glow);
+        }
+        .landing-title {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .landing-subtitle {
+            font-size: 14.5px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0 30px;
+        }
+        .feature-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-glass);
+            padding: 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .feature-icon {
+            font-size: 24px;
+            width: 44px; height: 44px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .feature-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 3px; color: #fff; }
+        .feature-info p { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+
+        .landing-actions {
+            margin-top: auto;
+            padding-bottom: 20px;
+        }
+
+        /* --- AUTH MODAL / SCREEN --- */
+        #auth-modal {
+            position: absolute;
+            inset: 0;
+            display: none;
             align-items: center;
             justify-content: center;
             padding: 24px;
-            z-index: 40;
-            background: inherit;
+            z-index: 50;
+            background: rgba(7, 9, 14, 0.92);
+            backdrop-filter: blur(20px);
         }
-        #auth-screen.hidden { display: none !important; }
+        #auth-modal.active { display: flex; }
 
         .auth-card {
             width: 100%;
@@ -122,28 +196,20 @@
             padding: 30px 22px;
             text-align: center;
             box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(20px);
+            position: relative;
         }
 
-        .auth-logo-badge {
-            width: 58px; height: 58px;
-            margin: 0 auto 12px;
-            border-radius: 20px;
-            background: var(--accent-grad);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            box-shadow: 0 10px 24px -4px var(--emerald-glow);
-        }
-
-        .auth-title {
-            font-size: 26px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 6px;
+        .auth-close {
+            position: absolute;
+            top: 18px; right: 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-glass);
+            color: #cbd5e1;
+            font-size: 18px;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
         }
 
         .auth-tabs {
@@ -185,9 +251,7 @@
             margin-bottom: 12px;
             transition: 0.2s border-color;
         }
-        .styled-input:focus {
-            border-color: var(--violet-accent);
-        }
+        .styled-input:focus { border-color: var(--violet-accent); }
 
         .primary-btn {
             width: 100%;
@@ -213,10 +277,14 @@
             height: 100%;
             opacity: 0;
             pointer-events: none;
+            position: absolute;
+            inset: 0;
+            background: var(--surface-glass);
         }
         #chat-screen.active {
             opacity: 1;
             pointer-events: auto;
+            z-index: 40;
         }
 
         .chat-header {
@@ -607,11 +675,50 @@
 <div class="ambient-orb orb-2"></div>
 
 <div class="container">
-    <!-- AUTH SCREEN -->
-    <div id="auth-screen">
+    <!-- LANDING INFO SCREEN -->
+    <div id="landing-screen">
+        <div class="landing-hero">
+            <div class="landing-logo">⚡</div>
+            <h1 class="landing-title">Bilols AI</h1>
+            <p class="landing-subtitle">Sizning shaxsiy sun'iy intellekt yordamchingiz. Matnlar yozish, rasmlarni tahlil qilish va savollarga tezkor javoblar oling.</p>
+        </div>
+
+        <div class="features-list">
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <div class="feature-info">
+                    <h4>Tezkor Neyro Tarmoq</h4>
+                    <p>Istalgan murakkab savollarga soniyalar ichida aniq yechim toping.</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📷</div>
+                <div class="feature-icon" style="display:none"></div>
+                <div class="feature-info">
+                    <h4>Jonli Kamera & Rasm tahlili</h4>
+                    <p>Galereyadan rasm yuklang yoki kamera orqali tahlil qildiring.</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <div class="feature-info">
+                    <h4>Hamyon va Xizmatlar</h4>
+                    <p>Telegram Stars va Premium obunalarini qulay xarid qiling.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="landing-actions">
+            <button class="primary-btn" onclick="openAuthModal()">Boshlash / Tizimga kirish</button>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div id="auth-modal">
         <div class="auth-card">
-            <div class="auth-logo-badge">⚡</div>
-            <h1 class="auth-title">Bilols AI</h1>
+            <button class="auth-close" onclick="closeAuthModal()">&times;</button>
+            <div class="auth-logo-badge" style="width:48px;height:48px;font-size:22px;margin-bottom:10px;">⚡</div>
+            <h2 style="font-size:22px;font-weight:800;margin-bottom:14px;">Xush kelibsiz</h2>
 
             <div class="auth-tabs">
                 <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Kirish</button>
@@ -761,11 +868,10 @@
 </div>
 
 <script>
-    // Bazadan balansni olish uchun Render server manzili
-  const RAILWAY_URL = "https://ai2-production-7d7e.up.railway.app";
+    const RAILWAY_URL = "https://ai2-production-7d7e.up.railway.app";
 
-
-    const authScreen = document.getElementById("auth-screen");
+    const landingScreen = document.getElementById("landing-screen");
+    const authModal = document.getElementById("auth-modal");
     const chatScreen = document.getElementById("chat-screen");
     const walletModal = document.getElementById("wallet-modal");
     const authActionBtn = document.getElementById("auth-action-btn");
@@ -803,6 +909,14 @@
     let mediaStream = null;
     let currentFacingMode = "environment";
     let activeAuthMode = "login";
+
+    window.openAuthModal = function() {
+        authModal.classList.add("active");
+    };
+
+    window.closeAuthModal = function() {
+        authModal.classList.remove("active");
+    };
 
     window.switchTab = function(mode) {
         activeAuthMode = mode;
@@ -904,7 +1018,8 @@
         if (savedPhone) {
             currentPhone = savedPhone;
             currentName = savedName || "";
-            authScreen.classList.add("hidden");
+            landingScreen.classList.add("hidden");
+            authModal.classList.remove("active");
             chatScreen.classList.add("active");
             if (currentName) {
                 document.getElementById("welcome-bubble").innerText = `Qaytganingiz bilan, ${currentName}! Qanday yordam bera olaman? 🚀`;
@@ -1026,7 +1141,8 @@
             localStorage.setItem("bilol_ai_name", currentName);
 
             await refreshBalance();
-            authScreen.classList.add("hidden");
+            landingScreen.classList.add("hidden");
+            authModal.classList.remove("active");
             chatScreen.classList.add("active");
             if (currentName) {
                 document.getElementById("welcome-bubble").innerText = `Hush kelibsiz, ${currentName}! Qanday yordam bera olaman? 🚀`;
