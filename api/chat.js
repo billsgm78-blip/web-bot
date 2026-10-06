@@ -19,7 +19,6 @@ export default async function handler(req, res) {
 
   const url = "https://openrouter.ai/api/v1/chat/completions";
 
-  // Xabarlarni OpenRouter (OpenAI) formatiga moslash (rasm va matnni qo'llab-quvvatlaydi)
   const messages = history.map(h => {
     let role = h.role === "model" ? "assistant" : h.role;
     let content = h.content;
@@ -53,7 +52,7 @@ export default async function handler(req, res) {
         "X-Title": "Bilols AI"
       },
       body: JSON.stringify({
-        model: "google/gemini-flash-1.5", // Rasm va matnni birdek o'qiydigan model
+        model: "google/gemini-2.0-flash-exp:free",
         messages: messages
       }),
     });
