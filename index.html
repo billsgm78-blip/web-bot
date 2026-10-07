@@ -1032,10 +1032,15 @@
     let activeAuthMode = "login";
 
     // MATEMATIK DARAJALAR VA BELGILARNI FORMATLASH FUNKSIYASI
-            function formatMath(text) {
+                function formatMath(text) {
         if (!text) return "";
         let formatted = text
-            // LaTeX belgilarini to'g'rilash
+            // Ildiz belgisi (\sqrt{son})
+            .replace(/\\sqrt\{([^}]+)\}/g, "√$1")
+            // LaTeX bo'shliqlari
+            .replace(/\\quad/g, " &nbsp; ")
+            .replace(/\\qquad/g, " &nbsp;&nbsp; ")
+            // Matematik amallar va belgilar
             .replace(/\\times/g, "×")
             .replace(/\\approx/g, "≈")
             .replace(/\\le/g, "≤")
@@ -1043,8 +1048,8 @@
             .replace(/\\neq/g, "≠")
             .replace(/\\pm/g, "±")
             .replace(/\\in/g, "∈")
-            // Markdown sarlavhalari (###)
-            .replace(/###\s*(.*)/g, '<b style="color:#a5b4fc; display:block; margin:6px 0;">$1</b>')
+            // Markdown sarlavhalari (#, ##, ###)
+            .replace(/^#{1,3}\s*(.*)/gm, '<b style="color:#a5b4fc; display:block; margin:8px 0 4px;">$1</b>')
             // Formulalar ($$ ... $$)
             .replace(/\$\$(.*?)\$\$/g, '<div style="margin:4px 0; font-weight:600; color:#38bdf8;">$1</div>')
             .replace(/\$(.*?)\$/g, '<b style="color:#38bdf8;">$1</b>')
