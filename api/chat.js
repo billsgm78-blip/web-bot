@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   const messages = [
     {
       role: "system",
-      content: "Sen Bilols AI yordamchisisan. Doimo ravon, tabiiy va chiroyli o'zbek adabiy tilida javob ber. Hech qachon xavfsizlik hisobotlari yoki 'User Safety' kabi so'zlarni yozma. Foydalanuvchining savoliga qisqa va aniq javob qaytar."
+      content: "Sen Bilols AI yordamchisisan. Foydalanuvchi bilan har doim ravon, tushunarli o'zbek tilida gaplash. Agar rasm yuborilgan bo'lsa, undagi narsalarni batafsil tahlil qilib ber."
     }
   ];
 
@@ -52,10 +52,18 @@ export default async function handler(req, res) {
     messages.push({ role, content });
   });
 
-  // Rasm bo'lsa vision model, matn bo'lsa o'zbek tilini a'lo darajada biladigan Llama 3.3
+  // Rasm bo'lsa rasm tahlili modellari, matn bo'lsa tezkor modellar
   const candidateModels = hasImage 
-    ? ["qwen/qwen3.8-27b:free", "openrouter/free"]
-    : ["meta-llama/llama-3.3-70b-instruct:free", "openrouter/free"];
+    ? [
+        "meta-llama/llama-3.2-11b-vision-instruct:free",
+        "openrouter/free"
+      ]
+    : [
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "openrouter/free"
+      ];
+
+  let lastError = null;
 
   for (const model of candidateModels) {
     try {
@@ -74,16 +82,19 @@ export default async function handler(req, res) {
       });
 
       const data = await resp.json();
-      let text = data?.choices?.[0]?.message?.content;
 
-      // Agar xavfsizlik tekshiruvchisi keraksiz so'zlarni qaytarsa, uni e'tiborsiz qoldiramiz
-      if (text && !text.includes("User Safety:") && !text.includes("Response Safety:")) {
-        return res.status(200).json({ text: text.trim() });
+      if (resp.ok && data?.choices?.[0]?.message?.content) {
+        let text = data.choices[0].message.content.trim();
+        if (!text.includes("User Safety:") && !text.includes("Response Safety:")) {
+          return res.status(200).json({ text });
+        }
+      } else {
+        lastError = data?.error?.message || "Model javob bermadi";
       }
     } catch (err) {
-      // Keyingi modelga o'tish
+      lastError = err.message;
     }
   }
 
-  return res.status(200).json({ text: "Salom! Sizga qanday yordam bera olaman?" });
+  return res.status(500).json({ error: lastError || "Model bilan bog'lanishda xatolik yuz berdi." });
 }
