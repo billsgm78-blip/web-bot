@@ -1032,18 +1032,25 @@
     let activeAuthMode = "login";
 
     // MATEMATIK DARAJALAR VA BELGILARNI FORMATLASH FUNKSIYASI
-        function formatMath(text) {
+            function formatMath(text) {
         if (!text) return "";
         let formatted = text
-            // Markdown sarlavhalari (###) ni chiroyli qalin matn qilish
+            // LaTeX belgilarini to'g'rilash
+            .replace(/\\times/g, "×")
+            .replace(/\\approx/g, "≈")
+            .replace(/\\le/g, "≤")
+            .replace(/\\ge/g, "≥")
+            .replace(/\\neq/g, "≠")
+            .replace(/\\pm/g, "±")
+            .replace(/\\in/g, "∈")
+            // Markdown sarlavhalari (###)
             .replace(/###\s*(.*)/g, '<b style="color:#a5b4fc; display:block; margin:6px 0;">$1</b>')
-            // Ikki tomonlama dollar belgilari ($$ ... $$) ni tozalash va alohida qatorga olish
+            // Formulalar ($$ ... $$)
             .replace(/\$\$(.*?)\$\$/g, '<div style="margin:4px 0; font-weight:600; color:#38bdf8;">$1</div>')
-            // Bitta dollar belgilari ($ ... $) ni tozalash
             .replace(/\$(.*?)\$/g, '<b style="color:#38bdf8;">$1</b>')
             // Qalin yozuvlar (**matn**)
             .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-            // Darajalarni to'g'rilash
+            // Darajalar
             .replace(/\^2/g, "²")
             .replace(/\^3/g, "³")
             .replace(/\^([0-9]+)/g, "<sup>$1</sup>");
