@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   const messages = [
     {
       role: "system",
-      content: "Sen Bilols AI yordamchisisan. Foydalanuvchi bilan doim o'zbek tilida muloqot qil. Savollarga aniq, to'g'ri va xatosiz hisob-kitoblar bilan javob ber."
+      content: "Sen Bilols AI yordamchisisan. Foydalanuvchiga doim chiroyli, tabiiy o'zbek tilida javob ber. Hech qanday xavfsizlik hisobotlarini yozma."
     }
   ];
 
@@ -52,50 +52,39 @@ export default async function handler(req, res) {
     messages.push({ role, content });
   });
 
-  // Agar bittasi xato bersa, keyingisiga o'tadigan ishonchli bepul modellar
-  const candidateModels = hasImage 
-    ? [
-        "meta-llama/llama-3.2-11b-vision-instruct:free",
-        "google/gemini-2.0-flash-exp:free"
-      ]
-    : [
-        "google/gemini-2.0-flash-exp:free",
-        "meta-llama/llama-3.3-70b-instruct:free",
-        "qwen/qwen-2.5-72b-instruct:free"
-      ];
+  // Rasm bo'lsa vision modellariga, matn bo'lsa to'liq avtomatik rejimga
+  const selectedModel = hasImage ? "openrouter/free" : "openrouter/auto";
 
-  let lastError = null;
+  try {
+    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://bilolsai.uz",
+        "X-Title": "Bilols AI"
+      },
+      body: JSON.stringify({
+        model: selectedModel,
+        messages: messages
+      }),
+    });
 
-  for (const model of candidateModels) {
-    try {
-      const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://bilolsai.uz",
-          "X-Title": "Bilols AI"
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: messages
-        })
-      });
+    const data = await resp.json();
 
-      const data = await resp.json();
-
-      if (resp.ok && data?.choices?.[0]?.message?.content) {
-        let text = data.choices[0].message.content.trim();
-        if (!text.includes("User Safety:") && !text.includes("Response Safety:")) {
-          return res.status(200).json({ text });
-        }
-      } else {
-        lastError = data?.error?.message || "Model javob bermadi";
-      }
-    } catch (err) {
-      lastError = err.message;
+    if (!resp.ok) {
+      return res.status(resp.status).json({ error: data?.error?.message || "Model xatoligi yuz berdi" });
     }
-  }
 
-  return res.status(500).json({ error: lastError || "Provayder bilan bog'lanishda xatolik." });
+    let text = data?.choices?.[0]?.message?.content || "Javob topilmadi.";
+
+    // Xavfsizlik hisoboti chiqib qolsa tozalash
+    if (text.includes("User Safety:") || text.includes("Response Safety:")) {
+      text = "Salom! Sizga qanday yordam bera olaman?";
+    }
+
+    return res.status(200).json({ text: text.trim() });
+  } catch (err) {
+    return res.status(500).json({ error: "Server bilan bog'lanishda xatolik." });
+  }
 }
