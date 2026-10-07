@@ -1059,9 +1059,9 @@
             .replace(/\^2/g, "²")
             .replace(/\^3/g, "³")
             .replace(/\^([0-9]+)/g, "<sup>$1</sup>");
+            .replace(/\\text\{([^}]+)\}/g, "$1"
         return formatted;
     }
-
     // HARFMA-HARF ANIMATSIYA BILAN YOZUVCHI ASOSIY FUNKSIYA
     function typeWriterEffect(containerElement, fullText, speed = 12) {
         return new Promise((resolve) => {
