@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   const messages = [
     {
       role: "system",
-      content: "Sen Bilols AI yordamchisisan. Foydalanuvchi bilan har doim ravon, tushunarli o'zbek tilida gaplash. Agar rasm yuborilgan bo'lsa, undagi narsalarni batafsil tahlil qilib ber."
+      content: "Sen Bilols AI yordamchisisan. Foydalanuvchi bilan doim o'zbek tilida muloqot qil. Savollarga aniq, to'g'ri va xatosiz hisob-kitoblar bilan javob ber."
     }
   ];
 
@@ -52,15 +52,16 @@ export default async function handler(req, res) {
     messages.push({ role, content });
   });
 
-  // Rasm bo'lsa rasm tahlili modellari, matn bo'lsa tezkor modellar
+  // Agar bittasi xato bersa, keyingisiga o'tadigan ishonchli bepul modellar
   const candidateModels = hasImage 
     ? [
         "meta-llama/llama-3.2-11b-vision-instruct:free",
-        "openrouter/free"
+        "google/gemini-2.0-flash-exp:free"
       ]
     : [
+        "google/gemini-2.0-flash-exp:free",
         "meta-llama/llama-3.3-70b-instruct:free",
-        "openrouter/free"
+        "qwen/qwen-2.5-72b-instruct:free"
       ];
 
   let lastError = null;
@@ -96,5 +97,5 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(500).json({ error: lastError || "Model bilan bog'lanishda xatolik yuz berdi." });
+  return res.status(500).json({ error: lastError || "Provayder bilan bog'lanishda xatolik." });
 }
