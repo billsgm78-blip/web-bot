@@ -1031,15 +1031,24 @@
     let currentFacingMode = "environment";
     let activeAuthMode = "login";
 
-    // MATEMATIK DARAJALAR VA BELGILARNI FORMATLASH FUNKSIYASI
-                function formatMath(text) {
+    // MATEMATIK VA KIMYOVIY MATNLARNI CHIROYLI FORMATLASH
+    function formatMath(text) {
         if (!text) return "";
         let formatted = text
-            // Ildiz belgisi (\sqrt{son})
+            // Kimyoviy va matnli LaTeX qoliplarini tozalash (\text{F} -> F, \text{Br}_2 -> Br₂)
+            .replace(/\\text\{([^}]+)\}/g, "$1")
+            .replace(/_2/g, "₂")
+            .replace(/_3/g, "₃")
+            .replace(/_4/g, "₄")
+            .replace(/_([0-9]+)/g, "<sub>$1</sub>")
+
+            // Ildiz belgisi (\sqrt{83944} -> √83944)
             .replace(/\\sqrt\{([^}]+)\}/g, "√$1")
+
             // LaTeX bo'shliqlari
             .replace(/\\quad/g, " &nbsp; ")
             .replace(/\\qquad/g, " &nbsp;&nbsp; ")
+
             // Matematik amallar va belgilar
             .replace(/\\times/g, "×")
             .replace(/\\approx/g, "≈")
@@ -1048,18 +1057,24 @@
             .replace(/\\neq/g, "≠")
             .replace(/\\pm/g, "±")
             .replace(/\\in/g, "∈")
+            .replace(/\\bm\{([^}]+)\}/g, "$1")
+            .replace(/\\\{([^}]+)\\\}/g, "($1)")
+
             // Markdown sarlavhalari (#, ##, ###)
             .replace(/^#{1,3}\s*(.*)/gm, '<b style="color:#a5b4fc; display:block; margin:8px 0 4px;">$1</b>')
-            // Formulalar ($$ ... $$)
+
+            // Formulalar ($$ ... $$ va $ ... $)
             .replace(/\$\$(.*?)\$\$/g, '<div style="margin:4px 0; font-weight:600; color:#38bdf8;">$1</div>')
             .replace(/\$(.*?)\$/g, '<b style="color:#38bdf8;">$1</b>')
+
             // Qalin yozuvlar (**matn**)
             .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-            // Darajalar
+
+            // Darajalar (x^2 -> x², x^3 -> x³)
             .replace(/\^2/g, "²")
             .replace(/\^3/g, "³")
             .replace(/\^([0-9]+)/g, "<sup>$1</sup>");
-            .replace(/\\text\{([^}]+)\}/g, "$1"
+
         return formatted;
     }
     // HARFMA-HARF ANIMATSIYA BILAN YOZUVCHI ASOSIY FUNKSIYA
