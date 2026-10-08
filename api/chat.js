@@ -19,12 +19,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  let hasImage = false;
-
   const messages = [
     {
       role: "system",
-      content: "Sen Bilols AI yordamchisisan. Foydalanuvchi bilan o'zbek tilida muloqot qil. Agar rasm yuborilgan bo'lsa, undagi obyektlar, daraxtlar, joy yoki matnlarni aniq va batafsil tahlil qilib ber."
+      content: "Sen Bilols AI yordamchisisan. Foydalanuvchi bilan o'zbek tilida tabiiy muloqot qil. Agar rasm yuborilgan bo'lsa, undagi obyektlarni yoki matnlarni aniq tahlil qilib ber."
     }
   ];
 
@@ -37,7 +35,6 @@ export default async function handler(req, res) {
         if (p.text) {
           content.push({ type: "text", text: p.text });
         } else if (p.inline_data) {
-          hasImage = true;
           content.push({
             type: "image_url",
             image_url: {
@@ -53,12 +50,8 @@ export default async function handler(req, res) {
     }
   });
 
-  // Rasmlar uchun OpenRouter'dagi eng ishonchli bepul modellar
-  const modelToUse = hasImage 
-    ? "meta-llama/llama-3.2-11b-vision-instruct:free" 
-    : "openrouter/auto";
-
   try {
+    // OpenRouter avtomatik bepul routerni o'zi mos modelni tanlaydi
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -68,7 +61,7 @@ export default async function handler(req, res) {
         "X-Title": "Bilols AI"
       },
       body: JSON.stringify({
-        model: modelToUse,
+        model: "openrouter/free",
         messages: messages
       })
     });
@@ -81,14 +74,14 @@ export default async function handler(req, res) {
 
     let text = data?.choices?.[0]?.message?.content || "";
 
-    // Xavfsizlik hisobotlarini tozalab, haqiqiy matnni saqlab qolish
+    // Keraksiz xavfsizlik loglarini tozalash
     text = text
       .replace(/User Safety:[\s\S]*?(?=\n\n|$)/gi, "")
       .replace(/Response Safety:[\s\S]*?(?=\n\n|$)/gi, "")
       .trim();
 
     if (!text) {
-      text = "Rasmdagi ma'lumotni to'liq ajratib bo'lmadi. Iltimos, boshqattan urinib ko'ring yoki savolni aniqroq yozing.";
+      text = "Javob olib bo'lmadi. Iltimos, qayta urinib ko'ring.";
     }
 
     return res.status(200).json({ text });
