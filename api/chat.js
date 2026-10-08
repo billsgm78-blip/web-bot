@@ -24,36 +24,39 @@ export default async function handler(req, res) {
   const messages = [
     {
       role: "system",
-      content: "Sen Bilols AI yordamchisisan. Foydalanuvchiga doim chiroyli, tabiiy o'zbek tilida javob ber. Hech qanday xavfsizlik hisobotlarini yozma."
+      content: "Sen Bilols AI yordamchisisan. Foydalanuvchi bilan o'zbek tilida muloqot qil. Agar rasm yuborilgan bo'lsa, undagi obyektlar, daraxtlar, joy yoki matnlarni aniq va batafsil tahlil qilib ber."
     }
   ];
 
   history.forEach(h => {
     let role = h.role === "model" ? "assistant" : h.role;
-    let content = h.content;
+    let content = [];
 
     if (h.parts) {
-      content = h.parts.map(p => {
+      h.parts.forEach(p => {
         if (p.text) {
-          return { type: "text", text: p.text };
+          content.push({ type: "text", text: p.text });
         } else if (p.inline_data) {
           hasImage = true;
-          return {
+          content.push({
             type: "image_url",
             image_url: {
               url: `data:${p.inline_data.mime_type};base64,${p.inline_data.data}`
             }
-          };
+          });
         }
-        return null;
-      }).filter(Boolean);
+      });
     }
 
-    messages.push({ role, content });
+    if (content.length > 0) {
+      messages.push({ role, content });
+    }
   });
 
-  // Rasm bo'lsa vision modellariga, matn bo'lsa to'liq avtomatik rejimga
-  const selectedModel = hasImage ? "openrouter/free" : "openrouter/auto";
+  // Rasmlar uchun OpenRouter'dagi eng ishonchli bepul modellar
+  const modelToUse = hasImage 
+    ? "meta-llama/llama-3.2-11b-vision-instruct:free" 
+    : "openrouter/auto";
 
   try {
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -65,26 +68,31 @@ export default async function handler(req, res) {
         "X-Title": "Bilols AI"
       },
       body: JSON.stringify({
-        model: selectedModel,
+        model: modelToUse,
         messages: messages
-      }),
+      })
     });
 
     const data = await resp.json();
 
     if (!resp.ok) {
-      return res.status(resp.status).json({ error: data?.error?.message || "Model xatoligi yuz berdi" });
+      return res.status(resp.status).json({ error: data?.error?.message || "Model xatoligi yuz berdi." });
     }
 
-    let text = data?.choices?.[0]?.message?.content || "Javob topilmadi.";
+    let text = data?.choices?.[0]?.message?.content || "";
 
-    // Xavfsizlik hisoboti chiqib qolsa tozalash
-    if (text.includes("User Safety:") || text.includes("Response Safety:")) {
-      text = "Salom! Sizga qanday yordam bera olaman?";
+    // Xavfsizlik hisobotlarini tozalab, haqiqiy matnni saqlab qolish
+    text = text
+      .replace(/User Safety:[\s\S]*?(?=\n\n|$)/gi, "")
+      .replace(/Response Safety:[\s\S]*?(?=\n\n|$)/gi, "")
+      .trim();
+
+    if (!text) {
+      text = "Rasmdagi ma'lumotni to'liq ajratib bo'lmadi. Iltimos, boshqattan urinib ko'ring yoki savolni aniqroq yozing.";
     }
 
-    return res.status(200).json({ text: text.trim() });
+    return res.status(200).json({ text });
   } catch (err) {
-    return res.status(500).json({ error: "Server bilan bog'lanishda xatolik." });
+    return res.status(500).json({ error: "Server bilan bog'lanishda xatolik yuz berdi." });
   }
 }
