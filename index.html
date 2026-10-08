@@ -11,7 +11,6 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://bilolsai.uz/">
 
-    <!-- Open Graph (Telegram, Facebook va Google natijalari prevyusi uchun) -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://bilolsai.uz/">
     <meta property="og:title" content="Bilols AI — Intelligent Neural Assistant">
@@ -22,16 +21,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     
-    <!-- Matematik formulalar (darajalar, ildizlar) to'g'ri chiqishi uchun KaTeX -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 
     <style>
         :root {
             --bg-deep: #05070b;
-            --surface-glass: rgba(14, 19, 32, 0.85);
-            --surface-card: rgba(255, 255, 255, 0.04);
-            --border-glass: rgba(255, 255, 255, 0.09);
+            --surface-glass: rgba(14, 19, 32, 0.92);
+            --surface-card: rgba(255, 255, 255, 0.05);
+            --border-glass: rgba(255, 255, 255, 0.1);
             
             --emerald-accent: #10b981;
             --emerald-glow: rgba(16, 185, 129, 0.45);
@@ -57,15 +55,17 @@
             outline: none !important;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
             background-color: var(--bg-deep);
             color: var(--text-primary);
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
+        }
+
+        body {
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
             position: relative;
         }
 
@@ -73,56 +73,43 @@
             position: fixed;
             border-radius: 50%;
             filter: blur(100px);
-            opacity: 0.45;
+            opacity: 0.4;
             pointer-events: none;
             z-index: 0;
-            animation: orbFloat 16s ease-in-out infinite alternate;
         }
         .orb-1 {
-            width: 400px; height: 400px;
+            width: 320px; height: 320px;
             background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
-            top: -120px; left: -100px;
+            top: -60px; left: -60px;
         }
         .orb-2 {
-            width: 450px; height: 450px;
+            width: 340px; height: 340px;
             background: radial-gradient(circle, #10b981 0%, transparent 70%);
-            bottom: -140px; right: -100px;
-            animation-duration: 20s;
-        }
-
-        @keyframes orbFloat {
-            0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(35px, 45px) scale(1.1); }
-            100% { transform: translate(-25px, 25px) scale(0.95); }
+            bottom: -60px; right: -60px;
         }
 
         .container {
             width: 100%;
-            height: 100vh;
-            height: -webkit-fill-available;
+            height: 100%;
             max-width: 460px;
             display: flex;
             flex-direction: column;
             position: relative;
             background: var(--surface-glass);
-            backdrop-filter: blur(30px) saturate(190%);
-            -webkit-backdrop-filter: blur(30px) saturate(190%);
-            border-left: 1px solid var(--border-glass);
-            border-right: 1px solid var(--border-glass);
-            box-shadow: 0 0 70px rgba(0, 0, 0, 0.8);
             z-index: 10;
-            overflow: hidden;
         }
 
         @media (min-width: 461px) {
             .container {
                 height: 94vh;
-                border-radius: 40px;
+                border-radius: 36px;
                 border: 1px solid var(--border-glass);
+                box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
+                overflow: hidden;
             }
         }
 
-        /* --- LANDING INFO SCREEN --- */
+        /* --- LANDING SCREEN --- */
         #landing-screen {
             position: absolute;
             inset: 0;
@@ -131,120 +118,74 @@
             z-index: 30;
             background: var(--bg-deep);
             overflow-y: auto;
-            padding: 28px 20px;
-            scroll-behavior: smooth;
+            padding: 24px 18px;
         }
         #landing-screen.hidden { display: none !important; }
 
         .landing-hero {
             text-align: center;
-            padding: 20px 10px 16px;
-            animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            padding: 24px 10px 16px;
         }
 
         .landing-logo {
-            width: 72px; height: 72px;
+            width: 68px; height: 68px;
             margin: 0 auto 16px;
-            border-radius: 24px;
+            border-radius: 22px;
             background: var(--accent-grad);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 34px;
-            box-shadow: 0 14px 32px -4px var(--emerald-glow);
-            animation: emojiBounce 3s ease-in-out infinite;
-        }
-
-        @keyframes emojiBounce {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(3deg); }
+            font-size: 32px;
+            box-shadow: 0 12px 28px -4px var(--emerald-glow);
         }
 
         .landing-title {
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 800;
             background: linear-gradient(135deg, #ffffff 20%, #a5b4fc 90%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
-            letter-spacing: -0.5px;
         }
 
         .landing-subtitle {
-            font-size: 15px;
+            font-size: 14.5px;
             color: var(--text-secondary);
-            line-height: 1.6;
+            line-height: 1.55;
         }
 
         .features-list {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin: 20px 0 30px;
+            gap: 12px;
+            margin: 20px 0 24px;
         }
 
         .feature-card {
             background: var(--surface-card);
             border: 1px solid var(--border-glass);
-            padding: 18px;
-            border-radius: 22px;
+            padding: 16px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
-            gap: 16px;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
-        }
-        .feature-card:nth-child(1) { animation-delay: 0.2s; }
-        .feature-card:nth-child(2) { animation-delay: 0.35s; }
-        .feature-card:nth-child(3) { animation-delay: 0.5s; }
-
-        .feature-card:hover {
-            transform: translateY(-4px) scale(1.01);
-            border-color: var(--violet-accent);
-            background: rgba(255, 255, 255, 0.06);
+            gap: 14px;
         }
 
         .feature-icon {
-            font-size: 26px;
-            width: 50px; height: 50px;
+            font-size: 24px;
+            width: 46px; height: 46px;
             background: rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
+            border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            animation: pulseIcon 4s ease-in-out infinite;
         }
 
-        @keyframes pulseIcon {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-        }
-
-        .feature-info h4 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: #fff; }
-        .feature-info p { font-size: 13.5px; color: var(--text-secondary); line-height: 1.45; }
+        .feature-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 3px; color: #fff; }
+        .feature-info p { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
 
         .landing-actions {
             margin-top: auto;
-            padding-bottom: 24px;
-            animation: fadeIn 1s ease 0.6s forwards;
-            opacity: 0;
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            padding-bottom: 20px;
         }
 
         /* --- AUTH MODAL --- */
@@ -254,106 +195,85 @@
             display: none;
             align-items: center;
             justify-content: center;
-            padding: 24px;
+            padding: 20px;
             z-index: 50;
-            background: rgba(5, 7, 11, 0.94);
-            backdrop-filter: blur(24px);
-            animation: fadeIn 0.3s ease forwards;
+            background: rgba(5, 7, 11, 0.96);
         }
         #auth-modal.active { display: flex; }
 
         .auth-card {
             width: 100%;
-            background: var(--surface-card);
+            background: #0d121f;
             border: 1px solid var(--border-glass);
-            border-radius: 32px;
-            padding: 32px 24px;
+            border-radius: 28px;
+            padding: 28px 20px;
             text-align: center;
-            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8);
             position: relative;
-            animation: scaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes scaleUp {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
         }
 
         .auth-close {
             position: absolute;
-            top: 20px; right: 20px;
+            top: 18px; right: 18px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--border-glass);
             color: #cbd5e1;
             font-size: 18px;
-            width: 36px; height: 36px;
+            width: 34px; height: 34px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .auth-close:hover { background: rgba(244, 63, 94, 0.2); color: var(--rose-accent); }
 
         .auth-tabs {
             display: flex;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 18px;
-            padding: 5px;
-            margin-bottom: 20px;
+            border-radius: 16px;
+            padding: 4px;
+            margin-bottom: 18px;
             border: 1px solid var(--border-glass);
         }
 
         .auth-tab {
             flex: 1;
-            padding: 11px;
-            font-size: 14px;
+            padding: 10px;
+            font-size: 13.5px;
             font-weight: 700;
-            border-radius: 14px;
+            border-radius: 12px;
             border: none;
             background: transparent;
             color: var(--text-secondary);
             cursor: pointer;
-            transition: all 0.3s ease;
         }
         .auth-tab.active {
             background: var(--accent-grad);
             color: #fff;
-            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
         }
 
         .styled-input {
             width: 100%;
-            padding: 15px 18px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.045);
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-glass);
             color: var(--text-primary);
-            font-size: 15px;
+            font-size: 14.5px;
             outline: none;
-            margin-bottom: 14px;
-            transition: 0.3s border-color, 0.3s box-shadow;
+            margin-bottom: 12px;
         }
-        .styled-input:focus {
-            border-color: var(--violet-accent);
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.25);
-        }
+        .styled-input:focus { border-color: var(--violet-accent); }
 
         .primary-btn {
             width: 100%;
-            padding: 16px;
-            border-radius: 18px;
+            padding: 15px;
+            border-radius: 16px;
             border: none;
             background: var(--accent-grad);
             color: #fff;
-            font-size: 16px;
+            font-size: 15.5px;
             font-weight: 700;
             cursor: pointer;
             box-shadow: var(--btn-glow);
-            transition: all 0.3s ease;
-            margin-top: 6px;
         }
-        .primary-btn:active { transform: scale(0.97); }
-        .primary-btn:hover { opacity: 0.95; transform: translateY(-1px); }
 
         /* --- CHAT SCREEN --- */
         #chat-screen {
@@ -366,7 +286,6 @@
             position: absolute;
             inset: 0;
             background: var(--surface-glass);
-            transition: opacity 0.4s ease;
         }
         #chat-screen.active {
             opacity: 1;
@@ -380,10 +299,9 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid var(--border-glass);
-            background: rgba(11, 15, 25, 0.75);
-            backdrop-filter: blur(18px);
-            z-index: 20;
+            background: rgba(11, 15, 25, 0.95);
             flex-shrink: 0;
+            z-index: 20;
         }
 
         .chat-header-info {
@@ -393,27 +311,19 @@
         }
 
         .avatar {
-            width: 38px; height: 38px;
+            width: 40px; height: 40px;
             border-radius: 14px;
             background: var(--accent-grad);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 18px;
-            box-shadow: 0 6px 16px -2px var(--violet-glow);
-            animation: emojiBounce 3s ease-in-out infinite;
             cursor: pointer;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.2s ease;
+            user-select: none;
+            box-shadow: 0 4px 12px var(--violet-glow);
+            transition: transform 0.15s ease;
         }
         .avatar:active { transform: scale(0.9); }
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-        }
 
         .header-actions {
             display: flex;
@@ -425,82 +335,68 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(245, 158, 11, 0.35);
             padding: 6px 10px;
-            border-radius: 18px;
+            border-radius: 16px;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .wallet-pill:hover { background: rgba(245, 158, 11, 0.1); }
         .wallet-pill span {
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--amber-accent);
             font-family: 'JetBrains Mono', monospace;
         }
 
         .logout-btn {
-            background: rgba(244, 63, 94, 0.08);
-            border: 1px solid rgba(244, 63, 94, 0.25);
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.3);
             color: var(--rose-accent);
             padding: 6px 10px;
             border-radius: 14px;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .logout-btn:hover { background: rgba(244, 63, 94, 0.2); }
 
         .messages-container {
-            flex: 1;
+            flex: 1 1 auto;
             overflow-y: auto;
-            padding: 20px 16px;
+            padding: 16px 14px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .msg-bubble {
             max-width: 86%;
-            padding: 14px 18px;
+            padding: 12px 16px;
             font-size: 14.5px;
-            line-height: 1.6;
+            line-height: 1.55;
             word-wrap: break-word;
-            opacity: 0;
-            transform: translateY(20px) scale(0.95);
-            animation: bubblePopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes bubblePopIn {
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            border-radius: 18px;
         }
 
         .msg-user {
             align-self: flex-end;
             background: var(--user-grad);
-            border-radius: 22px 22px 4px 22px;
+            border-bottom-right-radius: 4px;
             color: #ffffff;
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
             white-space: pre-wrap;
         }
         
         .msg-ai {
             align-self: flex-start;
-            background: rgba(255, 255, 255, 0.055);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--border-glass);
-            border-radius: 22px 22px 22px 4px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-bottom-left-radius: 4px;
             white-space: pre-wrap;
         }
 
         .msg-img-preview {
             max-width: 100%;
-            border-radius: 14px;
+            border-radius: 12px;
             margin-bottom: 8px;
             display: block;
         }
@@ -509,12 +405,11 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 12px 18px;
-            background: rgba(255, 255, 255, 0.04);
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-glass);
-            border-radius: 18px;
+            border-radius: 16px;
             align-self: flex-start;
-            animation: bubblePopIn 0.3s ease forwards;
         }
         .dot {
             width: 7px; height: 7px;
@@ -530,11 +425,10 @@
             40% { transform: scale(1.25); opacity: 1; }
         }
 
-        /* --- ANDROID UCHUN TO'G'RILANGAN INPUT BAR --- */
+        /* --- ANDROID UCHUN ENG QULAY INPUT PANEL --- */
         .input-bar {
             padding: 10px 12px;
-            padding-bottom: max(12px, env(safe-area-inset-bottom));
-            background: rgba(11, 15, 25, 0.95);
+            background: #090d17;
             border-top: 1px solid var(--border-glass);
             display: flex;
             align-items: center;
@@ -553,36 +447,32 @@
 
         .media-btn {
             width: 40px; height: 40px;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.045);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--border-glass);
             color: #cbd5e1;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: 0.2s;
             flex-shrink: 0;
         }
-        .media-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--violet-accent); }
         .media-btn svg { width: 19px; height: 19px; }
 
         .input-bar input[type="text"] {
-            flex: 1 1 0%;
+            flex: 1 1 auto;
             min-width: 0;
             padding: 12px 14px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--border-glass);
             color: #fff;
-            font-size: 14px;
-            transition: 0.2s border-color;
+            font-size: 14.5px;
         }
-        .input-bar input[type="text"]:focus { border-color: var(--violet-accent); }
 
         .send-btn {
             width: 42px; height: 42px;
-            border-radius: 14px;
+            border-radius: 12px;
             border: none;
             background: var(--accent-grad);
             color: #fff;
@@ -591,34 +481,64 @@
             justify-content: center;
             cursor: pointer;
             flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-            transition: transform 0.2s;
         }
-        .send-btn:active { transform: scale(0.92); }
 
-        /* --- 👛 WALLET MODAL --- */
+        /* --- BUTUN EKRANGA TO'RTBURCHAK CHIQADIGAN MEME MODAL --- */
+        #meme-screen-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+
+        .meme-box {
+            position: relative;
+            max-width: 380px;
+            width: 90%;
+            background: #000;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
+            animation: popMeme 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .meme-box img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        @keyframes popMeme {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* --- WALLET & CAMERA MODALS --- */
         #wallet-modal {
             position: absolute;
             inset: 0;
-            background: rgba(7, 10, 18, 0.97);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
+            background: rgba(7, 10, 18, 0.98);
             z-index: 70;
             display: none;
             flex-direction: column;
-            padding: 24px 18px;
-            overflow: hidden;
-            animation: fadeIn 0.3s ease forwards;
+            padding: 20px 16px;
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 18px;
-            flex-shrink: 0;
+            margin-bottom: 16px;
         }
-        .modal-header h2 { font-size: 20px; font-weight: 800; }
 
         .modal-close {
             background: rgba(255, 255, 255, 0.08);
@@ -626,129 +546,52 @@
             color: #cbd5e1;
             font-size: 20px;
             border-radius: 50%;
-            width: 38px; height: 38px;
+            width: 36px; height: 36px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .modal-close:hover {
-            background: rgba(244, 63, 94, 0.2);
-            border-color: rgba(244, 63, 94, 0.4);
-            color: #f43f5e;
-            transform: scale(1.05);
         }
 
         .balance-badge {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
             border: 1px solid rgba(245, 158, 11, 0.4);
-            box-shadow: 0 12px 30px -8px rgba(245, 158, 11, 0.25);
-            border-radius: 22px;
-            padding: 18px;
+            border-radius: 20px;
+            padding: 16px;
             text-align: center;
-            margin-bottom: 18px;
-            flex-shrink: 0;
+            margin-bottom: 16px;
         }
-        .balance-title {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-        .balance-amount-row {
-            display: flex;
-            align-items: baseline;
-            justify-content: center;
-            gap: 6px;
-        }
-        .balance-num {
-            font-size: 30px;
-            font-weight: 800;
-            color: #fbbf24;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .balance-currency {
-            font-size: 16px;
-            font-weight: 700;
-            color: #fbbf24;
-        }
+        .balance-title { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 4px; }
+        .balance-num { font-size: 28px; font-weight: 800; color: #fbbf24; font-family: 'JetBrains Mono', monospace; }
+        .balance-currency { font-size: 15px; font-weight: 700; color: #fbbf24; }
 
-        .pack-scroll-area {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 4px;
-            padding-bottom: 20px;
-        }
-        .pack-scroll-area::-webkit-scrollbar { width: 4px; }
-        .pack-scroll-area::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 10px;
-        }
-
-        .section-label {
-            margin: 12px 0 10px;
-            font-size: 13px;
-            color: #a5b4fc;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            font-weight: 700;
-        }
-
-        .pack-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-
+        .pack-scroll-area { flex: 1; overflow-y: auto; }
+        .section-label { margin: 10px 0 8px; font-size: 12.5px; color: #a5b4fc; font-weight: 700; text-transform: uppercase; }
+        .pack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
         .pack-card {
             background: var(--surface-card);
-            border: 1px solid var(--border-glass) !important;
-            padding: 16px 12px;
-            border-radius: 20px;
+            border: 1px solid var(--border-glass);
+            padding: 14px 10px;
+            border-radius: 18px;
             text-align: center;
             cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.25s ease;
         }
-        .pack-card:hover {
-            border-color: var(--emerald-accent) !important;
-            background: rgba(16, 185, 129, 0.08);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.15);
-        }
+        .pack-val { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .pack-price { font-size: 13px; color: var(--emerald-accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 
-        .pack-val { font-size: 14.5px; font-weight: 700; color: #fff; margin-bottom: 6px; }
-        .pack-price { font-size: 13.5px; color: var(--emerald-accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-
-        /* --- TOZALASH TUGMASI (HAMYON ICHIDA) --- */
         .clear-chat-wallet-btn {
             width: 100%;
-            padding: 15px;
-            border-radius: 18px;
+            padding: 14px;
+            border-radius: 16px;
             border: 1px solid rgba(139, 92, 246, 0.35);
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(139, 92, 246, 0.12);
             color: #c4b5fd;
-            font-size: 15px;
+            font-size: 14.5px;
             font-weight: 700;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 14px;
-            transition: 0.2s;
-        }
-        .clear-chat-wallet-btn:hover {
-            background: rgba(139, 92, 246, 0.2);
-            border-color: var(--violet-accent);
+            margin-top: 12px;
         }
 
-        /* --- 📷 LIVE KAMERA MODAL --- */
         #camera-modal {
             position: absolute;
             inset: 0;
@@ -769,37 +612,20 @@
             border: 1px solid rgba(255, 255, 255, 0.25);
             color: #fff;
             border-radius: 50%;
-            width: 48px; height: 48px;
+            width: 46px; height: 46px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px; cursor: pointer;
-            backdrop-filter: blur(12px);
+            font-size: 19px; cursor: pointer;
         }
-        .video-container {
-            width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; position: relative;
-        }
-        #camera-video {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            background: #000;
-        }
-        .cam-controls {
-            position: absolute; bottom: 36px; left: 0; right: 0;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 10;
-        }
+        .video-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        #camera-video { width: 100%; height: 100%; object-fit: cover; }
+        .cam-controls { position: absolute; bottom: 32px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; z-index: 10; }
         .capture-btn {
-            width: 78px; height: 78px;
+            width: 74px; height: 74px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.2);
             border: 4px solid #fff;
             padding: 4px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
-            transition: transform 0.2s;
         }
-        .capture-btn:active { transform: scale(0.88); }
         .capture-inner { width: 100%; height: 100%; background: #fff; border-radius: 50%; }
 
         #image-preview-container {
@@ -811,7 +637,7 @@
             gap: 12px;
             flex-shrink: 0;
         }
-        .preview-box { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
+        .preview-box { position: relative; width: 46px; height: 46px; flex-shrink: 0; }
         .preview-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; border: 2px solid var(--violet-accent); }
         .remove-img-btn {
             position: absolute; top: -6px; right: -6px;
@@ -819,7 +645,11 @@
             background: var(--rose-accent); color: #fff;
             border-radius: 50%; border: none; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
@@ -871,7 +701,7 @@
         <div class="auth-card">
             <button class="auth-close" onclick="closeAuthModal()">&times;</button>
             <div style="font-size:30px; margin-bottom:8px;">⚡</div>
-            <h2 style="font-size:24px; font-weight:800; margin-bottom:16px; background:linear-gradient(135deg,#fff,#a5b4fc); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Xush kelibsiz</h2>
+            <h2 style="font-size:22px; font-weight:800; margin-bottom:14px; color:#fff;">Xush kelibsiz</h2>
 
             <div class="auth-tabs">
                 <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Kirish</button>
@@ -886,7 +716,7 @@
             <input type="password" id="pass-input" class="styled-input" placeholder="Parol">
 
             <button id="auth-action-btn" class="primary-btn">Tizimga kirish</button>
-            <div id="status-box" style="margin-top: 14px; font-size: 13.5px;"></div>
+            <div id="status-box" style="margin-top: 12px; font-size: 13px;"></div>
         </div>
     </div>
 
@@ -894,11 +724,8 @@
     <div id="chat-screen">
         <header class="chat-header">
             <div class="chat-header-info">
-                <!-- MEM RASM VA MEM OVOZGA ULANGAN AVATAR -->
-                <div class="avatar" id="avatar-btn" title="Bosib ko'ring!">
-                    <span id="avatar-emoji">⚡</span>
-                    <img id="avatar-img" src="" alt="Meme">
-                </div>
+                <!-- AVATARGA BOSILGANDA OVOZ VA EKRANGA TO'RTBURCHAK MEME CHIQADI -->
+                <div class="avatar" id="avatar-btn" title="Bosib ko'ring!">⚡</div>
                 <div>
                     <h3 style="font-size: 14.5px; font-weight: 700;">Bilols AI</h3>
                     <span style="font-size: 11.5px; color: var(--emerald-accent); font-weight: 600;">● Faol tizim</span>
@@ -956,6 +783,13 @@
         </footer>
     </div>
 
+    <!-- BUTUN EKRANGA TO'RTBURCHAK CHIQADIGAN MEME MODAL -->
+    <div id="meme-screen-modal" onclick="closeMemeModal()">
+        <div class="meme-box" onclick="event.stopPropagation()">
+            <img src="IMG_4150.jpeg" alt="Meme Image">
+        </div>
+    </div>
+
     <!-- 📷 LIVE KAMERA MODAL -->
     <div id="camera-modal">
         <div class="cam-top-bar">
@@ -982,7 +816,7 @@
 
         <div class="balance-badge">
             <div class="balance-title">Joriy hisobingiz:</div>
-            <div class="balance-amount-row">
+            <div>
                 <span class="balance-num" id="modal-balance">0</span>
                 <span class="balance-currency">so'm</span>
             </div>
@@ -1021,7 +855,6 @@
                 </div>
             </div>
 
-            <!-- CHAT TARIXINI TOZALASH TUGMASI -->
             <button class="clear-chat-wallet-btn" id="clear-chat-btn">
                 🧹 Chat tarixini tozalash
             </button>
@@ -1064,32 +897,34 @@
     const flipCameraBtn = document.getElementById("flip-camera-btn");
     const takePhotoBtn = document.getElementById("take-photo-btn");
 
-    // MEME OVOZI VA RASMI UCHUN ELEMENTLAR
+    // MEME OVOZ VA EKRANGA CHIQARISH MODALI
     const avatarBtn = document.getElementById("avatar-btn");
-    const avatarEmoji = document.getElementById("avatar-emoji");
-    const avatarImg = document.getElementById("avatar-img");
-    const memeAudio = new Audio("myinstants.mp3");
-    memeAudio.preload = "auto";
+    const memeScreenModal = document.getElementById("meme-screen-modal");
+    let memeAudio = null;
+    try {
+        memeAudio = new Audio("myinstants.mp3");
+    } catch (e) {}
 
-    // Repozitoriyingizga yuklangan meme rasm nomi (agar nomi boshqacha bo'lsa shuni o'zgartirasiz)
-    const MEME_IMAGE_URL = "IMG_4150.jpeg"; 
+    let memeTimer = null;
+    function closeMemeModal() {
+        if (memeScreenModal) memeScreenModal.style.display = "none";
+        if (memeTimer) clearTimeout(memeTimer);
+    }
 
-    avatarBtn.onclick = () => {
-        try {
-            memeAudio.currentTime = 0;
-            memeAudio.play().catch(e => {});
-        } catch (e) {}
-
-        // Rasmni almashtirish va 3.5 soniyadan keyin yana avvalgi chaqmoqqa qaytarish
-        avatarEmoji.style.display = "none";
-        avatarImg.src = MEME_IMAGE_URL;
-        avatarImg.style.display = "block";
-
-        setTimeout(() => {
-            avatarImg.style.display = "none";
-            avatarEmoji.style.display = "block";
-        }, 3500);
-    };
+    if (avatarBtn) {
+        avatarBtn.onclick = () => {
+            if (memeScreenModal) {
+                memeScreenModal.style.display = "flex";
+            }
+            if (memeAudio) {
+                memeAudio.currentTime = 0;
+                memeAudio.play().catch(() => {});
+            }
+            // 3.5 soniyadan keyin rasm avtomatik yo'qoladi
+            if (memeTimer) clearTimeout(memeTimer);
+            memeTimer = setTimeout(closeMemeModal, 3500);
+        };
+    }
 
     let currentPhone = "";
     let currentName = "";
@@ -1100,7 +935,6 @@
     let currentFacingMode = "environment";
     let activeAuthMode = "login";
 
-    // MATEMATIK VA KIMYOVIY MATNLARNI FORMATLASH
     function formatMath(text) {
         if (!text) return "";
         return text
@@ -1110,18 +944,7 @@
             .replace(/_4/g, "₄")
             .replace(/_([0-9]+)/g, "<sub>$1</sub>")
             .replace(/\\sqrt\{([^}]+)\}/g, "√$1")
-            .replace(/\\quad/g, " &nbsp; ")
-            .replace(/\\qquad/g, " &nbsp;&nbsp; ")
             .replace(/\\times/g, "×")
-            .replace(/\\approx/g, "≈")
-            .replace(/\\le/g, "≤")
-            .replace(/\\ge/g, "≥")
-            .replace(/\\neq/g, "≠")
-            .replace(/\\pm/g, "±")
-            .replace(/\\in/g, "∈")
-            .replace(/\\bm\{([^}]+)\}/g, "$1")
-            .replace(/\\\{([^}]+)\\\}/g, "($1)")
-            .replace(/^#{1,3}\s*(.*)/gm, '<b style="color:#a5b4fc; display:block; margin:8px 0 4px;">$1</b>')
             .replace(/\$\$(.*?)\$\$/g, '<div style="margin:4px 0; font-weight:600; color:#38bdf8;">$1</div>')
             .replace(/\$(.*?)\$/g, '<b style="color:#38bdf8;">$1</b>')
             .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
@@ -1171,52 +994,32 @@
         }
     };
 
-    const incomeAudio = new Audio("money_2.mp3");
-    incomeAudio.preload = "auto";
+    let incomeAudio = null;
+    try {
+        incomeAudio = new Audio("money_2.mp3");
+    } catch (e) {}
 
     function playIncomeMusic() {
+        if (!incomeAudio) return;
         try {
             incomeAudio.currentTime = 0;
-            incomeAudio.play().catch(err => {});
-        } catch (e) {}
-    }
-
-    function playCashSound() {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const now = ctx.currentTime;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(1200, now);
-            osc.frequency.exponentialRampToValueAtTime(1800, now + 0.1);
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 0.4);
+            incomeAudio.play().catch(() => {});
         } catch (e) {}
     }
 
     function showNotification(text) {
         const notifyDiv = document.createElement("div");
         notifyDiv.style.cssText = `
-            position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
-            border: 1px solid rgba(255, 255, 255, 0.25); backdrop-filter: blur(16px);
-            color: #fff; padding: 14px 26px; border-radius: 24px;
-            font-weight: 700; font-size: 14.5px;
-            box-shadow: 0 16px 36px -6px rgba(16, 185, 129, 0.5);
-            z-index: 99999; transition: all 0.4s ease;
+            color: #fff; padding: 12px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            z-index: 99999;
         `;
         notifyDiv.innerText = text;
         document.body.appendChild(notifyDiv);
-        setTimeout(() => {
-            notifyDiv.style.opacity = "0";
-            notifyDiv.style.transform = "translateX(-50%) translateY(-24px) scale(0.95)";
-            setTimeout(() => notifyDiv.remove(), 400);
-        }, 4000);
+        setTimeout(() => notifyDiv.remove(), 3500);
     }
 
     let lastKnownBalance = null;
@@ -1316,7 +1119,6 @@
                 alert(`❌ Xatolik: ${data.error || "Balans yetarli emas"}`);
                 return;
             }
-            playCashSound();
             const newBal = (data.balance || 0).toLocaleString();
             lastKnownBalance = Number(data.balance || 0);
             headerBalance.innerText = newBal;
@@ -1345,7 +1147,7 @@
                     </div>
                 `;
                 walletModal.style.display = "none";
-                showNotification("🧹 Chat tarixi muvaffaqiyatli tozalandi!");
+                showNotification("🧹 Chat tarixi tozalandi!");
             }
         };
     }
@@ -1356,14 +1158,9 @@
         const password = passInput.value.trim();
         const name = nameInput.value.trim();
 
-        if (!phone) {
+        if (!phone || !password) {
             statusBox.style.color = "#f43f5e";
-            statusBox.innerText = "Telefon raqamingizni kiriting!";
-            return;
-        }
-        if (!password) {
-            statusBox.style.color = "#f43f5e";
-            statusBox.innerText = "Parolni kiriting!";
+            statusBox.innerText = "Barcha maydonlarni to'ldiring!";
             return;
         }
 
@@ -1399,7 +1196,7 @@
             authModal.classList.remove("active");
             chatScreen.classList.add("active");
             if (currentName) {
-                document.getElementById("welcome-bubble").innerText = `Hush kelibsiz, ${currentName}! Qanday yordam bera olaman? 🚀`;
+                document.getElementById("welcome-bubble").innerText = `Xush kelibsiz, ${currentName}! Qanday yordam bera olaman? 🚀`;
             }
         } catch (err) {
             statusBox.style.color = "#f43f5e";
