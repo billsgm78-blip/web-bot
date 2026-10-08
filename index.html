@@ -61,6 +61,7 @@
             background-color: var(--bg-deep);
             color: var(--text-primary);
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -98,6 +99,7 @@
         .container {
             width: 100%;
             height: 100vh;
+            height: -webkit-fill-available;
             max-width: 460px;
             display: flex;
             flex-direction: column;
@@ -381,6 +383,7 @@
             background: rgba(11, 15, 25, 0.75);
             backdrop-filter: blur(18px);
             z-index: 20;
+            flex-shrink: 0;
         }
 
         .chat-header-info {
@@ -399,6 +402,17 @@
             font-size: 18px;
             box-shadow: 0 6px 16px -2px var(--violet-glow);
             animation: emojiBounce 3s ease-in-out infinite;
+            cursor: pointer;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s ease;
+        }
+        .avatar:active { transform: scale(0.9); }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
         }
 
         .header-actions {
@@ -516,24 +530,30 @@
             40% { transform: scale(1.25); opacity: 1; }
         }
 
+        /* --- ANDROID UCHUN TO'G'RILANGAN INPUT BAR --- */
         .input-bar {
-            padding: 12px 16px;
-            background: rgba(11, 15, 25, 0.9);
+            padding: 10px 12px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            background: rgba(11, 15, 25, 0.95);
             border-top: 1px solid var(--border-glass);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            width: 100%;
+            flex-shrink: 0;
+            z-index: 25;
         }
 
         .media-buttons {
             display: flex;
             align-items: center;
             gap: 6px;
+            flex-shrink: 0;
         }
 
         .media-btn {
-            width: 44px; height: 44px;
-            border-radius: 16px;
+            width: 40px; height: 40px;
+            border-radius: 14px;
             background: rgba(255, 255, 255, 0.045);
             border: 1px solid var(--border-glass);
             color: #cbd5e1;
@@ -542,25 +562,27 @@
             justify-content: center;
             cursor: pointer;
             transition: 0.2s;
+            flex-shrink: 0;
         }
         .media-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--violet-accent); }
-        .media-btn svg { width: 21px; height: 21px; }
+        .media-btn svg { width: 19px; height: 19px; }
 
         .input-bar input[type="text"] {
-            flex: 1;
-            padding: 14px 18px;
-            border-radius: 18px;
+            flex: 1 1 0%;
+            min-width: 0;
+            padding: 12px 14px;
+            border-radius: 16px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-glass);
             color: #fff;
-            font-size: 14.5px;
+            font-size: 14px;
             transition: 0.2s border-color;
         }
         .input-bar input[type="text"]:focus { border-color: var(--violet-accent); }
 
         .send-btn {
-            width: 46px; height: 46px;
-            border-radius: 16px;
+            width: 42px; height: 42px;
+            border-radius: 14px;
             border: none;
             background: var(--accent-grad);
             color: #fff;
@@ -782,20 +804,22 @@
 
         #image-preview-container {
             display: none;
-            padding: 12px 18px;
+            padding: 10px 14px;
             background: rgba(13, 17, 28, 0.96);
             border-top: 1px solid var(--border-glass);
             align-items: center;
             gap: 12px;
+            flex-shrink: 0;
         }
-        .preview-box { position: relative; width: 52px; height: 52px; }
-        .preview-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; border: 2px solid var(--violet-accent); }
+        .preview-box { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; border: 2px solid var(--violet-accent); }
         .remove-img-btn {
             position: absolute; top: -6px; right: -6px;
-            width: 22px; height: 22px;
+            width: 20px; height: 20px;
             background: var(--rose-accent); color: #fff;
             border-radius: 50%; border: none; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -870,7 +894,11 @@
     <div id="chat-screen">
         <header class="chat-header">
             <div class="chat-header-info">
-                <div class="avatar">⚡</div>
+                <!-- MEM RASM VA MEM OVOZGA ULANGAN AVATAR -->
+                <div class="avatar" id="avatar-btn" title="Bosib ko'ring!">
+                    <span id="avatar-emoji">⚡</span>
+                    <img id="avatar-img" src="" alt="Meme">
+                </div>
                 <div>
                     <h3 style="font-size: 14.5px; font-weight: 700;">Bilols AI</h3>
                     <span style="font-size: 11.5px; color: var(--emerald-accent); font-weight: 600;">● Faol tizim</span>
@@ -919,7 +947,7 @@
             </div>
 
             <input type="text" id="chat-input" placeholder="Xabar yoki savolingizni yozing..." autocomplete="off">
-            <button id="send-btn" class="send-btn">
+            <button id="send-btn" class="send-btn" title="Yuborish">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -1036,6 +1064,33 @@
     const flipCameraBtn = document.getElementById("flip-camera-btn");
     const takePhotoBtn = document.getElementById("take-photo-btn");
 
+    // MEME OVOZI VA RASMI UCHUN ELEMENTLAR
+    const avatarBtn = document.getElementById("avatar-btn");
+    const avatarEmoji = document.getElementById("avatar-emoji");
+    const avatarImg = document.getElementById("avatar-img");
+    const memeAudio = new Audio("myinstants.mp3");
+    memeAudio.preload = "auto";
+
+    // Repozitoriyingizga yuklangan meme rasm nomi (agar nomi boshqacha bo'lsa shuni o'zgartirasiz)
+    const MEME_IMAGE_URL = "IMG_4150.jpeg"; 
+
+    avatarBtn.onclick = () => {
+        try {
+            memeAudio.currentTime = 0;
+            memeAudio.play().catch(e => {});
+        } catch (e) {}
+
+        // Rasmni almashtirish va 3.5 soniyadan keyin yana avvalgi chaqmoqqa qaytarish
+        avatarEmoji.style.display = "none";
+        avatarImg.src = MEME_IMAGE_URL;
+        avatarImg.style.display = "block";
+
+        setTimeout(() => {
+            avatarImg.style.display = "none";
+            avatarEmoji.style.display = "block";
+        }, 3500);
+    };
+
     let currentPhone = "";
     let currentName = "";
     let chatHistory = [];
@@ -1045,25 +1100,18 @@
     let currentFacingMode = "environment";
     let activeAuthMode = "login";
 
-    // MATEMATIK VA KIMYOVIY MATNLARNI CHIROYLI FORMATLASH
+    // MATEMATIK VA KIMYOVIY MATNLARNI FORMATLASH
     function formatMath(text) {
         if (!text) return "";
-        let formatted = text
-            // Kimyoviy va matnli LaTeX qoliplarini tozalash (\text{F} -> F, \text{Br}_2 -> Br₂)
+        return text
             .replace(/\\text\{([^}]+)\}/g, "$1")
             .replace(/_2/g, "₂")
             .replace(/_3/g, "₃")
             .replace(/_4/g, "₄")
             .replace(/_([0-9]+)/g, "<sub>$1</sub>")
-
-            // Ildiz belgisi (\sqrt{83944} -> √83944)
             .replace(/\\sqrt\{([^}]+)\}/g, "√$1")
-
-            // LaTeX bo'shliqlari
             .replace(/\\quad/g, " &nbsp; ")
             .replace(/\\qquad/g, " &nbsp;&nbsp; ")
-
-            // Matematik amallar va belgilar
             .replace(/\\times/g, "×")
             .replace(/\\approx/g, "≈")
             .replace(/\\le/g, "≤")
@@ -1073,25 +1121,15 @@
             .replace(/\\in/g, "∈")
             .replace(/\\bm\{([^}]+)\}/g, "$1")
             .replace(/\\\{([^}]+)\\\}/g, "($1)")
-
-            // Markdown sarlavhalari (#, ##, ###)
             .replace(/^#{1,3}\s*(.*)/gm, '<b style="color:#a5b4fc; display:block; margin:8px 0 4px;">$1</b>')
-
-            // Formulalar ($$ ... $$ va $ ... $)
             .replace(/\$\$(.*?)\$\$/g, '<div style="margin:4px 0; font-weight:600; color:#38bdf8;">$1</div>')
             .replace(/\$(.*?)\$/g, '<b style="color:#38bdf8;">$1</b>')
-
-            // Qalin yozuvlar (**matn**)
             .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-
-            // Darajalar (x^2 -> x², x^3 -> x³)
             .replace(/\^2/g, "²")
             .replace(/\^3/g, "³")
             .replace(/\^([0-9]+)/g, "<sup>$1</sup>");
-
-        return formatted;
     }
-    // HARFMA-HARF ANIMATSIYA BILAN YOZUVCHI ASOSIY FUNKSIYA
+
     function typeWriterEffect(containerElement, fullText, speed = 12) {
         return new Promise((resolve) => {
             const txt = document.createElement("div");
@@ -1114,13 +1152,8 @@
         });
     }
 
-    window.openAuthModal = function() {
-        authModal.classList.add("active");
-    };
-
-    window.closeAuthModal = function() {
-        authModal.classList.remove("active");
-    };
+    window.openAuthModal = function() { authModal.classList.add("active"); };
+    window.closeAuthModal = function() { authModal.classList.remove("active"); };
 
     window.switchTab = function(mode) {
         activeAuthMode = mode;
@@ -1452,7 +1485,6 @@
         previewImgElement.src = "";
     };
 
-    // FOYDALANUVCHI XABARI (HARFMA-HARF TERILADI)
     async function appendMsg(text, role, imgSrc = null) {
         const div = document.createElement("div");
         div.className = `msg-bubble msg-${role}`;
@@ -1471,7 +1503,6 @@
         return div;
     }
 
-    // AI JAVOBI (HARFMA-HARF TERILADI)
     async function appendTypewriterMsg(text, imgSrc = null) {
         const div = document.createElement("div");
         div.className = "msg-bubble msg-ai";
@@ -1529,13 +1560,11 @@
         const promptText = text || (hasImage ? "Ushbu rasmda nima tasvirlangan? To'liq tahlil qilib ber." : "");
         parts.push({ text: promptText });
 
-        // Foydalanuvchi xabari harfma-harf teriladi
         await appendMsg(text, "user", imgSrcForBubble);
         chatHistory.push({ role: "user", parts: parts });
         localStorage.setItem("bilol_ai_history", JSON.stringify(chatHistory));
         showTyping();
 
-        // KUTISH VAQTI 90 SONIYAGA SOZLANGAN (TIMEOUT BERMAYDI)
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 90000);
 
@@ -1553,7 +1582,6 @@
             const data = await res.json();
             const reply = data.text || data.error || "Javob olib bo'lmadi.";
             
-            // AI javobi harfma-harf teriladi
             await appendTypewriterMsg(reply);
             chatHistory.push({ role: "model", parts: [{ text: reply }] });
             localStorage.setItem("bilol_ai_history", JSON.stringify(chatHistory));
@@ -1561,7 +1589,7 @@
             clearTimeout(timeoutId);
             hideTyping();
             if (e.name === "AbortError") {
-                await appendTypewriterMsg("⚠️ Server javob berishi juda cho'zilib ketdi. Iltimos, boshaqattan urinib ko'ring.");
+                await appendTypewriterMsg("⚠️ Server javob berishi juda cho'zilib ketdi. Iltimos, boshqattan urinib ko'ring.");
             } else {
                 await appendTypewriterMsg("⚠️ AI javob berishda yoki server bilan ulanishda xatolik yuz berdi.");
             }
