@@ -1,4 +1,4 @@
-export const maxDuration = 60;
+export const maxDuration = 90;
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
@@ -19,10 +19,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
+  let hasImage = false;
+
   const messages = [
     {
       role: "system",
-      content: "Sen Bilols AI yordamchisisan. Foydalanuvchi bilan o'zbek tilida tabiiy muloqot qil. Agar rasm yuborilgan bo'lsa, undagi obyektlarni yoki matnlarni aniq tahlil qilib ber."
+      content: "Sen Bilols AI yordamchisisan. Foydalanuvchi bilan o'zbek tilida tabiiy gaplash. Agar rasm yuborilsa, undagi daraxt, obyekt, joy yoki matnni to'liq ko'rib, aniq tahlil qilib ber."
     }
   ];
 
@@ -35,6 +37,7 @@ export default async function handler(req, res) {
         if (p.text) {
           content.push({ type: "text", text: p.text });
         } else if (p.inline_data) {
+          hasImage = true;
           content.push({
             type: "image_url",
             image_url: {
@@ -50,42 +53,54 @@ export default async function handler(req, res) {
     }
   });
 
-  try {
-    // OpenRouter avtomatik bepul routerni o'zi mos modelni tanlaydi
-    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://bilolsai.uz",
-        "X-Title": "Bilols AI"
-      },
-      body: JSON.stringify({
-        model: "openrouter/free",
-        messages: messages
-      })
-    });
+  // Agar rasm bo'lsa rasmni ko'radigan avtomatik bepul modellar, matn bo'lsa auto
+  const candidateModels = hasImage
+    ? [
+        "google/gemini-2.0-flash-lite-preview-02-05:free",
+        "google/gemini-2.0-flash-thinking-exp:free",
+        "meta-llama/llama-3.2-11b-vision-instruct:free"
+      ]
+    : [
+        "openrouter/auto"
+      ];
 
-    const data = await resp.json();
+  let lastError = null;
 
-    if (!resp.ok) {
-      return res.status(resp.status).json({ error: data?.error?.message || "Model xatoligi yuz berdi." });
+  for (const model of candidateModels) {
+    try {
+      const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://bilolsai.uz",
+          "X-Title": "Bilols AI"
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: messages
+        })
+      });
+
+      const data = await resp.json();
+
+      if (resp.ok && data?.choices?.[0]?.message?.content) {
+        let text = data.choices[0].message.content.trim();
+        text = text
+          .replace(/User Safety:[\s\S]*?(?=\n\n|$)/gi, "")
+          .replace(/Response Safety:[\s\S]*?(?=\n\n|$)/gi, "")
+          .trim();
+
+        if (text) {
+          return res.status(200).json({ text });
+        }
+      } else {
+        lastError = data?.error?.message || "Model javob bermadi";
+      }
+    } catch (err) {
+      lastError = err.message;
     }
-
-    let text = data?.choices?.[0]?.message?.content || "";
-
-    // Keraksiz xavfsizlik loglarini tozalash
-    text = text
-      .replace(/User Safety:[\s\S]*?(?=\n\n|$)/gi, "")
-      .replace(/Response Safety:[\s\S]*?(?=\n\n|$)/gi, "")
-      .trim();
-
-    if (!text) {
-      text = "Javob olib bo'lmadi. Iltimos, qayta urinib ko'ring.";
-    }
-
-    return res.status(200).json({ text });
-  } catch (err) {
-    return res.status(500).json({ error: "Server bilan bog'lanishda xatolik yuz berdi." });
   }
+
+  return res.status(500).json({ error: lastError || "Rasmni tahlil qilishda xatolik yuz berdi." });
 }
