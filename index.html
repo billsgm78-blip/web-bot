@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -1155,14 +1155,14 @@
 
         function dismissToast() {
             if (!document.body.contains(notifyDiv)) return;
-            notifyDiv.style.transition = "all 0.25s ease";
+            notifyDiv.style.transition = "all 0.50s ease";
             notifyDiv.style.transform = `translate(-50%, -40px) scale(0.85)`;
             notifyDiv.style.opacity = "0";
-            setTimeout(() => notifyDiv.remove(), 250);
+            setTimeout(() => notifyDiv.remove(), 350);
         }
 
         // 1.8 soniyada o'zi avtomatik mayin yo'qoladi
-        autoDismissTimer = setTimeout(dismissToast, 1800);
+        autoDismissTimer = setTimeout(dismissToast, 2800);
 
         function onTouchStart(e) {
             isTouching = true;
