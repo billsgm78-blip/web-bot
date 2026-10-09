@@ -187,17 +187,18 @@
         }
 
         /* --- LANDING SCREEN --- */
-        #landing-screen {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            z-index: 30;
-            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(5, 7, 11, 0.98) 70%);
-            overflow-y: auto;
-            padding: 24px 20px 28px;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            -webkit-overflow-scrolling: touch;
+       #landing-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 30;
+    background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(5, 7, 11, 0.98) 70%);
+    overflow-y: auto;
+    padding: 70px 20px 28px !important; /* Tepadan bo'sh joy kattalashtirildi */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    -webkit-overflow-scrolling: touch;
+}
         }
         #landing-screen.hidden {
             opacity: 0;
@@ -1390,7 +1391,7 @@
             title: "Tezkor Neyro Tarmoq",
             desc: "Bilols AI eng so'nggi zamonaviy sun'iy intellekt arxitekturasiga asoslangan bo'lib, har qanday murakkablikdagi savollarga soniyalar ichida aniq va mantiqiy javob beradi.",
             bullets: [
-                "⚡ 0.2 soniyada javob generatsiyasi",
+                "⚡ 1 soniyada javob generatsiyasi",
                 "🇺🇿 O'zbek va 🇬🇧 Ingliz tillarida ravon muloqot",
                 "📐 Matematika, fizika va kimyo formulalarini ishlash",
                 "💻 Dasturlash kodlari va insholarni mukammal yozish"
