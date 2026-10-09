@@ -760,7 +760,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* XABARLAR SHRIFTINI TO'G'RIDAN-TO'G'RI O'ZGARTIRISH */
         .msg-bubble {
             max-width: 86%;
             padding: 12px 16px;
@@ -1318,7 +1317,7 @@
         </div>
     </div>
 
-    <!-- 3 ТА БЛОКА ИНФО МОДАЛКА -->
+    <!-- 3 TA BLOK MA'LUMOT MODALI -->
     <div id="feature-info-modal" onclick="closeFeatureInfo()">
         <div class="feature-modal-card" onclick="event.stopPropagation()">
             <button class="auth-close" onclick="closeFeatureInfo()">&times;</button>
@@ -1736,7 +1735,6 @@
                 showNotification("Parol muvaffaqiyatli o'zgartirildi!");
             }, 1200);
         } catch (e) {
-            // Agar backendda hali maxsus change-password bo'lmasa ham lokalda saqlanadi
             localStorage.setItem("bilol_ai_password", newPass);
             pStatus.style.color = "#10b981";
             pStatus.innerText = "Parol muvaffaqiyatli saqlandi! 🎉";
@@ -1858,12 +1856,10 @@
     let currentFacingMode = "environment";
     let activeAuthMode = "login";
 
-   function formatMath(text) {
+    function formatMath(text) {
         if (!text) return "";
 
-        // 1. Agar KaTeX kutubxonasi yuklangan bo'lsa, formulalarni chiroyli render qilamiz
         if (window.katex) {
-            // Blokli formulalar: \[ ... \] yoki $$ ... $$
             text = text.replace(/(\\\[[\s\S]*?\\\]|\$\$[\s\S]*?\$\$)/g, (match) => {
                 const formula = match.startsWith("\\[") 
                     ? match.slice(2, -2) 
@@ -1875,7 +1871,6 @@
                 }
             });
 
-            // Qator ichidagi formulalar: \( ... \) yoki $ ... $
             text = text.replace(/(\\\([\s\S]*?\\\)|(?<!\$)\$(?!\$)[\s\S]*?\$)/g, (match) => {
                 const formula = match.startsWith("\\(") 
                     ? match.slice(2, -2) 
@@ -1888,7 +1883,6 @@
             });
         }
 
-        // 2. Oddiy matnli belgilashlar uchun zaxira qoidalari
         return text
             .replace(/\\text\{([^}]+)\}/g, "$1")
             .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "<sup>$1</sup>/<sub>$2</sub>")
@@ -1897,9 +1891,14 @@
             .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
             .replace(/_2/g, "₂")
             .replace(/_3/g, "₃")
+            .replace(/_4/g, "₄")
+            .replace(/_([0-9]+)/g, "<sub>$1</sub>")
+            .replace(/\\sqrt\{([^}]+)\}/g, "√$1")
             .replace(/\^2/g, "²")
-            .replace(/\^3/g, "³");
+            .replace(/\^3/g, "³")
+            .replace(/\^([0-9]+)/g, "<sup>$1</sup>");
     }
+
     window.openAuthModal = function() { authModal.classList.add("active"); };
     window.closeAuthModal = function() { authModal.classList.remove("active"); };
 
@@ -2047,7 +2046,9 @@
     function renderSavedMessages() {
         chatHistory.forEach(item => {
             const role = item.role === "user" ? "user" : "ai";
-            const textPart = item.parts?.find(p => p.text);            
+            const textPart = item.parts?.find(p => p.text);
+            const imgPart = item.parts?.find(p => p.inline_data);
+            
             const div = document.createElement("div");
             div.className = `msg-bubble msg-${role}`;
             
@@ -2328,43 +2329,12 @@
 
         appendMsg(text, "user", imgSrcForBubble);
         chatHistory.push({ role: "user", parts: parts });
-        localStorage.setItem("bilol_ai_history", JSON.stringify(chatHistory));
-        showTyping();
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 90000);
 
         try {
-            const res = await fetch("/api/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ history: chatHistory }),
-                signal: controller.signal
-            });
-
-            clearTimeout(timeoutId);
-            hideTyping();
-            
-            const data = await res.json();
-            const reply = data.text || data.error || "Javob olib bo'lmadi.";
-            
-            appendAIMsg(reply);
-            chatHistory.push({ role: "model", parts: [{ text: reply }] });
-            localStorage.setItem("bilol_ai_history", JSON.stringify(chatHistory));
+            const cleanHistory = chatHistory.map(item => ({
+                role: item.role,
+                parts: item.parts.map(p => p.inline_data ? { text: "[Rasm biriktirildi]" } : p)
+            }));
+            localStorage.setItem("bilol_ai_history", JSON.stringify(cleanHistory));
         } catch (e) {
-            clearTimeout(timeoutId);
-            hideTyping();
-            if (e.name === "AbortError") {
-                appendAIMsg("⚠️ Server javob berishi juda cho'zilib ketdi. Iltimos, boshqattan urinib ko'ring.");
-            } else {
-                appendAIMsg("⚠️ AI javob berishda yoki server bilan ulanishda xatolik yuz berdi.");
-            }
-        }
-    }
-
-    sendBtn.onclick = sendChat;
-    chatInput.onkeydown = (e) => { if (e.key === "Enter") sendChat(); };
-</script>
-
-</body>
-</html>
+            console.warn("Tarixni saqlashda x
