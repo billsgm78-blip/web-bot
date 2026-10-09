@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Bilols AI — Intelligent Neural Assistant</title>
 
+    <meta name="google" content="notranslate">
     <meta name="description" content="Bilols AI — Sizning shaxsiy sun'iy intellekt yordamchingiz. Rasm tahlil qilish, tezkor savol-javob va topshiriqlarni oylab yechish platformasi.">
     <meta name="keywords" content="Bilols AI, bilolsai, sun'iy intellekt, AI yordamchi, rasm tahlili, masala yechish, Bilol AI, o'zbekcha AI">
     <meta name="robots" content="index, follow">
@@ -115,7 +116,7 @@
             }
         }
 
-        /* --- KOMPYUTER EKRANLARI UCHUN KENGAYTIRILGAN MOSLASHUV --- */
+        /* --- KOMPYUTER (DESKTOP) MOSLASHUVI --- */
         @media (min-width: 992px) {
             .container {
                 max-width: 1040px;
@@ -187,18 +188,17 @@
         }
 
         /* --- LANDING SCREEN --- */
-       #landing-screen {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    z-index: 30;
-    background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(5, 7, 11, 0.98) 70%);
-    overflow-y: auto;
-    padding: 70px 20px 28px !important; /* Tepadan bo'sh joy kattalashtirildi */
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    -webkit-overflow-scrolling: touch;
-}
+        #landing-screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 30;
+            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(5, 7, 11, 0.98) 70%);
+            overflow-y: auto;
+            padding: 48px 20px 28px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            -webkit-overflow-scrolling: touch;
         }
         #landing-screen.hidden {
             opacity: 0;
@@ -612,7 +612,7 @@
         }
         .primary-btn:active { transform: scale(0.96); opacity: 0.9; }
 
-        /* --- CHAT SCREEN --- */
+        /* --- CHAT SCREEN (ORQA FON MUAMMOSI TO'LIQ HAL QILINGAN) --- */
         #chat-screen {
             display: flex;
             flex-direction: column;
@@ -622,7 +622,7 @@
             pointer-events: none;
             position: absolute;
             inset: 0;
-            background: var(--surface-glass);
+            background: var(--bg-deep) !important; /* Orqa fonni to'liq qora qiladi */
             transition: opacity 0.35s ease;
         }
         #chat-screen.active {
@@ -637,7 +637,7 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid var(--border-glass);
-            background: rgba(11, 15, 25, 0.95);
+            background: rgba(11, 15, 25, 0.98);
             flex-shrink: 0;
             z-index: 20;
         }
@@ -708,6 +708,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            background: var(--bg-deep);
             -webkit-overflow-scrolling: touch;
         }
 
@@ -782,7 +783,7 @@
             40% { transform: scale(1.25); opacity: 1; }
         }
 
-        /* --- ANDROID UCHUN INPUT PANEL --- */
+        /* --- INPUT PANEL --- */
         .input-bar {
             padding: 10px 12px;
             background: #090d17;
@@ -1391,7 +1392,7 @@
             title: "Tezkor Neyro Tarmoq",
             desc: "Bilols AI eng so'nggi zamonaviy sun'iy intellekt arxitekturasiga asoslangan bo'lib, har qanday murakkablikdagi savollarga soniyalar ichida aniq va mantiqiy javob beradi.",
             bullets: [
-                "⚡ 1 soniyada javob generatsiyasi",
+                "⚡ 0.2 soniyada javob generatsiyasi",
                 "🇺🇿 O'zbek va 🇬🇧 Ingliz tillarida ravon muloqot",
                 "📐 Matematika, fizika va kimyo formulalarini ishlash",
                 "💻 Dasturlash kodlari va insholarni mukammal yozish"
@@ -1634,6 +1635,7 @@
             currentPhone = savedPhone;
             currentName = savedName || "";
             landingScreen.classList.add("hidden");
+            landingScreen.style.display = "none"; // Orqa fonni to'liq berkitadi
             authModal.classList.remove("active");
             chatScreen.classList.add("active");
             if (currentName) {
@@ -1768,6 +1770,7 @@
 
             await refreshBalance();
             landingScreen.classList.add("hidden");
+            landingScreen.style.display = "none"; // Orqa fonni to'liq berkitadi
             authModal.classList.remove("active");
             chatScreen.classList.add("active");
             if (currentName) {
