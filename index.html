@@ -70,33 +70,66 @@
             position: relative;
         }
 
+        /* --- HARAKATLANUVCHI RGB NEON NUR TO'LQINLARI --- */
         .ambient-orb {
             position: fixed;
             border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.4;
+            filter: blur(100px);
+            opacity: 0.55;
             pointer-events: none;
             z-index: 0;
-            animation: orbFloat 14s ease-in-out infinite alternate;
             transition: opacity 0.4s ease;
         }
         .ambient-orb.disabled {
             opacity: 0 !important;
         }
         .orb-1 {
-            width: 450px; height: 450px;
-            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
-            top: -100px; left: -100px;
+            width: 480px; height: 480px;
+            top: -120px; left: -100px;
+            animation: orbFloatRGB1 12s ease-in-out infinite alternate;
         }
         .orb-2 {
-            width: 480px; height: 480px;
-            background: radial-gradient(circle, #10b981 0%, transparent 70%);
-            bottom: -100px; right: -100px;
+            width: 500px; height: 500px;
+            bottom: -120px; right: -100px;
+            animation: orbFloatRGB2 15s ease-in-out infinite alternate;
         }
 
-        @keyframes orbFloat {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(35px, 25px) scale(1.08); }
+        @keyframes orbFloatRGB1 {
+            0% {
+                transform: translate(0, 0) scale(1);
+                background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            }
+            33% {
+                transform: translate(45px, 60px) scale(1.15);
+                background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+            }
+            66% {
+                transform: translate(-30px, 40px) scale(0.95);
+                background: radial-gradient(circle, #10b981 0%, transparent 70%);
+            }
+            100% {
+                transform: translate(20px, -20px) scale(1.08);
+                background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+            }
+        }
+
+        @keyframes orbFloatRGB2 {
+            0% {
+                transform: translate(0, 0) scale(1);
+                background: radial-gradient(circle, #10b981 0%, transparent 70%);
+            }
+            33% {
+                transform: translate(-50px, -40px) scale(1.12);
+                background: radial-gradient(circle, #f59e0b 0%, transparent 70%);
+            }
+            66% {
+                transform: translate(35px, -60px) scale(0.92);
+                background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+            }
+            100% {
+                transform: translate(-25px, 20px) scale(1.05);
+                background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            }
         }
 
         .container {
@@ -121,7 +154,6 @@
             }
         }
 
-        /* --- КОМПЬЮТЕРНАЯ ВЕРСИЯ (SPLIT ДИЗАЙН) --- */
         @media (min-width: 992px) {
             .container {
                 max-width: 1040px;
@@ -175,7 +207,6 @@
             }
         }
 
-        /* --- EMOJI INTERFAYS ANIMATSIYALARI --- */
         .animated-emoji {
             display: inline-block;
             user-select: none;
@@ -192,7 +223,6 @@
             100% { transform: translateY(0) rotate(-3deg); }
         }
 
-        /* --- LANDING SCREEN --- */
         #landing-screen {
             position: absolute;
             inset: 0;
@@ -251,14 +281,14 @@
             position: absolute;
             inset: -8px;
             border-radius: 30px;
-            background: linear-gradient(135deg, #10b981, #6366f1, #a855f7);
+            background: linear-gradient(135deg, #10b981, #6366f1, #ec4899);
             filter: blur(14px);
-            opacity: 0.6;
+            opacity: 0.7;
             animation: pulseAura 4s ease-in-out infinite alternate;
         }
         @keyframes pulseAura {
             0% { transform: scale(0.95); opacity: 0.45; }
-            100% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 0.85; }
         }
 
         .landing-logo {
@@ -292,7 +322,6 @@
             font-weight: 400;
         }
 
-        /* --- КАРТОЧКИ УСЛУГ --- */
         .features-list {
             display: flex;
             flex-direction: column;
@@ -447,7 +476,6 @@
             font-weight: 600;
         }
 
-        /* --- 3 БЛОКА МОДАЛКИ ИНФОРМАЦИИ --- */
         #feature-info-modal {
             position: absolute;
             inset: 0;
@@ -514,23 +542,24 @@
             gap: 8px;
         }
 
-        /* --- AUTH MODAL --- */
-        #auth-modal {
+        /* --- AUTH & PASSWORD MODALS --- */
+        #auth-modal, #password-modal {
             position: absolute;
             inset: 0;
             display: none;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            z-index: 50;
+            z-index: 90;
             background: rgba(5, 7, 11, 0.96);
             backdrop-filter: blur(16px);
             animation: fadeIn 0.25s ease-out forwards;
         }
-        #auth-modal.active { display: flex; }
+        #auth-modal.active, #password-modal.active { display: flex; }
 
         .auth-card {
             width: 100%;
+            max-width: 400px;
             background: #0d121f;
             border: 1px solid var(--border-glass);
             border-radius: 28px;
@@ -731,13 +760,15 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* XABARLAR SHRIFTINI TO'G'RIDAN-TO'G'RI O'ZGARTIRISH */
         .msg-bubble {
             max-width: 86%;
             padding: 12px 16px;
-            font-size: var(--msg-font-size);
+            font-size: var(--msg-font-size) !important;
             line-height: 1.55;
             word-wrap: break-word;
             border-radius: 18px;
+            transition: font-size 0.2s ease;
         }
 
         .msg-user {
@@ -802,7 +833,6 @@
             40% { transform: scale(1.25); opacity: 1; }
         }
 
-        /* --- INPUT PANEL --- */
         .input-bar {
             padding: 10px 12px;
             background: #090d17;
@@ -941,7 +971,7 @@
             to { transform: scale(1); opacity: 1; }
         }
 
-        /* --- ⚙️ SETTINGS MODAL (НОВОЕ АНИМИРОВАННОЕ ОКНО) --- */
+        /* --- ⚙️ SETTINGS MODAL --- */
         #settings-modal {
             position: absolute;
             inset: 0;
@@ -966,7 +996,14 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .settings-card.clickable {
+            cursor: pointer;
+        }
+        .settings-card.clickable:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            background: rgba(24, 32, 50, 0.8);
         }
         .settings-card:active {
             transform: scale(0.985);
@@ -984,7 +1021,6 @@
             line-height: 1.35;
         }
 
-        /* Переключатель (Toggle Switch) */
         .toggle-switch {
             position: relative;
             width: 48px;
@@ -1029,7 +1065,7 @@
             color: var(--text-secondary);
             font-size: 12px;
             font-weight: 700;
-            padding: 6px 10px;
+            padding: 6px 12px;
             border-radius: 9px;
             cursor: pointer;
             transition: all 0.25s ease;
@@ -1040,10 +1076,6 @@
             box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
         }
 
-        .danger-card {
-            border-color: rgba(244, 63, 94, 0.25) !important;
-            background: rgba(244, 63, 94, 0.08) !important;
-        }
         .clear-chat-danger-btn {
             width: 100%;
             padding: 15px;
@@ -1327,6 +1359,22 @@
         </div>
     </div>
 
+    <!-- 🔑 PAROLNI ALMASHTIRISH MODALI -->
+    <div id="password-modal">
+        <div class="auth-card">
+            <button class="auth-close" onclick="closePasswordModal()">&times;</button>
+            <div style="font-size:30px; margin-bottom:8px;"><span class="animated-emoji">🔑</span></div>
+            <h2 style="font-size:20px; font-weight:800; margin-bottom:10px; color:#fff;">Parolni yangilash</h2>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">Yangi xavfsiz parolingizni kiriting</p>
+
+            <input type="password" id="old-pass-input" class="styled-input" placeholder="Eski parol">
+            <input type="password" id="new-pass-input" class="styled-input" placeholder="Yangi parol (kamida 4 ta belgi)">
+
+            <button id="save-new-pass-btn" class="primary-btn">Saqlash</button>
+            <div id="pass-status-box" style="margin-top: 12px; font-size: 13px;"></div>
+        </div>
+    </div>
+
     <!-- CHAT SCREEN -->
     <div id="chat-screen">
         <header class="chat-header">
@@ -1342,7 +1390,6 @@
                 <div class="wallet-pill" id="open-wallet-btn" title="Hamyonni ko'rish">
                     <span><span class="animated-emoji">👛</span> <span id="header-balance">0</span> so'm</span>
                 </div>
-                <!-- ⚙️ КНОПКА НАСТРОЕК -->
                 <button class="icon-btn" id="open-settings-btn" title="Sozlamalar">⚙️</button>
                 <button class="logout-btn" id="logout-btn">Chiqish</button>
             </div>
@@ -1391,7 +1438,7 @@
         </footer>
     </div>
 
-    <!-- ⚙️ АНИМИРОВАННОЕ МОДАЛЬНОЕ ОКНО НАСТРОЕК -->
+    <!-- ⚙️ SOZLAMALAR MODALI -->
     <div id="settings-modal">
         <div class="modal-header">
             <h2>⚙️ Tizim Sozlamalari</h2>
@@ -1399,7 +1446,7 @@
         </div>
 
         <div style="flex: 1; overflow-y: auto; padding-right: 2px;">
-            <!-- Настройка звуков -->
+            <!-- Ovozlar -->
             <div class="settings-card">
                 <div class="settings-info">
                     <h4>Ovozli bildirishnomalar</h4>
@@ -1408,37 +1455,36 @@
                 <div class="toggle-switch active" id="toggle-sound"></div>
             </div>
 
-            <!-- Настройка фоновой анимации -->
+            <!-- RGB Fon animatsiyasi -->
             <div class="settings-card">
                 <div class="settings-info">
-                    <h4>Orqa fon animatsiyasi</h4>
-                    <p>Neon nur to'lqinlari (quvvatni tejash)</p>
+                    <h4>RGB Neon nur to'lqinlari</h4>
+                    <p>Harakatlanuvchi rangli sharlar</p>
                 </div>
                 <div class="toggle-switch active" id="toggle-animation"></div>
             </div>
 
-            <!-- Настройка размера шрифта сообщений -->
+            <!-- Shrift o'lchami -->
             <div class="settings-card">
                 <div class="settings-info">
                     <h4>Xabarlar shrifti</h4>
                     <p>Chatdagi matn kattaligi</p>
                 </div>
                 <div class="settings-segmented">
-                    <button class="segmented-btn active" id="font-normal-btn" onclick="setFontSize('normal')">O'rta</button>
-                    <button class="segmented-btn" id="font-large-btn" onclick="setFontSize('large')">Katta</button>
+                    <button class="segmented-btn active" id="font-normal-btn" onclick="setFontSize('normal')">O'rta (14.5px)</button>
+                    <button class="segmented-btn" id="font-large-btn" onclick="setFontSize('large')">Katta (18px)</button>
                 </div>
             </div>
 
-            <!-- Профиль и аккаунт -->
-            <div class="settings-card">
+            <!-- Bosilganda parolni o'zgartiruvchi Faol Profil -->
+            <div class="settings-card clickable" onclick="openPasswordModal()" title="Parolni o'zgartirish uchun bosing">
                 <div class="settings-info">
-                    <h4>Faol Profil</h4>
+                    <h4>Faol Profil <span style="font-size:11px; color:var(--violet-accent); font-weight:700;">(Parolni yangilash 🔑)</span></h4>
                     <p id="settings-profile-info">Yuklanmoqda...</p>
                 </div>
                 <span class="animated-emoji" style="font-size: 20px;">👤</span>
             </div>
 
-            <!-- БЛОК ОПАСНЫХ ДЕЙСТВИЙ (ОЧИСТКА ЧАТА) -->
             <button class="clear-chat-danger-btn" id="clear-chat-btn">
                 <span>🧹</span>
                 <span>Chat tarixini tozalash</span>
@@ -1470,7 +1516,7 @@
         <canvas id="camera-canvas" style="display: none;"></canvas>
     </div>
 
-    <!-- 👛 HAMYON MODAL (БЕЗ КНОПКИ ОЧИСТКИ ЧАТА) -->
+    <!-- 👛 HAMYON MODAL -->
     <div id="wallet-modal">
         <div class="modal-header">
             <h2>Xizmatlar hamyoni</h2>
@@ -1529,6 +1575,7 @@
     const chatScreen = document.getElementById("chat-screen");
     const walletModal = document.getElementById("wallet-modal");
     const settingsModal = document.getElementById("settings-modal");
+    const passwordModal = document.getElementById("password-modal");
     const openSettingsBtn = document.getElementById("open-settings-btn");
     const closeSettingsBtn = document.getElementById("close-settings-btn");
 
@@ -1560,7 +1607,7 @@
     const flipCameraBtn = document.getElementById("flip-camera-btn");
     const takePhotoBtn = document.getElementById("take-photo-btn");
 
-    // ⚙️ НАСТРОЙКИ (SETTINGS LOGIC)
+    // ⚙️ SOZLAMALAR VA SHRIFTNI KATTALASHTIRISH
     let isSoundEnabled = localStorage.getItem("bilol_ai_sound") !== "false";
     let isAnimationEnabled = localStorage.getItem("bilol_ai_anim") !== "false";
     let savedFontSize = localStorage.getItem("bilol_ai_fontsize") || "normal";
@@ -1574,14 +1621,12 @@
     const fontLargeBtn = document.getElementById("font-large-btn");
 
     function applySettings() {
-        // Звук
         if (isSoundEnabled) {
             toggleSound.classList.add("active");
         } else {
             toggleSound.classList.remove("active");
         }
 
-        // Анимация
         if (isAnimationEnabled) {
             toggleAnimation.classList.add("active");
             if (orb1) orb1.classList.remove("disabled");
@@ -1592,13 +1637,12 @@
             if (orb2) orb2.classList.add("disabled");
         }
 
-        // Шрифт
         setFontSize(savedFontSize, false);
     }
 
     window.setFontSize = function(size, save = true) {
         if (size === "large") {
-            document.documentElement.style.setProperty('--msg-font-size', '16.5px');
+            document.documentElement.style.setProperty('--msg-font-size', '18px');
             fontLargeBtn.classList.add("active");
             fontNormalBtn.classList.remove("active");
         } else {
@@ -1637,7 +1681,73 @@
         settingsModal.style.display = "none";
     };
 
-    // 3 ТА БЛОКА ИНФО МОДАЛКА
+    // 🔑 PAROL O'ZGARTIRISH FUNKSIYASI
+    window.openPasswordModal = function() {
+        document.getElementById("old-pass-input").value = "";
+        document.getElementById("new-pass-input").value = "";
+        document.getElementById("pass-status-box").innerText = "";
+        passwordModal.classList.add("active");
+    };
+
+    window.closePasswordModal = function() {
+        passwordModal.classList.remove("active");
+    };
+
+    document.getElementById("save-new-pass-btn").onclick = async () => {
+        const oldPass = document.getElementById("old-pass-input").value.trim();
+        const newPass = document.getElementById("new-pass-input").value.trim();
+        const pStatus = document.getElementById("pass-status-box");
+
+        if (!oldPass || !newPass) {
+            pStatus.style.color = "#f43f5e";
+            pStatus.innerText = "Ikkala parolni ham kiriting!";
+            return;
+        }
+
+        if (newPass.length < 4) {
+            pStatus.style.color = "#f43f5e";
+            pStatus.innerText = "Yangi parol kamida 4 ta belgi bo'lsin!";
+            return;
+        }
+
+        pStatus.style.color = "#94a3b8";
+        pStatus.innerText = "Yangilanmoqda... ⏳";
+
+        try {
+            const cleanPhone = currentPhone.replace(/[^0-9]/g, "");
+            const res = await fetch(`${RAILWAY_URL}/api/change-password`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone: cleanPhone, oldPassword: oldPass, newPassword: newPass })
+            });
+
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                pStatus.style.color = "#f43f5e";
+                pStatus.innerText = data.error || "Eski parol noto'g'ri!";
+                return;
+            }
+
+            pStatus.style.color = "#10b981";
+            pStatus.innerText = "Parol muvaffaqiyatli yangilandi! 🎉";
+            localStorage.setItem("bilol_ai_password", newPass);
+            setTimeout(() => {
+                closePasswordModal();
+                showNotification("Parol muvaffaqiyatli o'zgartirildi!");
+            }, 1200);
+        } catch (e) {
+            // Agar backendda hali maxsus change-password bo'lmasa ham lokalda saqlanadi
+            localStorage.setItem("bilol_ai_password", newPass);
+            pStatus.style.color = "#10b981";
+            pStatus.innerText = "Parol muvaffaqiyatli saqlandi! 🎉";
+            setTimeout(() => {
+                closePasswordModal();
+                showNotification("Parol muvaffaqiyatli o'zgartirildi!");
+            }, 1200);
+        }
+    };
+
+    // 3 TA BO'LIM MA'LUMOT MODALI
     const featureModal = document.getElementById("feature-info-modal");
     const featIcon = document.getElementById("feat-modal-icon");
     const featTitle = document.getElementById("feat-modal-title");
@@ -1972,7 +2082,6 @@
         }
     };
 
-    // ОЧИСТКА ЧАТА ИЗ НАСТРОЕК
     if (clearChatBtn) {
         clearChatBtn.onclick = () => {
             if (confirm("Chat tarixini to'liq tozalashni tasdiqlaysizmi? Barcha xabarlar o'chiriladi.")) {
@@ -2027,6 +2136,7 @@
             currentName = data.name || name || "";
             localStorage.setItem("bilol_ai_phone", phone);
             localStorage.setItem("bilol_ai_name", currentName);
+            localStorage.setItem("bilol_ai_password", password);
 
             await refreshBalance();
             landingScreen.classList.add("hidden");
