@@ -70,7 +70,6 @@
             position: relative;
         }
 
-        /* --- HARAKATLANUVCHI RGB NEON NUR TO'LQINLARI --- */
         .ambient-orb {
             position: fixed;
             border-radius: 50%;
@@ -476,19 +475,54 @@
             font-weight: 600;
         }
 
-        #feature-info-modal {
-            position: absolute;
-            inset: 0;
+        /* --- AUTH & INFO MODALS --- */
+        #auth-modal {
+            position: fixed !important;
+            inset: 0 !important;
             display: none;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            z-index: 60;
+            z-index: 99999 !important;
+            background: rgba(5, 7, 11, 0.96);
+            backdrop-filter: blur(16px);
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        #auth-modal.active { 
+            display: flex !important; 
+        }
+
+        #feature-info-modal {
+            position: fixed !important;
+            inset: 0 !important;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 99999 !important;
             background: rgba(5, 7, 11, 0.92);
             backdrop-filter: blur(20px);
             animation: fadeIn 0.2s ease-out forwards;
         }
-        #feature-info-modal.active { display: flex; }
+        #feature-info-modal.active { 
+            display: flex !important; 
+        }
+
+        #password-modal {
+            position: fixed !important;
+            inset: 0 !important;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 99999 !important;
+            background: rgba(5, 7, 11, 0.96);
+            backdrop-filter: blur(16px);
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        #password-modal.active { 
+            display: flex !important; 
+        }
 
         .feature-modal-card {
             width: 100%;
@@ -541,21 +575,6 @@
             align-items: center;
             gap: 8px;
         }
-
-        /* --- AUTH & PASSWORD MODALS --- */
-        #auth-modal, #password-modal {
-            position: absolute;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 90;
-            background: rgba(5, 7, 11, 0.96);
-            backdrop-filter: blur(16px);
-            animation: fadeIn 0.25s ease-out forwards;
-        }
-        #auth-modal.active, #password-modal.active { display: flex; }
 
         .auth-card {
             width: 100%;
@@ -1445,7 +1464,6 @@
         </div>
 
         <div style="flex: 1; overflow-y: auto; padding-right: 2px;">
-            <!-- Ovozlar -->
             <div class="settings-card">
                 <div class="settings-info">
                     <h4>Ovozli bildirishnomalar</h4>
@@ -1454,7 +1472,6 @@
                 <div class="toggle-switch active" id="toggle-sound"></div>
             </div>
 
-            <!-- RGB Fon animatsiyasi -->
             <div class="settings-card">
                 <div class="settings-info">
                     <h4>RGB Neon nur to'lqinlari</h4>
@@ -1463,7 +1480,6 @@
                 <div class="toggle-switch active" id="toggle-animation"></div>
             </div>
 
-            <!-- Shrift o'lchami -->
             <div class="settings-card">
                 <div class="settings-info">
                     <h4>Xabarlar shrifti</h4>
@@ -1475,7 +1491,6 @@
                 </div>
             </div>
 
-            <!-- Bosilganda parolni o'zgartiruvchi Faol Profil -->
             <div class="settings-card clickable" onclick="openPasswordModal()" title="Parolni o'zgartirish uchun bosing">
                 <div class="settings-info">
                     <h4>Faol Profil <span style="font-size:11px; color:var(--violet-accent); font-weight:700;">(Parolni yangilash 🔑)</span></h4>
@@ -1491,7 +1506,7 @@
         </div>
     </div>
 
-    <!-- BUTUN EKRANGA TO'RTBURCHAK CHIQADIGAN MEME MODAL -->
+    <!-- MEME MODAL -->
     <div id="meme-screen-modal" onclick="closeMemeModal()">
         <div class="meme-box" onclick="event.stopPropagation()">
             <img src="IMG_4150.jpeg" alt="Meme Image">
@@ -1606,6 +1621,21 @@
     const flipCameraBtn = document.getElementById("flip-camera-btn");
     const takePhotoBtn = document.getElementById("take-photo-btn");
 
+    // Modalni ochish/yopish global funksiyalari
+    window.openAuthModal = function() {
+        if (authModal) {
+            authModal.classList.add("active");
+            authModal.style.display = "flex";
+        }
+    };
+
+    window.closeAuthModal = function() {
+        if (authModal) {
+            authModal.classList.remove("active");
+            authModal.style.display = "none";
+        }
+    };
+
     // ⚙️ SOZLAMALAR VA SHRIFTNI KATTALASHTIRISH
     let isSoundEnabled = localStorage.getItem("bilol_ai_sound") !== "false";
     let isAnimationEnabled = localStorage.getItem("bilol_ai_anim") !== "false";
@@ -1686,10 +1716,12 @@
         document.getElementById("new-pass-input").value = "";
         document.getElementById("pass-status-box").innerText = "";
         passwordModal.classList.add("active");
+        passwordModal.style.display = "flex";
     };
 
     window.closePasswordModal = function() {
         passwordModal.classList.remove("active");
+        passwordModal.style.display = "none";
     };
 
     document.getElementById("save-new-pass-btn").onclick = async () => {
@@ -1796,10 +1828,12 @@
         featDesc.innerText = data.desc;
         featBullets.innerHTML = data.bullets.map(b => `<li>${b}</li>`).join("");
         featureModal.classList.add("active");
+        featureModal.style.display = "flex";
     };
 
     window.closeFeatureInfo = function() {
         featureModal.classList.remove("active");
+        featureModal.style.display = "none";
     };
 
     // MEME MODAL VA OVOZ
@@ -1898,9 +1932,6 @@
             .replace(/\^3/g, "³")
             .replace(/\^([0-9]+)/g, "<sup>$1</sup>");
     }
-
-    window.openAuthModal = function() { authModal.classList.add("active"); };
-    window.closeAuthModal = function() { authModal.classList.remove("active"); };
 
     window.switchTab = function(mode) {
         activeAuthMode = mode;
@@ -2029,6 +2060,7 @@
             landingScreen.classList.add("hidden");
             landingScreen.style.display = "none";
             authModal.classList.remove("active");
+            authModal.style.display = "none";
             chatScreen.classList.add("active");
             if (currentName) {
                 document.getElementById("welcome-bubble").innerText = `Qaytganingiz bilan, ${currentName}! Qanday yordam bera olaman? 🚀`;
@@ -2165,6 +2197,7 @@
             landingScreen.classList.add("hidden");
             landingScreen.style.display = "none";
             authModal.classList.remove("active");
+            authModal.style.display = "none";
             chatScreen.classList.add("active");
             if (currentName) {
                 document.getElementById("welcome-bubble").innerText = `Xush kelibsiz, ${currentName}! Qanday yordam bera olaman? 🚀`;
@@ -2337,4 +2370,52 @@
             }));
             localStorage.setItem("bilol_ai_history", JSON.stringify(cleanHistory));
         } catch (e) {
-            console.warn("Tarixni saqlashda x
+            console.warn("Tarixni saqlashda xatolik:", e);
+        }
+
+        showTyping();
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 90000);
+
+        try {
+            const res = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ history: chatHistory }),
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+            hideTyping();
+            
+            const data = await res.json();
+            const reply = data.text || data.error || "Javob olib bo'lmadi.";
+            
+            appendAIMsg(reply);
+            chatHistory.push({ role: "model", parts: [{ text: reply }] });
+
+            try {
+                const cleanHistory = chatHistory.map(item => ({
+                    role: item.role,
+                    parts: item.parts.map(p => p.inline_data ? { text: "[Rasm biriktirildi]" } : p)
+                }));
+                localStorage.setItem("bilol_ai_history", JSON.stringify(cleanHistory));
+            } catch (e) {}
+        } catch (e) {
+            clearTimeout(timeoutId);
+            hideTyping();
+            if (e.name === "AbortError") {
+                appendAIMsg("⚠️ Server javob berishi juda cho'zilib ketdi. Iltimos, boshqattan urinib ko'ring.");
+            } else {
+                appendAIMsg("⚠️ AI javob berishda yoki server bilan ulanishda xatolik yuz berdi.");
+            }
+        }
+    }
+
+    sendBtn.onclick = sendChat;
+    chatInput.onkeydown = (e) => { if (e.key === "Enter") sendChat(); };
+</script>
+
+</body>
+</html>
