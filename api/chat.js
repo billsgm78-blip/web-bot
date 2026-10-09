@@ -4,14 +4,17 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
-  res.setHeader("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+  );
 
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const apiKey = (process.env.GEMINI_API_KEY || "").trim();
   if (!apiKey) {
-    return res.status(500).json({ error: "API key sozlanmagan." });
+    return res.status(500).json({ error: "API kaliti sozlanmagan." });
   }
 
   const { history } = req.body || {};
@@ -19,37 +22,55 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  // Ko'p tilli (O'zbek / English) moslashuvchan ko'rsatma
   const messages = [
     {
       role: "system",
-      content: "You are Bilols AI, an intelligent and helpful neural assistant. Communicate naturally and fluently in the language used by the user: if the user writes in English, reply in English; if the user writes in Uzbek, reply in natural, fluent Uzbek. If an image is provided, thoroughly analyze and describe its contents, objects, text, or equations in the appropriate language."
+      content:
+        "Siz Bilols AI yordamchisiz. Foydalanuvchi bilan o'zbek tilida tabiiy va ravon muloqot qiling. Agar rasm yuborilgan bo'lsa, uni to'liq tahlil qilib, savolga batafsil javob bering."
     }
   ];
 
+  let requestContainsImage = false;
+
   history.forEach(h => {
     let role = h.role === "model" ? "assistant" : h.role;
-    let content = [];
+    let parts = [];
 
-    if (h.parts) {
+    if (h.parts && Array.isArray(h.parts)) {
       h.parts.forEach(p => {
         if (p.text) {
-          content.push({ type: "text", text: p.text });
+          parts.push({ type: "text", text: p.text });
         } else if (p.inline_data) {
-          content.push({
+          requestContainsImage = true;
+          parts.push({
             type: "image_url",
             image_url: {
-              url: `data:${p.inline_data.mime_type};base64,${p.inline_data.data}`
+              url: `data:${p.inline_data.mime_type || "image/jpeg"};base64,${p.inline_data.data}`
             }
           });
         }
       });
     }
 
-    if (content.length > 0) {
-      messages.push({ role, content });
+    if (parts.length > 0) {
+      messages.push({ role, content: parts });
     }
   });
+
+  // Если отправлено изображение, указываем auto-выбор только среди моделей с поддержкой vision/image
+  const requestBody = {
+    model: "openrouter/auto",
+    messages: messages
+  };
+
+  if (requestContainsImage) {
+    requestBody.models = [
+      "google/gemini-2.5-flash",
+      "google/gemini-2.0-flash-001",
+      "openai/gpt-4o-mini",
+      "anthropic/claude-3.5-haiku"
+    ];
+  }
 
   try {
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -60,16 +81,15 @@ export default async function handler(req, res) {
         "HTTP-Referer": "https://bilolsai.uz",
         "X-Title": "Bilols AI"
       },
-      body: JSON.stringify({
-        model: "openrouter/auto",
-        messages: messages
-      })
+      body: JSON.stringify(requestBody)
     });
 
     const data = await resp.json();
 
     if (!resp.ok) {
-      return res.status(resp.status).json({ error: data?.error?.message || "Model xatoligi yuz berdi." });
+      return res.status(resp.status).json({
+        error: data?.error?.message || "Model xatoligi yuz berdi."
+      });
     }
 
     let text = data?.choices?.[0]?.message?.content || "";
