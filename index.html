@@ -1858,24 +1858,48 @@
     let currentFacingMode = "environment";
     let activeAuthMode = "login";
 
-    function formatMath(text) {
+   function formatMath(text) {
         if (!text) return "";
+
+        // 1. Agar KaTeX kutubxonasi yuklangan bo'lsa, formulalarni chiroyli render qilamiz
+        if (window.katex) {
+            // Blokli formulalar: \[ ... \] yoki $$ ... $$
+            text = text.replace(/(\\\[[\s\S]*?\\\]|\$\$[\s\S]*?\$\$)/g, (match) => {
+                const formula = match.startsWith("\\[") 
+                    ? match.slice(2, -2) 
+                    : match.slice(2, -2);
+                try {
+                    return katex.renderToString(formula.trim(), { displayMode: true, throwOnError: false });
+                } catch (e) {
+                    return match;
+                }
+            });
+
+            // Qator ichidagi formulalar: \( ... \) yoki $ ... $
+            text = text.replace(/(\\\([\s\S]*?\\\)|(?<!\$)\$(?!\$)[\s\S]*?\$)/g, (match) => {
+                const formula = match.startsWith("\\(") 
+                    ? match.slice(2, -2) 
+                    : match.slice(1, -1);
+                try {
+                    return katex.renderToString(formula.trim(), { displayMode: false, throwOnError: false });
+                } catch (e) {
+                    return match;
+                }
+            });
+        }
+
+        // 2. Oddiy matnli belgilashlar uchun zaxira qoidalari
         return text
             .replace(/\\text\{([^}]+)\}/g, "$1")
+            .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "<sup>$1</sup>/<sub>$2</sub>")
+            .replace(/\\times/g, "×")
+            .replace(/\\div/g, "÷")
+            .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
             .replace(/_2/g, "₂")
             .replace(/_3/g, "₃")
-            .replace(/_4/g, "₄")
-            .replace(/_([0-9]+)/g, "<sub>$1</sub>")
-            .replace(/\\sqrt\{([^}]+)\}/g, "√$1")
-            .replace(/\\times/g, "×")
-            .replace(/\$\$(.*?)\$\$/g, '<div style="margin:4px 0; font-weight:600; color:#38bdf8;">$1</div>')
-            .replace(/\$(.*?)\$/g, '<b style="color:#38bdf8;">$1</b>')
-            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
             .replace(/\^2/g, "²")
-            .replace(/\^3/g, "³")
-            .replace(/\^([0-9]+)/g, "<sup>$1</sup>");
+            .replace(/\^3/g, "³");
     }
-
     window.openAuthModal = function() { authModal.classList.add("active"); };
     window.closeAuthModal = function() { authModal.classList.remove("active"); };
 
@@ -2023,9 +2047,7 @@
     function renderSavedMessages() {
         chatHistory.forEach(item => {
             const role = item.role === "user" ? "user" : "ai";
-            const textPart = item.parts?.find(p => p.text);
-            const imgPart = item.parts?.find(p => p.inline_data);
-            
+            const textPart = item.parts?.find(p => p.text);            
             const div = document.createElement("div");
             div.className = `msg-bubble msg-${role}`;
             
