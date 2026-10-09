@@ -57,18 +57,17 @@ export default async function handler(req, res) {
     }
   });
 
-  // Если отправлено изображение, указываем auto-выбор только среди моделей с поддержкой vision/image
   const requestBody = {
     model: "openrouter/auto",
     messages: messages
   };
 
+  // OpenRouter qoidasi: ko'pi bilan 3 ta model bo'lishi shart
   if (requestContainsImage) {
     requestBody.models = [
       "google/gemini-2.5-flash",
       "google/gemini-2.0-flash-001",
-      "openai/gpt-4o-mini",
-      "anthropic/claude-3.5-haiku"
+      "openai/gpt-4o-mini"
     ];
   }
 
