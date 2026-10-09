@@ -44,6 +44,7 @@
             
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
+            --msg-font-size: 14.5px;
         }
 
         * {
@@ -77,6 +78,10 @@
             pointer-events: none;
             z-index: 0;
             animation: orbFloat 14s ease-in-out infinite alternate;
+            transition: opacity 0.4s ease;
+        }
+        .ambient-orb.disabled {
+            opacity: 0 !important;
         }
         .orb-1 {
             width: 450px; height: 450px;
@@ -116,7 +121,7 @@
             }
         }
 
-        /* --- KOMPYUTER (DESKTOP) MOSLASHUVI --- */
+        /* --- КОМПЬЮТЕРНАЯ ВЕРСИЯ (SPLIT ДИЗАЙН) --- */
         @media (min-width: 992px) {
             .container {
                 max-width: 1040px;
@@ -287,7 +292,7 @@
             font-weight: 400;
         }
 
-        /* --- XUSUSIYATLAR BLOKI --- */
+        /* --- КАРТОЧКИ УСЛУГ --- */
         .features-list {
             display: flex;
             flex-direction: column;
@@ -358,9 +363,7 @@
             border: 1px solid rgba(245, 158, 11, 0.4);
         }
 
-        .feature-info {
-            flex: 1;
-        }
+        .feature-info { flex: 1; }
         .feature-top-row {
             display: flex;
             align-items: center;
@@ -391,7 +394,6 @@
             line-height: 1.45;
         }
 
-        /* --- CTA TUGMASI --- */
         .landing-actions {
             margin-top: auto;
             padding-top: 8px;
@@ -445,7 +447,7 @@
             font-weight: 600;
         }
 
-        /* --- 3 TA BO'LIM UCHUN POP-UP MODAL (ANIMATSIYALI MA'LUMOT) --- */
+        /* --- 3 БЛОКА МОДАЛКИ ИНФОРМАЦИИ --- */
         #feature-info-modal {
             position: absolute;
             inset: 0;
@@ -612,7 +614,7 @@
         }
         .primary-btn:active { transform: scale(0.96); opacity: 0.9; }
 
-        /* --- CHAT SCREEN (ORQA FON MUAMMOSI TO'LIQ HAL QILINGAN) --- */
+        /* --- CHAT SCREEN --- */
         #chat-screen {
             display: flex;
             flex-direction: column;
@@ -622,7 +624,7 @@
             pointer-events: none;
             position: absolute;
             inset: 0;
-            background: var(--bg-deep) !important; /* Orqa fonni to'liq qora qiladi */
+            background: var(--bg-deep) !important;
             transition: opacity 0.35s ease;
         }
         #chat-screen.active {
@@ -688,6 +690,23 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 6px 10px;
+            border-radius: 14px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-btn:active { transform: scale(0.92); }
+        .icon-btn:hover { background: rgba(255, 255, 255, 0.12); }
+
         .logout-btn {
             background: rgba(244, 63, 94, 0.1);
             border: 1px solid rgba(244, 63, 94, 0.3);
@@ -715,7 +734,7 @@
         .msg-bubble {
             max-width: 86%;
             padding: 12px 16px;
-            font-size: 14.5px;
+            font-size: var(--msg-font-size);
             line-height: 1.55;
             word-wrap: break-word;
             border-radius: 18px;
@@ -922,6 +941,131 @@
             to { transform: scale(1); opacity: 1; }
         }
 
+        /* --- ⚙️ SETTINGS MODAL (НОВОЕ АНИМИРОВАННОЕ ОКНО) --- */
+        #settings-modal {
+            position: absolute;
+            inset: 0;
+            background: rgba(7, 10, 18, 0.96);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            z-index: 75;
+            display: none;
+            flex-direction: column;
+            padding: 22px 18px;
+            animation: fadeIn 0.25s ease-out forwards;
+            overflow-y: auto;
+        }
+
+        .settings-card {
+            background: rgba(18, 24, 38, 0.65);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 16px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: transform 0.2s ease;
+        }
+        .settings-card:active {
+            transform: scale(0.985);
+        }
+
+        .settings-info h4 {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .settings-info p {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            line-height: 1.35;
+        }
+
+        /* Переключатель (Toggle Switch) */
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: background 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        }
+        .toggle-switch.active {
+            background: var(--emerald-accent);
+            box-shadow: 0 0 14px var(--emerald-glow);
+        }
+        .toggle-switch.active::after {
+            transform: translateX(21px);
+        }
+
+        .settings-segmented {
+            display: flex;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 3px;
+            gap: 4px;
+        }
+        .segmented-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .segmented-btn.active {
+            background: var(--violet-accent);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+        }
+
+        .danger-card {
+            border-color: rgba(244, 63, 94, 0.25) !important;
+            background: rgba(244, 63, 94, 0.08) !important;
+        }
+        .clear-chat-danger-btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 18px;
+            border: 1px solid rgba(244, 63, 94, 0.4);
+            background: rgba(244, 63, 94, 0.15);
+            color: #fda4af;
+            font-size: 14.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 14px;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .clear-chat-danger-btn:active {
+            transform: scale(0.97);
+            background: rgba(244, 63, 94, 0.25);
+        }
+
         /* --- WALLET & CAMERA MODALS --- */
         #wallet-modal {
             position: absolute;
@@ -988,21 +1132,6 @@
         .pack-card:active { transform: scale(0.94); background: rgba(16, 185, 129, 0.12); }
         .pack-val { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
         .pack-price { font-size: 13px; color: var(--emerald-accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-
-        .clear-chat-wallet-btn {
-            width: 100%;
-            padding: 14px;
-            border-radius: 16px;
-            border: 1px solid rgba(139, 92, 246, 0.35);
-            background: rgba(139, 92, 246, 0.12);
-            color: #c4b5fd;
-            font-size: 14.5px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 12px;
-            transition: transform 0.2s;
-        }
-        .clear-chat-wallet-btn:active { transform: scale(0.96); }
 
         #camera-modal {
             position: absolute;
@@ -1074,13 +1203,12 @@
 </head>
 <body>
 
-<div class="ambient-orb orb-1"></div>
-<div class="ambient-orb orb-2"></div>
+<div class="ambient-orb orb-1" id="orb-1"></div>
+<div class="ambient-orb orb-2" id="orb-2"></div>
 
 <div class="container">
-    <!-- YANGILANGAN VA KOMPYUTERGA TO'LIQ MOSLASHUVCHAN LANDING SCREEN -->
+    <!-- LANDING SCREEN -->
     <div id="landing-screen">
-        <!-- CHAP USTUN (KOMPYUTERDA) -->
         <div class="landing-left-col">
             <div class="landing-hero">
                 <div class="landing-chip">
@@ -1100,10 +1228,8 @@
             </div>
         </div>
 
-        <!-- O'NG USTUN (KOMPYUTERDA) -->
         <div class="landing-right-col">
             <div class="features-list">
-                <!-- 1-BO'LIM: TEZKOR NEYRO TARMOQ -->
                 <div class="feature-card card-violet" onclick="openFeatureInfo('ai')">
                     <div class="feature-icon-wrap">
                         <span class="animated-emoji">🚀</span>
@@ -1117,7 +1243,6 @@
                     </div>
                 </div>
 
-                <!-- 2-BO'LIM: JONLI KAMERA & GALEREYA -->
                 <div class="feature-card card-emerald" onclick="openFeatureInfo('camera')">
                     <div class="feature-icon-wrap">
                         <span class="animated-emoji">📸</span>
@@ -1131,7 +1256,6 @@
                     </div>
                 </div>
 
-                <!-- 3-BO'LIM: HAMYON VA XIZMATLAR -->
                 <div class="feature-card card-amber" onclick="openFeatureInfo('wallet')">
                     <div class="feature-icon-wrap">
                         <span class="animated-emoji">💎</span>
@@ -1162,7 +1286,7 @@
         </div>
     </div>
 
-    <!-- 3 TA BO'LIM UCHUN ANIMATSIYALI MA'LUMOT MODALI -->
+    <!-- 3 ТА БЛОКА ИНФО МОДАЛКА -->
     <div id="feature-info-modal" onclick="closeFeatureInfo()">
         <div class="feature-modal-card" onclick="event.stopPropagation()">
             <button class="auth-close" onclick="closeFeatureInfo()">&times;</button>
@@ -1218,6 +1342,8 @@
                 <div class="wallet-pill" id="open-wallet-btn" title="Hamyonni ko'rish">
                     <span><span class="animated-emoji">👛</span> <span id="header-balance">0</span> so'm</span>
                 </div>
+                <!-- ⚙️ КНОПКА НАСТРОЕК -->
+                <button class="icon-btn" id="open-settings-btn" title="Sozlamalar">⚙️</button>
                 <button class="logout-btn" id="logout-btn">Chiqish</button>
             </div>
         </header>
@@ -1265,6 +1391,61 @@
         </footer>
     </div>
 
+    <!-- ⚙️ АНИМИРОВАННОЕ МОДАЛЬНОЕ ОКНО НАСТРОЕК -->
+    <div id="settings-modal">
+        <div class="modal-header">
+            <h2>⚙️ Tizim Sozlamalari</h2>
+            <button class="modal-close" id="close-settings-btn">&times;</button>
+        </div>
+
+        <div style="flex: 1; overflow-y: auto; padding-right: 2px;">
+            <!-- Настройка звуков -->
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4>Ovozli bildirishnomalar</h4>
+                    <p>Meme va hisob to'ldirishdagi tovushlar</p>
+                </div>
+                <div class="toggle-switch active" id="toggle-sound"></div>
+            </div>
+
+            <!-- Настройка фоновой анимации -->
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4>Orqa fon animatsiyasi</h4>
+                    <p>Neon nur to'lqinlari (quvvatni tejash)</p>
+                </div>
+                <div class="toggle-switch active" id="toggle-animation"></div>
+            </div>
+
+            <!-- Настройка размера шрифта сообщений -->
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4>Xabarlar shrifti</h4>
+                    <p>Chatdagi matn kattaligi</p>
+                </div>
+                <div class="settings-segmented">
+                    <button class="segmented-btn active" id="font-normal-btn" onclick="setFontSize('normal')">O'rta</button>
+                    <button class="segmented-btn" id="font-large-btn" onclick="setFontSize('large')">Katta</button>
+                </div>
+            </div>
+
+            <!-- Профиль и аккаунт -->
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4>Faol Profil</h4>
+                    <p id="settings-profile-info">Yuklanmoqda...</p>
+                </div>
+                <span class="animated-emoji" style="font-size: 20px;">👤</span>
+            </div>
+
+            <!-- БЛОК ОПАСНЫХ ДЕЙСТВИЙ (ОЧИСТКА ЧАТА) -->
+            <button class="clear-chat-danger-btn" id="clear-chat-btn">
+                <span>🧹</span>
+                <span>Chat tarixini tozalash</span>
+            </button>
+        </div>
+    </div>
+
     <!-- BUTUN EKRANGA TO'RTBURCHAK CHIQADIGAN MEME MODAL -->
     <div id="meme-screen-modal" onclick="closeMemeModal()">
         <div class="meme-box" onclick="event.stopPropagation()">
@@ -1289,7 +1470,7 @@
         <canvas id="camera-canvas" style="display: none;"></canvas>
     </div>
 
-    <!-- 👛 HAMYON MODAL -->
+    <!-- 👛 HAMYON MODAL (БЕЗ КНОПКИ ОЧИСТКИ ЧАТА) -->
     <div id="wallet-modal">
         <div class="modal-header">
             <h2>Xizmatlar hamyoni</h2>
@@ -1336,10 +1517,6 @@
                     <div class="pack-price">240,000 so'm</div>
                 </div>
             </div>
-
-            <button class="clear-chat-wallet-btn" id="clear-chat-btn">
-                <span class="animated-emoji">🧹</span> Chat tarixini tozalash
-            </button>
         </div>
     </div>
 </div>
@@ -1351,6 +1528,10 @@
     const authModal = document.getElementById("auth-modal");
     const chatScreen = document.getElementById("chat-screen");
     const walletModal = document.getElementById("wallet-modal");
+    const settingsModal = document.getElementById("settings-modal");
+    const openSettingsBtn = document.getElementById("open-settings-btn");
+    const closeSettingsBtn = document.getElementById("close-settings-btn");
+
     const authActionBtn = document.getElementById("auth-action-btn");
     const nameInput = document.getElementById("name-input");
     const phoneInput = document.getElementById("phone-input");
@@ -1379,7 +1560,84 @@
     const flipCameraBtn = document.getElementById("flip-camera-btn");
     const takePhotoBtn = document.getElementById("take-photo-btn");
 
-    // 3 TA BO'LIM MA'LUMOT MODALI
+    // ⚙️ НАСТРОЙКИ (SETTINGS LOGIC)
+    let isSoundEnabled = localStorage.getItem("bilol_ai_sound") !== "false";
+    let isAnimationEnabled = localStorage.getItem("bilol_ai_anim") !== "false";
+    let savedFontSize = localStorage.getItem("bilol_ai_fontsize") || "normal";
+
+    const toggleSound = document.getElementById("toggle-sound");
+    const toggleAnimation = document.getElementById("toggle-animation");
+    const orb1 = document.getElementById("orb-1");
+    const orb2 = document.getElementById("orb-2");
+    const settingsProfileInfo = document.getElementById("settings-profile-info");
+    const fontNormalBtn = document.getElementById("font-normal-btn");
+    const fontLargeBtn = document.getElementById("font-large-btn");
+
+    function applySettings() {
+        // Звук
+        if (isSoundEnabled) {
+            toggleSound.classList.add("active");
+        } else {
+            toggleSound.classList.remove("active");
+        }
+
+        // Анимация
+        if (isAnimationEnabled) {
+            toggleAnimation.classList.add("active");
+            if (orb1) orb1.classList.remove("disabled");
+            if (orb2) orb2.classList.remove("disabled");
+        } else {
+            toggleAnimation.classList.remove("active");
+            if (orb1) orb1.classList.add("disabled");
+            if (orb2) orb2.classList.add("disabled");
+        }
+
+        // Шрифт
+        setFontSize(savedFontSize, false);
+    }
+
+    window.setFontSize = function(size, save = true) {
+        if (size === "large") {
+            document.documentElement.style.setProperty('--msg-font-size', '16.5px');
+            fontLargeBtn.classList.add("active");
+            fontNormalBtn.classList.remove("active");
+        } else {
+            document.documentElement.style.setProperty('--msg-font-size', '14.5px');
+            fontNormalBtn.classList.add("active");
+            fontLargeBtn.classList.remove("active");
+        }
+        if (save) {
+            savedFontSize = size;
+            localStorage.setItem("bilol_ai_fontsize", size);
+        }
+    };
+
+    toggleSound.onclick = () => {
+        isSoundEnabled = !isSoundEnabled;
+        localStorage.setItem("bilol_ai_sound", isSoundEnabled);
+        applySettings();
+    };
+
+    toggleAnimation.onclick = () => {
+        isAnimationEnabled = !isAnimationEnabled;
+        localStorage.setItem("bilol_ai_anim", isAnimationEnabled);
+        applySettings();
+    };
+
+    openSettingsBtn.onclick = () => {
+        if (currentName || currentPhone) {
+            settingsProfileInfo.innerText = `${currentName || 'Foydalanuvchi'} (+${currentPhone})`;
+        } else {
+            settingsProfileInfo.innerText = "Mehmon profili";
+        }
+        settingsModal.style.display = "flex";
+    };
+
+    closeSettingsBtn.onclick = () => {
+        settingsModal.style.display = "none";
+    };
+
+    // 3 ТА БЛОКА ИНФО МОДАЛКА
     const featureModal = document.getElementById("feature-info-modal");
     const featIcon = document.getElementById("feat-modal-icon");
     const featTitle = document.getElementById("feat-modal-title");
@@ -1453,7 +1711,7 @@
     if (avatarBtn) {
         avatarBtn.onclick = () => {
             if (memeScreenModal) memeScreenModal.style.display = "flex";
-            if (memeAudio) {
+            if (isSoundEnabled && memeAudio) {
                 memeAudio.currentTime = 0;
                 memeAudio.play().catch(() => {});
             }
@@ -1462,7 +1720,6 @@
         };
     }
 
-    // EMOJILARNI BARMOQ BILAN SURISH (SWIPE) REAKSIYASI
     function initEmojiSwipes() {
         document.querySelectorAll('.animated-emoji').forEach(em => {
             let sX = 0, sY = 0;
@@ -1534,7 +1791,7 @@
     } catch (e) {}
 
     function playIncomeMusic() {
-        if (!incomeAudio) return;
+        if (!isSoundEnabled || !incomeAudio) return;
         try {
             incomeAudio.currentTime = 0;
             incomeAudio.play().catch(() => {});
@@ -1627,6 +1884,8 @@
     setInterval(refreshBalance, 4000);
 
     window.addEventListener("DOMContentLoaded", () => {
+        applySettings();
+
         const savedPhone = localStorage.getItem("bilol_ai_phone");
         const savedName = localStorage.getItem("bilol_ai_name");
         const savedHistory = localStorage.getItem("bilol_ai_history");
@@ -1635,7 +1894,7 @@
             currentPhone = savedPhone;
             currentName = savedName || "";
             landingScreen.classList.add("hidden");
-            landingScreen.style.display = "none"; // Orqa fonni to'liq berkitadi
+            landingScreen.style.display = "none";
             authModal.classList.remove("active");
             chatScreen.classList.add("active");
             if (currentName) {
@@ -1713,9 +1972,10 @@
         }
     };
 
+    // ОЧИСТКА ЧАТА ИЗ НАСТРОЕК
     if (clearChatBtn) {
         clearChatBtn.onclick = () => {
-            if (confirm("Chat tarixini to'liq tozalashni tasdiqlaysizmi?")) {
+            if (confirm("Chat tarixini to'liq tozalashni tasdiqlaysizmi? Barcha xabarlar o'chiriladi.")) {
                 localStorage.removeItem("bilol_ai_history");
                 chatHistory = [];
                 messagesContainer.innerHTML = `
@@ -1723,7 +1983,7 @@
                         Assalomu alaykum! Men Bilols AI yordamchisiman. Menga istalgan savolingizni bering yoki jonli kamera orqali rasm yuboring, darhol tahlil qilib beraman! 🚀
                     </div>
                 `;
-                walletModal.style.display = "none";
+                settingsModal.style.display = "none";
                 showNotification("Chat tarixi tozalandi!");
             }
         };
@@ -1770,7 +2030,7 @@
 
             await refreshBalance();
             landingScreen.classList.add("hidden");
-            landingScreen.style.display = "none"; // Orqa fonni to'liq berkitadi
+            landingScreen.style.display = "none";
             authModal.classList.remove("active");
             chatScreen.classList.add("active");
             if (currentName) {
