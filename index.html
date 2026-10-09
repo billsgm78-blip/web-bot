@@ -71,26 +71,26 @@
         .ambient-orb {
             position: fixed;
             border-radius: 50%;
-            filter: blur(100px);
+            filter: blur(120px);
             opacity: 0.4;
             pointer-events: none;
             z-index: 0;
             animation: orbFloat 14s ease-in-out infinite alternate;
         }
         .orb-1 {
-            width: 320px; height: 320px;
+            width: 450px; height: 450px;
             background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
-            top: -60px; left: -60px;
+            top: -100px; left: -100px;
         }
         .orb-2 {
-            width: 340px; height: 340px;
+            width: 480px; height: 480px;
             background: radial-gradient(circle, #10b981 0%, transparent 70%);
-            bottom: -60px; right: -60px;
+            bottom: -100px; right: -100px;
         }
 
         @keyframes orbFloat {
             0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(25px, 20px) scale(1.08); }
+            100% { transform: translate(35px, 25px) scale(1.08); }
         }
 
         .container {
@@ -102,15 +102,70 @@
             position: relative;
             background: var(--surface-glass);
             z-index: 10;
+            transition: max-width 0.4s ease, height 0.4s ease;
         }
 
-        @media (min-width: 461px) {
+        @media (min-width: 461px) and (max-width: 991px) {
             .container {
                 height: 94vh;
                 border-radius: 36px;
                 border: 1px solid var(--border-glass);
                 box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
                 overflow: hidden;
+            }
+        }
+
+        /* --- KOMPYUTER EKRANLARI UCHUN KENGAYTIRILGAN MOSLASHUV --- */
+        @media (min-width: 992px) {
+            .container {
+                max-width: 1040px;
+                height: 86vh;
+                border-radius: 40px;
+                border: 1px solid var(--border-glass);
+                box-shadow: 0 25px 70px -10px rgba(0, 0, 0, 0.85);
+                overflow: hidden;
+            }
+            #landing-screen {
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                padding: 48px 56px !important;
+                gap: 50px !important;
+            }
+            .landing-left-col {
+                flex: 1.1;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start !important;
+                text-align: left !important;
+            }
+            .landing-right-col {
+                flex: 1.2;
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+            }
+            .landing-hero {
+                align-items: flex-start !important;
+                text-align: left !important;
+                padding: 0 !important;
+            }
+            .landing-logo-wrapper {
+                margin-bottom: 22px !important;
+            }
+            .landing-title {
+                font-size: 42px !important;
+                margin-bottom: 14px !important;
+            }
+            .landing-subtitle {
+                font-size: 16px !important;
+                max-width: 440px !important;
+            }
+            .features-list {
+                margin: 0 0 24px 0 !important;
+            }
+            .landing-actions {
+                margin-top: 0 !important;
             }
         }
 
@@ -131,9 +186,7 @@
             100% { transform: translateY(0) rotate(-3deg); }
         }
 
-        /* ==============================================================
-           --- YANGILANGAN VA ZAMONAVIY KIRISH QISMI (LANDING SCREEN) ---
-           ============================================================== */
+        /* --- LANDING SCREEN --- */
         #landing-screen {
             position: absolute;
             inset: 0;
@@ -162,7 +215,6 @@
             animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Neon status chipi */
         .landing-chip {
             display: inline-flex;
             align-items: center;
@@ -253,7 +305,8 @@
             display: flex;
             align-items: center;
             gap: 16px;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
             overflow: hidden;
         }
@@ -273,10 +326,14 @@
         .feature-card.card-emerald::before { background: linear-gradient(to bottom, #10b981, #059669); }
         .feature-card.card-amber::before { background: linear-gradient(to bottom, #f59e0b, #d97706); }
 
+        .feature-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.22);
+            background: rgba(26, 35, 54, 0.75);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
         .feature-card:active {
             transform: scale(0.975);
-            background: rgba(30, 41, 59, 0.7);
-            border-color: rgba(255, 255, 255, 0.16);
         }
 
         .feature-icon-wrap {
@@ -333,7 +390,7 @@
             line-height: 1.45;
         }
 
-        /* --- PASTKI HARAKAT (CTA) TUGMASI --- */
+        /* --- CTA TUGMASI --- */
         .landing-actions {
             margin-top: auto;
             padding-top: 8px;
@@ -386,10 +443,72 @@
             color: #64748b;
             font-weight: 600;
         }
-        .landing-trust-row span {
-            display: inline-flex;
+
+        /* --- 3 TA BO'LIM UCHUN POP-UP MODAL (ANIMATSIYALI MA'LUMOT) --- */
+        #feature-info-modal {
+            position: absolute;
+            inset: 0;
+            display: none;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            padding: 20px;
+            z-index: 60;
+            background: rgba(5, 7, 11, 0.92);
+            backdrop-filter: blur(20px);
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+        #feature-info-modal.active { display: flex; }
+
+        .feature-modal-card {
+            width: 100%;
+            max-width: 420px;
+            background: #0d121f;
+            border: 1px solid var(--border-glass);
+            border-radius: 28px;
+            padding: 26px 22px;
+            position: relative;
+            animation: popModal 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+        }
+
+        .feature-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .feature-modal-icon {
+            width: 52px; height: 52px;
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            background: var(--surface-card);
+            border: 1px solid var(--border-glass);
+        }
+        .feature-modal-title {
+            font-size: 19px;
+            font-weight: 800;
+            color: #fff;
+        }
+        .feature-modal-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .feature-modal-bullets {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+        .feature-modal-bullets li {
+            font-size: 13.5px;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* --- AUTH MODAL --- */
@@ -732,7 +851,6 @@
             box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
         }
 
-        /* --- SWIPE QILINADIGAN TOAST --- */
         .swipe-toast {
             position: fixed;
             top: 20px;
@@ -958,82 +1076,104 @@
 <div class="ambient-orb orb-2"></div>
 
 <div class="container">
-    <!-- YANGILANGAN LANDING INFO SCREEN -->
+    <!-- YANGILANGAN VA KOMPYUTERGA TO'LIQ MOSLASHUVCHAN LANDING SCREEN -->
     <div id="landing-screen">
-        <div class="landing-hero">
-            <!-- Neon Status chipi -->
-            <div class="landing-chip">
-                <span class="animated-emoji">⚡</span>
-                <span>Yangi avlod sun'iy intellekti</span>
-            </div>
+        <!-- CHAP USTUN (KOMPYUTERDA) -->
+        <div class="landing-left-col">
+            <div class="landing-hero">
+                <div class="landing-chip">
+                    <span class="animated-emoji">⚡</span>
+                    <span>Yangi avlod sun'iy intellekti</span>
+                </div>
 
-            <!-- Glowing Aura Logo -->
-            <div class="landing-logo-wrapper">
-                <div class="landing-logo-glow"></div>
-                <div class="landing-logo">
-                    <span class="animated-emoji">✨</span>
+                <div class="landing-logo-wrapper">
+                    <div class="landing-logo-glow"></div>
+                    <div class="landing-logo">
+                        <span class="animated-emoji">✨</span>
+                    </div>
+                </div>
+
+                <h1 class="landing-title">Bilols AI</h1>
+                <p class="landing-subtitle">Sizning shaxsiy sun'iy intellekt yordamchingiz. Qulay matnli muloqot, jonli kamera orqali rasm tahlili va eng tezkor yechimlar.</p>
+            </div>
+        </div>
+
+        <!-- O'NG USTUN (KOMPYUTERDA) -->
+        <div class="landing-right-col">
+            <div class="features-list">
+                <!-- 1-BO'LIM: TEZKOR NEYRO TARMOQ -->
+                <div class="feature-card card-violet" onclick="openFeatureInfo('ai')">
+                    <div class="feature-icon-wrap">
+                        <span class="animated-emoji">🚀</span>
+                    </div>
+                    <div class="feature-info">
+                        <div class="feature-top-row">
+                            <h4>Tezkor Neyro Tarmoq</h4>
+                            <span class="feature-tag tag-violet">Tezkor</span>
+                        </div>
+                        <p>Istalgan murakkab savollarga soniyalar ichida aniq va mukammal javob oling.</p>
+                    </div>
+                </div>
+
+                <!-- 2-BO'LIM: JONLI KAMERA & GALEREYA -->
+                <div class="feature-card card-emerald" onclick="openFeatureInfo('camera')">
+                    <div class="feature-icon-wrap">
+                        <span class="animated-emoji">📸</span>
+                    </div>
+                    <div class="feature-info">
+                        <div class="feature-top-row">
+                            <h4>Jonli Kamera & Galereya</h4>
+                            <span class="feature-tag tag-emerald">Jonli</span>
+                        </div>
+                        <p>Rasmlarni to'g'ridan-to'g'ri kamera orqali yoki galereyadan yuklab tahlil qildiring.</p>
+                    </div>
+                </div>
+
+                <!-- 3-BO'LIM: HAMYON VA XIZMATLAR -->
+                <div class="feature-card card-amber" onclick="openFeatureInfo('wallet')">
+                    <div class="feature-icon-wrap">
+                        <span class="animated-emoji">💎</span>
+                    </div>
+                    <div class="feature-info">
+                        <div class="feature-top-row">
+                            <h4>Hamyon va Xizmatlar</h4>
+                            <span class="feature-tag tag-amber">Qulay</span>
+                        </div>
+                        <p>Telegram Stars hamda Premium obunalarini shaxsiy balansingiz orqali xarid qiling.</p>
+                    </div>
                 </div>
             </div>
 
-            <h1 class="landing-title">Bilols AI</h1>
-            <p class="landing-subtitle">Sizning shaxsiy sun'iy intellekt yordamchingiz. Qulay matnli muloqot, jonli kamera orqali rasm tahlili va eng tezkor yechimlar.</p>
-        </div>
-
-        <!-- Yangi Zamonaviy Kartochkalar -->
-        <div class="features-list">
-            <div class="feature-card card-violet">
-                <div class="feature-icon-wrap">
+            <div class="landing-actions">
+                <button class="landing-btn-enhanced" onclick="openAuthModal()">
                     <span class="animated-emoji">🚀</span>
-                </div>
-                <div class="feature-info">
-                    <div class="feature-top-row">
-                        <h4>Tezkor Neyro Tarmoq</h4>
-                        <span class="feature-tag tag-violet">Tezkor</span>
-                    </div>
-                    <p>Istalgan murakkab savollarga soniyalar ichida aniq va mukammal javob oling.</p>
-                </div>
-            </div>
-
-            <div class="feature-card card-emerald">
-                <div class="feature-icon-wrap">
-                    <span class="animated-emoji">📸</span>
-                </div>
-                <div class="feature-info">
-                    <div class="feature-top-row">
-                        <h4>Jonli Kamera & Galereya</h4>
-                        <span class="feature-tag tag-emerald">Jonli</span>
-                    </div>
-                    <p>Rasmlarni to'g'ridan-to'g'ri kamera orqali yoki galereyadan yuklab tahlil qildiring.</p>
-                </div>
-            </div>
-
-            <div class="feature-card card-amber">
-                <div class="feature-icon-wrap">
-                    <span class="animated-emoji">💎</span>
-                </div>
-                <div class="feature-info">
-                    <div class="feature-top-row">
-                        <h4>Hamyon va Xizmatlar</h4>
-                        <span class="feature-tag tag-amber">Qulay</span>
-                    </div>
-                    <p>Telegram Stars hamda Premium obunalarini shaxsiy balansingiz orqali xarid qiling.</p>
+                    <span>Boshlash / Tizimga kirish</span>
+                </button>
+                <div class="landing-trust-row">
+                    <span>🔒 Maxfiy</span>
+                    <span>•</span>
+                    <span>⚡ 0.2s Tezkor</span>
+                    <span>•</span>
+                    <span>🇺🇿 O'zbek tilida</span>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Pastki Shimmer Tugma va Ishonch Qatori -->
-        <div class="landing-actions">
-            <button class="landing-btn-enhanced" onclick="openAuthModal()">
-                <span class="animated-emoji">🚀</span>
-                <span>Boshlash / Tizimga kirish</span>
-            </button>
-            <div class="landing-trust-row">
-                <span>🔒 Maxfiy</span>
-                <span>•</span>
-                <span>⚡ 0.2s Tezkor</span>
-                <span>•</span>
-                <span>🇺🇿 O'zbek tilida</span>
+    <!-- 3 TA BO'LIM UCHUN ANIMATSIYALI MA'LUMOT MODALI -->
+    <div id="feature-info-modal" onclick="closeFeatureInfo()">
+        <div class="feature-modal-card" onclick="event.stopPropagation()">
+            <button class="auth-close" onclick="closeFeatureInfo()">&times;</button>
+            <div class="feature-modal-header">
+                <div class="feature-modal-icon" id="feat-modal-icon">🚀</div>
+                <div>
+                    <h3 class="feature-modal-title" id="feat-modal-title">Xizmat nomi</h3>
+                    <span style="font-size: 12px; color: var(--emerald-accent); font-weight: 700;">● Bilols AI Texnologiyasi</span>
+                </div>
             </div>
+            <p class="feature-modal-desc" id="feat-modal-desc">Batafsil ma'lumot shu yerda chiqadi.</p>
+            <ul class="feature-modal-bullets" id="feat-modal-bullets"></ul>
+            <button class="primary-btn" onclick="closeFeatureInfo(); openAuthModal();">Sinab ko'rish 🚀</button>
         </div>
     </div>
 
@@ -1237,6 +1377,63 @@
     const flipCameraBtn = document.getElementById("flip-camera-btn");
     const takePhotoBtn = document.getElementById("take-photo-btn");
 
+    // 3 TA BO'LIM MA'LUMOT MODALI
+    const featureModal = document.getElementById("feature-info-modal");
+    const featIcon = document.getElementById("feat-modal-icon");
+    const featTitle = document.getElementById("feat-modal-title");
+    const featDesc = document.getElementById("feat-modal-desc");
+    const featBullets = document.getElementById("feat-modal-bullets");
+
+    const featureData = {
+        ai: {
+            icon: "🚀",
+            title: "Tezkor Neyro Tarmoq",
+            desc: "Bilols AI eng so'nggi zamonaviy sun'iy intellekt arxitekturasiga asoslangan bo'lib, har qanday murakkablikdagi savollarga soniyalar ichida aniq va mantiqiy javob beradi.",
+            bullets: [
+                "⚡ 0.2 soniyada javob generatsiyasi",
+                "🇺🇿 O'zbek va 🇬🇧 Ingliz tillarida ravon muloqot",
+                "📐 Matematika, fizika va kimyo formulalarini ishlash",
+                "💻 Dasturlash kodlari va insholarni mukammal yozish"
+            ]
+        },
+        camera: {
+            icon: "📸",
+            title: "Jonli Kamera & Vision AI",
+            desc: "Matn yozish shart emas! Istalgan qog'ozdagi topshiriq, test, rasm yoki atrofingizdagi narsalarni jonli kamera orqali suratga oling va AI darhol tahlil qilib bersin.",
+            bullets: [
+                "📷 Jonli kamera orqali bir zumda rasmga olish",
+                "🖼️ Galereyadan sifatli rasmlarni yuklash",
+                "🔍 Kitob va darsliklardagi testlarni qadamma-qadam yechish",
+                "🌐 Ko'cha va tabiatdagi obyektlarni aniqlash"
+            ]
+        },
+        wallet: {
+            icon: "💎",
+            title: "Hamyon va Raqamli Xizmatlar",
+            desc: "Telegram Stars va Premium obunalarini bir necha soniyada to'g'ridan-to'g'ri o'z balansingizdan qulay va avtomatlashtirilgan holda xarid qiling.",
+            bullets: [
+                "⭐ Telegram Stars arzon va tezkor xarid",
+                "👑 Rasmiy Telegram Premium (3 va 6 oylik)",
+                "👛 Jonli balans va to'lovlar monitoringi",
+                "🔒 100% xavfsiz va kafolatlangan yetkazish"
+            ]
+        }
+    };
+
+    window.openFeatureInfo = function(type) {
+        const data = featureData[type];
+        if (!data) return;
+        featIcon.innerText = data.icon;
+        featTitle.innerText = data.title;
+        featDesc.innerText = data.desc;
+        featBullets.innerHTML = data.bullets.map(b => `<li>${b}</li>`).join("");
+        featureModal.classList.add("active");
+    };
+
+    window.closeFeatureInfo = function() {
+        featureModal.classList.remove("active");
+    };
+
     // MEME MODAL VA OVOZ
     const avatarBtn = document.getElementById("avatar-btn");
     const memeScreenModal = document.getElementById("meme-screen-modal");
@@ -1342,7 +1539,6 @@
         } catch (e) {}
     }
 
-    // 1-2 SEKUNDDA YO'Q BO'LADIGAN VA QO'L BILAN SURIB O'CHIRILADIGAN SMS BILDIRISHNOMA
     function showNotification(text) {
         const notifyDiv = document.createElement("div");
         notifyDiv.className = "swipe-toast";
