@@ -25,7 +25,9 @@ export default async function handler(req, res) {
   }
 
   const cleanPhone = String(phone).replace(/[^0-9]/g, "");
-  const backendUrl = "https://ai2-flfl.onrender.com"; 
+  
+  // RAILWAY BACKEND MANZILI TO'G'RILANDI
+  const backendUrl = "https://ai2-production-7d7e.up.railway.app"; 
 
   try {
     // 1-BOSQICH: SMS kod yuborish so'rovi
@@ -66,14 +68,13 @@ export default async function handler(req, res) {
         success: true, 
         requireOtp: true, 
         message: "SMS kod yuborildi!",
-        // Sinov uchun kodni javobda ham qaytaramiz (keyinroq olib tashlashingiz mumkin)
         debugCode: verificationCode 
       });
     }
 
     // 2-BOSQICH: Kodni tasdiqlash va bazaga saqlash
     if (action === "verify" || code) {
-      // Render'dagi Python bot bazasiga foydalanuvchini saqlash uchun so'rov yuboramiz
+      // Railway'dagi backend bazasiga foydalanuvchini saqlash uchun so'rov yuboramiz
       const dbResp = await fetch(`${backendUrl}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
