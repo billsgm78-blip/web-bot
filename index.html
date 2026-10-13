@@ -1394,9 +1394,9 @@
             <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqamingiz (+998 bilan)">
             <input type="password" id="pass-input" class="styled-input" placeholder="Parol">
 
-            <!-- SMS KOD KIRITISH UCHUN QO'SHILGAN MAYDON -->
+            <!-- TELEGRAM KOD KIRITISH MAYDONI -->
             <div id="code-field-wrap" style="display: none;">
-                <input type="text" id="code-input" class="styled-input" placeholder="SMS tasdiqlash kodi (4 xonali)" autocomplete="off">
+                <input type="text" id="code-input" class="styled-input" placeholder="Telegramdan kelgan 4 xonali kod" autocomplete="off">
             </div>
 
             <button id="auth-action-btn" class="primary-btn">Tizimga kirish</button>
@@ -2180,7 +2180,7 @@
         };
     }
 
-    // REGISTRATSIYA VA SMS KOD BILAN ISHLASH
+    // REGISTRATSIYA VA TELEGRAM KOD BILAN ISHLASH (AVTOMAT)
     authActionBtn.onclick = async () => {
         const rawPhone = phoneInput.value.trim();
         const phone = rawPhone.replace(/[^0-9]/g, "");
@@ -2200,7 +2200,7 @@
         authActionBtn.disabled = true;
 
         if (activeAuthMode === "register" && !isWaitingForOtp) {
-            // 1-qadam: SMS kod yuborish so'rovi
+            // 1-qadam: Telegram botga kod yuborish so'rovi
             try {
                 const res = await fetch("/api/register", {
                     method: "POST",
@@ -2210,15 +2210,15 @@
                 const data = await res.json();
                 if (!res.ok || !data.success) {
                     statusBox.style.color = "#f43f5e";
-                    statusBox.innerText = `Xatolik: ${data.error || "SMS yuborib bo'lmadi"}`;
+                    statusBox.innerText = `Xatolik: ${data.error || "Kod yuborib bo'lmadi"}`;
                     authActionBtn.disabled = false;
                     return;
                 }
 
                 isWaitingForOtp = true;
-                codeFieldWrap.style.display = "block";
+                if (codeFieldWrap) codeFieldWrap.style.display = "block";
                 statusBox.style.color = "#10b981";
-                statusBox.innerText = data.debugCode ? `SMS yuborildi! (Sinov kodi: ${data.debugCode})` : "SMS kod telefoningizga yuborildi!";
+                statusBox.innerText = "Telegram botingizga tasdiqlash kodi yuborildi! 🤖";
                 authActionBtn.innerText = "Kodni tasdiqlash";
                 authActionBtn.disabled = false;
                 return;
@@ -2470,7 +2470,7 @@
             clearTimeout(timeoutId);
             hideTyping();
             if (e.name === "AbortError") {
-                appendAIM_msg("⚠️ Server javob berishi juda cho'zilib ketdi. Iltimos, boshqattan urinib ko'ring.");
+                appendAIMsg("⚠️ Server javob berishi juda cho'zilib ketdi. Iltimos, boshqattan urinib ko'ring.");
             } else {
                 appendAIMsg("⚠️ AI javob berishda yoki server bilan ulanishda xatolik yuz berdi.");
             }
