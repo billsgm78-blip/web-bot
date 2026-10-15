@@ -33,7 +33,17 @@ export default async function handler(req, res) {
 
   let requestContainsImage = false;
 
-  history.forEach(h => {
+  // TEZLIK: faqat oxirgi 12 ta xabarni yuboramiz (tarix o'sib ketmasin)
+  let recent = history.slice(-12);
+  while (recent.length && recent[0].role === "model") recent.shift();
+
+  // TEZLIK: faqat eng oxirgi rasm qoladi, eskilari tashlab yuboriladi
+  let lastImageIdx = -1;
+  recent.forEach((h, i) => {
+    if (Array.isArray(h.parts) && h.parts.some(p => p.inline_data)) lastImageIdx = i;
+  });
+
+  recent.forEach((h, idx) => {
     let role = h.role === "model" ? "assistant" : h.role;
     let parts = [];
 
@@ -41,7 +51,7 @@ export default async function handler(req, res) {
       h.parts.forEach(p => {
         if (p.text) {
           parts.push({ type: "text", text: p.text });
-        } else if (p.inline_data) {
+        } else if (p.inline_data && idx === lastImageIdx) {
           requestContainsImage = true;
           parts.push({
             type: "image_url",
@@ -58,19 +68,26 @@ export default async function handler(req, res) {
     }
   });
 
-  const requestBody = {
-    model: "openrouter/auto",
-    messages: messages
-  };
+  // OpenRouter qoidasi: ko'pi bilan 3 ta model bo'lishi shart.
+  // TEZLIK: "openrouter/auto" o'rniga tez modellar ro'yxati (birinchisi ishlamasa, keyingisiga o'tadi).
+  const FAST_MODELS = [
+    "google/gemini-2.0-flash-001",
+    "google/gemini-2.5-flash",
+    "openai/gpt-4o-mini"
+  ];
+  const VISION_MODELS = [
+    "google/gemini-2.5-flash",
+    "google/gemini-2.0-flash-001",
+    "openai/gpt-4o-mini"
+  ];
+  const modelList = requestContainsImage ? VISION_MODELS : FAST_MODELS;
 
-  // OpenRouter qoidasi: ko'pi bilan 3 ta model bo'lishi shart
-  if (requestContainsImage) {
-    requestBody.models = [
-      "google/gemini-2.5-flash",
-      "google/gemini-2.0-flash-001",
-      "openai/gpt-4o-mini"
-    ];
-  }
+  const requestBody = {
+    model: modelList[0],
+    models: modelList,
+    messages: messages,
+    max_tokens: 3000
+  };
 
   try {
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
