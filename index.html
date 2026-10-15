@@ -1541,6 +1541,64 @@
                 <span class="animated-emoji" style="font-size: 20px;">👤</span>
             </div>
 
+            <!-- ✨ YANGI SOZLAMALAR -->
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4 id="lang-set-theme-title">Rang mavzusi</h4>
+                    <p id="lang-set-theme-sub">Tugma va xabarlar rangi</p>
+                </div>
+                <div class="theme-swatches" id="theme-swatches">
+                    <button type="button" class="theme-swatch active" data-theme="violet" title="Violet" style="--sw: linear-gradient(135deg,#4f46e5,#c026d3); --gl: rgba(139,92,246,0.8);"></button>
+                    <button type="button" class="theme-swatch" data-theme="emerald" title="Emerald" style="--sw: linear-gradient(135deg,#059669,#06b6d4); --gl: rgba(16,185,129,0.8);"></button>
+                    <button type="button" class="theme-swatch" data-theme="rose" title="Rose" style="--sw: linear-gradient(135deg,#e11d48,#fb923c); --gl: rgba(244,63,94,0.8);"></button>
+                    <button type="button" class="theme-swatch" data-theme="gold" title="Gold" style="--sw: linear-gradient(135deg,#d97706,#ef4444); --gl: rgba(245,158,11,0.8);"></button>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4 id="lang-set-particles-title">Yulduzli zarrachalar</h4>
+                    <p id="lang-set-particles-sub">Fondagi harakatlanuvchi nuqtalar</p>
+                </div>
+                <div class="toggle-switch active" id="toggle-particles"></div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4 id="lang-set-msganim-title">Xabar animatsiyalari</h4>
+                    <p id="lang-set-msganim-sub">Xabarlar chiqishidagi effektlar</p>
+                </div>
+                <div class="toggle-switch active" id="toggle-msganim"></div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4 id="lang-set-enter-title">Enter bilan yuborish</h4>
+                    <p id="lang-set-enter-sub">O'chirsangiz, faqat tugma bilan yuboriladi</p>
+                </div>
+                <div class="toggle-switch active" id="toggle-enter"></div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4 id="lang-set-vol-title">Tovush balandligi</h4>
+                    <p id="lang-set-vol-sub">Meme va pul tushish tovushlari</p>
+                </div>
+                <div class="settings-segmented">
+                    <button type="button" class="segmented-btn" id="vol-low" data-vol="low">🔈</button>
+                    <button type="button" class="segmented-btn" id="vol-mid" data-vol="mid">🔉</button>
+                    <button type="button" class="segmented-btn active" id="vol-high" data-vol="high">🔊</button>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4 id="lang-set-haptic-title">Vibratsiya</h4>
+                    <p id="lang-set-haptic-sub">Yuborganda va javob kelganda (telefonda)</p>
+                </div>
+                <div class="toggle-switch" id="toggle-haptic"></div>
+            </div>
+
             <button class="clear-chat-danger-btn" id="clear-chat-btn">
                 <span>🧹</span>
                 <span id="lang-clear-chat">Chat tarixini tozalash</span>
@@ -2987,7 +3045,7 @@ body::before {
 
         function animationsOff() {
             var o = document.getElementById('orb-1');
-            return reduce || document.hidden || (o && o.classList.contains('disabled'));
+            return reduce || document.hidden || document.body.classList.contains('fx-no-particles') || (o && o.classList.contains('disabled'));
         }
 
         function frame() {
@@ -3096,6 +3154,203 @@ body::before {
             }).observe(hb, { childList: true, characterData: true, subtree: true });
         }
     } catch (err) { console.warn('FX upgrade:', err); }
+})();
+</script>
+
+<style id="extra-settings-style">
+.theme-swatches { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.theme-swatch {
+    width: 28px; height: 28px; padding: 0; border-radius: 50%; cursor: pointer;
+    background: var(--sw); border: 2px solid rgba(255, 255, 255, 0.18);
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.theme-swatch:hover { transform: scale(1.15); }
+.theme-swatch:active { transform: scale(0.88); }
+.theme-swatch.active {
+    border-color: #fff; transform: scale(1.12);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.14), 0 0 16px var(--gl);
+}
+#settings-modal .settings-card:nth-child(n+6) { animation-delay: 0.4s; }
+#settings-modal .settings-card:nth-child(n+8) { animation-delay: 0.5s; }
+#settings-modal .settings-card:nth-child(n+10) { animation-delay: 0.6s; }
+body.fx-no-particles #fx-canvas,
+body.fx-no-particles .fx-star,
+body.fx-no-particles .fx-cursor { display: none !important; }
+body.fx-no-msg-anim .msg-bubble,
+body.fx-no-msg-anim .msg-user,
+body.fx-no-msg-anim .msg-ai,
+body.fx-no-msg-anim .typing-indicator { animation: none !important; }
+</style>
+
+<script id="extra-settings-script">
+(function () {
+    try {
+        var KEY = {
+            theme: 'bilol_ai_theme', particles: 'bilol_ai_particles', msganim: 'bilol_ai_msganim',
+            enter: 'bilol_ai_enter', haptic: 'bilol_ai_haptic', vol: 'bilol_ai_volume'
+        };
+        function get(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+        function put(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+        /* ---------- 1. RANG MAVZUSI ---------- */
+        var THEMES = {
+            violet: null,
+            emerald: {
+                accent: '#10b981', glow: 'rgba(16, 185, 129, 0.6)', border: 'rgba(16, 185, 129, 0.35)',
+                user: 'linear-gradient(135deg, #059669 0%, #10b981 50%, #06b6d4 100%)',
+                grad: 'linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #84cc16 100%)',
+                btn: '0 10px 30px -4px rgba(16, 185, 129, 0.6)'
+            },
+            rose: {
+                accent: '#f43f5e', glow: 'rgba(244, 63, 94, 0.6)', border: 'rgba(244, 63, 94, 0.35)',
+                user: 'linear-gradient(135deg, #e11d48 0%, #f43f5e 50%, #fb923c 100%)',
+                grad: 'linear-gradient(135deg, #f43f5e 0%, #ec4899 50%, #8b5cf6 100%)',
+                btn: '0 10px 30px -4px rgba(244, 63, 94, 0.6)'
+            },
+            gold: {
+                accent: '#f59e0b', glow: 'rgba(245, 158, 11, 0.6)', border: 'rgba(245, 158, 11, 0.35)',
+                user: 'linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #ef4444 100%)',
+                grad: 'linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #ef4444 100%)',
+                btn: '0 10px 30px -4px rgba(245, 158, 11, 0.6)'
+            }
+        };
+        var swatches = document.querySelectorAll('#theme-swatches .theme-swatch');
+        function applyTheme(name, save) {
+            if (!THEMES.hasOwnProperty(name)) name = 'violet';
+            var root = document.documentElement.style, t = THEMES[name];
+            var vars = ['--violet-accent', '--violet-glow', '--border-glow', '--user-grad', '--accent-grad', '--btn-glow'];
+            if (!t) {
+                vars.forEach(function (v) { root.removeProperty(v); });
+            } else {
+                root.setProperty('--violet-accent', t.accent);
+                root.setProperty('--violet-glow', t.glow);
+                root.setProperty('--border-glow', t.border);
+                root.setProperty('--user-grad', t.user);
+                root.setProperty('--accent-grad', t.grad);
+                root.setProperty('--btn-glow', t.btn);
+            }
+            swatches.forEach(function (s) { s.classList.toggle('active', s.getAttribute('data-theme') === name); });
+            if (save) put(KEY.theme, name);
+        }
+        swatches.forEach(function (s) {
+            s.addEventListener('click', function () { applyTheme(s.getAttribute('data-theme'), true); buzz(12); });
+        });
+
+        /* ---------- Toggle yordamchisi ---------- */
+        var state = {};
+        function bindToggle(id, key, def, onChange) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            state[key] = get(key, def ? 'true' : 'false') !== 'false';
+            el.classList.toggle('active', state[key]);
+            onChange(state[key], false);
+            el.addEventListener('click', function () {
+                state[key] = !state[key];
+                put(key, state[key]);
+                el.classList.toggle('active', state[key]);
+                onChange(state[key], true);
+            });
+        }
+
+        /* ---------- VIBRATSIYA ---------- */
+        function buzz(pattern) {
+            if (state[KEY.haptic] && navigator.vibrate) { try { navigator.vibrate(pattern); } catch (e) {} }
+        }
+
+        /* ---------- TOGGLE'LAR ---------- */
+        bindToggle('toggle-particles', KEY.particles, true, function (on) {
+            document.body.classList.toggle('fx-no-particles', !on);
+        });
+        bindToggle('toggle-msganim', KEY.msganim, true, function (on) {
+            document.body.classList.toggle('fx-no-msg-anim', !on);
+        });
+        bindToggle('toggle-enter', KEY.enter, true, function () {});
+        bindToggle('toggle-haptic', KEY.haptic, false, function (on, byUser) {
+            if (on && byUser && navigator.vibrate) { try { navigator.vibrate(30); } catch (e) {} }
+        });
+
+        applyTheme(get(KEY.theme, 'violet'), false);
+
+        /* Enter bilan yuborishni boshqarish (asl funksiya o'zgarmaydi) */
+        var chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            var origKey = chatInput.onkeydown;
+            chatInput.onkeydown = function (e) {
+                if (e.key === 'Enter' && state[KEY.enter] === false) return;
+                if (origKey) return origKey.call(this, e);
+            };
+        }
+
+        /* ---------- TOVUSH BALANDLIGI ---------- */
+        var VOL = { low: 0.3, mid: 0.65, high: 1 };
+        var volBtns = document.querySelectorAll('[data-vol]');
+        function applyVolume(level, save) {
+            if (!VOL.hasOwnProperty(level)) level = 'high';
+            var v = VOL[level];
+            try { if (typeof memeAudio !== 'undefined' && memeAudio) memeAudio.volume = v; } catch (e) {}
+            try { if (typeof incomeAudio !== 'undefined' && incomeAudio) incomeAudio.volume = v; } catch (e) {}
+            volBtns.forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-vol') === level); });
+            if (save) put(KEY.vol, level);
+        }
+        volBtns.forEach(function (b) {
+            b.addEventListener('click', function () { applyVolume(b.getAttribute('data-vol'), true); });
+        });
+        applyVolume(get(KEY.vol, 'high'), false);
+
+        /* Vibratsiya: yuborganda va AI javobi kelganda */
+        var sendBtnEl = document.getElementById('send-btn');
+        if (sendBtnEl) sendBtnEl.addEventListener('click', function () { buzz(15); });
+        var ready = false;
+        setTimeout(function () { ready = true; }, 1500);
+        var box = document.getElementById('messages-container');
+        if (box && window.MutationObserver) {
+            new MutationObserver(function (list) {
+                if (!ready) return;
+                list.forEach(function (m) {
+                    m.addedNodes.forEach(function (n) {
+                        if (n.classList && n.classList.contains('msg-ai')) buzz([20, 40, 20]);
+                    });
+                });
+            }).observe(box, { childList: true });
+        }
+
+        /* ---------- TIL (UZ / EN) ---------- */
+        var T = {
+            uz: {
+                'lang-set-theme-title': 'Rang mavzusi', 'lang-set-theme-sub': 'Tugma va xabarlar rangi',
+                'lang-set-particles-title': 'Yulduzli zarrachalar', 'lang-set-particles-sub': 'Fondagi harakatlanuvchi nuqtalar',
+                'lang-set-msganim-title': 'Xabar animatsiyalari', 'lang-set-msganim-sub': 'Xabarlar chiqishidagi effektlar',
+                'lang-set-enter-title': 'Enter bilan yuborish', 'lang-set-enter-sub': "O'chirsangiz, faqat tugma bilan yuboriladi",
+                'lang-set-vol-title': 'Tovush balandligi', 'lang-set-vol-sub': 'Meme va pul tushish tovushlari',
+                'lang-set-haptic-title': 'Vibratsiya', 'lang-set-haptic-sub': 'Yuborganda va javob kelganda (telefonda)'
+            },
+            en: {
+                'lang-set-theme-title': 'Color theme', 'lang-set-theme-sub': 'Buttons and message colors',
+                'lang-set-particles-title': 'Starry particles', 'lang-set-particles-sub': 'Moving dots in the background',
+                'lang-set-msganim-title': 'Message animations', 'lang-set-msganim-sub': 'Effects when messages appear',
+                'lang-set-enter-title': 'Send with Enter', 'lang-set-enter-sub': 'If off, messages send only with the button',
+                'lang-set-vol-title': 'Sound volume', 'lang-set-vol-sub': 'Meme and income sounds',
+                'lang-set-haptic-title': 'Vibration', 'lang-set-haptic-sub': 'On send and on reply (phones)'
+            }
+        };
+        function applyExtraLang() {
+            var l = (typeof currentLang !== 'undefined' && currentLang) ? currentLang : 'uz';
+            var dict = T[l] || T.uz;
+            Object.keys(dict).forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.innerText = dict[id];
+            });
+        }
+        var origSetLang = window.setAppLanguage;
+        if (typeof origSetLang === 'function') {
+            window.setAppLanguage = function () {
+                var r = origSetLang.apply(this, arguments);
+                applyExtraLang();
+                return r;
+            };
+        }
+        applyExtraLang();
+    } catch (err) { console.warn('Extra settings:', err); }
 })();
 </script>
 
