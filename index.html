@@ -1599,6 +1599,14 @@
                 <div class="toggle-switch" id="toggle-haptic"></div>
             </div>
 
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4 id="lang-set-click-title">Tugma tovushi</h4>
+                    <p id="lang-set-click-sub">Tugmalarni bosganda qisqa pop tovushi</p>
+                </div>
+                <div class="toggle-switch active" id="toggle-click"></div>
+            </div>
+
             <button class="clear-chat-danger-btn" id="clear-chat-btn">
                 <span>🧹</span>
                 <span id="lang-clear-chat">Chat tarixini tozalash</span>
@@ -3187,7 +3195,7 @@ body.fx-no-msg-anim .typing-indicator { animation: none !important; }
     try {
         var KEY = {
             theme: 'bilol_ai_theme', particles: 'bilol_ai_particles', msganim: 'bilol_ai_msganim',
-            enter: 'bilol_ai_enter', haptic: 'bilol_ai_haptic', vol: 'bilol_ai_volume'
+            enter: 'bilol_ai_enter', haptic: 'bilol_ai_haptic', vol: 'bilol_ai_volume', click: 'bilol_ai_clicksound'
         };
         function get(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
         function put(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -3268,6 +3276,7 @@ body.fx-no-msg-anim .typing-indicator { animation: none !important; }
         bindToggle('toggle-haptic', KEY.haptic, false, function (on, byUser) {
             if (on && byUser && navigator.vibrate) { try { navigator.vibrate(30); } catch (e) {} }
         });
+        bindToggle('toggle-click', KEY.click, true, function () {});
 
         applyTheme(get(KEY.theme, 'violet'), false);
 
@@ -3283,10 +3292,12 @@ body.fx-no-msg-anim .typing-indicator { animation: none !important; }
 
         /* ---------- TOVUSH BALANDLIGI ---------- */
         var VOL = { low: 0.3, mid: 0.65, high: 1 };
+        var curVol = 1;
         var volBtns = document.querySelectorAll('[data-vol]');
         function applyVolume(level, save) {
             if (!VOL.hasOwnProperty(level)) level = 'high';
             var v = VOL[level];
+            curVol = v;
             try { if (typeof memeAudio !== 'undefined' && memeAudio) memeAudio.volume = v; } catch (e) {}
             try { if (typeof incomeAudio !== 'undefined' && incomeAudio) incomeAudio.volume = v; } catch (e) {}
             volBtns.forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-vol') === level); });
@@ -3314,6 +3325,43 @@ body.fx-no-msg-anim .typing-indicator { animation: none !important; }
             }).observe(box, { childList: true });
         }
 
+        /* ---------- TUGMA TOVUSHI (POP) ---------- */
+        var audioCtx = null;
+        var CLICK_SEL = '.primary-btn,.landing-btn-enhanced,.send-btn,.media-btn,.pack-card,.auth-tab,.segmented-btn,' +
+            '.logout-btn,.icon-btn,.wallet-pill,.clear-chat-danger-btn,.cam-tool-btn,.feature-card,.theme-swatch,' +
+            '.toggle-switch,.modal-close,.auth-close,.settings-card.clickable,.remove-img-btn,.capture-btn';
+        function playPop() {
+            if (state[KEY.click] === false) return;
+            if (typeof isSoundEnabled !== 'undefined' && !isSoundEnabled) return;
+            try {
+                var AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return;
+                if (!audioCtx) audioCtx = new AC();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                var t = audioCtx.currentTime;
+                var osc = audioCtx.createOscillator();
+                var g = audioCtx.createGain();
+                var f0 = 540 * (0.94 + Math.random() * 0.12);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(f0, t);
+                osc.frequency.exponentialRampToValueAtTime(f0 * 0.38, t + 0.09);
+                var peak = Math.max(0.28 * curVol, 0.0002);
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.exponentialRampToValueAtTime(peak, t + 0.008);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
+                osc.connect(g);
+                g.connect(audioCtx.destination);
+                osc.start(t);
+                osc.stop(t + 0.12);
+            } catch (e) {}
+        }
+        document.addEventListener('pointerdown', function (e) {
+            if (e.button && e.button !== 0) return;
+            var el = e.target && e.target.closest ? e.target.closest(CLICK_SEL) : null;
+            if (!el || el.disabled) return;
+            playPop();
+        }, { passive: true });
+
         /* ---------- TIL (UZ / EN) ---------- */
         var T = {
             uz: {
@@ -3322,7 +3370,8 @@ body.fx-no-msg-anim .typing-indicator { animation: none !important; }
                 'lang-set-msganim-title': 'Xabar animatsiyalari', 'lang-set-msganim-sub': 'Xabarlar chiqishidagi effektlar',
                 'lang-set-enter-title': 'Enter bilan yuborish', 'lang-set-enter-sub': "O'chirsangiz, faqat tugma bilan yuboriladi",
                 'lang-set-vol-title': 'Tovush balandligi', 'lang-set-vol-sub': 'Meme va pul tushish tovushlari',
-                'lang-set-haptic-title': 'Vibratsiya', 'lang-set-haptic-sub': 'Yuborganda va javob kelganda (telefonda)'
+                'lang-set-haptic-title': 'Vibratsiya', 'lang-set-haptic-sub': 'Yuborganda va javob kelganda (telefonda)',
+                'lang-set-click-title': 'Tugma tovushi', 'lang-set-click-sub': 'Tugmalarni bosganda qisqa pop tovushi'
             },
             en: {
                 'lang-set-theme-title': 'Color theme', 'lang-set-theme-sub': 'Buttons and message colors',
@@ -3330,7 +3379,8 @@ body.fx-no-msg-anim .typing-indicator { animation: none !important; }
                 'lang-set-msganim-title': 'Message animations', 'lang-set-msganim-sub': 'Effects when messages appear',
                 'lang-set-enter-title': 'Send with Enter', 'lang-set-enter-sub': 'If off, messages send only with the button',
                 'lang-set-vol-title': 'Sound volume', 'lang-set-vol-sub': 'Meme and income sounds',
-                'lang-set-haptic-title': 'Vibration', 'lang-set-haptic-sub': 'On send and on reply (phones)'
+                'lang-set-haptic-title': 'Vibration', 'lang-set-haptic-sub': 'On send and on reply (phones)',
+                'lang-set-click-title': 'Button sound', 'lang-set-click-sub': 'Short pop sound when pressing buttons'
             }
         };
         function applyExtraLang() {
