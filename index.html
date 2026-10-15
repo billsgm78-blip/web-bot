@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2697,6 +2696,408 @@
     chatInput.onkeydown = (e) => { if (e.key === "Enter") sendChat(); };
 </script>
 
+<!-- ============================================================
+     BILOLS AI — DIZAYN VA ANIMATSIYA KUCHAYTIRGICHI
+     Shu butun blokni asosiy faylingizdagi </body> dan OLDIN qo'ying.
+     Mantiqiy kod (JS/API) ga tegmaydi, faqat ko'rinish.
+     ============================================================ -->
+<style id="fx-upgrade-style">
+@property --fx-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+
+/* ---------- FON: aurora + yulduzli zarrachalar ---------- */
+body::before {
+    content: "";
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+        radial-gradient(circle at 15% 25%, rgba(139, 92, 246, 0.22), transparent 38%),
+        radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.20), transparent 40%),
+        radial-gradient(circle at 70% 15%, rgba(236, 72, 153, 0.14), transparent 35%),
+        radial-gradient(circle at 25% 85%, rgba(6, 182, 212, 0.16), transparent 38%);
+    background-size: 160% 160%;
+    animation: fxAurora 16s ease-in-out infinite alternate;
+}
+@keyframes fxAurora {
+    0%   { background-position: 0% 0%;     filter: hue-rotate(0deg); }
+    100% { background-position: 100% 100%; filter: hue-rotate(40deg); }
+}
+#fx-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+.ambient-orb { filter: blur(22px); mix-blend-mode: screen; }
+
+.fx-star {
+    position: fixed; z-index: 1; width: 120px; height: 2px; pointer-events: none;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.9));
+    border-radius: 2px; opacity: 0; transform: rotate(-35deg);
+    animation: fxShoot 7s linear infinite;
+}
+@keyframes fxShoot {
+    0%   { opacity: 0; transform: translate(0, 0) rotate(-35deg); }
+    4%   { opacity: 1; }
+    14%  { opacity: 0; transform: translate(-420px, 300px) rotate(-35deg); }
+    100% { opacity: 0; transform: translate(-420px, 300px) rotate(-35deg); }
+}
+
+.fx-cursor {
+    position: fixed; left: 0; top: 0; width: 380px; height: 380px; z-index: 3;
+    margin: -190px 0 0 -190px; pointer-events: none; border-radius: 50%;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.16), rgba(16, 185, 129, 0.07) 45%, transparent 70%);
+    mix-blend-mode: screen; will-change: transform;
+}
+
+/* ---------- ASOSIY OYNA: aylanuvchi neon hoshiya ---------- */
+.container::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.6px;
+    background: conic-gradient(from var(--fx-angle), transparent 0deg, #10b981 60deg, #6366f1 130deg, #d946ef 200deg, #f59e0b 250deg, transparent 300deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events: none; z-index: 200; opacity: 0.95;
+    animation: fxSpin 7s linear infinite;
+}
+@keyframes fxSpin { to { --fx-angle: 360deg; } }
+@media (max-width: 460px) { .container::after { display: none; } }
+
+/* ---------- LANDING ---------- */
+.landing-title {
+    background: linear-gradient(90deg, #ffffff, #a5b4fc, #34d399, #e879f9, #fbbf24, #ffffff) !important;
+    background-size: 300% 100% !important;
+    -webkit-background-clip: text !important; background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: fxTitle 8s linear infinite;
+    filter: drop-shadow(0 0 22px rgba(129, 140, 248, 0.45));
+}
+@keyframes fxTitle { to { background-position: 300% 0; } }
+
+.landing-logo-wrapper { animation: fxFloat 4.5s ease-in-out infinite; }
+@keyframes fxFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+.landing-logo-wrapper::before {
+    content: ""; position: absolute; inset: -7px; border-radius: 30px; padding: 2.5px;
+    background: conic-gradient(from var(--fx-angle), transparent, #10b981, #6366f1, #d946ef, transparent 80%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    animation: fxSpin 3.5s linear infinite;
+}
+.landing-logo { animation: fxLogoTilt 6s ease-in-out infinite alternate; }
+@keyframes fxLogoTilt { 0% { transform: rotate(-4deg) scale(1); } 100% { transform: rotate(4deg) scale(1.05); } }
+
+.landing-chip { position: relative; overflow: hidden; }
+.landing-chip::after {
+    content: ""; position: absolute; top: 0; left: -80%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: skewX(-20deg); animation: fxChipShine 4s ease-in-out infinite;
+}
+@keyframes fxChipShine { 0% { left: -80%; } 40%,100% { left: 160%; } }
+
+/* kartalar: 3D burilish + yorug'lik dog'i */
+.feature-card, .pack-card {
+    transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 0px));
+    transform-style: preserve-3d; will-change: transform;
+}
+.feature-card:hover, .pack-card:hover { --ty: -4px; }
+.feature-card:hover { transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-4px); }
+.feature-card:active { transform: perspective(800px) scale(0.97); }
+.pack-card:active { transform: perspective(800px) scale(0.94); }
+.pack-card { position: relative; overflow: hidden; }
+.feature-card::after, .pack-card::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.16), transparent 50%);
+    transition: opacity 0.3s ease;
+}
+.feature-card:hover::after, .pack-card:hover::after { opacity: 1; }
+.feature-icon-wrap { animation: fxIconPulse 3.2s ease-in-out infinite; }
+.feature-card:nth-child(2) .feature-icon-wrap { animation-delay: 0.5s; }
+.feature-card:nth-child(3) .feature-icon-wrap { animation-delay: 1s; }
+@keyframes fxIconPulse {
+    0%,100% { box-shadow: inset 0 1px 1px rgba(255,255,255,0.25), 0 6px 14px rgba(0,0,0,0.35); }
+    50%     { box-shadow: inset 0 1px 1px rgba(255,255,255,0.35), 0 6px 22px rgba(139, 92, 246, 0.55); }
+}
+.feature-tag { animation: fxTagBlink 2.6s ease-in-out infinite; }
+@keyframes fxTagBlink { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.45); } }
+
+.landing-btn-enhanced { animation: fxBtnPulse 2.6s ease-in-out infinite; background-size: 200% 200%; }
+@keyframes fxBtnPulse {
+    0%,100% { box-shadow: 0 14px 35px -4px rgba(79, 70, 229, 0.6), 0 0 0 0 rgba(16, 185, 129, 0.5); }
+    50%     { box-shadow: 0 14px 40px -4px rgba(79, 70, 229, 0.85), 0 0 0 12px rgba(16, 185, 129, 0); }
+}
+
+/* ---------- MODALLAR ---------- */
+.auth-card, .feature-modal-card { position: relative; overflow: hidden; }
+.auth-card::before, .feature-modal-card::before {
+    content: ""; position: absolute; top: -60%; left: -60%; width: 220%; height: 220%; pointer-events: none;
+    background: conic-gradient(from var(--fx-angle), transparent 0deg, rgba(139,92,246,0.14) 60deg, transparent 120deg, rgba(16,185,129,0.12) 220deg, transparent 280deg);
+    animation: fxSpin 9s linear infinite; z-index: 0;
+}
+.auth-card > *, .feature-modal-card > * { position: relative; z-index: 1; }
+.auth-close { position: absolute !important; z-index: 5 !important; }
+.feature-modal-bullets li { animation: fxSlideIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+.feature-modal-bullets li:nth-child(1) { animation-delay: 0.08s; }
+.feature-modal-bullets li:nth-child(2) { animation-delay: 0.16s; }
+.feature-modal-bullets li:nth-child(3) { animation-delay: 0.24s; }
+.feature-modal-bullets li:nth-child(4) { animation-delay: 0.32s; }
+@keyframes fxSlideIn { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
+.styled-input:focus { animation: fxInputGlow 1.8s ease-in-out infinite alternate; }
+@keyframes fxInputGlow {
+    from { box-shadow: 0 0 10px rgba(139, 92, 246, 0.35); }
+    to   { box-shadow: 0 0 22px rgba(16, 185, 129, 0.5); }
+}
+.auth-tab.active { background-size: 200% 200%; animation: fxGradMove 4s ease infinite; }
+.primary-btn { background-size: 200% 200%; animation: fxGradMove 5s ease infinite; position: relative; overflow: hidden; }
+@keyframes fxGradMove { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+/* ---------- CHAT ---------- */
+#chat-screen.active .chat-header { animation: slideDown 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+#chat-screen.active .input-bar   { animation: slideUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+.chat-header { position: relative; }
+.chat-header::after, .input-bar::before {
+    content: ""; position: absolute; left: 0; right: 0; height: 1.5px; pointer-events: none;
+    background: linear-gradient(90deg, transparent, #10b981, #6366f1, #d946ef, transparent);
+    background-size: 200% 100%; animation: fxLine 4s linear infinite; opacity: 0.75;
+}
+.chat-header::after { bottom: -1px; }
+.input-bar { position: relative; }
+.input-bar::before { top: -1px; }
+@keyframes fxLine { to { background-position: -200% 0; } }
+
+.avatar { animation: fxAvatarGlow 3s ease-in-out infinite alternate; }
+@keyframes fxAvatarGlow {
+    from { box-shadow: 0 4px 14px rgba(139, 92, 246, 0.55); }
+    to   { box-shadow: 0 4px 24px rgba(16, 185, 129, 0.85), 0 0 0 4px rgba(16, 185, 129, 0.12); }
+}
+#lang-chat-active { animation: fxOnline 1.8s ease-in-out infinite; }
+@keyframes fxOnline { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+.wallet-pill { position: relative; overflow: hidden; }
+.wallet-pill::after {
+    content: ""; position: absolute; top: 0; left: -80%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.4), transparent);
+    transform: skewX(-20deg); animation: fxChipShine 3.6s ease-in-out infinite; pointer-events: none;
+}
+.wallet-pill.fx-bump { animation: fxBump 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+@keyframes fxBump { 0% { transform: scale(1); } 40% { transform: scale(1.22); box-shadow: 0 0 22px rgba(245,158,11,0.8); } 100% { transform: scale(1); } }
+
+.msg-user {
+    background-size: 220% 220% !important;
+    animation: userFlyIn 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fxGradMove 7s ease infinite;
+}
+.msg-ai { animation: aiSmoothIn 0.3s ease-out forwards, fxAiGlow 1.4s ease-out; }
+@keyframes fxAiGlow {
+    0%   { border-color: rgba(16, 185, 129, 0.9); box-shadow: 0 0 22px rgba(16, 185, 129, 0.45); }
+    100% { border-color: rgba(255, 255, 255, 0.12); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3); }
+}
+.typing-indicator { box-shadow: 0 0 18px rgba(139, 92, 246, 0.25); }
+.dot { background: linear-gradient(135deg, #10b981, #8b5cf6) !important; animation: fxWave 1.1s infinite ease-in-out; }
+@keyframes fxWave {
+    0%,60%,100% { transform: translateY(0) scale(0.8); opacity: 0.45; }
+    30%         { transform: translateY(-8px) scale(1.25); opacity: 1; }
+}
+
+.send-btn { animation: fxSendPulse 2.4s ease-in-out infinite; position: relative; overflow: hidden; }
+@keyframes fxSendPulse {
+    0%,100% { box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4), 0 0 0 0 rgba(16, 185, 129, 0.45); }
+    50%     { box-shadow: 0 4px 20px rgba(99, 102, 241, 0.6), 0 0 0 9px rgba(16, 185, 129, 0); }
+}
+.send-btn svg { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.send-btn:hover svg { transform: translate(2px, -2px) scale(1.12); }
+.media-btn:hover { background: rgba(255,255,255,0.13); border-color: rgba(139, 92, 246, 0.55); transform: translateY(-2px); }
+.input-bar:focus-within { box-shadow: 0 -8px 30px -10px rgba(139, 92, 246, 0.45); }
+
+.capture-btn { animation: fxCapture 2s ease-in-out infinite; }
+@keyframes fxCapture { 0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.5); } 50% { box-shadow: 0 0 0 14px rgba(255,255,255,0); } }
+
+/* ---------- SOZLAMALAR / HAMYON ---------- */
+#settings-modal .settings-card { animation: fxSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+#settings-modal .settings-card:nth-child(1) { animation-delay: 0.05s; }
+#settings-modal .settings-card:nth-child(2) { animation-delay: 0.12s; }
+#settings-modal .settings-card:nth-child(3) { animation-delay: 0.19s; }
+#settings-modal .settings-card:nth-child(4) { animation-delay: 0.26s; }
+#settings-modal .settings-card:nth-child(5) { animation-delay: 0.33s; }
+#wallet-modal .pack-card { animation: fxPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; }
+#wallet-modal .pack-card:nth-child(1) { animation-delay: 0.05s; }
+#wallet-modal .pack-card:nth-child(2) { animation-delay: 0.10s; }
+#wallet-modal .pack-card:nth-child(3) { animation-delay: 0.15s; }
+#wallet-modal .pack-card:nth-child(4) { animation-delay: 0.20s; }
+@keyframes fxPop { from { opacity: 0; transform: scale(0.7) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.balance-badge { position: relative; overflow: hidden; }
+.balance-badge::after {
+    content: ""; position: absolute; top: 0; left: -80%; width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.22), transparent);
+    transform: skewX(-20deg); animation: fxChipShine 4.5s ease-in-out infinite; pointer-events: none;
+}
+.balance-num { text-shadow: 0 0 18px rgba(251, 191, 36, 0.6); }
+.toggle-switch.active { animation: fxToggleGlow 2.4s ease-in-out infinite alternate; }
+@keyframes fxToggleGlow { from { box-shadow: 0 0 10px rgba(16,185,129,0.5); } to { box-shadow: 0 0 22px rgba(16,185,129,0.9); } }
+
+/* ---------- XABARNOMA (TOAST) ---------- */
+.swipe-toast { overflow: hidden; }
+.swipe-toast::after {
+    content: ""; position: absolute; top: 0; left: -80%; width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transform: skewX(-20deg); animation: fxChipShine 1.6s ease-in-out infinite; pointer-events: none;
+}
+
+/* ---------- RIPPLE (bosganda to'lqin) ---------- */
+.fx-ripple {
+    position: absolute; border-radius: 50%; pointer-events: none; transform: scale(0);
+    background: rgba(255, 255, 255, 0.45); animation: fxRipple 0.65s ease-out forwards;
+}
+@keyframes fxRipple { to { transform: scale(1); opacity: 0; } }
+
+/* ---------- SKROLL ---------- */
+.messages-container::-webkit-scrollbar, #settings-modal ::-webkit-scrollbar, .pack-scroll-area::-webkit-scrollbar { width: 5px; }
+.messages-container::-webkit-scrollbar-thumb, .pack-scroll-area::-webkit-scrollbar-thumb {
+    background: linear-gradient(#10b981, #8b5cf6); border-radius: 10px;
+}
+.messages-container::-webkit-scrollbar-track { background: transparent; }
+
+/* animatsiya o'chirilganda (sozlamalarda) yoki tizim talabi bilan */
+@media (prefers-reduced-motion: reduce) {
+    body::before, .fx-star, .container::after, .landing-title, .landing-logo-wrapper,
+    .landing-logo-wrapper::before, .landing-logo, .auth-card::before, .feature-modal-card::before { animation: none !important; }
+}
+</style>
+
+<script id="fx-upgrade-script">
+(function () {
+    try {
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var fine = window.matchMedia && matchMedia('(pointer: fine)').matches;
+
+        /* --- Zarrachalar tarmog'i (yulduzlar) --- */
+        var cv = document.createElement('canvas');
+        cv.id = 'fx-canvas';
+        document.body.insertBefore(cv, document.body.firstChild);
+        var ctx = cv.getContext('2d');
+        var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+        var pts = [], mouse = { x: -9999, y: -9999 };
+
+        function resize() {
+            W = window.innerWidth; H = window.innerHeight;
+            cv.width = W * DPR; cv.height = H * DPR;
+            ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+            var n = Math.min(W < 600 ? 40 : 85, Math.floor(W * H / 17000));
+            pts = [];
+            for (var i = 0; i < n; i++) {
+                pts.push({
+                    x: Math.random() * W, y: Math.random() * H,
+                    vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
+                    r: Math.random() * 1.8 + 0.6, h: [160, 255, 285, 190][i % 4]
+                });
+            }
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        function animationsOff() {
+            var o = document.getElementById('orb-1');
+            return reduce || document.hidden || (o && o.classList.contains('disabled'));
+        }
+
+        function frame() {
+            requestAnimationFrame(frame);
+            if (animationsOff()) { ctx.clearRect(0, 0, W, H); return; }
+            ctx.clearRect(0, 0, W, H);
+            for (var i = 0; i < pts.length; i++) {
+                var p = pts[i];
+                var dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
+                if (d2 < 14000) { var f = (1 - d2 / 14000) * 0.6; p.vx += dx / 60 * f * 0.05; p.vy += dy / 60 * f * 0.05; }
+                p.vx *= 0.995; p.vy *= 0.995;
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < -10) p.x = W + 10; if (p.x > W + 10) p.x = -10;
+                if (p.y < -10) p.y = H + 10; if (p.y > H + 10) p.y = -10;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+                ctx.fillStyle = 'hsla(' + p.h + ',90%,70%,0.85)';
+                ctx.shadowColor = 'hsla(' + p.h + ',90%,65%,0.9)';
+                ctx.shadowBlur = 8;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                for (var j = i + 1; j < pts.length; j++) {
+                    var q = pts[j], ax = p.x - q.x, ay = p.y - q.y, dd = ax * ax + ay * ay;
+                    if (dd < 11000) {
+                        ctx.strokeStyle = 'hsla(' + p.h + ',80%,70%,' + (0.2 * (1 - dd / 11000)) + ')';
+                        ctx.lineWidth = 0.7;
+                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+                    }
+                }
+            }
+        }
+        frame();
+
+        /* --- Uchar yulduzlar --- */
+        for (var s = 0; s < 3; s++) {
+            var st = document.createElement('div');
+            st.className = 'fx-star';
+            st.style.top = (Math.random() * 40) + '%';
+            st.style.left = (50 + Math.random() * 50) + '%';
+            st.style.animationDelay = (s * 2.6 + Math.random() * 2) + 's';
+            st.style.animationDuration = (6 + Math.random() * 4) + 's';
+            document.body.appendChild(st);
+        }
+
+        /* --- Kursor nuri (kompyuterda) --- */
+        var glow = null, gx = -500, gy = -500, tx = -500, ty = -500;
+        if (fine && !reduce) {
+            glow = document.createElement('div');
+            glow.className = 'fx-cursor';
+            document.body.appendChild(glow);
+            (function follow() {
+                gx += (tx - gx) * 0.12; gy += (ty - gy) * 0.12;
+                glow.style.transform = 'translate(' + gx + 'px,' + gy + 'px)';
+                requestAnimationFrame(follow);
+            })();
+        }
+
+        /* --- Kartalar: 3D burilish va yorug'lik dog'i --- */
+        var cur = null;
+        function resetCard(el) {
+            if (!el) return;
+            el.style.removeProperty('--rx'); el.style.removeProperty('--ry');
+        }
+        document.addEventListener('pointermove', function (e) {
+            mouse.x = e.clientX; mouse.y = e.clientY; tx = e.clientX; ty = e.clientY;
+            var el = e.target && e.target.closest ? e.target.closest('.feature-card,.pack-card') : null;
+            if (cur && cur !== el) resetCard(cur);
+            cur = el;
+            if (!el || e.pointerType === 'touch') return;
+            var r = el.getBoundingClientRect();
+            var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+            el.style.setProperty('--mx', (x * 100) + '%');
+            el.style.setProperty('--my', (y * 100) + '%');
+            el.style.setProperty('--rx', ((0.5 - y) * 9) + 'deg');
+            el.style.setProperty('--ry', ((x - 0.5) * 11) + 'deg');
+        }, { passive: true });
+        document.addEventListener('pointerleave', function () { resetCard(cur); cur = null; mouse.x = mouse.y = -9999; });
+
+        /* --- Ripple: tugmalarni bosganda to'lqin --- */
+        var rippleSel = '.primary-btn,.landing-btn-enhanced,.send-btn,.media-btn,.pack-card,.auth-tab,.segmented-btn,.logout-btn,.icon-btn,.wallet-pill,.clear-chat-danger-btn,.cam-tool-btn,.feature-card';
+        document.addEventListener('pointerdown', function (e) {
+            var el = e.target && e.target.closest ? e.target.closest(rippleSel) : null;
+            if (!el) return;
+            if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+            el.style.overflow = 'hidden';
+            var r = el.getBoundingClientRect();
+            var size = Math.max(r.width, r.height) * 2.2;
+            var d = document.createElement('span');
+            d.className = 'fx-ripple';
+            d.style.width = d.style.height = size + 'px';
+            d.style.left = (e.clientX - r.left - size / 2) + 'px';
+            d.style.top = (e.clientY - r.top - size / 2) + 'px';
+            el.appendChild(d);
+            setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 700);
+        }, { passive: true });
+
+        /* --- Balans o'zgarganda hamyon "sakrab" chiqadi --- */
+        var hb = document.getElementById('header-balance');
+        var pill = document.getElementById('open-wallet-btn');
+        if (hb && pill && window.MutationObserver) {
+            new MutationObserver(function () {
+                pill.classList.remove('fx-bump');
+                void pill.offsetWidth;
+                pill.classList.add('fx-bump');
+                setTimeout(function () { pill.classList.remove('fx-bump'); }, 650);
+            }).observe(hb, { childList: true, characterData: true, subtree: true });
+        }
+    } catch (err) { console.warn('FX upgrade:', err); }
+})();
+</script>
+
 </body>
 </html>
-
