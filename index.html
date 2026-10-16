@@ -19,7 +19,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -53,7 +53,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Outfit', 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
             outline: none !important;
         }
@@ -1354,6 +1354,7 @@
                     <span id="lang-privacy">🔒 Maxfiy siyosati kafolatlanadi</span>
                     <div style="display: flex; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 2px;">
                         <button id="lang-btn-uz" onclick="setAppLanguage('uz')" style="background: var(--violet-accent); border: none; color: #fff; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;">UZ</button>
+                        <button id="lang-btn-ru" onclick="setAppLanguage('ru')" style="background: transparent; border: none; color: #94a3b8; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;">RU</button>
                         <button id="lang-btn-en" onclick="setAppLanguage('en')" style="background: transparent; border: none; color: #94a3b8; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;">EN</button>
                     </div>
                 </div>
@@ -1436,7 +1437,7 @@
 
             <div class="header-actions">
                 <div class="wallet-pill" id="open-wallet-btn" title="Hamyonni ko'rish">
-                    <span><span class="animated-emoji">👛</span> <span id="header-balance">0</span> so'm</span>
+                    <span><span class="animated-emoji">👛</span> <span id="header-balance">0</span> <span id="fx-pill-cur">so'm</span></span>
                 </div>
                 <button class="icon-btn" id="open-settings-btn" title="Sozlamalar">⚙️</button>
                 <button class="logout-btn" id="logout-btn">Chiqish</button>
@@ -1518,6 +1519,7 @@
                 </div>
                 <div class="settings-segmented">
                     <button class="segmented-btn active" id="settings-lang-uz" onclick="setAppLanguage('uz')">O'zbekcha</button>
+                    <button class="segmented-btn" id="settings-lang-ru" onclick="setAppLanguage('ru')">Русский</button>
                     <button class="segmented-btn" id="settings-lang-en" onclick="setAppLanguage('en')">English</button>
                 </div>
             </div>
@@ -1765,7 +1767,7 @@
             setTitle: "⚙️ Tizim Sozlamalari",
             setSoundTitle: "Ovozli bildirishnomalar", setSoundSub: "Meme va hisob to'ldirishdagi tovushlar",
             setAnimTitle: "RGB Neon nur to'lqinlari", setAnimSub: "Harakatlanuvchi rangli sharlar",
-            setLangTitle: "Interfeys tili / Language", setLangSub: "O'zbekcha yoki Inglizcha",
+            setLangTitle: "Interfeys tili / Language", setLangSub: "O'zbekcha, ruscha yoki inglizcha",
             setFontTitle: "Xabarlar shrifti", setFontSub: "Chatdagi matn kattaligi",
             fontNormal: "O'rta (14.5px)", fontLarge: "Katta (18px)",
             setProfile: "Faol Profil", setProfilePass: "(Parolni yangilash 🔑)",
@@ -1807,51 +1809,84 @@
             setTitle: "⚙️ System Settings",
             setSoundTitle: "Voice notifications", setSoundSub: "Sounds for memes and balance top-ups",
             setAnimTitle: "RGB Neon waves", setAnimSub: "Moving colored glowing orbs",
-            setLangTitle: "Interface Language", setLangSub: "Uzbek or English",
+            setLangTitle: "Interface Language", setLangSub: "Uzbek, Russian or English",
             setFontTitle: "Message font size", setFontSub: "Text size in chat",
             fontNormal: "Medium (14.5px)", fontLarge: "Large (18px)",
             setProfile: "Active Profile", setProfilePass: "(Update password 🔑)",
             clearChat: "Clear chat history",
             walletTitle: "Services Wallet", walletCur: "Current balance:", walletCurr: "UZS",
             prem3: "3 Months", prem6: "6 Months"
+        },
+        ru: {
+            chip: "Искусственный интеллект на нейросети",
+            mainTitle: "Личный ИИ",
+            mainSub: "Ваш личный помощник на основе искусственного интеллекта. Удобный текстовый чат, анализ фото через живую камеру и самые быстрые решения.",
+            feat1Title: "Быстрая нейросеть", feat1Tag: "Быстро", feat1Desc: "Получайте точные и подробные ответы на самые сложные вопросы за считаные секунды.",
+            feat2Title: "Живая камера и галерея", feat2Tag: "Живая", feat2Desc: "Анализируйте изображения прямо с камеры или загружайте их из галереи.",
+            feat3Title: "Кошелёк и сервисы", feat3Tag: "Удобно", feat3Desc: "Покупайте Telegram Stars и Premium-подписки с личного баланса.",
+            startBtn: "Начать / Войти",
+            privacy: "🔒 Конфиденциальность гарантирована",
+            modalBadge: "● Технология нейросети",
+            modalTry: "Попробовать 🚀",
+            authWelcome: "Добро пожаловать",
+            tabLogin: "Вход",
+            tabRegister: "Регистрация",
+            namePlace: "Ваше имя",
+            phonePlace: "Ваш номер телефона (+998)",
+            passPlace: "Пароль",
+            codePlace: "4-значный код из Telegram",
+            btnLogin: "Войти",
+            btnReg: "Зарегистрироваться",
+            btnVerify: "Подтвердить код",
+            passTitle: "Обновление пароля",
+            passSub: "Введите новый надёжный пароль",
+            oldPass: "Старый пароль",
+            newPass: "Новый пароль (не менее 4 символов)",
+            savePass: "Сохранить",
+            chatActive: "● Онлайн",
+            logout: "Выйти",
+            welcomeBubble: "Здравствуйте! Я помощник Bilols AI. Задайте мне любой вопрос или отправьте фото через живую камеру — я сразу всё проанализирую! 🚀",
+            imgAttached: "Фото прикреплено. Напишите ваш вопрос.",
+            chatPlaceholder: "Напишите сообщение или вопрос...",
+            setTitle: "⚙️ Системные настройки",
+            setSoundTitle: "Звуковые уведомления", setSoundSub: "Звуки мемов и пополнения счёта",
+            setAnimTitle: "RGB-неоновые волны", setAnimSub: "Движущиеся цветные шары",
+            setLangTitle: "Язык интерфейса / Language", setLangSub: "Узбекский, русский или английский",
+            setFontTitle: "Шрифт сообщений", setFontSub: "Размер текста в чате",
+            fontNormal: "Средний (14.5px)", fontLarge: "Крупный (18px)",
+            setProfile: "Активный профиль", setProfilePass: "(Обновить пароль 🔑)",
+            clearChat: "Очистить историю чата",
+            walletTitle: "Кошелёк сервисов", walletCur: "Ваш баланс:", walletCurr: "сум",
+            prem3: "3 месяца", prem6: "6 месяцев"
         }
     };
 
     let currentLang = localStorage.getItem("bilol_ai_lang") || "uz";
+    if (!translations[currentLang]) currentLang = "uz";
+
+    // 3 tilli matn tanlash: tr(uz, en, ru). Rus matni berilmasa, inglizcha ko'rsatiladi.
+    function tr(uz, en, ru) {
+        if (currentLang === "ru") return ru !== undefined ? ru : en;
+        return currentLang === "uz" ? uz : en;
+    }
 
     window.setAppLanguage = function(lang) {
+        if (!translations[lang]) lang = "uz";
         currentLang = lang;
         localStorage.setItem("bilol_ai_lang", lang);
-        
-        // Til tugmalari stillarini yangilash (landing)
-        const btnUz = document.getElementById("lang-btn-uz");
-        const btnEn = document.getElementById("lang-btn-en");
-        if (btnUz && btnEn) {
-            if (lang === "uz") {
-                btnUz.style.background = "var(--violet-accent)";
-                btnUz.style.color = "#fff";
-                btnEn.style.background = "transparent";
-                btnEn.style.color = "#94a3b8";
-            } else {
-                btnEn.style.background = "var(--violet-accent)";
-                btnEn.style.color = "#fff";
-                btnUz.style.background = "transparent";
-                btnUz.style.color = "#94a3b8";
-            }
-        }
+        document.documentElement.lang = lang;
 
-        // Sozlamalardagi til tugmalari stillarini yangilash
-        const setBtnUz = document.getElementById("settings-lang-uz");
-        const setBtnEn = document.getElementById("settings-lang-en");
-        if (setBtnUz && setBtnEn) {
-            if (lang === "uz") {
-                setBtnUz.classList.add("active");
-                setBtnEn.classList.remove("active");
-            } else {
-                setBtnEn.classList.add("active");
-                setBtnUz.classList.remove("active");
+        // Til tugmalari stillarini yangilash (landing va sozlamalar): UZ / RU / EN
+        ["uz", "ru", "en"].forEach(code => {
+            const landingBtn = document.getElementById("lang-btn-" + code);
+            if (landingBtn) {
+                const on = (code === lang);
+                landingBtn.style.background = on ? "var(--violet-accent)" : "transparent";
+                landingBtn.style.color = on ? "#fff" : "#94a3b8";
             }
-        }
+            const settingsBtn = document.getElementById("settings-lang-" + code);
+            if (settingsBtn) settingsBtn.classList.toggle("active", code === lang);
+        });
 
         const t = translations[lang];
 
@@ -1994,7 +2029,7 @@
         if (currentName || currentPhone) {
             settingsProfileInfo.innerText = `${currentName || 'Foydalanuvchi'} (+${currentPhone})`;
         } else {
-            settingsProfileInfo.innerText = currentLang === 'uz' ? "Mehmon profili" : "Guest profile";
+            settingsProfileInfo.innerText = tr("Mehmon profili", "Guest profile", "Профиль гостя");
         }
         settingsModal.style.display = "flex";
     };
@@ -2023,18 +2058,18 @@
 
         if (!oldPass || !newPass) {
             pStatus.style.color = "#f43f5e";
-            pStatus.innerText = currentLang === 'uz' ? "Ikkala parolni ham kiriting!" : "Enter both passwords!";
+            pStatus.innerText = tr("Ikkala parolni ham kiriting!", "Enter both passwords!", "Введите оба пароля!");
             return;
         }
 
         if (newPass.length < 4) {
             pStatus.style.color = "#f43f5e";
-            pStatus.innerText = currentLang === 'uz' ? "Yangi parol kamida 4 ta belgi bo'lsin!" : "New password must be at least 4 chars!";
+            pStatus.innerText = tr("Yangi parol kamida 4 ta belgi bo'lsin!", "New password must be at least 4 chars!", "Новый пароль должен быть не короче 4 символов!");
             return;
         }
 
         pStatus.style.color = "#94a3b8";
-        pStatus.innerText = currentLang === 'uz' ? "Yangilanmoqda... ⏳" : "Updating... ⏳";
+        pStatus.innerText = tr("Yangilanmoqda... ⏳", "Updating... ⏳", "Обновление... ⏳");
 
         try {
             const cleanPhone = currentPhone.replace(/[^0-9]/g, "");
@@ -2047,24 +2082,24 @@
             const data = await res.json();
             if (!res.ok || !data.success) {
                 pStatus.style.color = "#f43f5e";
-                pStatus.innerText = data.error || (currentLang === 'uz' ? "Eski parol noto'g'ri!" : "Wrong old password!");
+                pStatus.innerText = data.error || (tr("Eski parol noto'g'ri!", "Wrong old password!", "Неверный старый пароль!"));
                 return;
             }
 
             pStatus.style.color = "#10b981";
-            pStatus.innerText = currentLang === 'uz' ? "Parol muvaffaqiyatli yangilandi! 🎉" : "Password successfully updated! 🎉";
+            pStatus.innerText = tr("Parol muvaffaqiyatli yangilandi! 🎉", "Password successfully updated! 🎉", "Пароль успешно обновлён! 🎉");
             localStorage.setItem("bilol_ai_password", newPass);
             setTimeout(() => {
                 closePasswordModal();
-                showNotification(currentLang === 'uz' ? "Parol muvaffaqiyatli o'zgartirildi!" : "Password successfully changed!");
+                showNotification(tr("Parol muvaffaqiyatli o'zgartirildi!", "Password successfully changed!", "Пароль успешно изменён!"));
             }, 1200);
         } catch (e) {
             localStorage.setItem("bilol_ai_password", newPass);
             pStatus.style.color = "#10b981";
-            pStatus.innerText = currentLang === 'uz' ? "Parol muvaffaqiyatli saqlandi! 🎉" : "Password successfully saved! 🎉";
+            pStatus.innerText = tr("Parol muvaffaqiyatli saqlandi! 🎉", "Password successfully saved! 🎉", "Пароль успешно сохранён! 🎉");
             setTimeout(() => {
                 closePasswordModal();
-                showNotification(currentLang === 'uz' ? "Parol muvaffaqiyatli o'zgartirildi!" : "Password successfully changed!");
+                showNotification(tr("Parol muvaffaqiyatli o'zgartirildi!", "Password successfully changed!", "Пароль успешно изменён!"));
             }, 1200);
         }
     };
@@ -2081,12 +2116,17 @@
             uz: {
                 title: "Tezkor Neyro Tarmoq",
                 desc: "Bilols AI eng so'nggi zamonaviy sun'iy intellekt arxitekturasiga asoslangan bo'lib, har qanday murakkablikdagi savollarga soniyalar ichida aniq va mantiqiy javob beradi.",
-                bullets: ["⚡ 0.2 soniyada javob generatsiyasi", "🇺🇿 O'zbek va 🇬🇧 Ingliz tillarida ravon muloqot", "📐 Matematika, fizika va kimyo formulalarini ishlash", "💻 Dasturlash kodlari va insholarni mukammal yozish"]
+                bullets: ["⚡ 0.2 soniyada javob generatsiyasi", "🇺🇿 O'zbek, 🇷🇺 Rus va 🇬🇧 Ingliz tillarida ravon muloqot", "📐 Matematika, fizika va kimyo formulalarini ishlash", "💻 Dasturlash kodlari va insholarni mukammal yozish"]
+            },
+            ru: {
+                title: "Быстрая нейросеть",
+                desc: "Bilols AI построен на новейшей архитектуре искусственного интеллекта и за считаные секунды даёт точные и логичные ответы на вопросы любой сложности.",
+                bullets: ["⚡ Генерация ответа за 0,2 секунды", "🇺🇿 Свободное общение на узбекском, 🇷🇺 русском и 🇬🇧 английском", "📐 Решение задач по математике, физике и химии", "💻 Отличное написание кода и сочинений"]
             },
             en: {
                 title: "Fast Neural Network",
                 desc: "Bilols AI is based on the latest modern artificial intelligence architecture, providing accurate and logical answers to complex questions in seconds.",
-                bullets: ["⚡ Response generation in 0.2s", "🇺🇿 Fluent in Uzbek and 🇬🇧 English", "📐 Solving math, physics, and chemistry formulas", "💻 Writing programming code and essays perfectly"]
+                bullets: ["⚡ Response generation in 0.2s", "🇺🇿 Fluent in Uzbek, 🇷🇺 Russian and 🇬🇧 English", "📐 Solving math, physics, and chemistry formulas", "💻 Writing programming code and essays perfectly"]
             }
         },
         camera: {
@@ -2095,6 +2135,11 @@
                 title: "Jonli Kamera & Vision AI",
                 desc: "Matn yozish shart emas! Istalgan qog'ozdagi topshiriq, test, rasm yoki atrofingizdagi narsalarni jonli kamera orqali suratga oling va AI darhol tahlil qilib bersin.",
                 bullets: ["📷 Jonli kamera orqali bir zumda rasmga olish", "🖼️ Galereyadan sifatli rasmlarni yuklash", "🔍 Kitob va darsliklardagi testlarni qadamma-qadam yechish", "🌐 Ko'cha va tabiatdagi obyektlarni aniqlash"]
+            },
+            ru: {
+                title: "Живая камера и Vision AI",
+                desc: "Печатать не нужно! Сфотографируйте задание, тест, изображение или предметы вокруг на живую камеру — ИИ мгновенно всё разберёт.",
+                bullets: ["📷 Мгновенный снимок через живую камеру", "🖼️ Загрузка качественных фото из галереи", "🔍 Пошаговое решение тестов из учебников", "🌐 Распознавание объектов на улице и в природе"]
             },
             en: {
                 title: "Live Camera & Vision AI",
@@ -2108,6 +2153,11 @@
                 title: "Hamyon va Raqamli Xizmatlar",
                 desc: "Telegram Stars va Premium obunalarini bir necha soniyada to'g'ridan-to'g'ri o'z balansingizdan qulay va avtomatlashtirilgan holda xarid qiling.",
                 bullets: ["⭐ Telegram Stars arzon va tezkor xarid", "👑 Rasmiy Telegram Premium (3 va 6 oylik)", "👛 Jonli balans va to'lovlar monitoringi", "🔒 100% xavfsiz va kafolatlangan yetkazish"]
+            },
+            ru: {
+                title: "Кошелёк и цифровые сервисы",
+                desc: "Покупайте Telegram Stars и Premium-подписки за несколько секунд прямо с вашего баланса — удобно и автоматически.",
+                bullets: ["⭐ Быстрая и выгодная покупка Telegram Stars", "👑 Официальный Telegram Premium (3 и 6 месяцев)", "👛 Баланс и платежи в реальном времени", "🔒 100% безопасно, доставка гарантирована"]
             },
             en: {
                 title: "Wallet & Digital Services",
@@ -2250,9 +2300,7 @@
         statusBox.style.color = "#f59e0b";
         statusBox.innerHTML = "";
         const msg = document.createElement("div");
-        msg.textContent = currentLang === 'uz'
-            ? "Avval Telegram botimizga kiring: /start ni bosing va telefon raqamingizni yuboring. Keyin shu yerga qaytib, qayta urinib ko'ring."
-            : "First open our Telegram bot: press /start and share your phone number. Then come back here and try again.";
+        msg.textContent = tr("Avval Telegram botimizga kiring: /start ni bosing va telefon raqamingizni yuboring. Keyin shu yerga qaytib, qayta urinib ko'ring.", "First open our Telegram bot: press /start and share your phone number. Then come back here and try again.", "Сначала откройте нашего Telegram-бота: нажмите /start и отправьте свой номер телефона. Затем вернитесь сюда и попробуйте снова.");
         statusBox.appendChild(msg);
         if (typeof botUrl === "string" && /^https:\/\/t\.me\//.test(botUrl)) {
             const a = document.createElement("a");
@@ -2260,7 +2308,7 @@
             a.target = "_blank";
             a.rel = "noopener noreferrer";
             a.className = "bot-redirect-btn";
-            a.textContent = currentLang === 'uz' ? "🤖 Botga o'tish" : "🤖 Open the bot";
+            a.textContent = tr("🤖 Botga o'tish", "🤖 Open the bot", "🤖 Открыть бота");
             statusBox.appendChild(a);
         }
     }
@@ -2370,7 +2418,7 @@
             if (!isInitialLoad && lastKnownBalance !== null && currentBal > lastKnownBalance) {
                 const addedAmount = currentBal - lastKnownBalance;
                 playIncomeMusic();
-                showNotification(currentLang === 'uz' ? `+${addedAmount.toLocaleString()} so'm tushdi!` : `+${addedAmount.toLocaleString()} UZS added!`);
+                showNotification(tr(`+${addedAmount.toLocaleString()} so'm tushdi!`, `+${addedAmount.toLocaleString()} UZS added!`, `+${addedAmount.toLocaleString()} сум зачислено!`));
             }
 
             lastKnownBalance = currentBal;
@@ -2400,7 +2448,7 @@
             authModal.style.display = "none";
             chatScreen.classList.add("active");
             if (currentName) {
-                document.getElementById("welcome-bubble").innerText = currentLang === 'uz' ? `Qaytganingiz bilan, ${currentName}! Qanday yordam bera olaman? 🚀` : `Welcome back, ${currentName}! How can I help you? 🚀`;
+                document.getElementById("welcome-bubble").innerText = tr(`Qaytganingiz bilan, ${currentName}! Qanday yordam bera olaman? 🚀`, `Welcome back, ${currentName}! How can I help you? 🚀`, `С возвращением, ${currentName}! Чем могу помочь? 🚀`);
             }
             if (savedHistory) {
                 try {
@@ -2443,7 +2491,7 @@
 
     window.buyItem = async function(itemName, price) {
         if (!currentPhone) return;
-        const confirmMsg = currentLang === 'uz' ? `${itemName} xarid qilasizmi?\nHisobingizdan ${price.toLocaleString()} so'm yechiladi.` : `Do you want to buy ${itemName}?\n${price.toLocaleString()} UZS will be deducted.`;
+        const confirmMsg = tr(`${itemName} xarid qilasizmi?\nHisobingizdan ${price.toLocaleString()} so'm yechiladi.`, `Do you want to buy ${itemName}?\n${price.toLocaleString()} UZS will be deducted.`, `Купить ${itemName}?\nС вашего счёта будет списано ${price.toLocaleString()} сум.`);
         if (!confirm(confirmMsg)) return;
 
         try {
@@ -2455,21 +2503,21 @@
             });
             const data = await res.json();
             if (!res.ok || !data.success) {
-                alert(currentLang === 'uz' ? `❌ Xatolik: ${data.error || "Balans yetarli emas"}` : `❌ Error: ${data.error || "Insufficient balance"}`);
+                alert(tr(`❌ Xatolik: ${data.error || "Balans yetarli emas"}`, `❌ Error: ${data.error || "Insufficient balance"}`, `❌ Ошибка: ${data.error || "Недостаточно средств"}`));
                 return;
             }
             const newBal = (data.balance || 0).toLocaleString();
             lastKnownBalance = Number(data.balance || 0);
             headerBalance.innerText = newBal;
             modalBalance.innerText = newBal;
-            showNotification(currentLang === 'uz' ? `${itemName} muvaffaqiyatli olindi!` : `${itemName} purchased successfully!`);
+            showNotification(tr(`${itemName} muvaffaqiyatli olindi!`, `${itemName} purchased successfully!`, `${itemName} успешно приобретено!`));
         } catch (e) {
-            alert(currentLang === 'uz' ? "⚠️ Server bilan bog'lanishda xatolik." : "⚠️ Server connection error.");
+            alert(tr("⚠️ Server bilan bog'lanishda xatolik.", "⚠️ Server connection error.", "⚠️ Ошибка соединения с сервером."));
         }
     };
 
     logoutBtn.onclick = () => {
-        if (confirm(currentLang === 'uz' ? "Hisobingizdan chiqishni tasdiqlaysizmi?" : "Are you sure you want to log out?")) {
+        if (confirm(tr("Hisobingizdan chiqishni tasdiqlaysizmi?", "Are you sure you want to log out?", "Вы уверены, что хотите выйти из аккаунта?"))) {
             localStorage.clear();
             location.reload();
         }
@@ -2478,7 +2526,7 @@
     if (clearChatBtn) {
         clearChatBtn.onclick = () => {
             const t = translations[currentLang];
-            if (confirm(currentLang === 'uz' ? "Chat tarixini to'liq tozalashni tasdiqlaysizmi? Barcha xabarlar o'chiriladi." : "Are you sure you want to clear chat history? All messages will be deleted.")) {
+            if (confirm(tr("Chat tarixini to'liq tozalashni tasdiqlaysizmi? Barcha xabarlar o'chiriladi.", "Are you sure you want to clear chat history? All messages will be deleted.", "Вы уверены, что хотите полностью очистить историю чата? Все сообщения будут удалены."))) {
                 localStorage.removeItem("bilol_ai_history");
                 chatHistory = [];
                 messagesContainer.innerHTML = `
@@ -2487,7 +2535,7 @@
                     </div>
                 `;
                 settingsModal.style.display = "none";
-                showNotification(currentLang === 'uz' ? "Chat tarixi tozalandi!" : "Chat history cleared!");
+                showNotification(tr("Chat tarixi tozalandi!", "Chat history cleared!", "История чата очищена!"));
             }
         };
     }
@@ -2504,12 +2552,12 @@
 
         if (!phone || !password) {
             statusBox.style.color = "#f43f5e";
-            statusBox.innerText = currentLang === 'uz' ? "Barcha maydonlarni to'ldiring!" : "Fill in all fields!";
+            statusBox.innerText = tr("Barcha maydonlarni to'ldiring!", "Fill in all fields!", "Заполните все поля!");
             return;
         }
 
         statusBox.style.color = "#94a3b8";
-        statusBox.innerText = currentLang === 'uz' ? "Tekshirilmoqda... ⏳" : "Checking... ⏳";
+        statusBox.innerText = tr("Tekshirilmoqda... ⏳", "Checking... ⏳", "Проверка... ⏳");
         authActionBtn.disabled = true;
 
         const isLogin = activeAuthMode === "login";
@@ -2539,13 +2587,13 @@
                 isWaitingForOtp = true;
                 if (codeFieldWrap) codeFieldWrap.style.display = "block";
                 statusBox.style.color = "#10b981";
-                statusBox.innerText = currentLang === 'uz' ? "Telegram botingizga tasdiqlash kodi yuborildi! 🤖" : "Confirmation code sent to your Telegram bot! 🤖";
+                statusBox.innerText = tr("Telegram botingizga tasdiqlash kodi yuborildi! 🤖", "Confirmation code sent to your Telegram bot! 🤖", "Код подтверждения отправлен в ваш Telegram-бот! 🤖");
                 authActionBtn.innerText = t.btnVerify;
                 authActionBtn.disabled = false;
                 return;
             } catch (err) {
                 statusBox.style.color = "#f43f5e";
-                statusBox.innerText = currentLang === 'uz' ? "Serverga ulanishda xatolik yuz berdi." : "Server connection error.";
+                statusBox.innerText = tr("Serverga ulanishda xatolik yuz berdi.", "Server connection error.", "Ошибка соединения с сервером.");
                 authActionBtn.disabled = false;
                 return;
             }
@@ -2554,7 +2602,7 @@
         // 2-qadam: Telegram'dan kelgan kod bilan kirish (login) yoki ro'yxatdan o'tishni tasdiqlash (verify)
         if (!codeInput || !codeInput.value.trim()) {
             statusBox.style.color = "#f43f5e";
-            statusBox.innerText = currentLang === 'uz' ? "Telegram botga kelgan kodni kiriting!" : "Enter the code from the Telegram bot!";
+            statusBox.innerText = tr("Telegram botga kelgan kodni kiriting!", "Enter the code from the Telegram bot!", "Введите код из Telegram-бота!");
             authActionBtn.disabled = false;
             return;
         }
@@ -2577,7 +2625,7 @@
                 const again = document.createElement("a");
                 again.href = "#";
                 again.className = "resend-code-link";
-                again.textContent = currentLang === 'uz' ? "🔄 Yangi kod so'rash" : "🔄 Request a new code";
+                again.textContent = tr("🔄 Yangi kod so'rash", "🔄 Request a new code", "🔄 Запросить новый код");
                 again.onclick = (ev) => {
                     ev.preventDefault();
                     resetOtpState();
@@ -2602,11 +2650,11 @@
             authModal.style.display = "none";
             chatScreen.classList.add("active");
             if (currentName) {
-                document.getElementById("welcome-bubble").innerText = currentLang === 'uz' ? `Xush kelibsiz, ${currentName}! Qanday yordam bera olaman? 🚀` : `Welcome, ${currentName}! How can I help you? 🚀`;
+                document.getElementById("welcome-bubble").innerText = tr(`Xush kelibsiz, ${currentName}! Qanday yordam bera olaman? 🚀`, `Welcome, ${currentName}! How can I help you? 🚀`, `Добро пожаловать, ${currentName}! Чем могу помочь? 🚀`);
             }
         } catch (err) {
             statusBox.style.color = "#f43f5e";
-            statusBox.innerText = currentLang === 'uz' ? "Serverga ulanishda xatolik yuz berdi." : "Server connection error.";
+            statusBox.innerText = tr("Serverga ulanishda xatolik yuz berdi.", "Server connection error.", "Ошибка соединения с сервером.");
             authActionBtn.disabled = false;
         }
     };
@@ -2806,7 +2854,7 @@
             imgSrcForBubble = `data:${currentImgMime};base64,${currentImgB64}`;
         }
 
-        const promptText = text || (hasImage ? (currentLang === 'uz' ? "Ushbu rasmda nima tasvirlangan? To'liq tahlil qilib ber." : "What is depicted in this image? Analyze it fully.") : "");
+        const promptText = text || (hasImage ? (tr("Ushbu rasmda nima tasvirlangan? To'liq tahlil qilib ber.", "What is depicted in this image? Analyze it fully.", "Что изображено на этом фото? Проанализируй полностью.")) : "");
         parts.push({ text: promptText });
 
         appendMsg(text, "user", imgSrcForBubble);
@@ -2831,7 +2879,7 @@
             const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ history: buildRequestHistory() }),
+                body: JSON.stringify({ history: buildRequestHistory(), lang: currentLang }),
                 signal: controller.signal
             });
 
@@ -2847,12 +2895,12 @@
                     chatHistory.forEach(item => {
                         item.parts = item.parts.map(p => p.inline_data ? { text: "[Rasm biriktirildi]" } : p);
                     });
-                    data = { error: currentLang === 'uz' ? "⚠️ Rasm juda katta. Iltimos, kichikroq rasm yuboring." : "⚠️ Image is too large. Please send a smaller image." };
+                    data = { error: tr("⚠️ Rasm juda katta. Iltimos, kichikroq rasm yuboring.", "⚠️ Image is too large. Please send a smaller image.", "⚠️ Изображение слишком большое. Отправьте, пожалуйста, фото поменьше.") };
                 } else {
                     throw parseErr;
                 }
             }
-            const reply = data.text || data.error || (currentLang === 'uz' ? "Javob olib bo'lmadi." : "Could not get response.");
+            const reply = data.text || data.error || (tr("Javob olib bo'lmadi.", "Could not get response.", "Не удалось получить ответ."));
             
             appendAIMsg(reply);
             chatHistory.push({ role: "model", parts: [{ text: reply }] });
@@ -2868,9 +2916,9 @@
             clearTimeout(timeoutId);
             hideTyping();
             if (e.name === "AbortError") {
-                appendAIMsg(currentLang === 'uz' ? "⚠️ Server javob berishi juda cho'zilib ketdi. Iltimos, boshqattan urinib ko'ring." : "⚠️ Server response timed out. Please try again.");
+                appendAIMsg(tr("⚠️ Server javob berishi juda cho'zilib ketdi. Iltimos, boshqattan urinib ko'ring.", "⚠️ Server response timed out. Please try again.", "⚠️ Сервер отвечает слишком долго. Пожалуйста, попробуйте ещё раз."));
             } else {
-                appendAIMsg(currentLang === 'uz' ? "⚠️ AI javob berishda yoki server bilan ulanishda xatolik yuz berdi." : "⚠️ Error communicating with AI or server.");
+                appendAIMsg(tr("⚠️ AI javob berishda yoki server bilan ulanishda xatolik yuz berdi.", "⚠️ Error communicating with AI or server.", "⚠️ Ошибка при обращении к ИИ или серверу."));
             }
         }
     }
@@ -3505,6 +3553,15 @@ body.fx-no-msg-anim .typing-indicator { animation: none !important; }
                 'lang-set-haptic-title': 'Vibratsiya', 'lang-set-haptic-sub': 'Yuborganda va javob kelganda (telefonda)',
                 'lang-set-click-title': 'Tugma tovushi', 'lang-set-click-sub': 'Tugmalarni bosganda qisqa pop tovushi'
             },
+            ru: {
+                'lang-set-theme-title': 'Цветовая тема', 'lang-set-theme-sub': 'Цвет кнопок и сообщений',
+                'lang-set-particles-title': 'Звёздные частицы', 'lang-set-particles-sub': 'Движущиеся точки на фоне',
+                'lang-set-msganim-title': 'Анимация сообщений', 'lang-set-msganim-sub': 'Эффекты при появлении сообщений',
+                'lang-set-enter-title': 'Отправка по Enter', 'lang-set-enter-sub': 'Если выключить, сообщения уходят только кнопкой',
+                'lang-set-vol-title': 'Громкость звуков', 'lang-set-vol-sub': 'Звуки мемов и пополнения счёта',
+                'lang-set-haptic-title': 'Вибрация', 'lang-set-haptic-sub': 'При отправке и ответе (на телефонах)',
+                'lang-set-click-title': 'Звук кнопок', 'lang-set-click-sub': 'Короткий «поп» при нажатии кнопок'
+            },
             en: {
                 'lang-set-theme-title': 'Color theme', 'lang-set-theme-sub': 'Buttons and message colors',
                 'lang-set-particles-title': 'Starry particles', 'lang-set-particles-sub': 'Moving dots in the background',
@@ -3516,7 +3573,7 @@ body.fx-no-msg-anim .typing-indicator { animation: none !important; }
             }
         };
         function applyExtraLang() {
-            var l = (typeof currentLang !== 'undefined' && currentLang) ? currentLang : 'uz';
+            var l = document.documentElement.lang || get('bilol_ai_lang', 'uz');
             var dict = T[l] || T.uz;
             Object.keys(dict).forEach(function (id) {
                 var el = document.getElementById(id);
@@ -3533,6 +3590,247 @@ body.fx-no-msg-anim .typing-indicator { animation: none !important; }
         }
         applyExtraLang();
     } catch (err) { console.warn('Extra settings:', err); }
+})();
+</script>
+
+<style id="fx2-style">
+/* ================= FX2: QO'SHIMCHA ANIMATSIYALAR ================= */
+@property --fx-p { syntax: '<percentage>'; initial-value: 0%; inherits: false; }
+
+/* 1. AI javobi "skaner" nuri bilan paydo bo'ladi */
+.msg-ai > div:last-child {
+    -webkit-mask-image: linear-gradient(90deg, #000 var(--fx-p), transparent calc(var(--fx-p) + 18%));
+            mask-image: linear-gradient(90deg, #000 var(--fx-p), transparent calc(var(--fx-p) + 18%));
+    animation: fxScan 1.1s cubic-bezier(0.3, 0.7, 0.2, 1) both;
+}
+@keyframes fxScan { from { --fx-p: -18%; } to { --fx-p: 100%; } }
+.msg-ai > div.fx-scan-done {
+    animation: none !important; -webkit-mask-image: none !important; mask-image: none !important;
+}
+body.fx-no-msg-anim .msg-ai > div:last-child {
+    animation: none !important; -webkit-mask-image: none !important; mask-image: none !important;
+}
+
+/* 2. Xabarlar ustiga olib borilganda ko'tariladi (translate: boshqa animatsiyalar bilan to'qnashmaydi) */
+.msg-bubble { transition: box-shadow 0.3s ease, translate 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.msg-ai:hover  { translate: 0 -2px; box-shadow: 0 10px 30px -12px var(--violet-glow, rgba(139, 92, 246, 0.6)); }
+.msg-user:hover { translate: 0 -2px; box-shadow: 0 10px 30px -10px var(--violet-glow, rgba(139, 92, 246, 0.7)); }
+
+/* 3. Magnit tugmalar */
+.fx-mag { translate: var(--fx-tx, 0px) var(--fx-ty, 0px); transition: translate 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* 4. Yuborish tugmasi: qog'oz samolyot uchib ketib qaytadi */
+.send-btn.fx-fly svg { animation: fxFly 0.6s cubic-bezier(0.5, 0, 0.2, 1); }
+@keyframes fxFly {
+    0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+    42%  { transform: translate(30px, -30px) scale(0.55); opacity: 0; }
+    43%  { transform: translate(-30px, 30px) scale(0.55); opacity: 0; }
+    100% { transform: translate(0, 0) scale(1); opacity: 1; }
+}
+
+/* 5. Kursor ortidan uchqunlar */
+.fx-spark {
+    position: fixed; left: 0; top: 0; width: var(--sz, 6px); height: var(--sz, 6px);
+    margin: calc(var(--sz, 6px) / -2) 0 0 calc(var(--sz, 6px) / -2);
+    border-radius: 50%; z-index: 4; pointer-events: none; mix-blend-mode: screen;
+    background: radial-gradient(circle, #fff 0%, var(--violet-accent, #8b5cf6) 55%, transparent 72%);
+    box-shadow: 0 0 10px var(--violet-accent, #8b5cf6);
+    animation: fxSpark 0.75s ease-out forwards;
+}
+@keyframes fxSpark {
+    from { transform: translate(var(--sx), var(--sy)) scale(1); opacity: 0.95; }
+    to   { transform: translate(calc(var(--sx) + var(--dx)), calc(var(--sy) + var(--dy))) scale(0); opacity: 0; }
+}
+
+/* 6. Hisob to'lganda tangalar yog'iladi */
+.fx-coin {
+    position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none;
+    font-size: var(--s, 22px); will-change: transform, opacity;
+    animation: fxCoin var(--dur, 1.4s) linear forwards;
+}
+@keyframes fxCoin {
+    0%   { transform: translate(var(--x0), var(--y0)) scale(0.3) rotate(0deg); opacity: 0; animation-timing-function: cubic-bezier(0.15, 0.8, 0.3, 1); }
+    12%  { opacity: 1; }
+    42%  { transform: translate(calc(var(--x0) + var(--dx) * 0.7), calc(var(--y0) + var(--up))) scale(1) rotate(calc(var(--rot) * 0.5)); animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6); }
+    100% { transform: translate(calc(var(--x0) + var(--dx)), calc(var(--y0) + var(--down))) scale(0.9) rotate(var(--rot)); opacity: 0; }
+}
+
+/* 7. Logotip atrofida kengayuvchi halqalar */
+.landing-logo-wrapper::after {
+    content: ""; position: absolute; inset: -4px; border-radius: 30px; pointer-events: none;
+    border: 2px solid var(--violet-accent, #8b5cf6); opacity: 0;
+    animation: fxRing 3.4s ease-out infinite;
+}
+@keyframes fxRing { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(1.7); opacity: 0; } }
+
+body.fx-no-particles .fx-spark, body.fx-no-particles .fx-coin { display: none !important; }
+
+/* Tor ekranlarda (telefon) uzun matnli kartalar: tugmalar matn ostiga tushadi, qirqilmaydi */
+@media (max-width: 520px) {
+    #settings-modal .settings-card { flex-wrap: wrap; }
+    #settings-modal .settings-info { flex: 1 1 150px; min-width: 0; }
+    #settings-modal .settings-segmented { flex: 1 1 100%; }
+    #settings-modal .settings-segmented .segmented-btn { flex: 1 1 0; padding-left: 6px; padding-right: 6px; }
+    #settings-modal .theme-swatches { flex: 0 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fx-spark, .fx-coin, .landing-logo-wrapper::after, .send-btn.fx-fly svg { animation: none !important; }
+    .msg-ai > div:last-child { animation: none !important; -webkit-mask-image: none !important; mask-image: none !important; }
+}
+</style>
+
+<script id="fx2-script">
+(function () {
+    try {
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var fine = window.matchMedia && matchMedia('(pointer: fine)').matches;
+        function rnd(a, b) { return a + Math.random() * (b - a); }
+        function particlesOn() { return !document.body.classList.contains('fx-no-particles'); }
+
+        /* --- 1. "Skaner" tugagach maska olib tashlanadi (yengil bo'lishi uchun) --- */
+        document.addEventListener('animationend', function (e) {
+            if (e.animationName === 'fxScan' && e.target && e.target.classList) e.target.classList.add('fx-scan-done');
+        }, true);
+
+        /* --- 2. Magnit tugmalar --- */
+        var MAG_SEL = '.landing-btn-enhanced,.send-btn,.primary-btn';
+        var magEls = document.querySelectorAll(MAG_SEL);
+        for (var i = 0; i < magEls.length; i++) magEls[i].classList.add('fx-mag');
+        var curMag = null;
+        function resetMag(el) {
+            if (!el) return;
+            el.style.removeProperty('--fx-tx'); el.style.removeProperty('--fx-ty');
+        }
+
+        /* --- 3. Kursor uchqunlari --- */
+        var lastX = -999, lastY = -999, lastT = 0;
+        function spark(x, y) {
+            var s = document.createElement('div');
+            s.className = 'fx-spark';
+            s.style.setProperty('--sz', rnd(4, 8) + 'px');
+            s.style.setProperty('--sx', (x + rnd(-6, 6)) + 'px');
+            s.style.setProperty('--sy', (y + rnd(-6, 6)) + 'px');
+            s.style.setProperty('--dx', rnd(-14, 14) + 'px');
+            s.style.setProperty('--dy', rnd(8, 30) + 'px');
+            document.body.appendChild(s);
+            setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 800);
+        }
+
+        document.addEventListener('pointermove', function (e) {
+            if (reduce || e.pointerType !== 'mouse') return;
+
+            /* magnit */
+            var el = e.target && e.target.closest ? e.target.closest(MAG_SEL) : null;
+            if (curMag && curMag !== el) { resetMag(curMag); curMag = null; }
+            if (el) {
+                curMag = el;
+                var r = el.getBoundingClientRect();
+                var dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+                var dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+                el.style.setProperty('--fx-tx', (Math.max(-1, Math.min(1, dx)) * 6) + 'px');
+                el.style.setProperty('--fx-ty', (Math.max(-1, Math.min(1, dy)) * 5) + 'px');
+            }
+
+            /* uchqunlar */
+            if (!fine || !particlesOn()) return;
+            var now = performance.now();
+            var moved = Math.abs(e.clientX - lastX) + Math.abs(e.clientY - lastY);
+            if (moved > 16 && now - lastT > 38 && document.getElementsByClassName('fx-spark').length < 28) {
+                lastX = e.clientX; lastY = e.clientY; lastT = now;
+                spark(e.clientX, e.clientY);
+            }
+        }, { passive: true });
+        document.addEventListener('pointerleave', function () { resetMag(curMag); curMag = null; });
+
+        /* --- 4. Yuborish tugmasi uchib ketadi --- */
+        var sendBtn = document.getElementById('send-btn');
+        var chatInput = document.getElementById('chat-input');
+        function fly() {
+            if (reduce || !sendBtn) return;
+            sendBtn.classList.remove('fx-fly');
+            void sendBtn.offsetWidth;
+            sendBtn.classList.add('fx-fly');
+            setTimeout(function () { sendBtn.classList.remove('fx-fly'); }, 650);
+        }
+        if (sendBtn) sendBtn.addEventListener('click', fly);
+        if (chatInput) chatInput.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' || !chatInput.value.trim()) return;
+            var enterOn = true;
+            try { enterOn = localStorage.getItem('bilol_ai_enter') !== 'false'; } catch (err) {}
+            if (enterOn) fly();
+        });
+
+        /* --- 5. Hisob to'lganda tangalar yog'ishi --- */
+        function coinBurst() {
+            if (reduce || !particlesOn()) return;
+            var pill = document.getElementById('open-wallet-btn');
+            var r = pill ? pill.getBoundingClientRect() : { left: innerWidth / 2, top: 60, width: 0, height: 0 };
+            var ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+            var icons = ['🪙', '🪙', '🪙', '✨', '💰'];
+            for (var i = 0; i < 22; i++) {
+                var c = document.createElement('div');
+                c.className = 'fx-coin';
+                c.textContent = icons[(Math.random() * icons.length) | 0];
+                c.style.setProperty('--x0', ox + 'px');
+                c.style.setProperty('--y0', oy + 'px');
+                c.style.setProperty('--dx', rnd(-170, 170) + 'px');
+                c.style.setProperty('--up', rnd(-120, -40) + 'px');
+                c.style.setProperty('--down', rnd(120, 320) + 'px');
+                c.style.setProperty('--rot', rnd(-540, 540) + 'deg');
+                c.style.setProperty('--s', rnd(16, 28) + 'px');
+                c.style.setProperty('--dur', rnd(1.1, 1.7) + 's');
+                c.style.animationDelay = (i * 18) + 'ms';
+                document.body.appendChild(c);
+                (function (el) { setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 2200); })(c);
+            }
+        }
+        /* Hisob to'lganda chiqadigan xabarnoma matni "+" bilan boshlanadi */
+        if (window.MutationObserver) {
+            new MutationObserver(function (list) {
+                list.forEach(function (m) {
+                    m.addedNodes.forEach(function (n) {
+                        if (n.nodeType === 1 && n.classList && n.classList.contains('swipe-toast') &&
+                            (n.textContent || '').trim().charAt(0) === '+') coinBurst();
+                    });
+                });
+            }).observe(document.body, { childList: true });
+        }
+
+        /* --- 6. Til almashganda matnlar ketma-ket "oqib" chiqadi --- */
+        var ready = false;
+        setTimeout(function () { ready = true; }, 1200);
+        var CUR = { uz: "so'm", en: "so'm", ru: 'сум' };
+        function langFlip() {
+            var l = document.documentElement.lang || 'uz';
+            var cur = document.getElementById('fx-pill-cur');
+            if (cur) cur.textContent = CUR[l] || "so'm";
+            if (reduce || !ready) return;
+            var list = document.querySelectorAll('[id^="lang-"]:not([id^="lang-btn"])');
+            var n = 0;
+            for (var i = 0; i < list.length && n < 70; i++) {
+                var el = list[i];
+                if (!el.animate || !el.getClientRects().length) continue;
+                el.animate(
+                    [
+                        { opacity: 0, translate: '0 10px', filter: 'blur(6px)' },
+                        { opacity: 1, translate: '0 0', filter: 'blur(0px)' }
+                    ],
+                    { duration: 520, delay: Math.min(n * 28, 420), easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'backwards' }
+                );
+                n++;
+            }
+        }
+        var prevSetLang = window.setAppLanguage;
+        if (typeof prevSetLang === 'function') {
+            window.setAppLanguage = function () {
+                var r = prevSetLang.apply(this, arguments);
+                langFlip();
+                return r;
+            };
+        }
+        langFlip();
+    } catch (err) { console.warn('FX2:', err); }
 })();
 </script>
 

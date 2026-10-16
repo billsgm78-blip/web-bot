@@ -17,17 +17,22 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "API kaliti sozlanmagan." });
   }
 
-  const { history } = req.body || {};
+  const { history, lang } = req.body || {};
   if (!Array.isArray(history)) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
 
-  // O'zbek va Ingliz tillarini avtomatik aniqlab javob beruvchi tizim ko'rsatmasi
+  // Saytning interfeys tili (faqat shu uchta qiymat qabul qilinadi)
+  const LANG_NAMES = { uz: "Uzbek", ru: "Russian", en: "English" };
+  const uiLang = LANG_NAMES[lang] ? lang : "uz";
+
+  // O'zbek, Rus va Ingliz tillarini avtomatik aniqlab javob beruvchi tizim ko'rsatmasi
   const messages = [
     {
       role: "system",
       content:
-        "You are Bilols AI, an intelligent neural assistant. Always detect and reply in the language used by the user: if the user writes in English, reply fluently and naturally in English; if the user writes in Uzbek, reply in natural and fluent Uzbek. If an image is provided, analyze and describe its contents, equations, or tasks thoroughly in the user's language."
+        "You are Bilols AI, an intelligent neural assistant. Always detect and reply in the language used by the user: if the user writes in English, reply fluently and naturally in English; if the user writes in Russian, reply in natural and fluent Russian; if the user writes in Uzbek, reply in natural and fluent Uzbek. If an image is provided, analyze and describe its contents, equations, or tasks thoroughly in the user's language. " +
+        `If the language of the user's message is unclear (for example, only an image or a very short message), reply in ${LANG_NAMES[uiLang]}.`
     }
   ];
 
