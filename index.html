@@ -1881,7 +1881,7 @@
         document.getElementById("code-input").placeholder = t.codePlace;
         
         if (activeAuthMode === "login") {
-            authActionBtn.innerText = t.tabLogin;
+            authActionBtn.innerText = isWaitingForOtp ? t.btnVerify : t.tabLogin;
         } else {
             authActionBtn.innerText = isWaitingForOtp ? t.btnVerify : t.tabRegister;
         }
@@ -2233,6 +2233,38 @@
             .replace(/\^([0-9]+)/g, "<sup>$1</sup>");
     }
 
+    // Telegram kodi kutish holatini bekor qilish (telefon o'zgarganda yoki tab almashganda)
+    function resetOtpState() {
+        if (!isWaitingForOtp) return;
+        isWaitingForOtp = false;
+        const wrap = document.getElementById("code-field-wrap");
+        if (wrap) wrap.style.display = "none";
+        const ci = document.getElementById("code-input");
+        if (ci) ci.value = "";
+        const t = translations[currentLang];
+        authActionBtn.innerText = activeAuthMode === "login" ? t.tabLogin : t.tabRegister;
+    }
+
+    // Foydalanuvchi botga kirmagan: xabar + "Botga o'tish" tugmasi
+    function showBotRedirect(botUrl) {
+        statusBox.style.color = "#f59e0b";
+        statusBox.innerHTML = "";
+        const msg = document.createElement("div");
+        msg.textContent = currentLang === 'uz'
+            ? "Avval Telegram botimizga kiring: /start ni bosing va telefon raqamingizni yuboring. Keyin shu yerga qaytib, qayta urinib ko'ring."
+            : "First open our Telegram bot: press /start and share your phone number. Then come back here and try again.";
+        statusBox.appendChild(msg);
+        if (typeof botUrl === "string" && /^https:\/\/t\.me\//.test(botUrl)) {
+            const a = document.createElement("a");
+            a.href = botUrl;
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            a.className = "bot-redirect-btn";
+            a.textContent = currentLang === 'uz' ? "🤖 Botga o'tish" : "🤖 Open the bot";
+            statusBox.appendChild(a);
+        }
+    }
+
     window.switchTab = function(mode) {
         activeAuthMode = mode;
         statusBox.innerText = "";
@@ -2480,15 +2512,23 @@
         statusBox.innerText = currentLang === 'uz' ? "Tekshirilmoqda... ⏳" : "Checking... ⏳";
         authActionBtn.disabled = true;
 
-        if (activeAuthMode === "register" && !isWaitingForOtp) {
-            // 1-qadam: Telegram botga kod yuborish so'rovi
+        const isLogin = activeAuthMode === "login";
+
+        if (!isWaitingForOtp) {
+            // 1-qadam: Telegram botga kod yuborish (kirishda ham, ro'yxatdan o'tishda ham)
             try {
-                const res = await fetch("/api/register", {
+                const res = await fetch(isLogin ? `${RAILWAY_URL}/api/login-code` : "/api/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ phone, password, name, action: "send_code" })
                 });
                 const data = await res.json();
+                if (data.needBot) {
+                    // Botga kirmagan foydalanuvchini botga yo'naltiramiz
+                    showBotRedirect(data.botUrl);
+                    authActionBtn.disabled = false;
+                    return;
+                }
                 if (!res.ok || !data.success) {
                     statusBox.style.color = "#f43f5e";
                     statusBox.innerText = `Xatolik: ${data.error || "Kod yuborib bo'lmadi"}`;
@@ -2511,11 +2551,16 @@
             }
         }
 
-        // Tizimga kirish (login) yoki Ro'yxatdan o'tishni kod bilan tasdiqlash (verify)
-        const endpoint = (activeAuthMode === "login") ? `${RAILWAY_URL}/api/login` : "/api/register";
-        const payload = (activeAuthMode === "login") 
-            ? { phone, password } 
-            : { phone, password, name, code: codeInput ? codeInput.value.trim() : "", action: "verify" };
+        // 2-qadam: Telegram'dan kelgan kod bilan kirish (login) yoki ro'yxatdan o'tishni tasdiqlash (verify)
+        if (!codeInput || !codeInput.value.trim()) {
+            statusBox.style.color = "#f43f5e";
+            statusBox.innerText = currentLang === 'uz' ? "Telegram botga kelgan kodni kiriting!" : "Enter the code from the Telegram bot!";
+            authActionBtn.disabled = false;
+            return;
+        }
+
+        const endpoint = isLogin ? `${RAILWAY_URL}/api/login` : "/api/register";
+        const payload = { phone, password, name, code: codeInput.value.trim(), action: "verify" };
 
         try {
             const res = await fetch(endpoint, {
@@ -2528,10 +2573,22 @@
             if (!res.ok || !data.success) {
                 statusBox.style.color = "#f43f5e";
                 statusBox.innerText = `Xatolik: ${data.error || "Ulanib bo'lmadi"}`;
+                // Kod xato/eskirgan bo'lsa, yangisini so'rash imkoniyati
+                const again = document.createElement("a");
+                again.href = "#";
+                again.className = "resend-code-link";
+                again.textContent = currentLang === 'uz' ? "🔄 Yangi kod so'rash" : "🔄 Request a new code";
+                again.onclick = (ev) => {
+                    ev.preventDefault();
+                    resetOtpState();
+                    authActionBtn.click();
+                };
+                statusBox.appendChild(again);
                 authActionBtn.disabled = false;
                 return;
             }
 
+            resetOtpState();
             currentPhone = phone;
             currentName = data.name || name || "";
             localStorage.setItem("bilol_ai_phone", phone);
@@ -2553,6 +2610,9 @@
             authActionBtn.disabled = false;
         }
     };
+
+    // Telefon raqami o'zgartirilsa, oldingi kod endi yaroqsiz: kod kutish holati bekor qilinadi
+    phoneInput.addEventListener("input", resetOtpState);
 
     // Rasmni kichraytirish: eng katta tomoni 1280px, JPEG sifati 82% (so'rov hajmi kichik bo'lishi uchun)
     function shrinkImage(dataUrl, cb) {
@@ -2942,7 +3002,8 @@ body::before {
 }
 
 /* ---------- MODALLAR ---------- */
-.auth-card, .feature-modal-card { position: relative; overflow: hidden; }
+/* overflow:clip — nur effekti kartadan chiqib turgani uchun karta ichkaridan siljib ketmasin (fokus/klaviatura) */
+.auth-card, .feature-modal-card { position: relative; overflow: hidden; overflow: clip; }
 .auth-card::before, .feature-modal-card::before {
     content: ""; position: absolute; top: -60%; left: -60%; width: 220%; height: 220%; pointer-events: none;
     background: conic-gradient(from var(--fx-angle), transparent 0deg, rgba(139,92,246,0.14) 60deg, transparent 120deg, rgba(16,185,129,0.12) 220deg, transparent 280deg);
@@ -3235,6 +3296,20 @@ body::before {
     border-color: #fff; transform: scale(1.12);
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.14), 0 0 16px var(--gl);
 }
+.bot-redirect-btn {
+    display: block; margin-top: 12px; padding: 12px 16px; border-radius: 14px; text-align: center;
+    font-weight: 800; font-size: 14px; color: #fff !important; text-decoration: none;
+    background: linear-gradient(135deg, #229ed9, #2563eb);
+    box-shadow: 0 8px 22px -6px rgba(34, 158, 217, 0.65);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.bot-redirect-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -6px rgba(34, 158, 217, 0.85); }
+.bot-redirect-btn:active { transform: scale(0.97); }
+.resend-code-link {
+    display: block; margin-top: 8px; font-size: 13px; font-weight: 700;
+    color: var(--violet-accent, #8b5cf6) !important; text-decoration: none; cursor: pointer;
+}
+.resend-code-link:hover { text-decoration: underline; }
 #settings-modal .settings-card:nth-child(n+6) { animation-delay: 0.4s; }
 #settings-modal .settings-card:nth-child(n+8) { animation-delay: 0.5s; }
 #settings-modal .settings-card:nth-child(n+10) { animation-delay: 0.6s; }

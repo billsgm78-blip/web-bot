@@ -33,7 +33,12 @@ export default async function handler(req, res) {
     const dbData = await dbResp.json().catch(() => ({}));
 
     if (!dbResp.ok) {
-      return res.status(dbResp.status).json({ error: dbData.error || "Xatolik yuz berdi." });
+      // needBot/botUrl: foydalanuvchi botga hali kirmagan bo'lsa, sayt "Botga o'tish" tugmasini ko'rsatadi
+      return res.status(dbResp.status).json({
+        error: dbData.error || "Xatolik yuz berdi.",
+        needBot: dbData.needBot,
+        botUrl: dbData.botUrl,
+      });
     }
 
     return res.status(200).json(dbData);
