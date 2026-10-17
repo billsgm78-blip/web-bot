@@ -4728,6 +4728,13 @@ body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
 .mic-btn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .mic-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
 .mic-btn.rec { color: #fff; background: #f43f5e; animation: bfRec 1.2s ease-in-out infinite; }
+.mic-btn.busy { pointer-events: none; color: transparent; }
+.mic-btn.busy::after {
+    content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid rgba(148, 163, 184, 0.35); border-top-color: var(--violet-accent);
+    animation: authSpin 0.7s linear infinite;
+}
+@keyframes authSpin { to { transform: rotate(360deg); } }
 @keyframes bfRec { 0%,100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.5); } 50% { box-shadow: 0 0 0 7px rgba(244, 63, 94, 0); } }
 
 .input-bar { position: relative; }
@@ -5162,29 +5169,131 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
             $('chat-input').focus();
         };
 
-        /* ================= OVOZLI XABAR (mikrofon) ================= */
-        var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-        var micBtn = $('mic-btn'), rec = null, recOn = false;
-        micBtn.onclick = function () {
-            if (!SR) { notify(T("Brauzeringiz ovozli yozishni qo'llamaydi. Chrome'dan foydalaning.", 'Your browser does not support voice input. Try Chrome.', 'Ваш браузер не поддерживает голосовой ввод. Попробуйте Chrome.')); return; }
-            if (recOn && rec) { rec.stop(); return; }
-            var inp = $('chat-input');
-            var base = inp.value ? inp.value.replace(/\s*$/, ' ') : '';
-            rec = new SR();
-            rec.lang = lang() === 'ru' ? 'ru-RU' : lang() === 'en' ? 'en-US' : 'uz-UZ';
-            rec.interimResults = true;
-            rec.continuous = false;
-            rec.onresult = function (e) {
-                var txt = '';
-                for (var i = 0; i < e.results.length; i++) txt += e.results[i][0].transcript;
-                inp.value = base + txt;
+        /* ================= OVOZLI XABAR (mikrofon) =================
+           Ovoz to'g'ridan-to'g'ri mikrofondan yoziladi (Telegram mini app'da ham ruxsat so'raladi),
+           so'ng serverda matnga aylantiriladi. Matn kiritish maydoniga tushadi — tekshirib yuborasiz. */
+        var micBtn = $('mic-btn'), recState = null, MAX_REC = 60;
+        var inputEl = $('chat-input');
+        var savedPh = null;
+        function setPh(t) { if (savedPh === null) savedPh = inputEl.placeholder; inputEl.placeholder = t; }
+        function restorePh() { if (savedPh !== null) { inputEl.placeholder = savedPh; savedPh = null; } }
+        function micDenied(e) {
+            var name = e && e.name;
+            if (name === 'NotAllowedError' || name === 'SecurityError') {
+                var tg = /Telegram/i.test(navigator.userAgent) || !!(window.Telegram && window.Telegram.WebApp);
+                notify(tg
+                    ? T("Mikrofonga ruxsat bering: telefon Sozlamalari → Telegram → Mikrofon.", 'Allow the microphone: phone Settings → Telegram → Microphone.', 'Разрешите микрофон: Настройки телефона → Telegram → Микрофон.')
+                    : T('Mikrofonga ruxsat bering (brauzer manzil qatoridagi 🔒 belgisi orqali).', 'Allow microphone access (via the 🔒 icon in the address bar).', 'Разрешите доступ к микрофону (значок 🔒 в адресной строке).'));
+            } else if (name === 'NotFoundError') {
+                notify(T('Mikrofon topilmadi.', 'No microphone found.', 'Микрофон не найден.'));
+            } else {
+                notify(T("Mikrofonni ochib bo'lmadi.", 'Could not open the microphone.', 'Не удалось открыть микрофон.'));
+            }
+        }
+        function fmtSec(n) { return Math.floor(n / 60) + ':' + ('0' + Math.floor(n % 60)).slice(-2); }
+        function downsample(buf, from, to) {
+            if (to >= from) return buf;
+            var ratio = from / to, len = Math.floor(buf.length / ratio), out = new Float32Array(len);
+            for (var i = 0; i < len; i++) {
+                var s0 = Math.floor(i * ratio), s1 = Math.min(buf.length, Math.floor((i + 1) * ratio)), sum = 0;
+                for (var j = s0; j < s1; j++) sum += buf[j];
+                out[i] = sum / Math.max(1, s1 - s0);
+            }
+            return out;
+        }
+        function encodeWav(pcm, rate) {
+            var buf = new ArrayBuffer(44 + pcm.length * 2), v = new DataView(buf);
+            function str(o, t) { for (var i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); }
+            str(0, 'RIFF'); v.setUint32(4, 36 + pcm.length * 2, true); str(8, 'WAVE'); str(12, 'fmt ');
+            v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+            v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+            str(36, 'data'); v.setUint32(40, pcm.length * 2, true);
+            for (var i = 0, o = 44; i < pcm.length; i++, o += 2) {
+                var x = Math.max(-1, Math.min(1, pcm[i]));
+                v.setInt16(o, x < 0 ? x * 0x8000 : x * 0x7fff, true);
+            }
+            return buf;
+        }
+        function toB64(buf) {
+            var bytes = new Uint8Array(buf), bin = '', step = 0x8000;
+            for (var i = 0; i < bytes.length; i += step) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + step));
+            return btoa(bin);
+        }
+        micBtn.onclick = async function () {
+            if (recState) { stopRec(true); return; }
+            if (micBtn.classList.contains('busy')) return;
+            var md = navigator.mediaDevices, AC = window.AudioContext || window.webkitAudioContext;
+            if (!md || !md.getUserMedia || !AC) {
+                notify(T("Bu qurilmada ovoz yozib bo'lmaydi.", 'Voice recording is not supported here.', 'Запись голоса здесь не поддерживается.'));
+                return;
+            }
+            var ctx = new AC(); // bosilgan zahoti yaratiladi (iPhone talabi)
+            var stream;
+            try {
+                stream = await md.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+            } catch (e) {
+                try { ctx.close(); } catch (x) {}
+                micDenied(e);
+                return;
+            }
+            if (ctx.state === 'suspended') { try { await ctx.resume(); } catch (e) {} }
+            var src = ctx.createMediaStreamSource(stream);
+            var proc = ctx.createScriptProcessor(4096, 1, 1);
+            var chunks = [];
+            proc.onaudioprocess = function (e) { if (recState) chunks.push(new Float32Array(e.inputBuffer.getChannelData(0))); };
+            src.connect(proc);
+            proc.connect(ctx.destination);
+            recState = { stream: stream, ctx: ctx, src: src, proc: proc, chunks: chunks, rate: ctx.sampleRate, start: Date.now() };
+            micBtn.classList.add('rec');
+            if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) {} }
+            var tick = function () {
+                if (!recState) return;
+                var sec = (Date.now() - recState.start) / 1000;
+                setPh('🔴 ' + fmtSec(sec) + ' — ' + T("to'xtatish uchun 🎤 ni bosing", 'tap 🎤 to stop', 'нажмите 🎤, чтобы остановить'));
+                if (sec >= MAX_REC) stopRec(true);
             };
-            rec.onerror = function (e) {
-                if (e.error === 'not-allowed' || e.error === 'service-not-allowed') notify(T('Mikrofonga ruxsat bering.', 'Please allow microphone access.', 'Разрешите доступ к микрофону.'));
-            };
-            rec.onend = function () { recOn = false; micBtn.classList.remove('rec'); inp.focus(); };
-            try { rec.start(); recOn = true; micBtn.classList.add('rec'); } catch (e) {}
+            tick();
+            recState.timer = setInterval(tick, 250);
         };
+        async function stopRec(send) {
+            var st = recState;
+            if (!st) return;
+            recState = null;
+            clearInterval(st.timer);
+            try { st.proc.disconnect(); st.src.disconnect(); } catch (e) {}
+            st.stream.getTracks().forEach(function (t) { t.stop(); });
+            try { st.ctx.close(); } catch (e) {}
+            micBtn.classList.remove('rec');
+            var dur = (Date.now() - st.start) / 1000;
+            if (!send || dur < 0.8) { restorePh(); if (send) notify(T('Juda qisqa. Bosib, gapiring, keyin yana bosing.', 'Too short. Tap, speak, then tap again.', 'Слишком коротко. Нажмите, говорите, затем нажмите снова.')); return; }
+            var len = st.chunks.reduce(function (a, c) { return a + c.length; }, 0), all = new Float32Array(len), off = 0;
+            st.chunks.forEach(function (c) { all.set(c, off); off += c.length; });
+            var audio = toB64(encodeWav(downsample(all, st.rate, 16000), 16000));
+            micBtn.classList.add('busy');
+            setPh('⏳ ' + T('Matnga aylantirilmoqda...', 'Transcribing...', 'Распознаём речь...'));
+            try {
+                var c = creds();
+                var r = await fetch('/api/transcribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: c.phone, password: c.password, audio: audio, lang: lang() }) });
+                var j = {};
+                try { j = await r.json(); } catch (e) {}
+                if (r.ok && j.text) {
+                    inputEl.value = (inputEl.value.trim() ? inputEl.value.trim() + ' ' : '') + j.text;
+                    inputEl.focus();
+                    try { inputEl.setSelectionRange(inputEl.value.length, inputEl.value.length); } catch (e) {}
+                } else if (r.ok) {
+                    notify(T("Ovoz eshitilmadi. Qaytadan urinib ko'ring.", "Couldn't hear anything. Please try again.", 'Речь не распознана. Попробуйте ещё раз.'));
+                } else {
+                    notify(j.error || T("Ovozni matnga aylantirib bo'lmadi.", 'Could not transcribe.', 'Не удалось распознать речь.'));
+                }
+            } catch (e) {
+                notify(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.'));
+            } finally {
+                micBtn.classList.remove('busy');
+                restorePh();
+            }
+        }
+        // Sahifa yopilsa yoki fonga o'tsa, yozuv to'xtaydi (mikrofon ochiq qolmasin)
+        document.addEventListener('visibilitychange', function () { if (document.hidden && recState) stopRec(false); });
 
         /* ================= BIRIKTIRISH: rasm yoki hujjat ================= */
         var attachMenu = $('attach-menu');
