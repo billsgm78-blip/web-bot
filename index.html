@@ -2241,6 +2241,20 @@ body.theme-light #reset-modal .styled-input { background: #f1f5f9; color: #0f172
 #chats-drawer .drawer-panel { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 #topup-sheet .topup-card { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
 
+
+/* ---------- iPhone ilovasi: butun ekran va soat ostidagi joy ----------
+   O'rnatilgan ilovada iPhone ba'zan sahifani soat ostidan boshlaydi va balandlikni kam hisoblaydi.
+   Sahifa ekranning to'rt chetiga mahkamlanadi, tepada esa soat uchun joy qoldiriladi. */
+html, body { height: calc(100svh + env(safe-area-inset-top)) !important; }
+@media (max-width: 460px) {
+    .container { height: 100% !important; }
+}
+.chat-header { padding-top: max(10px, env(safe-area-inset-top)) !important; }
+#landing-screen { padding-top: calc(36px + env(safe-area-inset-top)) !important; }
+#wallet-modal, #settings-modal, #admin-panel, #wallet-sub { padding-top: calc(22px + env(safe-area-inset-top)) !important; }
+#chats-drawer .drawer-panel { padding-top: calc(16px + env(safe-area-inset-top)); }
+#auth-modal, #password-modal, #reset-modal, #share-view { padding-top: calc(20px + env(safe-area-inset-top)) !important; }
+
 /* =================== YORUG' REJIM =================== */
 body.theme-light { background: #eef1f6 !important; color: #0f172a; --text-primary: #0f172a; --text-secondary: #475569; --border-glass: rgba(15, 23, 42, 0.12); --surface-card: #ffffff; }
 body.theme-light::before, body.theme-light .ambient-orb, body.theme-light #fx-canvas, body.theme-light .fx-star, body.theme-light .fx-cursor { opacity: 0.18 !important; }
