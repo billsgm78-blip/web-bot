@@ -6,6 +6,12 @@
     <title>Bilols AI — Intelligent Neural Assistant</title>
 
     <meta name="google" content="notranslate">
+    <meta name="theme-color" content="#03060d">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Bilols AI">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Bilols AI — Sizning shaxsiy sun'iy intellekt yordamchingiz. Rasm tahlil qilish, tezkor savol-javob va topshiriqlarni oylab yechish platformasi.">
     <meta name="keywords" content="Bilols AI, bilolsai, sun'iy intellekt, AI yordamchi, rasm tahlili, masala yechish, Bilol AI, o'zbekcha AI">
     <meta name="robots" content="index, follow">
@@ -1498,12 +1504,20 @@
             <button type="button" class="doc-remove" id="doc-remove">&times;</button>
         </div>
 
+        <!-- 🎨 RASM YARATISH REJIMI -->
+        <div id="gen-mode" style="display: none;">
+            <span class="doc-ico">🎨</span>
+            <div class="doc-meta"><b id="gen-title">Rasm yaratish rejimi</b><small id="gen-sub"></small></div>
+            <button type="button" class="doc-remove" id="gen-off">&times;</button>
+        </div>
+
         <footer class="input-bar">
             <input type="file" id="gallery-input" accept="image/*" style="display: none;">
             <input type="file" id="doc-input" accept=".pdf,.docx,.txt,.md,.csv,.json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" style="display: none;">
             <div class="attach-menu" id="attach-menu">
                 <button type="button" id="attach-image"><span>🖼️</span><b id="lang-attach-img">Rasm</b></button>
                 <button type="button" id="attach-doc"><span>📄</span><b id="lang-attach-doc">Hujjat (PDF, Word, TXT)</b></button>
+                <button type="button" id="attach-gen"><span>🎨</span><b id="lang-attach-gen">Rasm yaratish</b></button>
             </div>
 
             <div class="media-buttons">
@@ -1548,6 +1562,47 @@
         </div>
     </div>
 
+    <!-- 🛠 ADMIN PANEL -->
+    <div id="admin-panel">
+        <div class="modal-header">
+            <h2>🛠 Admin panel</h2>
+            <button class="modal-close" id="admin-close">&times;</button>
+        </div>
+        <div class="adm-tabs">
+            <button type="button" class="active" data-tab="stats" id="adm-tab-stats">Statistika</button>
+            <button type="button" data-tab="orders" id="adm-tab-orders">Buyurtmalar</button>
+            <button type="button" data-tab="users" id="adm-tab-users">Foydalanuvchilar</button>
+        </div>
+        <div class="adm-body" id="adm-body"></div>
+    </div>
+
+    <!-- 🔗 ULASHILGAN JAVOB -->
+    <div id="share-view">
+        <div class="share-card">
+            <div class="share-head">
+                <div class="auth-logo-mini">⚡</div>
+                <div><b>Bilols AI</b><small id="share-sub">Ulashilgan javob</small></div>
+                <button type="button" class="modal-close" id="share-close">&times;</button>
+            </div>
+            <div class="share-content msg-ai" id="share-content"></div>
+            <button type="button" class="wx-btn share-cta" id="share-cta">Bilols AI'ni sinab ko'rish</button>
+        </div>
+    </div>
+
+    <!-- 💳 HISOBNI TO'LDIRISH -->
+    <div id="topup-sheet">
+        <div class="topup-card">
+            <div class="share-head">
+                <div><b id="topup-title">Hisobni to'ldirish</b><small id="topup-hint">Summani tanlang yoki kiriting</small></div>
+                <button type="button" class="modal-close" id="topup-close">&times;</button>
+            </div>
+            <div class="topup-chips" id="topup-chips"></div>
+            <input type="number" inputmode="numeric" id="topup-amount" class="topup-input" min="1000" step="1000" placeholder="50000">
+            <div class="topup-providers" id="topup-providers"></div>
+            <div class="topup-status" id="topup-status"></div>
+        </div>
+    </div>
+
     <!-- ⚙️ SOZLAMALAR MODALI -->
     <div id="settings-modal">
         <div class="modal-header">
@@ -1570,6 +1625,22 @@
                     <p id="lang-set-anim-sub">Harakatlanuvchi rangli sharlar</p>
                 </div>
                 <div class="toggle-switch active" id="toggle-animation"></div>
+            </div>
+
+            <div class="settings-card clickable" id="admin-entry" style="display:none">
+                <div class="settings-info">
+                    <h4 id="lang-admin-title">🛠 Admin panel</h4>
+                    <p id="lang-admin-sub">Statistika, buyurtmalar, foydalanuvchilar</p>
+                </div>
+                <span class="set-arrow">›</span>
+            </div>
+
+            <div class="settings-card clickable" id="install-entry" style="display:none">
+                <div class="settings-info">
+                    <h4 id="lang-install-title">📲 Ilovani o'rnatish</h4>
+                    <p id="lang-install-sub">Telefoningizga ilova sifatida qo'shing</p>
+                </div>
+                <span class="set-arrow">›</span>
             </div>
 
             <div class="settings-card">
@@ -1726,6 +1797,16 @@
 
         <div class="pack-scroll-area">
             <div class="wallet-extras">
+                <div class="wx-card" id="wx-topup" style="display:none">
+                    <div class="wx-ico">💳</div>
+                    <div class="wx-text"><b id="wx-topup-title">Hisobni to'ldirish</b><small id="wx-topup-sub">Click yoki Payme orqali</small></div>
+                    <button type="button" class="wx-btn" id="wx-topup-btn">To'ldirish</button>
+                </div>
+                <div class="wx-card" id="wx-sub">
+                    <div class="wx-ico">♾️</div>
+                    <div class="wx-text"><b id="wx-sub-title">Cheksiz obuna</b><small id="wx-sub-sub"></small></div>
+                    <button type="button" class="wx-btn" id="wx-sub-btn">Olish</button>
+                </div>
                 <div class="wx-card" id="wx-bonus">
                     <div class="wx-ico">🎁</div>
                     <div class="wx-text"><b id="wx-bonus-title">Kunlik bonus</b><small id="wx-bonus-sub">Har kuni bepul</small></div>
@@ -2899,6 +2980,7 @@
         return `<div class="msg-actions">` +
             `<button type="button" class="msg-act" data-act="copy" title="${tr("Nusxa olish", "Copy", "Копировать")}"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg></button>` +
             `<button type="button" class="msg-act" data-act="speak" title="${tr("Ovoz bilan o'qish", "Read aloud", "Озвучить")}"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>` +
+            `<button type="button" class="msg-act" data-act="share" title="${tr("Ulashish", "Share", "Поделиться")}"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>` +
             `<button type="button" class="msg-act act-regen" data-act="regen" title="${tr("Qayta yozish", "Regenerate", "Переписать")}"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button>` +
             `</div>`;
     }
@@ -2932,9 +3014,15 @@
         return div;
     }
 
-    function appendMsg(text, role, imgSrc = null, fileName = null, hadImage = false) {
+    function appendMsg(text, role, imgSrc = null, fileName = null, hadImage = false, isGen = false) {
         const div = document.createElement("div");
         div.className = `msg-bubble msg-${role}`;
+        if (isGen) {
+            const tag = document.createElement("div");
+            tag.className = "msg-file-chip";
+            tag.textContent = "🎨 " + tr("Rasm yaratish", "Create image", "Создать изображение");
+            div.appendChild(tag);
+        }
         if (imgSrc) {
             const img = document.createElement("img");
             img.className = "msg-img-preview";
@@ -3000,14 +3088,16 @@
     }
     function storableHistory(h) {
         return h.map(item => {
+            if (item.role === "gen") return { role: "gen", prompt: item.prompt, thumb: item.thumb };
             const o = { role: item.role, parts: (item.parts || []).map(p => p.inline_data ? { text: "[Rasm biriktirildi]" } : p) };
             if (item.display) o.display = item.display;
             return o;
         });
     }
     function chatTitle(h) {
-        const first = h.find(x => x.role === "user");
+        const first = h.find(x => x.role === "user" || x.role === "gen");
         if (!first) return tr("Yangi suhbat", "New chat", "Новый чат");
+        if (first.role === "gen") return ("🎨 " + (first.prompt || "")).replace(/\s+/g, " ").slice(0, 48);
         const d = first.display || {};
         const t = (d.text || "").trim() || (d.file ? "📄 " + d.file : "") || (d.image ? "🖼️ " + tr("Rasm", "Image", "Изображение") : "") ||
             ((first.parts || []).find(p => p.text && p.text !== "[Rasm biriktirildi]") || {}).text || tr("Suhbat", "Chat", "Чат");
@@ -3043,6 +3133,11 @@
     function renderSavedMessages() {
         chatHistory.forEach(item => {
             const d = item.display || {};
+            if (item.role === "gen") {
+                appendMsg(item.prompt || "", "user", null, null, false, true);
+                if (window.BilolUI) window.BilolUI.genBubble(item.thumb, item.prompt);
+                return;
+            }
             if (item.role === "user") {
                 let text = d.text;
                 if (text === undefined) {
@@ -3066,7 +3161,7 @@
         if (window.speechSynthesis) speechSynthesis.cancel();
         currentChatId = id;
         localStorage.setItem(CUR_CHAT_KEY, id);
-        chatHistory = (rec.messages || []).map(m => ({ role: m.role, parts: m.parts || [], display: m.display }));
+        chatHistory = (rec.messages || []).map(m => m.role === "gen" ? { role: "gen", prompt: m.prompt, thumb: m.thumb } : ({ role: m.role, parts: m.parts || [], display: m.display }));
         resetMessagesUI();
         if (chatHistory.length && window.BilolUI) window.BilolUI.hideSuggestions();
         renderSavedMessages();
@@ -3128,7 +3223,7 @@
 
     // So'rovga faqat oxirgi 12 ta xabar va eng oxirgi rasm qo'shiladi (hajm kichik bo'lsin)
     function buildRequestHistory() {
-        const recent = chatHistory.slice(-12);
+        const recent = chatHistory.filter(h => h.role === "user" || h.role === "model").slice(-12);
         let lastImg = -1;
         recent.forEach((h, i) => {
             if (h.parts && h.parts.some(p => p.inline_data)) lastImg = i;
@@ -3156,13 +3251,19 @@
             const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ history: buildRequestHistory(), lang: currentLang, stream: true }),
+                body: JSON.stringify({
+                    history: buildRequestHistory(), lang: currentLang, stream: true,
+                    phone: String(currentPhone || "").replace(/[^0-9]/g, ""),
+                    password: localStorage.getItem("bilol_ai_password") || ""
+                }),
                 signal: controller.signal
             });
 
             const ctype = res.headers.get("content-type") || "";
             let reply = "";
             let ok = false;
+            const quotaLeft = res.headers.get("X-Quota-Left");
+            if (quotaLeft !== null && window.BilolUI) window.BilolUI.quotaLeft(Number(quotaLeft));
 
             if (res.ok && ctype.includes("text/plain") && res.body && res.body.getReader) {
                 // Oqim: matn kelishi bilan ko'rsatiladi
@@ -3202,6 +3303,19 @@
                 ok = !!data.text;
                 reply = data.text || data.error || tr("Javob olib bo'lmadi.", "Could not get response.", "Не удалось получить ответ.");
                 hideTyping();
+                if (data.limitReached || data.needLogin) {
+                    // Limit tugadi yoki qayta kirish kerak: savolni tarixdan olib tashlaymiz, keyin qayta yuborish mumkin
+                    if (chatHistory.length && chatHistory[chatHistory.length - 1].role === "user") {
+                        const last = chatHistory.pop();
+                        const d = last.display || {};
+                        if (!chatInput.value && d.text) chatInput.value = d.text;
+                        persistChat();
+                    }
+                    bubble = createAIBubble();
+                    finalizeAI(bubble, reply, false);
+                    if (data.limitReached && window.BilolUI) window.BilolUI.limitCTA(bubble);
+                    return;
+                }
                 bubble = createAIBubble();
                 await typewriter(bubble, cleanReply(reply));
             }
@@ -3237,6 +3351,23 @@
 
     async function sendChat() {
         if (isBusy) return;
+        if (window.BilolUI && window.BilolUI.isImageMode()) {
+            const prompt = chatInput.value.trim();
+            if (!prompt) { chatInput.focus(); return; }
+            chatInput.value = "";
+            isBusy = true;
+            document.body.classList.add("ai-busy");
+            try {
+                if (window.BilolUI) window.BilolUI.hideSuggestions();
+                appendMsg(prompt, "user", null, null, false, true);
+                const entry = await window.BilolUI.generateImage(prompt);
+                if (entry) { chatHistory.push(entry); persistChat(); }
+            } finally {
+                isBusy = false;
+                document.body.classList.remove("ai-busy");
+            }
+            return;
+        }
         const text = chatInput.value.trim();
         const hasImage = !!selectedImageBase64;
         const doc = window.BilolUI ? window.BilolUI.takeDoc(true) : null;
@@ -3307,6 +3438,7 @@
         const act = btn.dataset.act;
         if (act === "copy" && window.BilolUI) window.BilolUI.copyText(bubble._raw || "", btn);
         else if (act === "speak" && window.BilolUI) window.BilolUI.speak(bubble._raw || "", btn);
+        else if (act === "share" && window.BilolUI) window.BilolUI.shareAnswer(bubble._raw || "", btn);
         else if (act === "regen") regenerateLast();
     });
 
@@ -4697,6 +4829,132 @@ body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
 .ref-stat small { font-size: 12px; color: #94a3b8; }
 .ref-share { width: 100%; margin-top: 4px; padding: 13px; }
 
+
+/* ---------- Rasm yaratish ---------- */
+#gen-mode {
+    display: flex; align-items: center; gap: 10px; margin: 0 12px 8px; padding: 9px 10px;
+    border-radius: 14px; background: rgba(139, 92, 246, 0.12); border: 1px solid var(--border-glow);
+    animation: aiSmoothIn 0.2s ease-out both;
+}
+#gen-mode .doc-ico { font-size: 22px; }
+#gen-mode .doc-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+#gen-mode .doc-meta b { font-size: 13px; color: #f1f5f9; }
+#gen-mode .doc-meta small { font-size: 11.5px; color: #c4b5fd; }
+#gen-mode .doc-remove { width: 30px; height: 30px; border-radius: 9px; border: none; cursor: pointer; font-size: 18px; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; }
+.gen-bubble { padding: 8px !important; }
+.gen-img { display: block; width: 100%; max-width: 360px; border-radius: 12px; }
+.gen-bubble .msg-actions { margin: 6px 0 -2px; }
+.gen-wait { display: flex; flex-direction: column; gap: 8px; width: 240px; }
+.gen-wait small { color: #94a3b8; font-size: 12px; }
+.gen-skeleton {
+    width: 100%; aspect-ratio: 1; border-radius: 12px;
+    background: linear-gradient(110deg, rgba(255,255,255,0.04) 30%, rgba(139,92,246,0.18) 50%, rgba(255,255,255,0.04) 70%);
+    background-size: 220% 100%; animation: bfShimmer 1.4s linear infinite;
+}
+@keyframes bfShimmer { to { background-position: -220% 0; } }
+.limit-cta { display: block; margin-top: 10px; width: 100%; padding: 11px; }
+
+/* ---------- Tarix: holat belgisi ---------- */
+.hist-status { align-self: flex-start; margin-top: 4px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; }
+.hist-status.pending { background: rgba(245, 158, 11, 0.14); color: #fbbf24; }
+.hist-status.done { background: rgba(16, 185, 129, 0.14); color: #34d399; }
+.hist-status.cancelled { background: rgba(148, 163, 184, 0.14); color: #94a3b8; }
+
+/* ---------- Ulashilgan javob ---------- */
+#share-view {
+    position: fixed; inset: 0; z-index: 100000; display: none; align-items: center; justify-content: center;
+    padding: 16px; background: rgba(2, 4, 10, 0.88); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+#share-view.open { display: flex; animation: aiSmoothIn 0.25s ease-out both; }
+.share-card, .topup-card {
+    width: 100%; max-width: 520px; max-height: 92vh; display: flex; flex-direction: column; gap: 12px;
+    background: #0d1220; border: 1px solid var(--border-glass); border-radius: 22px; padding: 16px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+}
+.share-head { display: flex; align-items: center; gap: 10px; }
+.share-head > div:not(.auth-logo-mini) { flex: 1; display: flex; flex-direction: column; }
+.share-head b { font-size: 15px; color: #f8fafc; }
+.share-head small { font-size: 12px; color: #94a3b8; }
+.auth-logo-mini { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-grad); font-size: 17px; }
+.share-content { max-width: 100% !important; overflow-y: auto; flex: 1; align-self: stretch !important; }
+.share-cta { padding: 13px; }
+
+/* ---------- Hisobni to'ldirish ---------- */
+#topup-sheet {
+    position: absolute; inset: 0; z-index: 90; display: none; align-items: flex-end; justify-content: center;
+    background: rgba(2, 4, 10, 0.7);
+}
+#topup-sheet.open { display: flex; }
+#topup-sheet .topup-card { border-radius: 22px 22px 0 0; animation: bfSheetUp 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes bfSheetUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.topup-chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.topup-chips button {
+    padding: 10px 4px; border-radius: 12px; border: 1px solid var(--border-glass); background: rgba(255, 255, 255, 0.04);
+    color: #e2e8f0; font-weight: 700; font-size: 13px; cursor: pointer; font-family: 'JetBrains Mono', monospace;
+}
+.topup-input {
+    width: 100%; height: 48px; padding: 0 14px; border-radius: 14px; font-size: 16px;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glass); color: #f8fafc;
+}
+.topup-providers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pay-btn { height: 50px; border-radius: 14px; border: none; color: #fff; font-weight: 800; font-size: 16px; cursor: pointer; }
+.pay-click { background: #0d6efd; }
+.pay-payme { background: #00b9c0; }
+.pay-btn:disabled { opacity: 0.6; }
+.topup-status { min-height: 18px; text-align: center; font-size: 13px; color: #fbbf24; }
+
+/* ---------- Admin panel ---------- */
+#admin-panel {
+    position: absolute; inset: 0; z-index: 85; display: none; flex-direction: column;
+    padding: 22px 18px; background: #070a14;
+}
+#admin-panel.open { display: flex; animation: aiSmoothIn 0.2s ease-out both; }
+#admin-panel h2 { font-size: 19px; }
+.adm-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.adm-tabs button {
+    flex: 1; padding: 9px 4px; border-radius: 11px; border: 1px solid var(--border-glass); background: transparent;
+    color: #94a3b8; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.adm-tabs button.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+.adm-body { flex: 1; overflow-y: auto; }
+.adm-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.adm-kpi { padding: 14px; border-radius: 16px; background: var(--surface-card); border: 1px solid var(--border-glass); }
+.adm-kpi b { display: block; font-size: 20px; color: #f8fafc; font-family: 'JetBrains Mono', monospace; }
+.adm-kpi small { font-size: 11.5px; color: #94a3b8; }
+.adm-h { font-size: 13px; font-weight: 700; color: #cbd5e1; margin: 4px 0 8px; }
+.adm-chart-wrap { padding: 12px; border-radius: 16px; background: var(--surface-card); border: 1px solid var(--border-glass); }
+.adm-chart { width: 100%; height: auto; display: block; }
+.adm-grid { stroke: rgba(255, 255, 255, 0.07); stroke-width: 1; }
+.adm-bar-a { fill: #8b5cf6; background: #8b5cf6; }
+.adm-bar-b { fill: #10b981; background: #10b981; }
+.adm-axis { fill: #64748b; font-size: 9px; text-anchor: middle; font-family: 'JetBrains Mono', monospace; }
+.adm-axis-l { text-anchor: start; }
+.adm-legend { display: flex; gap: 14px; margin-top: 6px; font-size: 12px; color: #94a3b8; }
+.adm-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.adm-order { display: flex; align-items: center; gap: 8px; padding: 11px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.adm-btn {
+    width: 38px; height: 38px; flex-shrink: 0; border-radius: 11px; border: 1px solid var(--border-glass);
+    background: rgba(255, 255, 255, 0.05); color: #e2e8f0; font-size: 16px; cursor: pointer;
+}
+.adm-btn.ok:hover { background: rgba(16, 185, 129, 0.18); }
+.adm-btn.no:hover { background: rgba(244, 63, 94, 0.15); }
+.adm-search { margin-bottom: 6px; }
+.set-arrow { font-size: 22px; color: #64748b; }
+
+/* yorug' rejimda */
+body.theme-light #admin-panel { background: #eef1f6; }
+body.theme-light .adm-kpi, body.theme-light .adm-chart-wrap { background: #fff; border-color: rgba(15, 23, 42, 0.1); }
+body.theme-light .adm-kpi b, body.theme-light #admin-panel h2 { color: #0f172a; }
+body.theme-light .adm-tabs button.active { background: #fff; color: #0f172a; }
+body.theme-light .adm-grid { stroke: rgba(15, 23, 42, 0.08); }
+body.theme-light .adm-order { border-color: rgba(15, 23, 42, 0.07); }
+body.theme-light .adm-btn { background: #fff; color: #0f172a; }
+body.theme-light .share-card, body.theme-light .topup-card { background: #fff; border-color: rgba(15, 23, 42, 0.1); }
+body.theme-light .share-head b { color: #0f172a; }
+body.theme-light .topup-chips button, body.theme-light .topup-input { background: #f1f5f9; color: #0f172a; border-color: rgba(15, 23, 42, 0.12); }
+body.theme-light #gen-mode .doc-meta b { color: #0f172a; }
+body.theme-light #gen-mode .doc-meta small { color: #6d28d9; }
+
 /* =================== YORUG' REJIM =================== */
 body.theme-light { background: #eef1f6 !important; color: #0f172a; --text-primary: #0f172a; --text-secondary: #475569; --border-glass: rgba(15, 23, 42, 0.12); --surface-card: #ffffff; }
 body.theme-light::before, body.theme-light .ambient-orb, body.theme-light #fx-canvas, body.theme-light .fx-star, body.theme-light .fx-cursor { opacity: 0.18 !important; }
@@ -5040,6 +5298,9 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
                 if (!j.success) { rewards = null; btn.disabled = true; btn.textContent = '—'; return; }
                 rewards = j;
                 paintBonus();
+                paintSub();
+                paintTopup();
+                paintAdmin();
             } catch (e) { btn.disabled = true; btn.textContent = '—'; }
         }
         function paintBonus() {
@@ -5079,14 +5340,23 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
                 "Hisob to'ldirildi": T("Hisob to'ldirildi", 'Top-up', 'Пополнение'),
                 'Kunlik bonus': T('Kunlik bonus', 'Daily bonus', 'Ежедневный бонус'),
                 "Do'st taklif qilindi": T("Do'st taklif qilindi", 'Friend invited', 'Приглашён друг'),
-                "Mablag' yechildi": T("Mablag' yechildi", 'Withdrawal', 'Списание')
+                "Mablag' yechildi": T("Mablag' yechildi", 'Withdrawal', 'Списание'),
+                'Rasm yaratish': T('Rasm yaratish', 'Image generation', 'Создание изображения'),
+                "Click orqali to'lov": T("Click orqali to'lov", 'Payment via Click', 'Оплата через Click'),
+                "Payme orqali to'lov": T("Payme orqali to'lov", 'Payment via Payme', 'Оплата через Payme')
             };
+            if (/^Qaytarildi: /.test(it.item || '')) return T('Qaytarildi: ', 'Refund: ', 'Возврат: ') + itemLabel({ item: it.item.replace(/^Qaytarildi: /, ''), kind: 'purchase' });
+            if (/^Obuna/.test(it.item || '')) return T('Cheksiz obuna', 'Unlimited subscription', 'Безлимитная подписка') + (it.item.match(/\(.*\)/) ? ' ' + it.item.match(/\(.*\)/)[0] : '');
             var name = it.item || (it.kind === 'topup' ? "Hisob to'ldirildi" : '');
             name = map[name] || name.replace(/(\d+) oy$/, function (m, n) { return n + ' ' + T('oy', 'mo.', 'мес.'); });
             return name || T('Xarid', 'Purchase', 'Покупка');
         }
         function itemIcon(it) {
             if (it.source === 'bonus') return '🎁';
+            if (it.source === 'sub') return '♾️';
+            if (it.source === 'image') return '🎨';
+            if (it.source === 'refund') return '↩️';
+            if (it.source === 'click' || it.source === 'payme') return '💳';
             if (it.source === 'referral') return '👥';
             if (it.kind === 'topup') return '💳';
             if (/premium/i.test(it.item || '')) return '💎';
@@ -5127,6 +5397,14 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
                 row.querySelector('.hist-ico').textContent = itemIcon(it);
                 row.querySelector('.hist-main b').textContent = itemLabel(it);
                 row.querySelector('.hist-main small').textContent = fmtDate((it.created_at || 0) * 1000);
+                var stMap = { pending: ['⏳ ' + T('Kutilmoqda', 'Pending', 'Ожидает'), 'pending'], done: ['✅ ' + T('Bajarildi', 'Completed', 'Выполнен'), 'done'],
+                    cancelled: ['↩️ ' + T('Bekor qilindi', 'Cancelled', 'Отменён'), 'cancelled'], refunded: ['↩️ ' + T('Qaytarildi', 'Refunded', 'Возвращено'), 'cancelled'] };
+                if (it.status && stMap[it.status]) {
+                    var chip = document.createElement('span');
+                    chip.className = 'hist-status ' + stMap[it.status][1];
+                    chip.textContent = stMap[it.status][0];
+                    row.querySelector('.hist-main').appendChild(chip);
+                }
                 row.querySelector('.hist-amt span').textContent = (inc ? '+' : '−') + money(it.amount);
                 row.querySelector('.hist-amt small').textContent = it.balance_after != null ? '= ' + money(it.balance_after) + ' ' + sum() : '';
                 body.appendChild(row);
@@ -5227,6 +5505,14 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
             set('wx-hist-title', "To'lovlar tarixi", 'Payment history', 'История платежей');
             set('lang-set-light-title', "Yorug' rejim", 'Light mode', 'Светлая тема');
             set('lang-set-light-sub', 'Oq fonli interfeys', 'White background interface', 'Интерфейс на светлом фоне');
+            set('lang-attach-gen', 'Rasm yaratish', 'Create image', 'Создать изображение');
+            set('gen-title', 'Rasm yaratish rejimi', 'Image generation mode', 'Режим создания изображений');
+            set('wx-sub-title', 'Cheksiz obuna', 'Unlimited subscription', 'Безлимитная подписка');
+            set('wx-topup-title', "Hisobni to'ldirish", 'Top up balance', 'Пополнить счёт');
+            set('wx-topup-btn', "To'ldirish", 'Top up', 'Пополнить');
+            set('lang-install-title', "📲 Ilovani o'rnatish", '📲 Install the app', '📲 Установить приложение');
+            set('lang-install-sub', "Telefoningizga ilova sifatida qo'shing", 'Add it to your phone as an app', 'Добавьте на телефон как приложение');
+            if (typeof paintSub === 'function') { paintSub(); paintTopup(); }
             $('open-chats-btn').title = T('Suhbatlar', 'Chats', 'Чаты');
             $('mic-btn').title = T('Ovozli xabar', 'Voice message', 'Голосовое сообщение');
             $('gallery-btn').title = T('Biriktirish', 'Attach', 'Прикрепить');
@@ -5244,8 +5530,455 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
         }
         applyTexts();
 
+        /* ================= OBUNA VA LIMIT ================= */
+        function fmtDay(ts) {
+            var d = new Date(ts * 1000);
+            return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear();
+        }
+        function subActive() { return rewards && rewards.subUntil && rewards.subUntil * 1000 > Date.now(); }
+        function paintSub() {
+            var card = $('wx-sub');
+            if (!rewards) return;
+            if (!rewards.freeLimit) { card.style.display = 'none'; return; }
+            card.style.display = '';
+            var btn = $('wx-sub-btn');
+            if (subActive()) {
+                $('wx-sub-sub').textContent = T('Faol: ', 'Active until ', 'Активна до ') + fmtDay(rewards.subUntil) + T(' gacha', '', '');
+                btn.textContent = T('Uzaytirish', 'Extend', 'Продлить');
+            } else {
+                $('wx-sub-sub').textContent = T('Bugun: ', 'Today: ', 'Сегодня: ') + (rewards.usedToday || 0) + '/' + rewards.freeLimit +
+                    T(' bepul · ', ' free · ', ' бесплатно · ') + money(rewards.subPrice) + ' ' + sum() + T('/oy', '/mo', '/мес');
+                btn.textContent = T('Olish', 'Get', 'Оформить');
+            }
+            btn.disabled = false;
+        }
+        $('wx-sub-btn').onclick = async function () {
+            if (!rewards) return;
+            var msg = T(money(rewards.subPrice) + " so'm evaziga " + rewards.subDays + " kunlik cheksiz obuna olasizmi?",
+                'Buy ' + rewards.subDays + ' days of unlimited chat for ' + money(rewards.subPrice) + ' UZS?',
+                'Оформить безлимит на ' + rewards.subDays + ' дней за ' + money(rewards.subPrice) + ' сум?');
+            if (!confirm(msg)) return;
+            var btn = this;
+            btn.disabled = true;
+            try {
+                var j = await api('/api/subscribe');
+                if (j.success) {
+                    rewards.subUntil = j.subUntil;
+                    paintSub();
+                    if (typeof refreshBalance === 'function') refreshBalance();
+                    notify(T('♾️ Obuna faollashdi!', '♾️ Subscription activated!', '♾️ Подписка активирована!'));
+                } else {
+                    notify(j._status === 403 ? T('Iltimos, qayta kiring.', 'Please log in again.', 'Пожалуйста, войдите снова.') : T("Balans yetarli emas. Avval hisobni to'ldiring.", 'Not enough balance. Top up first.', 'Недостаточно средств. Сначала пополните счёт.'));
+                }
+            } catch (e) { notify(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.')); }
+            btn.disabled = false;
+        };
+        function openWallet() {
+            var w = $('wallet-modal');
+            if (w) w.style.display = 'flex';
+        }
+        function limitCTA(bubble) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'wx-btn limit-cta';
+            b.textContent = T('♾️ Cheksiz obuna olish', '♾️ Get unlimited', '♾️ Оформить безлимит');
+            b.onclick = openWallet;
+            bubble.appendChild(b);
+        }
+        var lastQuotaNote = null;
+        function quotaLeft(n) {
+            if (rewards) { rewards.usedToday = Math.max(0, (rewards.freeLimit || 0) - n); }
+            if ((n === 5 || n === 2 || n === 0) && lastQuotaNote !== n) {
+                lastQuotaNote = n;
+                notify(n === 0 ? T("Bugungi bepul xabarlar tugadi.", "Today's free messages are used up.", 'Бесплатные сообщения на сегодня закончились.')
+                    : T('Bugun yana ' + n + ' ta bepul xabar qoldi.', n + ' free messages left today.', 'Сегодня осталось ' + n + ' бесплатных сообщений.'));
+            }
+        }
+
+        /* ================= RASM YARATISH ================= */
+        var imageMode = false;
+        function setImageMode(on) {
+            imageMode = on;
+            $('gen-mode').style.display = on ? 'flex' : 'none';
+            var price = rewards && rewards.imagePrice ? rewards.imagePrice : null;
+            $('gen-sub').textContent = (price ? money(price) + ' ' + sum() + ' · ' : '') + T('rasm tavsifini yozing', 'describe the image', 'опишите изображение');
+            $('chat-input').placeholder = on ? T("Masalan: tog'lar ortida quyosh botmoqda, akvarel", 'E.g. sunset behind mountains, watercolor', 'Например: закат за горами, акварель') : (translations[lang()] || {}).chatPlaceholder || '';
+            if (on) $('chat-input').focus();
+        }
+        $('attach-gen').onclick = async function () {
+            attachMenu.classList.remove('open');
+            if (!rewards) await loadRewards();
+            setImageMode(true);
+        };
+        $('gen-off').onclick = function () { setImageMode(false); };
+
+        function makeThumb(src) {
+            return new Promise(function (resolve) {
+                var img = new Image();
+                img.onload = function () {
+                    var max = 640, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+                    var c = document.createElement('canvas');
+                    c.width = Math.round(w * k); c.height = Math.round(h * k);
+                    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                    try { resolve(c.toDataURL('image/jpeg', 0.8)); } catch (e) { resolve(null); }
+                };
+                img.onerror = function () { resolve(null); };
+                img.src = src;
+            });
+        }
+        function genBubble(src, prompt, full) {
+            var div = document.createElement('div');
+            div.className = 'msg-bubble msg-ai gen-bubble';
+            var img = document.createElement('img');
+            img.className = 'gen-img';
+            img.alt = prompt || '';
+            img.src = src || '';
+            div.appendChild(img);
+            var bar = document.createElement('div');
+            bar.className = 'msg-actions';
+            var dl = document.createElement('a');
+            dl.className = 'msg-act';
+            dl.title = T('Yuklab olish', 'Download', 'Скачать');
+            dl.href = full || src || '';
+            dl.download = 'bilols-ai.' + ((full || src || '').indexOf('image/png') > 0 ? 'png' : 'jpg');
+            dl.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>';
+            bar.appendChild(dl);
+            div.appendChild(bar);
+            msgBox.appendChild(div);
+            msgBox.scrollTop = msgBox.scrollHeight;
+            return div;
+        }
+        async function generateImage(prompt) {
+            var wait = document.createElement('div');
+            wait.className = 'msg-bubble msg-ai gen-wait';
+            wait.innerHTML = '<div class="gen-skeleton"></div><small></small>';
+            wait.querySelector('small').textContent = T('Rasm chizilmoqda... (10–30 soniya)', 'Drawing the image... (10–30 s)', 'Рисую изображение... (10–30 с)');
+            msgBox.appendChild(wait);
+            msgBox.scrollTop = msgBox.scrollHeight;
+            var c = creds();
+            try {
+                var r = await fetch('/api/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: c.phone, password: c.password, prompt: prompt }) });
+                var j = {};
+                try { j = await r.json(); } catch (e) {}
+                wait.remove();
+                if (!r.ok || !j.image) {
+                    var err = document.createElement('div');
+                    err.className = 'msg-bubble msg-ai';
+                    var t = j.noMoney ? T("Balans yetarli emas. Rasm narxi: ", 'Not enough balance. Image price: ', 'Недостаточно средств. Цена изображения: ') + money(j.price) + ' ' + sum()
+                        : (j.error || T("Rasm yaratib bo'lmadi.", 'Could not create the image.', 'Не удалось создать изображение.'));
+                    err.textContent = '⚠️ ' + t;
+                    msgBox.appendChild(err);
+                    if (j.noMoney) {
+                        limitCTA(err);
+                        err.querySelector('.limit-cta').textContent = T("💳 Hisobni to'ldirish", '💳 Top up', '💳 Пополнить');
+                    }
+                    msgBox.scrollTop = msgBox.scrollHeight;
+                    if (typeof refreshBalance === 'function') refreshBalance();
+                    return null;
+                }
+                var thumb = await makeThumb(j.image);
+                genBubble(j.image, prompt, j.image);
+                if (typeof refreshBalance === 'function') refreshBalance();
+                return { role: 'gen', prompt: prompt, thumb: thumb || '' };
+            } catch (e) {
+                wait.remove();
+                var er = document.createElement('div');
+                er.className = 'msg-bubble msg-ai';
+                er.textContent = '⚠️ ' + T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.');
+                msgBox.appendChild(er);
+                return null;
+            }
+        }
+
+        /* ================= JAVOBNI ULASHISH ================= */
+        async function shareAnswer(text, btn) {
+            if (!text) return;
+            btn && btn.classList.add('speaking');
+            try {
+                var j = await api('/api/share', { text: text });
+                if (!j.success) throw new Error(j.error || 'share');
+                var origin = location.origin && location.origin !== 'null' ? location.origin : 'https://bilolsai.uz';
+                var ref = rewards && rewards.refCode ? '&ref=' + rewards.refCode : '';
+                var link = origin + '/?s=' + j.id + ref;
+                if (navigator.share) {
+                    navigator.share({ title: 'Bilols AI', url: link }).catch(function () {});
+                } else {
+                    copyText(link, btn);
+                    notify(T('Havola nusxalandi', 'Link copied', 'Ссылка скопирована'));
+                }
+            } catch (e) {
+                notify(T("Ulashib bo'lmadi. Qayta kiring yoki keyinroq urinib ko'ring.", 'Could not share. Log in again or try later.', 'Не удалось поделиться. Войдите снова или попробуйте позже.'));
+            } finally {
+                btn && btn.classList.remove('speaking');
+            }
+        }
+        (async function showSharedIfAny() {
+            var sid = null;
+            try { sid = new URLSearchParams(location.search).get('s'); } catch (e) {}
+            if (!sid || !/^[A-Za-z0-9]{4,20}$/.test(sid)) return;
+            var view = $('share-view');
+            try {
+                var r = await fetch(RAILWAY_URL + '/api/share/' + sid);
+                var j = await r.json();
+                if (!j.success) return;
+                var box = $('share-content');
+                box.innerHTML = typeof renderRich === 'function' ? renderRich(j.text) : '';
+                if (typeof renderRich !== 'function') box.textContent = j.text;
+                if (window.hljs) box.querySelectorAll('pre code').forEach(function (c) { try { window.hljs.highlightElement(c); } catch (e) {} });
+                $('share-sub').textContent = T('Ulashilgan javob', 'Shared answer', 'Ответ, которым поделились');
+                $('share-cta').textContent = T("Bilols AI'ni sinab ko'rish", 'Try Bilols AI', 'Попробовать Bilols AI');
+                view.classList.add('open');
+            } catch (e) {}
+            function closeView() {
+                view.classList.remove('open');
+                try { history.replaceState(null, '', location.pathname + (localStorage.getItem('bilol_ai_ref') ? '' : '')); } catch (e) {}
+            }
+            $('share-close').onclick = closeView;
+            $('share-cta').onclick = closeView;
+        })();
+
+        /* ================= HISOBNI TO'LDIRISH (Click / Payme) ================= */
+        function paintTopup() {
+            var card = $('wx-topup');
+            var on = rewards && rewards.payProviders && rewards.payProviders.length;
+            card.style.display = on ? '' : 'none';
+            if (on) $('wx-topup-sub').textContent = rewards.payProviders.map(function (p) { return p === 'click' ? 'Click' : 'Payme'; }).join(T(' yoki ', ' or ', ' или ')) + T(' orqali', '', '');
+        }
+        var sheet = $('topup-sheet');
+        $('wx-topup-btn').onclick = function () {
+            var chips = $('topup-chips');
+            chips.innerHTML = '';
+            [10000, 25000, 50000, 100000].forEach(function (v) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = money(v);
+                b.onclick = function () { $('topup-amount').value = v; };
+                chips.appendChild(b);
+            });
+            var prov = $('topup-providers');
+            prov.innerHTML = '';
+            (rewards.payProviders || []).forEach(function (p) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'pay-btn pay-' + p;
+                b.textContent = p === 'click' ? 'Click' : 'Payme';
+                b.onclick = function () { startPay(p, b); };
+                prov.appendChild(b);
+            });
+            $('topup-title').textContent = T("Hisobni to'ldirish", 'Top up balance', 'Пополнить счёт');
+            $('topup-hint').textContent = T('Summani tanlang yoki kiriting (so\'m)', 'Choose or enter an amount (UZS)', 'Выберите или введите сумму (сум)');
+            $('topup-status').textContent = '';
+            sheet.classList.add('open');
+        };
+        $('topup-close').onclick = function () { sheet.classList.remove('open'); };
+        async function startPay(provider, btn) {
+            var amount = parseInt($('topup-amount').value, 10);
+            if (!amount || amount < 1000) { $('topup-status').textContent = T("Kamida 1 000 so'm kiriting.", 'Enter at least 1,000 UZS.', 'Введите не менее 1 000 сум.'); return; }
+            btn.disabled = true;
+            $('topup-status').textContent = '⏳';
+            try {
+                var j = await api('/api/pay/create', { provider: provider, amount: amount });
+                if (j.success && j.url) { location.href = j.url; return; }
+                $('topup-status').textContent = j.error || 'Error';
+            } catch (e) { $('topup-status').textContent = T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.'); }
+            btn.disabled = false;
+        }
+        try {
+            if (new URLSearchParams(location.search).get('paid')) {
+                setTimeout(function () {
+                    notify(T("To'lov tekshirilmoqda — pul tushishi bilan balans yangilanadi.", 'Checking payment — your balance updates as soon as it arrives.', 'Проверяем платёж — баланс обновится, как только деньги поступят.'));
+                    history.replaceState(null, '', location.pathname);
+                }, 1200);
+            }
+        } catch (e) {}
+
+        /* ================= ILOVANI O'RNATISH (PWA) ================= */
+        var installEvt = null;
+        var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+        if ('serviceWorker' in navigator && location.protocol === 'https:') {
+            window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });
+        }
+        window.addEventListener('beforeinstallprompt', function (e) {
+            e.preventDefault();
+            installEvt = e;
+            $('install-entry').style.display = '';
+        });
+        if (isIOS && !standalone) $('install-entry').style.display = '';
+        $('install-entry').onclick = async function () {
+            if (installEvt) {
+                installEvt.prompt();
+                try { await installEvt.userChoice; } catch (e) {}
+                installEvt = null;
+                $('install-entry').style.display = 'none';
+            } else if (isIOS) {
+                alert(T("iPhone'da: pastdagi «Ulashish» tugmasini bosing va «Bosh ekranga qo'shish»ni tanlang.",
+                    'On iPhone: tap the Share button below and choose “Add to Home Screen”.',
+                    'На iPhone: нажмите «Поделиться» внизу и выберите «На экран Домой».'));
+            }
+        };
+        window.addEventListener('appinstalled', function () { $('install-entry').style.display = 'none'; });
+
+        /* ================= ADMIN PANEL ================= */
+        var adm = $('admin-panel'), admTab = 'stats';
+        function paintAdmin() { $('admin-entry').style.display = rewards && rewards.isAdmin ? '' : 'none'; }
+        $('admin-entry').onclick = function () {
+            var sm = $('settings-modal');
+            if (sm) sm.style.display = 'none';
+            adm.classList.add('open');
+            showAdm('stats');
+        };
+        $('admin-close').onclick = function () { adm.classList.remove('open'); };
+        adm.querySelectorAll('.adm-tabs button').forEach(function (b) { b.onclick = function () { showAdm(b.dataset.tab); }; });
+        function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+        async function showAdm(tab) {
+            admTab = tab;
+            adm.querySelectorAll('.adm-tabs button').forEach(function (b) { b.classList.toggle('active', b.dataset.tab === tab); });
+            var body = $('adm-body');
+            body.innerHTML = '<div class="wsub-loading">⏳</div>';
+            try {
+                if (tab === 'stats') return paintStats(body, await api('/api/admin/stats'));
+                if (tab === 'orders') return paintOrders(body, await api('/api/admin/orders'));
+                if (tab === 'users') return paintUsers(body, '');
+            } catch (e) { body.innerHTML = '<div class="wsub-empty">Server xatosi</div>'; }
+        }
+        function paintStats(body, j) {
+            body.innerHTML = '';
+            if (!j.success) { body.appendChild(el('div', 'wsub-empty', 'Ruxsat yo\'q')); return; }
+            var grid = el('div', 'adm-kpis');
+            var sales = j.days.reduce(function (a, d) { return a + d.sales; }, 0);
+            [['Foydalanuvchilar', j.users], ['Obunachilar', j.activeSubs], ['Bugungi xabarlar', j.messagesToday],
+             ["14 kunlik savdo, so'm", money(sales)], ["Jami balanslar, so'm", money(j.totalBalance)],
+             ['14 kunlik buyurtmalar', j.days.reduce(function (a, d) { return a + d.orders; }, 0)]].forEach(function (k) {
+                var c = el('div', 'adm-kpi');
+                c.appendChild(el('b', null, String(k[1])));
+                c.appendChild(el('small', null, k[0]));
+                grid.appendChild(c);
+            });
+            body.appendChild(grid);
+            body.appendChild(el('div', 'adm-h', "Kunlik savdo va to'ldirishlar (so'm)"));
+            body.appendChild(barChart(j.days));
+        }
+        function barChart(days) {
+            var W = 340, H = 170, pad = 22, n = days.length;
+            var max = Math.max(1, Math.max.apply(null, days.map(function (d) { return Math.max(d.sales, d.topups); })));
+            var bw = (W - pad) / n;
+            var ns = 'http://www.w3.org/2000/svg';
+            var svg = document.createElementNS(ns, 'svg');
+            svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (H + 22));
+            svg.setAttribute('class', 'adm-chart');
+            [0.5, 1].forEach(function (f) {
+                var y = H - (H - 10) * f;
+                var ln = document.createElementNS(ns, 'line');
+                ln.setAttribute('x1', pad); ln.setAttribute('x2', W); ln.setAttribute('y1', y); ln.setAttribute('y2', y);
+                ln.setAttribute('class', 'adm-grid');
+                svg.appendChild(ln);
+            });
+            days.forEach(function (d, i) {
+                var x = pad + i * bw;
+                [['sales', 'adm-bar-a', 0], ['topups', 'adm-bar-b', 1]].forEach(function (s) {
+                    var v = d[s[0]], h = v ? Math.max(2, (H - 10) * v / max) : 0;
+                    var r = document.createElementNS(ns, 'rect');
+                    r.setAttribute('x', x + 2 + s[2] * (bw - 4) / 2);
+                    r.setAttribute('y', H - h);
+                    r.setAttribute('width', Math.max(1, (bw - 4) / 2 - 1));
+                    r.setAttribute('height', h);
+                    r.setAttribute('rx', 2);
+                    r.setAttribute('class', s[1]);
+                    var t = document.createElementNS(ns, 'title');
+                    t.textContent = d.day + ': ' + (s[0] === 'sales' ? 'savdo ' : "to'ldirish ") + money(v);
+                    r.appendChild(t);
+                    svg.appendChild(r);
+                });
+                if ((n - 1 - i) % 2 === 0) {
+                    var tx = document.createElementNS(ns, 'text');
+                    tx.setAttribute('x', x + bw / 2); tx.setAttribute('y', H + 15);
+                    tx.setAttribute('class', 'adm-axis');
+                    tx.textContent = d.day.slice(8) + '.' + d.day.slice(5, 7);
+                    svg.appendChild(tx);
+                }
+            });
+            var top = document.createElementNS(ns, 'text');
+            top.setAttribute('x', 0); top.setAttribute('y', 14); top.setAttribute('class', 'adm-axis adm-axis-l');
+            top.textContent = max >= 1000 ? Math.round(max / 1000) + 'k' : String(max);
+            svg.appendChild(top);
+            var wrap = el('div', 'adm-chart-wrap');
+            wrap.appendChild(svg);
+            var lg = el('div', 'adm-legend');
+            lg.innerHTML = '<span><i class="adm-bar-a"></i>Savdo</span><span><i class="adm-bar-b"></i>To\'ldirishlar</span>';
+            wrap.appendChild(lg);
+            return wrap;
+        }
+        function paintOrders(body, j) {
+            body.innerHTML = '';
+            if (!j.success) { body.appendChild(el('div', 'wsub-empty', 'Ruxsat yo\'q')); return; }
+            if (!j.orders.length) { body.appendChild(el('div', 'wsub-empty', "Kutilayotgan buyurtma yo'q ✅")); return; }
+            j.orders.forEach(function (o) {
+                var row = el('div', 'adm-order');
+                var info = el('div', 'hist-main');
+                info.appendChild(el('b', null, '#' + o.id + ' · ' + (o.item || '')));
+                info.appendChild(el('small', null, '+' + o.phone_norm + ' · ' + money(o.amount) + " so'm · " + fmtDate(o.created_at * 1000)));
+                row.appendChild(info);
+                var ok = el('button', 'adm-btn ok', '✅');
+                var no = el('button', 'adm-btn no', '↩️');
+                ok.title = 'Bajarildi'; no.title = 'Bekor qilish (pul qaytadi)';
+                ok.onclick = function () { setOrder(o.id, 'done', row); };
+                no.onclick = function () { if (confirm('Bekor qilinsinmi? Pul mijozga qaytadi.')) setOrder(o.id, 'cancel', row); };
+                row.appendChild(ok); row.appendChild(no);
+                body.appendChild(row);
+            });
+        }
+        async function setOrder(id, status, row) {
+            row.style.opacity = '0.5';
+            var j = await api('/api/admin/order', { id: id, status: status });
+            if (j.success) row.remove(); else { row.style.opacity = ''; notify(j.error || 'Xato'); }
+            if (!$('adm-body').querySelector('.adm-order')) showAdm('orders');
+        }
+        function paintUsers(body, q) {
+            body.innerHTML = '';
+            var inp = el('input', 'topup-input adm-search');
+            inp.placeholder = 'Telefon yoki ism...';
+            inp.value = q;
+            var list = el('div');
+            var timer = null;
+            inp.oninput = function () { clearTimeout(timer); timer = setTimeout(function () { load(inp.value); }, 300); };
+            body.appendChild(inp);
+            body.appendChild(list);
+            async function load(query) {
+                var j = await api('/api/admin/users', { q: query });
+                list.innerHTML = '';
+                (j.users || []).forEach(function (u) {
+                    var row = el('div', 'adm-order');
+                    var info = el('div', 'hist-main');
+                    info.appendChild(el('b', null, (u.name || 'Noma\'lum') + (u.sub_until * 1000 > Date.now() ? ' ♾️' : '')));
+                    info.appendChild(el('small', null, '+' + u.phone));
+                    row.appendChild(info);
+                    var bal = el('div', 'hist-amt in', money(u.balance));
+                    row.appendChild(bal);
+                    var edit = el('button', 'adm-btn', '±');
+                    edit.title = "Balansni o'zgartirish";
+                    edit.onclick = async function () {
+                        var v = prompt("Summa (so'm). Qo'shish: 5000, ayirish: -5000", '');
+                        var n = parseInt(v, 10);
+                        if (!n) return;
+                        var r = await api('/api/admin/topup', { target: u.phone, amount: n });
+                        if (r.success) bal.textContent = money(r.balance); else notify(r.error || 'Xato');
+                    };
+                    row.appendChild(edit);
+                    list.appendChild(row);
+                });
+                if (!(j.users || []).length) list.appendChild(el('div', 'wsub-empty', 'Topilmadi'));
+            }
+            load(q);
+        }
+
+        // Kirgan foydalanuvchi uchun bonus/obuna/admin ma'lumotlarini oldindan yuklaymiz
+        setTimeout(function () { if (creds().phone && creds().password) loadRewards(); }, 1500);
+
         window.BilolUI = {
             copyText: copyText, speak: speak, takeDoc: takeDoc,
+            isImageMode: function () { return imageMode; }, generateImage: generateImage, genBubble: genBubble,
+            limitCTA: limitCTA, quotaLeft: quotaLeft, shareAnswer: shareAnswer,
             showSuggestions: showSuggestions, hideSuggestions: hideSuggestions,
             chatsChanged: function () { if (drawer.classList.contains('open')) renderChatList(); }
         };

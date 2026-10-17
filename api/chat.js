@@ -1,5 +1,41 @@
 export const maxDuration = 60;
 
+// Botning serveri (balans, obuna va kunlik limit shu yerda hisoblanadi)
+const RAILWAY_URL = (process.env.RAILWAY_URL || "https://ai2-production-7d7e.up.railway.app").replace(/\/$/, "");
+
+const QUOTA_MSG = {
+  uz: (n) => `Bugungi ${n} ta bepul xabar tugadi. Cheksiz yozish uchun obuna oling yoki ertaga qayting.`,
+  ru: (n) => `Бесплатные ${n} сообщений на сегодня закончились. Оформите подписку для безлимита или возвращайтесь завтра.`,
+  en: (n) => `You've used today's ${n} free messages. Get a subscription for unlimited chat or come back tomorrow.`
+};
+const LOGIN_MSG = {
+  uz: "Iltimos, hisobdan chiqib qayta kiring.",
+  ru: "Пожалуйста, выйдите из аккаунта и войдите снова.",
+  en: "Please log out and log in again."
+};
+
+// Har bir xabardan oldin limitni tekshiradi. Bot serveri javob bermasa, chat to'xtab qolmasligi uchun ruxsat beriladi.
+async function checkQuota(phone, password) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    const r = await fetch(`${RAILWAY_URL}/api/chat-quota`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, password }),
+      signal: ctrl.signal
+    });
+    if (r.status === 403) return { allowed: false, needLogin: true };
+    const j = await r.json().catch(() => ({}));
+    if (!j.success) return { allowed: true };
+    return j;
+  } catch (e) {
+    return { allowed: true, offline: true };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -17,7 +53,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "API kaliti sozlanmagan." });
   }
 
-  const { history, lang, stream } = req.body || {};
+  const { history, lang, stream, phone, password } = req.body || {};
   const wantStream = stream === true;
   if (!Array.isArray(history)) {
     return res.status(400).json({ error: "Noto'g'ri format." });
@@ -26,6 +62,20 @@ export default async function handler(req, res) {
   // Saytning interfeys tili (faqat shu uchta qiymat qabul qilinadi)
   const LANG_NAMES = { uz: "Uzbek", ru: "Russian", en: "English" };
   const uiLang = LANG_NAMES[lang] ? lang : "uz";
+
+  if (!phone || !password) {
+    return res.status(401).json({ error: LOGIN_MSG[uiLang], needLogin: true });
+  }
+  const quota = await checkQuota(String(phone), String(password));
+  if (quota.needLogin) {
+    return res.status(401).json({ error: LOGIN_MSG[uiLang], needLogin: true });
+  }
+  if (!quota.allowed) {
+    return res.status(429).json({ error: QUOTA_MSG[uiLang](quota.limit || ""), limitReached: true, limit: quota.limit, subPrice: quota.subPrice });
+  }
+  if (!quota.unlimited && typeof quota.left === "number") {
+    res.setHeader("X-Quota-Left", String(quota.left));
+  }
 
   // O'zbek, Rus va Ingliz tillarini avtomatik aniqlab javob beruvchi tizim ko'rsatmasi
   const messages = [
