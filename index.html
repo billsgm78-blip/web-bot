@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Bilols AI">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="description" content="Bilols AI — Sizning shaxsiy sun'iy intellekt yordamchingiz. Rasm tahlil qilish, tezkor savol-javob va topshiriqlarni oylab yechish platformasi.">
     <meta name="keywords" content="Bilols AI, bilolsai, sun'iy intellekt, AI yordamchi, rasm tahlili, masala yechish, Bilol AI, o'zbekcha AI">
     <meta name="robots" content="index, follow">
@@ -2233,6 +2233,13 @@ body.theme-light .adm-act { background: #fff; color: #0f172a; border-color: rgba
 body.theme-light #reset-modal .reset-card { background: #fff; border-color: rgba(15, 23, 42, 0.1); }
 body.theme-light .reset-title { color: #0f172a; }
 body.theme-light #reset-modal .styled-input { background: #f1f5f9; color: #0f172a; border-color: rgba(15, 23, 42, 0.12); }
+
+
+/* ---------- iPhone: pastdagi chiziq (home indicator) ostida qolmasin ---------- */
+.input-bar { padding-bottom: max(10px, env(safe-area-inset-bottom)) !important; }
+#wallet-modal, #settings-modal, #admin-panel, #wallet-sub { padding-bottom: max(22px, env(safe-area-inset-bottom)) !important; }
+#chats-drawer .drawer-panel { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+#topup-sheet .topup-card { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
 
 /* =================== YORUG' REJIM =================== */
 body.theme-light { background: #eef1f6 !important; color: #0f172a; --text-primary: #0f172a; --text-secondary: #475569; --border-glass: rgba(15, 23, 42, 0.12); --surface-card: #ffffff; }
