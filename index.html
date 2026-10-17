@@ -2200,6 +2200,40 @@ body.theme-light #gen-mode .doc-meta small { color: #6d28d9; }
 body.theme-light .adm-user-head b { color: #0f172a; }
 body.theme-light .adm-act { background: #fff; color: #0f172a; border-color: rgba(15, 23, 42, 0.12); }
 
+
+/* ---------- Parolni tiklash ---------- */
+.auth-forgot {
+    display: block; margin: 12px auto 0; border: none; background: transparent; cursor: pointer;
+    color: #a5b4fc; font-size: 13.5px; font-weight: 600; font-family: inherit; padding: 4px 8px;
+}
+.auth-forgot:hover { text-decoration: underline; }
+#reset-modal {
+    position: fixed; inset: 0; z-index: 100001; display: none; align-items: center; justify-content: center;
+    padding: 20px; background: rgba(2, 4, 10, 0.86); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    overflow-y: auto;
+}
+#reset-modal.open { display: flex; animation: authFade 0.25s ease-out both; }
+#reset-modal .reset-card {
+    margin: auto; max-width: 400px; padding: 24px 20px 20px; text-align: left;
+    background: rgba(13, 18, 32, 0.97); border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 24px;
+    box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.85); animation: authCardIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+#reset-modal .reset-card::before { display: none; }
+#reset-modal .auth-close { top: 16px !important; right: 16px !important; width: 34px; height: 34px; border-radius: 11px; }
+.reset-ico { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; font-size: 22px; background: var(--accent-grad); margin-bottom: 14px; }
+.reset-title { font-size: 21px; font-weight: 800; color: #f8fafc; margin-bottom: 6px; }
+.reset-sub { font-size: 13.5px; color: #94a3b8; line-height: 1.5; margin-bottom: 16px; }
+#reset-modal .styled-input { height: 50px; margin-bottom: 10px; border-radius: 14px; background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.09); animation: none !important; }
+#reset-modal .styled-input:focus { border-color: var(--violet-accent); box-shadow: 0 0 0 3px var(--border-glow); }
+#reset-modal .primary-btn { height: 50px; border-radius: 14px; margin-top: 4px; animation: none; }
+#reset-modal .primary-btn:disabled { opacity: 0.7; cursor: progress; }
+.reset-status { margin-top: 12px; font-size: 13.5px; line-height: 1.5; text-align: center; min-height: 18px; }
+.reset-status.ok { color: #34d399; }
+.reset-status.err { color: #f87171; }
+body.theme-light #reset-modal .reset-card { background: #fff; border-color: rgba(15, 23, 42, 0.1); }
+body.theme-light .reset-title { color: #0f172a; }
+body.theme-light #reset-modal .styled-input { background: #f1f5f9; color: #0f172a; border-color: rgba(15, 23, 42, 0.12); }
+
 /* =================== YORUG' REJIM =================== */
 body.theme-light { background: #eef1f6 !important; color: #0f172a; --text-primary: #0f172a; --text-secondary: #475569; --border-glass: rgba(15, 23, 42, 0.12); --surface-card: #ffffff; }
 body.theme-light::before, body.theme-light .ambient-orb, body.theme-light #fx-canvas, body.theme-light .fx-star, body.theme-light .fx-cursor { opacity: 0.18 !important; }
@@ -2429,6 +2463,7 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
 
             <div data-st style="--i:5">
                 <button id="auth-action-btn" class="primary-btn">Tizimga kirish</button>
+                <button type="button" class="auth-forgot" id="auth-forgot">Parolni unutdingizmi?</button>
             </div>
             <div id="status-box" style="margin-top: 12px; font-size: 13px;"></div>
         </div>
@@ -2447,6 +2482,29 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
 
             <button id="save-new-pass-btn" class="primary-btn">Saqlash</button>
             <div id="pass-status-box" style="margin-top: 12px; font-size: 13px;"></div>
+        </div>
+    </div>
+
+    <!-- 🔐 PAROLNI TIKLASH (Telegram orqali) -->
+    <div id="reset-modal">
+        <div class="auth-card reset-card">
+            <button class="auth-close" id="reset-close">&times;</button>
+            <div class="reset-ico">🔐</div>
+            <h2 class="reset-title" id="reset-title">Parolni tiklash</h2>
+            <p class="reset-sub" id="reset-sub"></p>
+
+            <div id="reset-step-request">
+                <input type="tel" id="reset-phone" class="styled-input" placeholder="Telefon raqamingiz (+998 bilan)">
+                <button type="button" id="reset-send" class="primary-btn">Botga yuborish</button>
+            </div>
+
+            <div id="reset-step-set" style="display:none">
+                <input type="password" id="reset-pw1" class="styled-input" placeholder="Yangi parol (kamida 4 ta belgi)" autocomplete="new-password">
+                <input type="password" id="reset-pw2" class="styled-input" placeholder="Yangi parolni takrorlang" autocomplete="new-password">
+                <button type="button" id="reset-save" class="primary-btn">Saqlash</button>
+            </div>
+
+            <div class="reset-status" id="reset-status"></div>
         </div>
     </div>
 
@@ -2670,6 +2728,14 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
                     <p id="settings-profile-info">Yuklanmoqda...</p>
                 </div>
                 <span class="animated-emoji" style="font-size: 20px;">👤</span>
+            </div>
+
+            <div class="settings-card clickable" id="reset-entry">
+                <div class="settings-info">
+                    <h4 id="lang-reset-title">🔐 Parolni tiklash</h4>
+                    <p id="lang-reset-sub">Telegram bot orqali yangi parol o'rnatish</p>
+                </div>
+                <span class="set-arrow">›</span>
             </div>
 
             <!-- ✨ YANGI SOZLAMALAR -->
@@ -5529,6 +5595,9 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
             set('lang-set-light-title', "Yorug' rejim", 'Light mode', 'Светлая тема');
             set('lang-set-light-sub', 'Oq fonli interfeys', 'White background interface', 'Интерфейс на светлом фоне');
             set('lang-attach-gen', 'Rasm yaratish', 'Create image', 'Создать изображение');
+            set('auth-forgot', 'Parolni unutdingizmi?', 'Forgot your password?', 'Забыли пароль?');
+            set('lang-reset-title', '🔐 Parolni tiklash', '🔐 Reset password', '🔐 Восстановить пароль');
+            set('lang-reset-sub', "Telegram bot orqali yangi parol o'rnatish", 'Set a new password via the Telegram bot', 'Новый пароль через Telegram-бота');
             set('gen-title', 'Rasm yaratish rejimi', 'Image generation mode', 'Режим создания изображений');
             set('wx-sub-title', 'Cheksiz obuna', 'Unlimited subscription', 'Безлимитная подписка');
             set('wx-topup-title', "Hisobni to'ldirish", 'Top up balance', 'Пополнить счёт');
@@ -6137,6 +6206,145 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
             body.appendChild(send);
             body.appendChild(el('div', 'adm-note', "Bitta odamga yozish uchun: Foydalanuvchilar → odamni tanlang → ✉️ Xabar yozish."));
         }
+
+
+        /* ================= PAROLNI TIKLASH (Telegram bot orqali) ================= */
+        var resetModal = $('reset-modal'), resetToken = null;
+        function resetStatus(msg, kind) {
+            var st = $('reset-status');
+            st.className = 'reset-status' + (kind ? ' ' + kind : '');
+            st.innerHTML = '';
+            if (msg) st.textContent = msg;
+            return st;
+        }
+        function openReset(step) {
+            var isSet = step === 'set';
+            $('reset-step-request').style.display = isSet ? 'none' : '';
+            $('reset-step-set').style.display = isSet ? '' : 'none';
+            $('reset-title').textContent = isSet ? T('Yangi parol', 'New password', 'Новый пароль') : T('Parolni tiklash', 'Reset password', 'Восстановить пароль');
+            $('reset-sub').textContent = isSet
+                ? T("Yangi parolingizni kiriting va saqlang.", 'Enter and save your new password.', 'Введите и сохраните новый пароль.')
+                : T("Raqamingizni kiriting — Telegram botga «Parolni almashtirishni tasdiqlaysizmi?» degan xabar keladi. Undagi tugmani bosing.",
+                    "Enter your number — the Telegram bot will send a “Confirm password change?” message. Tap its button.",
+                    "Введите номер — Telegram-бот пришлёт сообщение «Подтверждаете смену пароля?». Нажмите кнопку в нём.");
+            $('reset-send').textContent = T('Botga yuborish', 'Send to bot', 'Отправить в бота');
+            $('reset-save').textContent = T('Saqlash', 'Save', 'Сохранить');
+            $('reset-phone').placeholder = T('Telefon raqamingiz (+998 bilan)', 'Your phone number (with +998)', 'Ваш номер телефона (с +998)');
+            $('reset-pw1').placeholder = T('Yangi parol (kamida 4 ta belgi)', 'New password (at least 4 characters)', 'Новый пароль (не менее 4 символов)');
+            $('reset-pw2').placeholder = T('Yangi parolni takrorlang', 'Repeat the new password', 'Повторите новый пароль');
+            if (!isSet && !$('reset-phone').value) {
+                var known = creds().phone || ($('phone-input') && $('phone-input').value) || '';
+                if (known) $('reset-phone').value = known;
+            }
+            resetStatus('');
+            resetModal.classList.add('open');
+            setTimeout(function () { (isSet ? $('reset-pw1') : $('reset-phone')).focus(); }, 250);
+        }
+        function closeReset() {
+            resetModal.classList.remove('open');
+            if (resetToken) {
+                resetToken = null;
+                try { history.replaceState(null, '', location.pathname); } catch (e) {}
+            }
+        }
+        $('reset-close').onclick = closeReset;
+        $('auth-forgot').onclick = function () { openReset('request'); };
+        $('reset-entry').onclick = function () {
+            var sm = $('settings-modal');
+            if (sm) sm.style.display = 'none';
+            openReset('request');
+        };
+        $('reset-send').onclick = async function () {
+            var btn = this;
+            var phone = $('reset-phone').value.replace(/[^0-9]/g, '');
+            if (phone.length < 9) { resetStatus(T("Telefon raqamni to'liq kiriting.", 'Enter the full phone number.', 'Введите номер полностью.'), 'err'); return; }
+            btn.disabled = true;
+            resetStatus('⏳');
+            try {
+                var r = await fetch(RAILWAY_URL + '/api/reset/request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: phone }) });
+                var j = {};
+                try { j = await r.json(); } catch (e) {}
+                if (j.success) {
+                    resetStatus(T("✅ Telegram botga xabar yuborildi. Undagi «🔑 Yangi parol o'rnatish» tugmasini bosing.",
+                        "✅ Message sent to the Telegram bot. Tap “🔑 Set a new password” in it.",
+                        "✅ Сообщение отправлено в Telegram-бота. Нажмите в нём «🔑 Задать новый пароль»."), 'ok');
+                } else if (j.needBot) {
+                    var st = resetStatus(T("Avval Telegram botimizga kiring va raqamingizni yuboring.", 'First open our Telegram bot and share your number.', 'Сначала откройте нашего Telegram-бота и отправьте свой номер.'), 'err');
+                    if (typeof j.botUrl === 'string' && /^https:\/\/t\.me\//.test(j.botUrl)) {
+                        var a = document.createElement('a');
+                        a.href = j.botUrl; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                        a.className = 'bot-redirect-btn';
+                        a.textContent = T("🤖 Botga o'tish", '🤖 Open the bot', '🤖 Открыть бота');
+                        st.appendChild(a);
+                    }
+                } else {
+                    resetStatus(j.error || T('Xatolik yuz berdi.', 'Something went wrong.', 'Произошла ошибка.'), 'err');
+                }
+            } catch (e) {
+                resetStatus(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.'), 'err');
+            }
+            btn.disabled = false;
+        };
+        $('reset-save').onclick = async function () {
+            var btn = this;
+            var p1 = $('reset-pw1').value.trim(), p2 = $('reset-pw2').value.trim();
+            if (p1.length < 4) { resetStatus(T("Parol kamida 4 ta belgidan iborat bo'lsin.", 'Password must be at least 4 characters.', 'Пароль должен быть не короче 4 символов.'), 'err'); return; }
+            if (p1 !== p2) { resetStatus(T('Parollar bir xil emas.', "Passwords don't match.", 'Пароли не совпадают.'), 'err'); return; }
+            btn.disabled = true;
+            resetStatus('⏳');
+            try {
+                var r = await fetch(RAILWAY_URL + '/api/reset/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: resetToken, password: p1 }) });
+                var j = {};
+                try { j = await r.json(); } catch (e) {}
+                if (!j.success) {
+                    resetStatus(j.error || T('Xatolik yuz berdi.', 'Something went wrong.', 'Произошла ошибка.'), 'err');
+                    btn.disabled = false;
+                    return;
+                }
+                $('reset-pw1').value = ''; $('reset-pw2').value = '';
+                var loggedPhone = creds().phone;
+                var same = loggedPhone && j.phone && loggedPhone.slice(-9) === j.phone.slice(-9);
+                if (same) {
+                    // shu qurilmada kirib turgan bo'lsa — saqlangan parol ham yangilanadi
+                    try { localStorage.setItem('bilol_ai_password', p1); } catch (e) {}
+                }
+                resetStatus(T("✅ Parol o'zgartirildi!", '✅ Password changed!', '✅ Пароль изменён!'), 'ok');
+                setTimeout(function () {
+                    closeReset();
+                    if (!same) {
+                        // kirish oynasini yangi parol bilan ochamiz
+                        if (typeof switchTab === 'function') switchTab('login');
+                        if ($('phone-input') && j.phone) $('phone-input').value = j.phone;
+                        if ($('pass-input')) $('pass-input').value = p1;
+                        if (typeof openAuthModal === 'function') openAuthModal();
+                    } else {
+                        notify(T("Parolingiz yangilandi ✅", 'Your password was updated ✅', 'Пароль обновлён ✅'));
+                    }
+                }, 1200);
+            } catch (e) {
+                resetStatus(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.'), 'err');
+            }
+            btn.disabled = false;
+        };
+        // Botdagi tugma saytni ?reset=TOKEN bilan ochadi
+        (async function openResetFromLink() {
+            var tok = null;
+            try { tok = new URLSearchParams(location.search).get('reset'); } catch (e) {}
+            if (!tok || !/^[A-Za-z0-9_-]{16,64}$/.test(tok)) return;
+            resetToken = tok;
+            openReset('set');
+            try {
+                var r = await fetch(RAILWAY_URL + '/api/reset/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: tok }) });
+                var j = await r.json();
+                if (j.success) {
+                    $('reset-sub').textContent = T('Raqam: ', 'Number: ', 'Номер: ') + j.phoneHint + ' · ' + T('yangi parolni kiriting.', 'enter a new password.', 'введите новый пароль.');
+                } else {
+                    resetToken = null;
+                    openReset('request');
+                    resetStatus(j.error || 'Error', 'err');
+                }
+            } catch (e) {}
+        })();
 
         // Kirgan foydalanuvchi uchun bonus/obuna/admin ma'lumotlarini oldindan yuklaymiz
         setTimeout(function () { if (creds().phone && creds().password) loadRewards(); }, 1500);
