@@ -2556,9 +2556,13 @@
             const res = await fetch(`${RAILWAY_URL}/api/deduct-balance`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ phone: cleanPhone, amount: price, item: itemName })
+                body: JSON.stringify({ phone: cleanPhone, password: localStorage.getItem("bilol_ai_password") || "", amount: price, item: itemName })
             });
             const data = await res.json();
+            if (res.status === 403) {
+                alert(tr("❌ Xarid uchun hisobdan chiqib, qayta kiring.", "❌ Please log out and log in again to buy.", "❌ Для покупки выйдите и войдите снова."));
+                return;
+            }
             if (!res.ok || !data.success) {
                 alert(tr(`❌ Xatolik: ${data.error || "Balans yetarli emas"}`, `❌ Error: ${data.error || "Insufficient balance"}`, `❌ Ошибка: ${data.error || "Недостаточно средств"}`));
                 return;
