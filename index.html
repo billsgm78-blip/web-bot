@@ -22,6 +22,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 
     <style>
@@ -1456,6 +1458,9 @@
     <div id="chat-screen">
         <header class="chat-header">
             <div class="chat-header-info">
+                <button type="button" class="hdr-menu-btn" id="open-chats-btn" title="Suhbatlar">
+                    <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+                </button>
                 <div class="avatar" id="avatar-btn" title="Bosib ko'ring!"><span class="animated-emoji">⚡</span></div>
                 <div style="display: flex; flex-direction: column;">
                     <h3 style="font-size: 13px; font-weight: 700; white-space: nowrap;">Bilols AI</h3>
@@ -1486,8 +1491,20 @@
             <span style="font-size: 13px; color: #cbd5e1;" id="lang-img-attached">Rasm biriktirildi. Savolingizni yozing.</span>
         </div>
 
+        <!-- 📄 BIRIKTIRILGAN HUJJAT -->
+        <div id="doc-preview" style="display: none;">
+            <span class="doc-ico">📄</span>
+            <div class="doc-meta"><b id="doc-name"></b><small id="doc-info"></small></div>
+            <button type="button" class="doc-remove" id="doc-remove">&times;</button>
+        </div>
+
         <footer class="input-bar">
             <input type="file" id="gallery-input" accept="image/*" style="display: none;">
+            <input type="file" id="doc-input" accept=".pdf,.docx,.txt,.md,.csv,.json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" style="display: none;">
+            <div class="attach-menu" id="attach-menu">
+                <button type="button" id="attach-image"><span>🖼️</span><b id="lang-attach-img">Rasm</b></button>
+                <button type="button" id="attach-doc"><span>📄</span><b id="lang-attach-doc">Hujjat (PDF, Word, TXT)</b></button>
+            </div>
 
             <div class="media-buttons">
                 <button type="button" class="media-btn" id="live-camera-btn" title="Jonli kamera">
@@ -1496,16 +1513,19 @@
                         <circle cx="12" cy="13" r="4"></circle>
                     </svg>
                 </button>
-                <button type="button" class="media-btn" id="gallery-btn" title="Galereya">
+                <button type="button" class="media-btn" id="gallery-btn" title="Biriktirish">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                        <polyline points="21 15 16 10 5 21"></polyline>
+                        <path d="M21.4 11.6l-8.5 8.5a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.8-7.8"></path>
                     </svg>
                 </button>
             </div>
 
-            <input type="text" id="chat-input" placeholder="Xabar yoki savolingizni yozing..." autocomplete="off">
+            <div class="chat-input-wrap">
+                <input type="text" id="chat-input" placeholder="Xabar yoki savolingizni yozing..." autocomplete="off">
+                <button type="button" class="mic-btn" id="mic-btn" title="Ovozli xabar">
+                    <svg viewBox="0 0 24 24"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>
+                </button>
+            </div>
             <button id="send-btn" class="send-btn" title="Yuborish">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -1513,6 +1533,19 @@
                 </svg>
             </button>
         </footer>
+
+        <!-- 💬 SUHBATLAR PANELI -->
+        <div id="chats-drawer">
+            <div class="drawer-backdrop" id="chats-backdrop"></div>
+            <aside class="drawer-panel">
+                <div class="drawer-head">
+                    <b id="lang-chats-title">Suhbatlar</b>
+                    <button type="button" class="drawer-close" id="close-chats-btn">&times;</button>
+                </div>
+                <button type="button" class="new-chat-btn" id="new-chat-btn"><span>＋</span> <b id="lang-new-chat">Yangi suhbat</b></button>
+                <div class="chat-list" id="chat-list"></div>
+            </aside>
+        </div>
     </div>
 
     <!-- ⚙️ SOZLAMALAR MODALI -->
@@ -1537,6 +1570,14 @@
                     <p id="lang-set-anim-sub">Harakatlanuvchi rangli sharlar</p>
                 </div>
                 <div class="toggle-switch active" id="toggle-animation"></div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-info">
+                    <h4 id="lang-set-light-title">Yorug' rejim</h4>
+                    <p id="lang-set-light-sub">Oq fonli interfeys</p>
+                </div>
+                <div class="toggle-switch" id="toggle-light"></div>
             </div>
 
             <!-- SOZLAMALARGA TILNI ALMASHTIRISH BLOKI QO'SHILDI -->
@@ -1684,6 +1725,18 @@
         </div>
 
         <div class="pack-scroll-area">
+            <div class="wallet-extras">
+                <div class="wx-card" id="wx-bonus">
+                    <div class="wx-ico">🎁</div>
+                    <div class="wx-text"><b id="wx-bonus-title">Kunlik bonus</b><small id="wx-bonus-sub">Har kuni bepul</small></div>
+                    <button type="button" class="wx-btn" id="wx-bonus-btn">Olish</button>
+                </div>
+                <div class="wx-row">
+                    <button type="button" class="wx-card wx-small" id="wx-ref-open"><span class="wx-ico">👥</span><b id="wx-ref-title">Do'stlarni taklif qilish</b></button>
+                    <button type="button" class="wx-card wx-small" id="wx-hist-open"><span class="wx-ico">🧾</span><b id="wx-hist-title">To'lovlar tarixi</b></button>
+                </div>
+            </div>
+
             <div class="section-label"><span class="animated-emoji">⭐</span> Telegram Stars</div>
             <div class="pack-grid">
                 <div class="pack-card" onclick="buyItem('50 Stars', 15000)">
@@ -1715,6 +1768,16 @@
                     <div class="pack-price">240,000 so'm</div>
                 </div>
             </div>
+        </div>
+
+        <!-- Hamyon ichidagi sahifa: tarix yoki referal -->
+        <div id="wallet-sub">
+            <div class="modal-header">
+                <button type="button" class="modal-close wsub-back" id="wsub-back">‹</button>
+                <h2 id="wsub-title"></h2>
+                <span style="width:38px"></span>
+            </div>
+            <div class="wsub-body" id="wsub-body"></div>
         </div>
     </div>
 </div>
@@ -2475,44 +2538,10 @@
             authModal.classList.remove("active");
             authModal.style.display = "none";
             chatScreen.classList.add("active");
-            if (currentName) {
-                document.getElementById("welcome-bubble").innerText = tr(`Qaytganingiz bilan, ${currentName}! Qanday yordam bera olaman? 🚀`, `Welcome back, ${currentName}! How can I help you? 🚀`, `С возвращением, ${currentName}! Чем могу помочь? 🚀`);
-            }
-            if (savedHistory) {
-                try {
-                    chatHistory = JSON.parse(savedHistory);
-                    renderSavedMessages();
-                } catch (e) { chatHistory = []; }
-            }
+            initChats();
             refreshBalance();
         }
     });
-
-    function renderSavedMessages() {
-        chatHistory.forEach(item => {
-            const role = item.role === "user" ? "user" : "ai";
-            const textPart = item.parts?.find(p => p.text);
-            const imgPart = item.parts?.find(p => p.inline_data);
-            
-            const div = document.createElement("div");
-            div.className = `msg-bubble msg-${role}`;
-            
-            if (imgPart) {
-                const img = document.createElement("img");
-                img.className = "msg-img-preview";
-                img.src = `data:${imgPart.inline_data.mime_type};base64,${imgPart.inline_data.data}`;
-                div.appendChild(img);
-            }
-            if (textPart && textPart.text) {
-                const txt = document.createElement("div");
-                txt.style.whiteSpace = "pre-wrap";
-                txt.innerHTML = formatMath(textPart.text);
-                div.appendChild(txt);
-            }
-            messagesContainer.appendChild(div);
-        });
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
 
     document.getElementById("open-wallet-btn").onclick = () => { walletModal.style.display = "flex"; };
     document.getElementById("close-wallet-btn").onclick = () => { walletModal.style.display = "none"; };
@@ -2556,12 +2585,9 @@
             const t = translations[currentLang];
             if (confirm(tr("Chat tarixini to'liq tozalashni tasdiqlaysizmi? Barcha xabarlar o'chiriladi.", "Are you sure you want to clear chat history? All messages will be deleted.", "Вы уверены, что хотите полностью очистить историю чата? Все сообщения будут удалены."))) {
                 localStorage.removeItem("bilol_ai_history");
-                chatHistory = [];
-                messagesContainer.innerHTML = `
-                    <div class="msg-bubble msg-ai" id="welcome-bubble">
-                        ${t.welcomeBubble}
-                    </div>
-                `;
+                localStorage.removeItem(CHATS_KEY);
+                localStorage.removeItem(CUR_CHAT_KEY);
+                newChat();
                 settingsModal.style.display = "none";
                 showNotification(tr("Chat tarixi tozalandi!", "Chat history cleared!", "История чата очищена!"));
             }
@@ -2677,9 +2703,7 @@
             authModal.classList.remove("active");
             authModal.style.display = "none";
             chatScreen.classList.add("active");
-            if (currentName) {
-                document.getElementById("welcome-bubble").innerText = tr(`Xush kelibsiz, ${currentName}! Qanday yordam bera olaman? 🚀`, `Welcome, ${currentName}! How can I help you? 🚀`, `Добро пожаловать, ${currentName}! Чем могу помочь? 🚀`);
-            }
+            initChats();
         } catch (err) {
             statusBox.style.color = "#f43f5e";
             statusBox.innerText = tr("Serverga ulanishda xatolik yuz berdi.", "Server connection error.", "Ошибка соединения с сервером.");
@@ -2796,7 +2820,115 @@
         previewImgElement.src = "";
     };
 
-    function appendMsg(text, role, imgSrc = null) {
+    // ================= CHAT: ko'rsatish, saqlash, yuborish =================
+    function escHtml(s) {
+        return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Oddiy matn qismi: sarlavha, ro'yxat, `kod`, **qalin** va formulalar
+    function proseHTML(t) {
+        if (!t || !t.trim()) return "";
+        t = t.replace(/^\s*\n+/, "").replace(/\n+\s*$/, "");
+        const codes = [];
+        t = t.replace(/`([^`\n]+)`/g, (m, c) => { codes.push(c); return "\u0000" + (codes.length - 1) + "\u0000"; });
+        t = t.split("\n").map(line => {
+            const h = line.match(/^\s{0,3}#{1,6}\s+(.*)$/);
+            if (h) return "**" + h[1] + "**";
+            return line.replace(/^(\s*)[-*]\s+/, "$1• ");
+        }).join("\n");
+        let html = formatMath(t);
+        html = html.replace(/\u0000(\d+)\u0000/g, (m, i) => `<code class="md-inline">${escHtml(codes[+i])}</code>`);
+        return `<div class="md-prose">${html}</div>`;
+    }
+
+    function codeHTML(lang, code) {
+        const l = (lang || "").trim().toLowerCase().replace(/[^a-z0-9+#-]/g, "");
+        return `<div class="code-block"><div class="code-head"><span>${l || "code"}</span>` +
+            `<button type="button" class="code-copy">${tr("Nusxa olish", "Copy", "Копировать")}</button></div>` +
+            `<pre><code${l ? ` class="language-${l}"` : ""}>${escHtml(code.replace(/\n$/, ""))}</code></pre></div>`;
+    }
+
+    function renderRich(text) {
+        const out = [];
+        const re = /```([^\n`]*)\n?([\s\S]*?)```/g;
+        let last = 0, m;
+        while ((m = re.exec(text))) {
+            out.push(proseHTML(text.slice(last, m.index)));
+            out.push(codeHTML(m[1], m[2]));
+            last = re.lastIndex;
+        }
+        const rest = text.slice(last);
+        const open = rest.indexOf("```");
+        if (open >= 0) {
+            // yozilib turgan (hali yopilmagan) kod bloki
+            out.push(proseHTML(rest.slice(0, open)));
+            const body = rest.slice(open + 3);
+            const nl = body.indexOf("\n");
+            out.push(codeHTML(nl >= 0 ? body.slice(0, nl) : "", nl >= 0 ? body.slice(nl + 1) : ""));
+        } else {
+            out.push(proseHTML(rest));
+        }
+        return out.join("");
+    }
+
+    function cleanReply(t) {
+        return String(t || "")
+            .replace(/User Safety:[\s\S]*?(?=\n\n|$)/gi, "")
+            .replace(/Response Safety:[\s\S]*?(?=\n\n|$)/gi, "")
+            .trim();
+    }
+
+    function nearBottom() {
+        return messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 140;
+    }
+    function scrollDown(force) {
+        if (force || nearBottom()) messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function markLastAI() {
+        messagesContainer.querySelectorAll(".msg-ai.is-last").forEach(el => el.classList.remove("is-last"));
+        const all = messagesContainer.querySelectorAll(".msg-ai.has-actions");
+        if (all.length) all[all.length - 1].classList.add("is-last");
+    }
+
+    function actionsHTML() {
+        return `<div class="msg-actions">` +
+            `<button type="button" class="msg-act" data-act="copy" title="${tr("Nusxa olish", "Copy", "Копировать")}"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg></button>` +
+            `<button type="button" class="msg-act" data-act="speak" title="${tr("Ovoz bilan o'qish", "Read aloud", "Озвучить")}"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>` +
+            `<button type="button" class="msg-act act-regen" data-act="regen" title="${tr("Qayta yozish", "Regenerate", "Переписать")}"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button>` +
+            `</div>`;
+    }
+
+    function highlightIn(el) {
+        if (!window.hljs) return;
+        el.querySelectorAll("pre code").forEach(c => { try { window.hljs.highlightElement(c); } catch (e) {} });
+    }
+
+    function finalizeAI(div, text, withActions = true) {
+        div._raw = text;
+        div.innerHTML = `<div class="ai-body">${renderRich(text)}</div>` + (withActions ? actionsHTML() : "");
+        if (withActions) div.classList.add("has-actions");
+        highlightIn(div);
+        markLastAI();
+    }
+
+    function createAIBubble() {
+        const div = document.createElement("div");
+        div.className = "msg-bubble msg-ai";
+        div.innerHTML = `<div class="ai-body"></div>`;
+        messagesContainer.appendChild(div);
+        scrollDown(true);
+        return div;
+    }
+
+    function appendAIMsg(text) {
+        const div = createAIBubble();
+        finalizeAI(div, text);
+        scrollDown(true);
+        return div;
+    }
+
+    function appendMsg(text, role, imgSrc = null, fileName = null, hadImage = false) {
         const div = document.createElement("div");
         div.className = `msg-bubble msg-${role}`;
         if (imgSrc) {
@@ -2804,6 +2936,17 @@
             img.className = "msg-img-preview";
             img.src = imgSrc;
             div.appendChild(img);
+        } else if (hadImage) {
+            const tag = document.createElement("div");
+            tag.className = "msg-file-chip";
+            tag.textContent = "🖼️ " + tr("Rasm", "Image", "Изображение");
+            div.appendChild(tag);
+        }
+        if (fileName) {
+            const chip = document.createElement("div");
+            chip.className = "msg-file-chip";
+            chip.textContent = "📄 " + fileName;
+            div.appendChild(chip);
         }
         if (text) {
             const txt = document.createElement("div");
@@ -2812,21 +2955,158 @@
             div.appendChild(txt);
         }
         messagesContainer.appendChild(div);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        scrollDown(true);
         return div;
     }
 
-    function appendAIMsg(text) {
-        const div = document.createElement("div");
-        div.className = "msg-bubble msg-ai";
-        const txt = document.createElement("div");
-        txt.style.whiteSpace = "pre-wrap";
-        txt.innerHTML = formatMath(text);
-        div.appendChild(txt);
-        messagesContainer.appendChild(div);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        return div;
+    // Javobni yozilib chiqayotgandek ko'rsatish (server oqim bermasa)
+    function typewriter(div, text) {
+        return new Promise(resolve => {
+            const body = div.querySelector(".ai-body");
+            const skip = document.body.classList.contains("fx-no-msg-anim") ||
+                (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) || text.length < 40;
+            if (skip || !body) return resolve();
+            const step = Math.max(2, Math.ceil(text.length / 70));
+            let i = 0;
+            body.classList.add("is-typing");
+            (function tick() {
+                i = Math.min(text.length, i + step);
+                body.textContent = text.slice(0, i);
+                scrollDown();
+                if (i < text.length) requestAnimationFrame(tick);
+                else { body.classList.remove("is-typing"); resolve(); }
+            })();
+        });
     }
+
+    // ---------- Suhbatlar ro'yxati (localStorage) ----------
+    const CHATS_KEY = "bilol_ai_chats";
+    const CUR_CHAT_KEY = "bilol_ai_current_chat";
+    let currentChatId = localStorage.getItem(CUR_CHAT_KEY) || null;
+
+    function loadChats() {
+        try { return JSON.parse(localStorage.getItem(CHATS_KEY)) || []; } catch (e) { return []; }
+    }
+    function storeChats(list) {
+        list = list.slice(0, 60);
+        for (;;) {
+            try { localStorage.setItem(CHATS_KEY, JSON.stringify(list)); return; }
+            catch (e) { if (list.length <= 1) return; list.pop(); } // joy tugasa eng eski suhbatlar o'chadi
+        }
+    }
+    function storableHistory(h) {
+        return h.map(item => {
+            const o = { role: item.role, parts: (item.parts || []).map(p => p.inline_data ? { text: "[Rasm biriktirildi]" } : p) };
+            if (item.display) o.display = item.display;
+            return o;
+        });
+    }
+    function chatTitle(h) {
+        const first = h.find(x => x.role === "user");
+        if (!first) return tr("Yangi suhbat", "New chat", "Новый чат");
+        const d = first.display || {};
+        const t = (d.text || "").trim() || (d.file ? "📄 " + d.file : "") || (d.image ? "🖼️ " + tr("Rasm", "Image", "Изображение") : "") ||
+            ((first.parts || []).find(p => p.text && p.text !== "[Rasm biriktirildi]") || {}).text || tr("Suhbat", "Chat", "Чат");
+        return t.replace(/\s+/g, " ").slice(0, 48);
+    }
+    function persistChat() {
+        if (!chatHistory.length) return;
+        const list = loadChats();
+        if (!currentChatId) {
+            currentChatId = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+            localStorage.setItem(CUR_CHAT_KEY, currentChatId);
+        }
+        const idx = list.findIndex(c => c.id === currentChatId);
+        const rec = { id: currentChatId, title: chatTitle(chatHistory), updated: Date.now(), messages: storableHistory(chatHistory) };
+        if (idx >= 0) list.splice(idx, 1);
+        list.unshift(rec);
+        storeChats(list);
+        if (window.BilolUI) window.BilolUI.chatsChanged();
+    }
+
+    function resetMessagesUI() {
+        const t = translations[currentLang];
+        const greet = currentName ? tr(`Xush kelibsiz, ${currentName}! Qanday yordam bera olaman? 🚀`, `Welcome, ${currentName}! How can I help you? 🚀`, `Добро пожаловать, ${currentName}! Чем могу помочь? 🚀`) : t.welcomeBubble;
+        messagesContainer.innerHTML = "";
+        const w = document.createElement("div");
+        w.className = "msg-bubble msg-ai";
+        w.id = "welcome-bubble";
+        w.textContent = greet;
+        messagesContainer.appendChild(w);
+        if (window.BilolUI) window.BilolUI.showSuggestions();
+    }
+
+    function renderSavedMessages() {
+        chatHistory.forEach(item => {
+            const d = item.display || {};
+            if (item.role === "user") {
+                let text = d.text;
+                if (text === undefined) {
+                    const tp = (item.parts || []).filter(p => p.text && p.text !== "[Rasm biriktirildi]");
+                    text = tp.length ? tp[tp.length - 1].text : "";
+                }
+                const hadImg = d.image || (item.parts || []).some(p => p.text === "[Rasm biriktirildi]");
+                appendMsg(text, "user", null, d.file || null, hadImg);
+            } else {
+                const tp = (item.parts || []).find(p => p.text);
+                appendAIMsg(tp ? tp.text : "");
+            }
+        });
+        markLastAI();
+        scrollDown(true);
+    }
+
+    function openChat(id) {
+        const rec = loadChats().find(c => c.id === id);
+        if (!rec) return;
+        if (window.speechSynthesis) speechSynthesis.cancel();
+        currentChatId = id;
+        localStorage.setItem(CUR_CHAT_KEY, id);
+        chatHistory = (rec.messages || []).map(m => ({ role: m.role, parts: m.parts || [], display: m.display }));
+        resetMessagesUI();
+        if (chatHistory.length && window.BilolUI) window.BilolUI.hideSuggestions();
+        renderSavedMessages();
+        if (window.BilolUI) window.BilolUI.chatsChanged();
+    }
+
+    function newChat() {
+        if (window.speechSynthesis) speechSynthesis.cancel();
+        currentChatId = null;
+        localStorage.removeItem(CUR_CHAT_KEY);
+        chatHistory = [];
+        resetMessagesUI();
+        if (window.BilolUI) window.BilolUI.chatsChanged();
+    }
+
+    function deleteChat(id) {
+        storeChats(loadChats().filter(c => c.id !== id));
+        if (id === currentChatId) newChat();
+        else if (window.BilolUI) window.BilolUI.chatsChanged();
+    }
+
+    // Eski bitta-suhbatli tarixni yangi ro'yxatga ko'chirish
+    function initChats() {
+        const old = localStorage.getItem("bilol_ai_history");
+        if (old) {
+            try {
+                const h = JSON.parse(old);
+                if (Array.isArray(h) && h.length) {
+                    chatHistory = h;
+                    currentChatId = null;
+                    persistChat();
+                }
+            } catch (e) {}
+            localStorage.removeItem("bilol_ai_history");
+        }
+        const list = loadChats();
+        if (currentChatId && list.some(c => c.id === currentChatId)) openChat(currentChatId);
+        else { chatHistory = []; currentChatId = null; resetMessagesUI(); }
+    }
+
+    window.BilolChats = {
+        list: loadChats, open: openChat, newChat: newChat, remove: deleteChat,
+        current: () => currentChatId, isBusy: () => isBusy
+    };
 
     function showTyping() {
         const typing = document.createElement("div");
@@ -2834,7 +3114,7 @@
         typing.id = "active-typing";
         typing.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
         messagesContainer.appendChild(typing);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        scrollDown(true);
     }
 
     function hideTyping() {
@@ -2857,10 +3137,107 @@
             .filter(h => h.parts.length > 0);
     }
 
+    let isBusy = false;
+
+    async function requestReply() {
+        isBusy = true;
+        document.body.classList.add("ai-busy");
+        showTyping();
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 90000);
+        let bubble = null;
+
+        try {
+            const res = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ history: buildRequestHistory(), lang: currentLang, stream: true }),
+                signal: controller.signal
+            });
+
+            const ctype = res.headers.get("content-type") || "";
+            let reply = "";
+            let ok = false;
+
+            if (res.ok && ctype.includes("text/plain") && res.body && res.body.getReader) {
+                // Oqim: matn kelishi bilan ko'rsatiladi
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let lastPaint = 0;
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    reply += decoder.decode(value, { stream: true });
+                    if (!bubble && reply) { hideTyping(); bubble = createAIBubble(); }
+                    const now = performance.now();
+                    if (bubble && now - lastPaint > 90) {
+                        lastPaint = now;
+                        bubble.querySelector(".ai-body").innerHTML = renderRich(reply);
+                        bubble.querySelector(".ai-body").classList.add("is-typing");
+                        scrollDown();
+                    }
+                }
+                reply += decoder.decode();
+                ok = !!reply.trim();
+            } else {
+                let data;
+                try {
+                    data = await res.json();
+                } catch (parseErr) {
+                    if (res.status === 413) {
+                        // Juda katta so'rov: xotiradagi rasmlarni olib tashlaymiz, keyingi xabarlar ishlashi uchun
+                        chatHistory.forEach(item => {
+                            item.parts = item.parts.map(p => p.inline_data ? { text: "[Rasm biriktirildi]" } : p);
+                        });
+                        data = { error: tr("⚠️ Rasm yoki fayl juda katta. Iltimos, kichikroq yuboring.", "⚠️ Image or file is too large. Please send a smaller one.", "⚠️ Изображение или файл слишком большие. Отправьте, пожалуйста, поменьше.") };
+                    } else {
+                        throw parseErr;
+                    }
+                }
+                ok = !!data.text;
+                reply = data.text || data.error || tr("Javob olib bo'lmadi.", "Could not get response.", "Не удалось получить ответ.");
+                hideTyping();
+                bubble = createAIBubble();
+                await typewriter(bubble, cleanReply(reply));
+            }
+
+            clearTimeout(timeoutId);
+            hideTyping();
+            reply = cleanReply(reply) || tr("Javob olib bo'lmadi.", "Could not get response.", "Не удалось получить ответ.");
+            if (!bubble) bubble = createAIBubble();
+            finalizeAI(bubble, reply);
+            scrollDown();
+
+            if (ok) {
+                chatHistory.push({ role: "model", parts: [{ text: reply }] });
+                persistChat();
+            }
+        } catch (e) {
+            clearTimeout(timeoutId);
+            hideTyping();
+            const msg = e.name === "AbortError"
+                ? tr("⚠️ Server javob berishi juda cho'zilib ketdi. Iltimos, boshqattan urinib ko'ring.", "⚠️ Server response timed out. Please try again.", "⚠️ Сервер отвечает слишком долго. Пожалуйста, попробуйте ещё раз.")
+                : tr("⚠️ AI javob berishda yoki server bilan ulanishda xatolik yuz berdi.", "⚠️ Error communicating with AI or server.", "⚠️ Ошибка при обращении к ИИ или серверу.");
+            if (bubble && bubble._raw === undefined && bubble.textContent.trim()) {
+                finalizeAI(bubble, bubble.textContent + "\n\n" + msg);
+            } else {
+                if (bubble) bubble.remove();
+                appendAIMsg(msg);
+            }
+        } finally {
+            isBusy = false;
+            document.body.classList.remove("ai-busy");
+        }
+    }
+
     async function sendChat() {
+        if (isBusy) return;
         const text = chatInput.value.trim();
         const hasImage = !!selectedImageBase64;
-        if (!text && !hasImage) return;
+        const doc = window.BilolUI ? window.BilolUI.takeDoc(true) : null;
+        if (!text && !hasImage && !doc) return;
+        if (window.BilolUI) window.BilolUI.takeDoc(false);
 
         sendBtn.style.transform = "scale(0.78) rotate(-14deg)";
         setTimeout(() => { sendBtn.style.transform = ""; }, 220);
@@ -2882,77 +3259,55 @@
             imgSrcForBubble = `data:${currentImgMime};base64,${currentImgB64}`;
         }
 
-        const promptText = text || (hasImage ? (tr("Ushbu rasmda nima tasvirlangan? To'liq tahlil qilib ber.", "What is depicted in this image? Analyze it fully.", "Что изображено на этом фото? Проанализируй полностью.")) : "");
+        let promptText = text || (hasImage ? (tr("Ushbu rasmda nima tasvirlangan? To'liq tahlil qilib ber.", "What is depicted in this image? Analyze it fully.", "Что изображено на этом фото? Проанализируй полностью.")) : "");
+        if (doc) {
+            const ask = text || tr("Ushbu hujjatni qisqacha tahlil qilib, asosiy fikrlarini ayt.", "Briefly analyze this document and list its key points.", "Кратко проанализируй этот документ и перечисли главные мысли.");
+            promptText = `[${tr("Biriktirilgan fayl", "Attached file", "Прикреплённый файл")}: ${doc.name}]\n"""\n${doc.text}\n"""\n\n${ask}`;
+        }
         parts.push({ text: promptText });
 
-        appendMsg(text, "user", imgSrcForBubble);
-        chatHistory.push({ role: "user", parts: parts });
+        const display = { text: text };
+        if (doc) display.file = doc.name;
+        if (hasImage) display.image = true;
 
-        try {
-            const cleanHistory = chatHistory.map(item => ({
-                role: item.role,
-                parts: item.parts.map(p => p.inline_data ? { text: "[Rasm biriktirildi]" } : p)
-            }));
-            localStorage.setItem("bilol_ai_history", JSON.stringify(cleanHistory));
-        } catch (e) {
-            console.warn("Tarixni saqlashda xatolik:", e);
-        }
+        if (window.BilolUI) window.BilolUI.hideSuggestions();
+        appendMsg(text, "user", imgSrcForBubble, doc ? doc.name : null);
+        chatHistory.push({ role: "user", parts: parts, display: display });
+        persistChat();
 
-        showTyping();
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 90000);
-
-        try {
-            const res = await fetch("/api/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ history: buildRequestHistory(), lang: currentLang }),
-                signal: controller.signal
-            });
-
-            clearTimeout(timeoutId);
-            hideTyping();
-            
-            let data;
-            try {
-                data = await res.json();
-            } catch (parseErr) {
-                if (res.status === 413) {
-                    // Juda katta so'rov: xotiradagi rasmlarni olib tashlaymiz, keyingi xabarlar ishlashi uchun
-                    chatHistory.forEach(item => {
-                        item.parts = item.parts.map(p => p.inline_data ? { text: "[Rasm biriktirildi]" } : p);
-                    });
-                    data = { error: tr("⚠️ Rasm juda katta. Iltimos, kichikroq rasm yuboring.", "⚠️ Image is too large. Please send a smaller image.", "⚠️ Изображение слишком большое. Отправьте, пожалуйста, фото поменьше.") };
-                } else {
-                    throw parseErr;
-                }
-            }
-            const reply = data.text || data.error || (tr("Javob olib bo'lmadi.", "Could not get response.", "Не удалось получить ответ."));
-            
-            appendAIMsg(reply);
-            chatHistory.push({ role: "model", parts: [{ text: reply }] });
-
-            try {
-                const cleanHistory = chatHistory.map(item => ({
-                    role: item.role,
-                    parts: item.parts.map(p => p.inline_data ? { text: "[Rasm biriktirildi]" } : p)
-                }));
-                localStorage.setItem("bilol_ai_history", JSON.stringify(cleanHistory));
-            } catch (e) {}
-        } catch (e) {
-            clearTimeout(timeoutId);
-            hideTyping();
-            if (e.name === "AbortError") {
-                appendAIMsg(tr("⚠️ Server javob berishi juda cho'zilib ketdi. Iltimos, boshqattan urinib ko'ring.", "⚠️ Server response timed out. Please try again.", "⚠️ Сервер отвечает слишком долго. Пожалуйста, попробуйте ещё раз."));
-            } else {
-                appendAIMsg(tr("⚠️ AI javob berishda yoki server bilan ulanishda xatolik yuz berdi.", "⚠️ Error communicating with AI or server.", "⚠️ Ошибка при обращении к ИИ или серверу."));
-            }
-        }
+        await requestReply();
     }
 
+    // Oxirgi javobni qaytadan yozdirish
+    async function regenerateLast() {
+        if (isBusy || !chatHistory.length) return;
+        if (chatHistory[chatHistory.length - 1].role === "model") chatHistory.pop();
+        if (!chatHistory.length || chatHistory[chatHistory.length - 1].role !== "user") return;
+        const bubbles = messagesContainer.querySelectorAll(".msg-ai.has-actions");
+        if (bubbles.length) bubbles[bubbles.length - 1].remove();
+        persistChat();
+        await requestReply();
+    }
+
+    // Javob ostidagi tugmalar va kod blokidagi "Nusxa olish"
+    messagesContainer.addEventListener("click", (e) => {
+        const codeBtn = e.target.closest(".code-copy");
+        if (codeBtn) {
+            const code = codeBtn.closest(".code-block").querySelector("code");
+            if (window.BilolUI) window.BilolUI.copyText(code ? code.textContent : "", codeBtn);
+            return;
+        }
+        const btn = e.target.closest(".msg-act");
+        if (!btn) return;
+        const bubble = btn.closest(".msg-ai");
+        const act = btn.dataset.act;
+        if (act === "copy" && window.BilolUI) window.BilolUI.copyText(bubble._raw || "", btn);
+        else if (act === "speak" && window.BilolUI) window.BilolUI.speak(bubble._raw || "", btn);
+        else if (act === "regen") regenerateLast();
+    });
+
     sendBtn.onclick = sendChat;
-    chatInput.onkeydown = (e) => { if (e.key === "Enter") sendChat(); };
+    chatInput.onkeydown = (e) => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); sendChat(); } };
 </script>
 
 <!-- ============================================================
@@ -4090,6 +4445,810 @@ body.fx-no-particles .fx-spark, body.fx-no-particles .fx-coin { display: none !i
             }).observe(status, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['style'] });
         }
     } catch (err) { console.warn('AUTH-FX:', err); }
+})();
+</script>
+
+<!-- =====================================================================
+     YANGI FUNKSIYALAR: suhbatlar, javob tugmalari, kod bloklari, ovoz,
+     fayl biriktirish, tayyor so'rovlar, bonus/referal/tarix, yorug' rejim
+     ===================================================================== -->
+<style id="features-style">
+/* ---------- Sarlavha: suhbatlar tugmasi ---------- */
+.hdr-menu-btn {
+    width: 34px; height: 34px; flex-shrink: 0; border-radius: 11px; cursor: pointer;
+    display: grid; place-items: center;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glass); color: #cbd5e1;
+    transition: background 0.2s, transform 0.15s;
+}
+.hdr-menu-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.hdr-menu-btn:active { transform: scale(0.9); }
+
+/* ---------- Suhbatlar paneli ---------- */
+#chats-drawer { position: absolute; inset: 0; z-index: 60; pointer-events: none; }
+#chats-drawer .drawer-backdrop {
+    position: absolute; inset: 0; background: rgba(2, 4, 10, 0.6);
+    opacity: 0; transition: opacity 0.25s ease;
+}
+#chats-drawer .drawer-panel {
+    position: absolute; top: 0; bottom: 0; left: 0; width: min(84%, 320px);
+    background: #0b1120; border-right: 1px solid var(--border-glass);
+    box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+    display: flex; flex-direction: column; padding: 16px 12px;
+    transform: translateX(-102%); transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+#chats-drawer.open { pointer-events: auto; }
+#chats-drawer.open .drawer-backdrop { opacity: 1; }
+#chats-drawer.open .drawer-panel { transform: none; }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 14px; }
+.drawer-head b { font-size: 16px; color: #f8fafc; }
+.drawer-close {
+    width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border-glass);
+    background: rgba(255, 255, 255, 0.05); color: #cbd5e1; font-size: 18px; cursor: pointer;
+}
+.new-chat-btn {
+    display: flex; align-items: center; gap: 8px; justify-content: center;
+    padding: 12px; border-radius: 14px; border: none; cursor: pointer; margin-bottom: 14px;
+    background: var(--accent-grad); color: #fff; font-size: 14px;
+    box-shadow: 0 8px 20px -10px var(--violet-glow);
+}
+.new-chat-btn span { font-size: 16px; font-weight: 800; }
+.chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.chat-item {
+    display: flex; align-items: center; gap: 8px; padding: 10px 10px; border-radius: 12px;
+    cursor: pointer; color: #cbd5e1; transition: background 0.15s;
+    border: 1px solid transparent;
+}
+.chat-item:hover { background: rgba(255, 255, 255, 0.05); }
+.chat-item.active { background: rgba(255, 255, 255, 0.08); border-color: var(--border-glass); color: #fff; }
+.chat-item .ci-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chat-item .ci-title { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-item .ci-date { font-size: 11px; color: #64748b; margin-top: 2px; }
+.chat-item .ci-del {
+    width: 28px; height: 28px; border-radius: 8px; border: none; background: transparent;
+    color: #64748b; cursor: pointer; font-size: 16px; flex-shrink: 0;
+}
+.chat-item .ci-del:hover { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
+.chat-list-empty { color: #64748b; font-size: 13px; text-align: center; padding: 30px 10px; }
+
+/* ---------- AI javobi: matn, kod, tugmalar ---------- */
+.msg-ai .ai-body { white-space: normal; }
+.md-prose { white-space: pre-wrap; }
+.md-inline {
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.88em;
+    padding: 1px 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.code-block {
+    margin: 10px 0; border-radius: 12px; overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1); background: #0d1117; white-space: normal;
+}
+.code-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 8px 6px 12px; background: rgba(255, 255, 255, 0.05);
+    font-size: 11.5px; color: #94a3b8; font-family: 'JetBrains Mono', monospace;
+}
+.code-copy {
+    border: none; background: rgba(255, 255, 255, 0.07); color: #cbd5e1; cursor: pointer;
+    font-size: 11.5px; padding: 4px 9px; border-radius: 7px; font-family: inherit;
+}
+.code-copy:hover { background: rgba(255, 255, 255, 0.13); color: #fff; }
+.code-block pre { margin: 0; overflow-x: auto; }
+.code-block pre code {
+    display: block; padding: 12px; font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px; line-height: 1.55; white-space: pre; background: transparent !important; color: #e2e8f0;
+}
+.ai-body.is-typing > :last-child::after,
+.ai-body.is-typing:not(:has(*))::after {
+    content: ""; display: inline-block; width: 7px; height: 1em; margin-left: 2px; vertical-align: -2px;
+    background: var(--emerald-accent); border-radius: 2px; animation: bfCaret 0.9s steps(2) infinite;
+}
+@keyframes bfCaret { 50% { opacity: 0; } }
+
+.msg-actions { display: flex; gap: 2px; margin: 8px -6px -4px; white-space: normal; }
+.msg-act {
+    width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px;
+    border: none; background: transparent; color: #64748b; cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.msg-act svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.msg-act:hover { background: rgba(255, 255, 255, 0.07); color: #e2e8f0; }
+.msg-act.done { color: var(--emerald-accent); }
+.msg-act.speaking { color: var(--violet-accent); background: rgba(139, 92, 246, 0.12); }
+.msg-ai .act-regen { display: none; }
+.msg-ai.is-last .act-regen { display: grid; }
+body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
+
+.msg-file-chip {
+    display: inline-flex; align-items: center; gap: 6px; max-width: 100%;
+    padding: 6px 10px; margin-bottom: 6px; border-radius: 10px;
+    background: rgba(255, 255, 255, 0.16); font-size: 12.5px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ---------- Tayyor so'rovlar ---------- */
+.suggest-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 6px;
+    animation: aiSmoothIn 0.35s ease-out both;
+}
+.suggest-card {
+    text-align: left; padding: 13px 12px; border-radius: 16px; cursor: pointer;
+    background: rgba(13, 19, 35, 0.7); border: 1px solid var(--border-glass); color: #e2e8f0;
+    display: flex; flex-direction: column; gap: 6px; font-family: inherit;
+    transition: border-color 0.2s, transform 0.15s, background 0.2s;
+}
+.suggest-card:hover { border-color: var(--border-glow); background: rgba(255, 255, 255, 0.06); }
+.suggest-card:active { transform: scale(0.97); }
+.suggest-card .sg-ico { font-size: 20px; }
+.suggest-card b { font-size: 13.5px; }
+.suggest-card small { font-size: 11.5px; color: #94a3b8; line-height: 1.35; }
+
+/* ---------- Kiritish qatori: mikrofon, biriktirish ---------- */
+.chat-input-wrap { position: relative; flex: 1 1 auto; min-width: 0; display: flex; }
+.chat-input-wrap #chat-input { width: 100%; padding-right: 42px !important; }
+.mic-btn {
+    position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 34px; border-radius: 10px; border: none; background: transparent;
+    color: #94a3b8; cursor: pointer; display: grid; place-items: center; transition: color 0.2s, background 0.2s;
+}
+.mic-btn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.mic-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+.mic-btn.rec { color: #fff; background: #f43f5e; animation: bfRec 1.2s ease-in-out infinite; }
+@keyframes bfRec { 0%,100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.5); } 50% { box-shadow: 0 0 0 7px rgba(244, 63, 94, 0); } }
+
+.input-bar { position: relative; }
+.attach-menu {
+    position: absolute; left: 12px; bottom: calc(100% + 8px); z-index: 30;
+    background: #111827; border: 1px solid var(--border-glass); border-radius: 14px;
+    padding: 6px; display: none; flex-direction: column; min-width: 220px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55); animation: aiSmoothIn 0.18s ease-out both;
+}
+.attach-menu.open { display: flex; }
+.attach-menu button {
+    display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 10px;
+    border: none; background: transparent; color: #e2e8f0; cursor: pointer; font-size: 13.5px; text-align: left;
+    font-family: inherit;
+}
+.attach-menu button:hover { background: rgba(255, 255, 255, 0.07); }
+.attach-menu button span { font-size: 17px; }
+
+#doc-preview {
+    display: flex; align-items: center; gap: 10px; margin: 0 12px 8px; padding: 9px 10px;
+    border-radius: 14px; background: rgba(13, 19, 35, 0.92); border: 1px solid var(--border-glass);
+    animation: aiSmoothIn 0.2s ease-out both;
+}
+#doc-preview .doc-ico { font-size: 22px; }
+#doc-preview .doc-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+#doc-preview .doc-meta b { font-size: 13px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#doc-preview .doc-meta small { font-size: 11.5px; color: #94a3b8; }
+#doc-preview .doc-remove {
+    width: 30px; height: 30px; border-radius: 9px; border: none; cursor: pointer; font-size: 18px;
+    background: rgba(255, 255, 255, 0.06); color: #cbd5e1;
+}
+#doc-preview.loading .doc-meta small::after { content: " ⏳"; }
+
+/* ---------- Hamyon: bonus, referal, tarix ---------- */
+.wallet-extras { display: flex; flex-direction: column; gap: 10px; margin: 2px 0 8px; }
+.wx-card {
+    display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-radius: 18px;
+    background: var(--surface-card); border: 1px solid var(--border-glass); color: #f1f5f9;
+    font-family: inherit; text-align: left;
+}
+.wx-ico { font-size: 22px; line-height: 1; }
+.wx-text { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.wx-text b { font-size: 14px; }
+.wx-text small { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+.wx-btn {
+    padding: 9px 16px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 13px;
+    background: var(--accent-grad); color: #fff; box-shadow: 0 6px 16px -8px var(--violet-glow); font-family: inherit;
+}
+.wx-btn:disabled { background: rgba(255, 255, 255, 0.08); color: #94a3b8; box-shadow: none; cursor: default; }
+.wx-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.wx-small { flex-direction: column; align-items: flex-start; gap: 8px; cursor: pointer; transition: border-color 0.2s, transform 0.15s; }
+.wx-small b { font-size: 13px; line-height: 1.3; }
+.wx-small:hover { border-color: var(--border-glow); }
+.wx-small:active { transform: scale(0.97); }
+
+#wallet-sub {
+    position: absolute; inset: 0; z-index: 5; display: none; flex-direction: column;
+    padding: 22px 18px; background: #070a14; animation: aiSmoothIn 0.22s ease-out both;
+}
+#wallet-sub.open { display: flex; }
+#wallet-sub h2 { font-size: 18px; }
+.wsub-back { font-size: 26px !important; line-height: 1; padding-bottom: 3px; }
+.wsub-body { flex: 1; overflow-y: auto; }
+.hist-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.hist-ico {
+    width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; font-size: 17px; flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.05);
+}
+.hist-ico.in { background: rgba(16, 185, 129, 0.12); }
+.hist-ico.out { background: rgba(244, 63, 94, 0.1); }
+.hist-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.hist-main b { font-size: 14px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-main small { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+.hist-amt { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; }
+.hist-amt.in { color: var(--emerald-accent); }
+.hist-amt.out { color: #f87171; }
+.hist-amt small { display: block; font-size: 11px; color: #64748b; font-weight: 500; margin-top: 2px; }
+.hist-filter { display: flex; gap: 6px; margin-bottom: 8px; overflow-x: auto; }
+.hist-filter button {
+    padding: 7px 12px; border-radius: 10px; border: 1px solid var(--border-glass); background: transparent;
+    color: #94a3b8; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit;
+}
+.hist-filter button.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+.wsub-empty, .wsub-loading { text-align: center; color: #64748b; font-size: 13.5px; padding: 40px 10px; }
+.ref-hero { text-align: center; padding: 6px 4px 18px; }
+.ref-hero .ref-big { font-size: 40px; }
+.ref-hero p { font-size: 14px; color: #cbd5e1; line-height: 1.5; margin-top: 8px; }
+.ref-link-box {
+    display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 12px; border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-glass); margin-bottom: 10px;
+}
+.ref-link-box code { flex: 1; min-width: 0; font-size: 12.5px; color: #e2e8f0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'JetBrains Mono', monospace; }
+.ref-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.ref-stat { padding: 14px; border-radius: 16px; background: var(--surface-card); border: 1px solid var(--border-glass); text-align: center; }
+.ref-stat b { display: block; font-size: 20px; color: #fbbf24; font-family: 'JetBrains Mono', monospace; }
+.ref-stat small { font-size: 12px; color: #94a3b8; }
+.ref-share { width: 100%; margin-top: 4px; padding: 13px; }
+
+/* =================== YORUG' REJIM =================== */
+body.theme-light { background: #eef1f6 !important; color: #0f172a; --text-primary: #0f172a; --text-secondary: #475569; --border-glass: rgba(15, 23, 42, 0.12); --surface-card: #ffffff; }
+body.theme-light::before, body.theme-light .ambient-orb, body.theme-light #fx-canvas, body.theme-light .fx-star, body.theme-light .fx-cursor { opacity: 0.18 !important; }
+body.theme-light #chat-screen, body.theme-light .container { background: transparent !important; }
+body.theme-light .chat-header, body.theme-light .input-bar { background: rgba(255, 255, 255, 0.92) !important; border-color: rgba(15, 23, 42, 0.1) !important; }
+body.theme-light .chat-header h3 { color: #0f172a; }
+body.theme-light .msg-ai, body.theme-light #welcome-bubble {
+    background: #ffffff !important; color: #0f172a !important; border-color: rgba(15, 23, 42, 0.1) !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06) !important; -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+body.theme-light .md-inline { background: rgba(15, 23, 42, 0.06); border-color: rgba(15, 23, 42, 0.08); }
+body.theme-light .msg-act { color: #94a3b8; }
+body.theme-light .msg-act:hover { background: rgba(15, 23, 42, 0.06); color: #0f172a; }
+body.theme-light .input-bar input[type="text"] { background: #f1f5f9 !important; color: #0f172a !important; border-color: rgba(15, 23, 42, 0.12) !important; }
+body.theme-light .input-bar input[type="text"]::placeholder { color: #94a3b8; }
+body.theme-light .media-btn, body.theme-light .icon-btn, body.theme-light .hdr-menu-btn { background: #f1f5f9 !important; color: #334155 !important; border-color: rgba(15, 23, 42, 0.12) !important; }
+body.theme-light .mic-btn { color: #64748b; }
+body.theme-light .typing-indicator { background: #ffffff !important; border-color: rgba(15, 23, 42, 0.1) !important; }
+body.theme-light .suggest-card, body.theme-light .wx-card, body.theme-light .ref-stat, body.theme-light .ref-link-box { background: #ffffff; color: #0f172a; border-color: rgba(15, 23, 42, 0.1); box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05); }
+body.theme-light .suggest-card small, body.theme-light .wx-text small { color: #64748b; }
+body.theme-light .ref-link-box code { color: #0f172a; }
+body.theme-light .ref-hero p { color: #334155; }
+body.theme-light #chats-drawer .drawer-panel, body.theme-light .attach-menu, body.theme-light #doc-preview { background: #ffffff; border-color: rgba(15, 23, 42, 0.1); }
+body.theme-light .drawer-head b, body.theme-light .chat-item.active, body.theme-light .attach-menu button, body.theme-light #doc-preview .doc-meta b { color: #0f172a; }
+body.theme-light .chat-item { color: #334155; }
+body.theme-light .chat-item:hover, body.theme-light .attach-menu button:hover { background: rgba(15, 23, 42, 0.05); }
+body.theme-light .chat-item.active { background: rgba(15, 23, 42, 0.07); }
+body.theme-light .drawer-close, body.theme-light #doc-preview .doc-remove { background: #f1f5f9; color: #334155; }
+body.theme-light #wallet-modal, body.theme-light #settings-modal, body.theme-light #wallet-sub { background: #eef1f6 !important; }
+body.theme-light .modal-header h2, body.theme-light #wallet-sub h2 { color: #0f172a !important; }
+body.theme-light .modal-close { background: #ffffff; color: #334155; border-color: rgba(15, 23, 42, 0.12); }
+body.theme-light .balance-badge { background: #ffffff !important; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important; }
+body.theme-light .balance-num, body.theme-light .balance-currency { color: #d97706; }
+body.theme-light .pack-card { background: #ffffff; border-color: rgba(15, 23, 42, 0.1); box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05); }
+body.theme-light .pack-val { color: #0f172a; }
+body.theme-light .section-label { color: #4f46e5; }
+body.theme-light .settings-card { background: #ffffff !important; border-color: rgba(15, 23, 42, 0.1) !important; }
+body.theme-light .settings-info h4 { color: #0f172a !important; }
+body.theme-light .settings-info p { color: #64748b !important; }
+body.theme-light .segmented-btn:not(.active) { color: #475569 !important; }
+body.theme-light .toggle-switch:not(.active) { background: rgba(15, 23, 42, 0.15); }
+body.theme-light .hist-item { border-color: rgba(15, 23, 42, 0.07); }
+body.theme-light .hist-main b { color: #0f172a; }
+body.theme-light .hist-filter button.active { background: #ffffff; color: #0f172a; }
+body.theme-light .wx-btn:disabled { background: rgba(15, 23, 42, 0.06); color: #64748b; }
+body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
+</style>
+
+<script id="features-script">
+(function () {
+    try {
+        var $ = function (id) { return document.getElementById(id); };
+        var lang = function () { return (typeof currentLang !== 'undefined' && currentLang) || 'uz'; };
+        var T = function (uz, en, ru) { return typeof tr === 'function' ? tr(uz, en, ru) : uz; };
+        var notify = function (m) { if (typeof showNotification === 'function') showNotification(m); else alert(m); };
+        var msgBox = $('messages-container');
+
+        /* ================= NUSXA OLISH ================= */
+        function copyText(text, btn) {
+            function ok() {
+                if (!btn) return;
+                btn.classList.add('done');
+                var old = btn.classList.contains('code-copy') ? btn.textContent : null;
+                if (old !== null) btn.textContent = T('Nusxalandi ✓', 'Copied ✓', 'Скопировано ✓');
+                setTimeout(function () { btn.classList.remove('done'); if (old !== null) btn.textContent = old; }, 1400);
+            }
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(ok, function () { fallback(); });
+            } else fallback();
+            function fallback() {
+                var ta = document.createElement('textarea');
+                ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); ok(); } catch (e) {}
+                ta.remove();
+            }
+        }
+
+        /* ================= OVOZ BILAN O'QISH ================= */
+        var speakingBtn = null;
+        function plainForSpeech(t) {
+            return String(t || '')
+                .replace(/```[\s\S]*?```/g, ' ')
+                .replace(/\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]/g, ' ')
+                .replace(/[*#_`>~|]/g, '')
+                .replace(/\s+/g, ' ').trim();
+        }
+        function pickVoice(code) {
+            var vs = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+            var pref = code === 'ru' ? ['ru'] : code === 'en' ? ['en'] : ['uz', 'tr'];
+            for (var i = 0; i < pref.length; i++) {
+                for (var j = 0; j < vs.length; j++) if (vs[j].lang && vs[j].lang.toLowerCase().indexOf(pref[i]) === 0) return vs[j];
+            }
+            return null;
+        }
+        function speak(text, btn) {
+            if (!('speechSynthesis' in window)) { notify(T("Brauzeringiz ovozli o'qishni qo'llamaydi.", 'Your browser does not support read aloud.', 'Ваш браузер не поддерживает озвучивание.')); return; }
+            var same = speakingBtn === btn;
+            speechSynthesis.cancel();
+            if (speakingBtn) speakingBtn.classList.remove('speaking');
+            speakingBtn = null;
+            if (same) return;
+            var clean = plainForSpeech(text);
+            if (!clean) return;
+            var code = /[А-Яа-яЁё]/.test(clean) ? 'ru' : (lang() === 'en' && !/[ʻʼ'‘’]/.test(clean) ? 'en' : lang());
+            var u = new SpeechSynthesisUtterance(clean);
+            var v = pickVoice(code);
+            if (v) { u.voice = v; u.lang = v.lang; } else u.lang = code === 'ru' ? 'ru-RU' : code === 'en' ? 'en-US' : 'uz-UZ';
+            u.rate = 1;
+            u.onend = u.onerror = function () { if (btn) btn.classList.remove('speaking'); if (speakingBtn === btn) speakingBtn = null; };
+            if (btn) btn.classList.add('speaking');
+            speakingBtn = btn;
+            speechSynthesis.speak(u);
+        }
+        if ('speechSynthesis' in window) { speechSynthesis.getVoices(); }
+
+        /* ================= TAYYOR SO'ROVLAR ================= */
+        function suggestions() {
+            return [
+                { i: '🧮', t: T('Masala yechish', 'Solve a problem', 'Решить задачу'), s: T("Bosqichma-bosqich tushuntirib", 'Explained step by step', 'С пошаговым объяснением'),
+                  p: T('Quyidagi masalani bosqichma-bosqich yechib, tushuntirib ber: ', 'Solve this problem step by step and explain: ', 'Реши эту задачу пошагово и объясни: ') },
+                { i: '✍️', t: T('Insho yozish', 'Write an essay', 'Написать эссе'), s: T('Reja va tayyor matn', 'Outline and full text', 'План и готовый текст'),
+                  p: T('Quyidagi mavzuda reja bilan insho yozib ber: ', 'Write an essay with an outline on this topic: ', 'Напиши эссе с планом на тему: ') },
+                { i: '🌐', t: T('Tarjima qilish', 'Translate', 'Перевести'), s: T("Uzbek, rus, ingliz tillari", 'Uzbek, Russian, English', 'Узбекский, русский, английский'),
+                  p: T('Quyidagi matnni ingliz tiliga tarjima qil: ', 'Translate this text into Uzbek: ', 'Переведи этот текст на английский: ') },
+                { i: '💡', t: T("G'oya topish", 'Get ideas', 'Найти идеи'), s: T("Biznes, sovg'a, loyiha...", 'Business, gifts, projects...', 'Бизнес, подарки, проекты...'),
+                  p: T("Menga quyidagi mavzu bo'yicha 5 ta qiziqarli g'oya ber: ", 'Give me 5 interesting ideas about: ', 'Дай мне 5 интересных идей на тему: ') }
+            ];
+        }
+        function showSuggestions() {
+            hideSuggestions();
+            if (!msgBox) return;
+            var g = document.createElement('div');
+            g.className = 'suggest-grid';
+            g.id = 'suggest-grid';
+            suggestions().forEach(function (x) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'suggest-card';
+                b.innerHTML = '<span class="sg-ico"></span><b></b><small></small>';
+                b.children[0].textContent = x.i; b.children[1].textContent = x.t; b.children[2].textContent = x.s;
+                b.onclick = function () {
+                    var inp = $('chat-input');
+                    inp.value = x.p;
+                    inp.focus();
+                    try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) {}
+                };
+                g.appendChild(b);
+            });
+            msgBox.appendChild(g);
+        }
+        function hideSuggestions() { var g = $('suggest-grid'); if (g) g.remove(); }
+
+        /* ================= SUHBATLAR PANELI ================= */
+        var drawer = $('chats-drawer');
+        function fmtDate(ts) {
+            var d = new Date(ts), now = new Date();
+            var hm = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+            if (d.toDateString() === now.toDateString()) return T('Bugun', 'Today', 'Сегодня') + ', ' + hm;
+            var y = new Date(now); y.setDate(now.getDate() - 1);
+            if (d.toDateString() === y.toDateString()) return T('Kecha', 'Yesterday', 'Вчера') + ', ' + hm;
+            return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear() + ', ' + hm;
+        }
+        function renderChatList() {
+            var box = $('chat-list');
+            if (!box || !window.BilolChats) return;
+            var list = window.BilolChats.list(), cur = window.BilolChats.current();
+            box.innerHTML = '';
+            if (!list.length) {
+                var e = document.createElement('div');
+                e.className = 'chat-list-empty';
+                e.textContent = T("Hali suhbatlar yo'q", 'No chats yet', 'Пока нет чатов');
+                box.appendChild(e);
+                return;
+            }
+            list.forEach(function (c) {
+                var it = document.createElement('div');
+                it.className = 'chat-item' + (c.id === cur ? ' active' : '');
+                it.innerHTML = '<div class="ci-text"><span class="ci-title"></span><span class="ci-date"></span></div><button type="button" class="ci-del" title="">✕</button>';
+                it.querySelector('.ci-title').textContent = c.title || T('Suhbat', 'Chat', 'Чат');
+                it.querySelector('.ci-date').textContent = fmtDate(c.updated || Date.now());
+                it.querySelector('.ci-del').title = T("O'chirish", 'Delete', 'Удалить');
+                it.onclick = function (ev) {
+                    if (ev.target.closest('.ci-del')) {
+                        ev.stopPropagation();
+                        if (confirm(T("Bu suhbat o'chirilsinmi?", 'Delete this chat?', 'Удалить этот чат?'))) window.BilolChats.remove(c.id);
+                        return;
+                    }
+                    if (window.BilolChats.isBusy()) return;
+                    window.BilolChats.open(c.id);
+                    closeDrawer();
+                };
+                box.appendChild(it);
+            });
+        }
+        function openDrawer() { renderChatList(); drawer.classList.add('open'); }
+        function closeDrawer() { drawer.classList.remove('open'); }
+        $('open-chats-btn').onclick = openDrawer;
+        $('close-chats-btn').onclick = closeDrawer;
+        $('chats-backdrop').onclick = closeDrawer;
+        $('new-chat-btn').onclick = function () {
+            if (window.BilolChats.isBusy()) return;
+            window.BilolChats.newChat();
+            closeDrawer();
+            $('chat-input').focus();
+        };
+
+        /* ================= OVOZLI XABAR (mikrofon) ================= */
+        var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        var micBtn = $('mic-btn'), rec = null, recOn = false;
+        micBtn.onclick = function () {
+            if (!SR) { notify(T("Brauzeringiz ovozli yozishni qo'llamaydi. Chrome'dan foydalaning.", 'Your browser does not support voice input. Try Chrome.', 'Ваш браузер не поддерживает голосовой ввод. Попробуйте Chrome.')); return; }
+            if (recOn && rec) { rec.stop(); return; }
+            var inp = $('chat-input');
+            var base = inp.value ? inp.value.replace(/\s*$/, ' ') : '';
+            rec = new SR();
+            rec.lang = lang() === 'ru' ? 'ru-RU' : lang() === 'en' ? 'en-US' : 'uz-UZ';
+            rec.interimResults = true;
+            rec.continuous = false;
+            rec.onresult = function (e) {
+                var txt = '';
+                for (var i = 0; i < e.results.length; i++) txt += e.results[i][0].transcript;
+                inp.value = base + txt;
+            };
+            rec.onerror = function (e) {
+                if (e.error === 'not-allowed' || e.error === 'service-not-allowed') notify(T('Mikrofonga ruxsat bering.', 'Please allow microphone access.', 'Разрешите доступ к микрофону.'));
+            };
+            rec.onend = function () { recOn = false; micBtn.classList.remove('rec'); inp.focus(); };
+            try { rec.start(); recOn = true; micBtn.classList.add('rec'); } catch (e) {}
+        };
+
+        /* ================= BIRIKTIRISH: rasm yoki hujjat ================= */
+        var attachMenu = $('attach-menu');
+        var galleryBtn = $('gallery-btn');
+        galleryBtn.onclick = function (e) { e.stopPropagation(); attachMenu.classList.toggle('open'); };
+        document.addEventListener('click', function (e) { if (!e.target.closest('#attach-menu')) attachMenu.classList.remove('open'); });
+        $('attach-image').onclick = function () { attachMenu.classList.remove('open'); $('gallery-input').click(); };
+        $('attach-doc').onclick = function () { attachMenu.classList.remove('open'); $('doc-input').click(); };
+
+        var pendingDoc = null;
+        var MAX_CHARS = 40000;
+        function loadScript(src) {
+            return new Promise(function (res, rej) {
+                if (document.querySelector('script[src="' + src + '"]')) return res();
+                var s = document.createElement('script');
+                s.src = src; s.onload = function () { res(); }; s.onerror = rej;
+                document.head.appendChild(s);
+            });
+        }
+        async function readPdf(buf) {
+            await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+            var lib = window.pdfjsLib;
+            lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            var pdf = await lib.getDocument({ data: buf }).promise;
+            var out = [], total = 0;
+            for (var p = 1; p <= pdf.numPages && total < MAX_CHARS; p++) {
+                var page = await pdf.getPage(p);
+                var tc = await page.getTextContent();
+                var t = tc.items.map(function (i) { return i.str; }).join(' ');
+                out.push(t); total += t.length;
+            }
+            return { text: out.join('\n\n'), pages: pdf.numPages };
+        }
+        async function readDocx(buf) {
+            await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');
+            var r = await window.mammoth.extractRawText({ arrayBuffer: buf });
+            return { text: r.value || '' };
+        }
+        function setDocPreview(name, info, loading) {
+            var box = $('doc-preview');
+            $('doc-name').textContent = name;
+            $('doc-info').textContent = info;
+            box.classList.toggle('loading', !!loading);
+            box.style.display = 'flex';
+        }
+        function clearDoc() { pendingDoc = null; $('doc-preview').style.display = 'none'; $('doc-input').value = ''; }
+        $('doc-remove').onclick = clearDoc;
+        $('doc-input').onchange = async function (e) {
+            var f = e.target.files && e.target.files[0];
+            if (!f) return;
+            if (f.size > 15 * 1024 * 1024) { notify(T('Fayl juda katta (15 MB dan oshmasin).', 'File is too large (max 15 MB).', 'Файл слишком большой (до 15 МБ).')); return; }
+            var ext = (f.name.split('.').pop() || '').toLowerCase();
+            pendingDoc = null;
+            setDocPreview(f.name, T("O'qilmoqda", 'Reading', 'Чтение'), true);
+            try {
+                var res;
+                if (ext === 'pdf') res = await readPdf(await f.arrayBuffer());
+                else if (ext === 'docx') res = await readDocx(await f.arrayBuffer());
+                else if (['txt', 'md', 'csv', 'json'].indexOf(ext) >= 0) res = { text: await f.text() };
+                else throw new Error('type');
+                var text = (res.text || '').replace(/\u0000/g, '').trim();
+                if (!text) {
+                    clearDoc();
+                    notify(T("Fayldan matn topilmadi (skanerlangan PDF bo'lishi mumkin — rasm sifatida yuboring).", 'No text found in the file (it may be a scanned PDF — send it as an image).', 'В файле нет текста (возможно, это скан — отправьте как изображение).'));
+                    return;
+                }
+                var cut = text.length > MAX_CHARS;
+                if (cut) text = text.slice(0, MAX_CHARS) + '\n[...]';
+                pendingDoc = { name: f.name, text: text };
+                var info = (res.pages ? res.pages + ' ' + T('sahifa', 'pages', 'стр.') + ' · ' : '') +
+                    (text.length >= 1000 ? Math.round(text.length / 1000) + 'k ' : text.length + ' ') + T('belgi', 'chars', 'симв.') + (cut ? ' · ' + T('qisqartirildi', 'trimmed', 'обрезано') : '');
+                setDocPreview(f.name, info, false);
+                $('chat-input').focus();
+            } catch (err) {
+                clearDoc();
+                notify(ext && ['pdf', 'docx', 'txt', 'md', 'csv', 'json'].indexOf(ext) < 0
+                    ? T('Faqat PDF, Word (.docx) va matn fayllari qabul qilinadi.', 'Only PDF, Word (.docx) and text files are supported.', 'Поддерживаются только PDF, Word (.docx) и текстовые файлы.')
+                    : T("Faylni o'qib bo'lmadi.", 'Could not read the file.', 'Не удалось прочитать файл.'));
+            }
+        };
+        // peek=true: faqat ko'rish; peek=false: olib, maydonni tozalash
+        function takeDoc(peek) {
+            if ($('doc-preview').classList.contains('loading')) return null;
+            var d = pendingDoc;
+            if (!peek && d) clearDoc();
+            return d;
+        }
+
+        /* ================= HAMYON: bonus, referal, tarix ================= */
+        function creds() {
+            var phone = (typeof currentPhone !== 'undefined' && currentPhone) || localStorage.getItem('bilol_ai_phone') || '';
+            return { phone: String(phone).replace(/[^0-9]/g, ''), password: localStorage.getItem('bilol_ai_password') || '' };
+        }
+        async function api(path, extra) {
+            var body = creds();
+            if (extra) for (var k in extra) body[k] = extra[k];
+            var r = await fetch(RAILWAY_URL + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            var j = {};
+            try { j = await r.json(); } catch (e) {}
+            j._status = r.status;
+            return j;
+        }
+        function money(n) { return Number(n || 0).toLocaleString('ru-RU').replace(/ /g, ' '); }
+        function sum() { return T("so'm", 'UZS', 'сум'); }
+        var rewards = null;
+
+        async function loadRewards() {
+            var btn = $('wx-bonus-btn');
+            try {
+                var j = await api('/api/rewards');
+                if (!j.success) { rewards = null; btn.disabled = true; btn.textContent = '—'; return; }
+                rewards = j;
+                paintBonus();
+            } catch (e) { btn.disabled = true; btn.textContent = '—'; }
+        }
+        function paintBonus() {
+            if (!rewards) return;
+            var btn = $('wx-bonus-btn');
+            $('wx-bonus-sub').textContent = T('Har kuni', 'Every day', 'Каждый день') + ' +' + money(rewards.dailyBonus) + ' ' + sum();
+            btn.disabled = !!rewards.claimedToday;
+            btn.textContent = rewards.claimedToday ? T('Olindi ✓', 'Claimed ✓', 'Получено ✓') : T('Olish', 'Claim', 'Забрать');
+        }
+        $('wx-bonus-btn').onclick = async function () {
+            var btn = this;
+            btn.disabled = true;
+            try {
+                var j = await api('/api/daily-bonus');
+                if (j.success) {
+                    if (rewards) rewards.claimedToday = true;
+                    paintBonus();
+                    if (typeof refreshBalance === 'function') refreshBalance();
+                } else if (j.already) {
+                    if (rewards) rewards.claimedToday = true;
+                    paintBonus();
+                    notify(T('Bugungi bonus olingan. Ertaga qayting!', "Today's bonus is already claimed. Come back tomorrow!", 'Сегодняшний бонус уже получен. Приходите завтра!'));
+                } else {
+                    btn.disabled = false;
+                    notify(j._status === 403 ? T('Iltimos, hisobdan chiqib qayta kiring.', 'Please log out and log in again.', 'Пожалуйста, выйдите и войдите снова.') : (j.error || 'Error'));
+                }
+            } catch (e) { btn.disabled = false; notify(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.')); }
+        };
+
+        var sub = $('wallet-sub');
+        function openSub(title) { $('wsub-title').textContent = title; sub.classList.add('open'); $('wsub-body').innerHTML = '<div class="wsub-loading">⏳</div>'; }
+        $('wsub-back').onclick = function () { sub.classList.remove('open'); };
+
+        var KIND_IN = { topup: true };
+        function itemLabel(it) {
+            var map = {
+                "Hisob to'ldirildi": T("Hisob to'ldirildi", 'Top-up', 'Пополнение'),
+                'Kunlik bonus': T('Kunlik bonus', 'Daily bonus', 'Ежедневный бонус'),
+                "Do'st taklif qilindi": T("Do'st taklif qilindi", 'Friend invited', 'Приглашён друг'),
+                "Mablag' yechildi": T("Mablag' yechildi", 'Withdrawal', 'Списание')
+            };
+            var name = it.item || (it.kind === 'topup' ? "Hisob to'ldirildi" : '');
+            name = map[name] || name.replace(/(\d+) oy$/, function (m, n) { return n + ' ' + T('oy', 'mo.', 'мес.'); });
+            return name || T('Xarid', 'Purchase', 'Покупка');
+        }
+        function itemIcon(it) {
+            if (it.source === 'bonus') return '🎁';
+            if (it.source === 'referral') return '👥';
+            if (it.kind === 'topup') return '💳';
+            if (/premium/i.test(it.item || '')) return '💎';
+            if (/stars/i.test(it.item || '')) return '⭐';
+            return '➖';
+        }
+        var histItems = [], histFilter = 'all';
+        function paintHistory() {
+            var body = $('wsub-body');
+            body.innerHTML = '';
+            var f = document.createElement('div');
+            f.className = 'hist-filter';
+            [['all', T('Hammasi', 'All', 'Все')], ['in', T('Kirim', 'Income', 'Приход')], ['out', T('Xaridlar', 'Purchases', 'Покупки')]].forEach(function (x) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = x[1];
+                if (histFilter === x[0]) b.className = 'active';
+                b.onclick = function () { histFilter = x[0]; paintHistory(); };
+                f.appendChild(b);
+            });
+            body.appendChild(f);
+            var list = histItems.filter(function (it) {
+                var inc = !!KIND_IN[it.kind];
+                return histFilter === 'all' || (histFilter === 'in' ? inc : !inc);
+            });
+            if (!list.length) {
+                var e = document.createElement('div');
+                e.className = 'wsub-empty';
+                e.textContent = T("Hozircha hech narsa yo'q", 'Nothing here yet', 'Пока ничего нет');
+                body.appendChild(e);
+                return;
+            }
+            list.forEach(function (it) {
+                var inc = !!KIND_IN[it.kind];
+                var row = document.createElement('div');
+                row.className = 'hist-item';
+                row.innerHTML = '<div class="hist-ico ' + (inc ? 'in' : 'out') + '"></div><div class="hist-main"><b></b><small></small></div><div class="hist-amt ' + (inc ? 'in' : 'out') + '"><span></span><small></small></div>';
+                row.querySelector('.hist-ico').textContent = itemIcon(it);
+                row.querySelector('.hist-main b').textContent = itemLabel(it);
+                row.querySelector('.hist-main small').textContent = fmtDate((it.created_at || 0) * 1000);
+                row.querySelector('.hist-amt span').textContent = (inc ? '+' : '−') + money(it.amount);
+                row.querySelector('.hist-amt small').textContent = it.balance_after != null ? '= ' + money(it.balance_after) + ' ' + sum() : '';
+                body.appendChild(row);
+            });
+        }
+        $('wx-hist-open').onclick = async function () {
+            openSub(T("To'lovlar tarixi", 'Payment history', 'История платежей'));
+            histFilter = 'all';
+            try {
+                var j = await api('/api/history');
+                if (!j.success) {
+                    $('wsub-body').innerHTML = '<div class="wsub-empty"></div>';
+                    $('wsub-body').firstChild.textContent = j._status === 403 ? T('Tarixni ko\'rish uchun hisobdan chiqib qayta kiring.', 'Log out and log in again to see history.', 'Чтобы увидеть историю, выйдите и войдите снова.') : (j.error || 'Error');
+                    return;
+                }
+                histItems = j.items || [];
+                paintHistory();
+            } catch (e) {
+                $('wsub-body').innerHTML = '<div class="wsub-empty"></div>';
+                $('wsub-body').firstChild.textContent = T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.');
+            }
+        };
+
+        function refLink() { return rewards && rewards.refCode ? (location.origin && location.origin !== 'null' ? location.origin : 'https://bilolsai.uz') + '/?ref=' + rewards.refCode : ''; }
+        $('wx-ref-open').onclick = async function () {
+            openSub(T("Do'stlarni taklif qilish", 'Invite friends', 'Пригласить друзей'));
+            if (!rewards) await loadRewards();
+            var body = $('wsub-body');
+            if (!rewards) {
+                body.innerHTML = '<div class="wsub-empty"></div>';
+                body.firstChild.textContent = T('Ma\'lumot olish uchun hisobdan chiqib qayta kiring.', 'Log out and log in again to continue.', 'Чтобы продолжить, выйдите и войдите снова.');
+                return;
+            }
+            var link = refLink();
+            body.innerHTML =
+                '<div class="ref-hero"><div class="ref-big">🎁</div><p></p></div>' +
+                '<div class="ref-link-box"><code></code><button type="button" class="code-copy" id="ref-copy"></button></div>' +
+                '<button type="button" class="wx-btn ref-share" id="ref-share"></button>' +
+                '<div class="ref-stats"><div class="ref-stat"><b id="ref-n"></b><small></small></div><div class="ref-stat"><b id="ref-e"></b><small></small></div></div>';
+            body.querySelector('.ref-hero p').textContent = T(
+                "Havolani do'stingizga yuboring. U botga kirib, telefon raqamini yuborsa, sizga +" + money(rewards.refBonus) + " so'm tushadi.",
+                'Send the link to a friend. When they open the bot and share their phone number, you get +' + money(rewards.refBonus) + ' UZS.',
+                'Отправьте ссылку другу. Когда он зайдёт в бота и отправит свой номер, вы получите +' + money(rewards.refBonus) + ' сум.');
+            body.querySelector('.ref-link-box code').textContent = link;
+            $('ref-copy').textContent = T('Nusxa olish', 'Copy', 'Копировать');
+            $('ref-copy').onclick = function () { copyText(link, this); };
+            $('ref-share').textContent = T('📤 Ulashish', '📤 Share', '📤 Поделиться');
+            $('ref-share').onclick = function () {
+                var text = T("Bilols AI — o'zbekcha sun'iy intellekt yordamchisi. Qo'shiling:", 'Bilols AI — your AI assistant. Join here:', 'Bilols AI — ИИ-помощник. Присоединяйся:');
+                if (navigator.share) navigator.share({ title: 'Bilols AI', text: text, url: link }).catch(function () {});
+                else copyText(text + ' ' + link, $('ref-copy'));
+            };
+            $('ref-n').textContent = rewards.invited;
+            $('ref-n').nextSibling.textContent = T("Taklif qilinganlar", 'Friends invited', 'Приглашено');
+            $('ref-e').textContent = money(rewards.earned);
+            $('ref-e').nextSibling.textContent = T("Ishlab topilgan, so'm", 'Earned, UZS', 'Заработано, сум');
+        };
+
+        // Hamyon ochilganda bonus holati yangilanadi
+        var walletModal = $('wallet-modal');
+        new MutationObserver(function () {
+            if (walletModal.style.display === 'flex') { sub.classList.remove('open'); loadRewards(); }
+        }).observe(walletModal, { attributes: true, attributeFilter: ['style'] });
+
+        /* ================= REFERAL HAVOLASI (?ref=KOD) ================= */
+        try {
+            var refParam = new URLSearchParams(location.search).get('ref');
+            if (refParam && /^[A-Za-z0-9]{4,16}$/.test(refParam)) localStorage.setItem('bilol_ai_ref', refParam.toUpperCase());
+        } catch (e) {}
+        // "Botga o'tish" bosilganda taklif kodi botga uzatiladi
+        document.addEventListener('click', function (e) {
+            var a = e.target.closest && e.target.closest('.bot-redirect-btn');
+            var code = localStorage.getItem('bilol_ai_ref');
+            if (a && code && /start=web/.test(a.href)) a.href = a.href.replace('start=web', 'start=ref_' + code);
+        }, true);
+
+        /* ================= YORUG' REJIM ================= */
+        var lightToggle = $('toggle-light');
+        function setLight(on, save) {
+            document.body.classList.toggle('theme-light', on);
+            lightToggle.classList.toggle('active', on);
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', on ? '#eef1f6' : '#03060d');
+            if (save) { try { localStorage.setItem('bilol_ai_light', on ? '1' : '0'); } catch (e) {} }
+        }
+        lightToggle.onclick = function () { setLight(!document.body.classList.contains('theme-light'), true); };
+        setLight(localStorage.getItem('bilol_ai_light') === '1', false);
+
+        /* ================= MATNLAR (til almashganda) ================= */
+        function applyTexts() {
+            var set = function (id, uz, en, ru) { var el = $(id); if (el) el.textContent = T(uz, en, ru); };
+            set('lang-chats-title', 'Suhbatlar', 'Chats', 'Чаты');
+            set('lang-new-chat', 'Yangi suhbat', 'New chat', 'Новый чат');
+            set('lang-attach-img', 'Rasm', 'Image', 'Изображение');
+            set('lang-attach-doc', 'Hujjat (PDF, Word, TXT)', 'Document (PDF, Word, TXT)', 'Документ (PDF, Word, TXT)');
+            set('wx-bonus-title', 'Kunlik bonus', 'Daily bonus', 'Ежедневный бонус');
+            set('wx-ref-title', "Do'stlarni taklif qilish", 'Invite friends', 'Пригласить друзей');
+            set('wx-hist-title', "To'lovlar tarixi", 'Payment history', 'История платежей');
+            set('lang-set-light-title', "Yorug' rejim", 'Light mode', 'Светлая тема');
+            set('lang-set-light-sub', 'Oq fonli interfeys', 'White background interface', 'Интерфейс на светлом фоне');
+            $('open-chats-btn').title = T('Suhbatlar', 'Chats', 'Чаты');
+            $('mic-btn').title = T('Ovozli xabar', 'Voice message', 'Голосовое сообщение');
+            $('gallery-btn').title = T('Biriktirish', 'Attach', 'Прикрепить');
+            paintBonus();
+            if ($('suggest-grid')) showSuggestions();
+            if (drawer.classList.contains('open')) renderChatList();
+        }
+        var prevSetLang = window.setAppLanguage;
+        if (typeof prevSetLang === 'function') {
+            window.setAppLanguage = function () {
+                var r = prevSetLang.apply(this, arguments);
+                applyTexts();
+                return r;
+            };
+        }
+        applyTexts();
+
+        window.BilolUI = {
+            copyText: copyText, speak: speak, takeDoc: takeDoc,
+            showSuggestions: showSuggestions, hideSuggestions: hideSuggestions,
+            chatsChanged: function () { if (drawer.classList.contains('open')) renderChatList(); }
+        };
+
+        // Sahifa ochilganda suhbat allaqachon chizilgan bo'lsa, tayyor so'rovlarni qo'shamiz
+        if (window.BilolChats && !window.BilolChats.current() && msgBox && msgBox.children.length <= 1) showSuggestions();
+    } catch (err) { console.warn('FEATURES:', err); }
 })();
 </script>
 

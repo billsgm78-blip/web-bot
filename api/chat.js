@@ -17,7 +17,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "API kaliti sozlanmagan." });
   }
 
-  const { history, lang } = req.body || {};
+  const { history, lang, stream } = req.body || {};
+  const wantStream = stream === true;
   if (!Array.isArray(history)) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
@@ -93,6 +94,7 @@ export default async function handler(req, res) {
     messages: messages,
     max_tokens: 3000
   };
+  if (wantStream) requestBody.stream = true;
 
   try {
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -105,6 +107,44 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify(requestBody)
     });
+
+    if (wantStream && resp.ok && resp.body) {
+      // Javobni bo'lak-bo'lak yuboramiz: foydalanuvchi matnni yozilib borayotganini ko'radi
+      res.writeHead(200, {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        "X-Accel-Buffering": "no"
+      });
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      let wrote = false;
+      let streamError = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        let nl;
+        while ((nl = buf.indexOf("\n")) >= 0) {
+          const line = buf.slice(0, nl).trim();
+          buf = buf.slice(nl + 1);
+          if (!line.startsWith("data:")) continue;
+          const payload = line.slice(5).trim();
+          if (!payload || payload === "[DONE]") continue;
+          try {
+            const j = JSON.parse(payload);
+            if (j.error) streamError = j.error.message || "Model xatoligi yuz berdi.";
+            const piece = j?.choices?.[0]?.delta?.content;
+            if (piece) {
+              res.write(piece);
+              wrote = true;
+            }
+          } catch (e) {}
+        }
+      }
+      if (!wrote) res.write(streamError || "Javob olib bo'lmadi. Iltimos, qayta urinib ko'ring.");
+      return res.end();
+    }
 
     const data = await resp.json();
 
