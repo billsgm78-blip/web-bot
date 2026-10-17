@@ -5778,7 +5778,8 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
                     err.className = 'msg-bubble msg-ai';
                     var t = j.noMoney ? T("Balans yetarli emas. Rasm narxi: ", 'Not enough balance. Image price: ', 'Недостаточно средств. Цена изображения: ') + money(j.price) + ' ' + sum()
                         : (j.error || T("Rasm yaratib bo'lmadi.", 'Could not create the image.', 'Не удалось создать изображение.'));
-                    err.textContent = '⚠️ ' + t;
+                    err.textContent = '⚠️ ' + t + (j.detail && rewards && rewards.isAdmin ? '\n\n[admin] ' + j.detail : '');
+                    err.style.whiteSpace = 'pre-wrap';
                     msgBox.appendChild(err);
                     if (j.noMoney) {
                         limitCTA(err);
