@@ -1381,27 +1381,21 @@
 
     <!-- AUTH MODAL -->
     <div id="auth-modal">
-        <!-- Animatsiyali fon: zarrachalar, nur dog'lari, to'r -->
-        <canvas id="auth-fx-canvas" aria-hidden="true"></canvas>
-        <div class="auth-grid" aria-hidden="true"></div>
-        <div class="auth-blob auth-blob-1" aria-hidden="true"></div>
-        <div class="auth-blob auth-blob-2" aria-hidden="true"></div>
-        <div class="auth-blob auth-blob-3" aria-hidden="true"></div>
-
         <div class="auth-card auth-card-main">
-            <span class="auth-spot" aria-hidden="true"></span>
-            <button class="auth-close" onclick="closeAuthModal()">&times;</button>
+            <button class="auth-close" onclick="closeAuthModal()" aria-label="Close">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
 
-            <div class="auth-logo" data-st style="--i:0">
-                <span class="auth-ring auth-ring-1"></span>
-                <span class="auth-ring auth-ring-2"></span>
-                <span class="auth-ring auth-ring-3"><i></i></span>
-                <span class="auth-logo-core"><span class="animated-emoji">⚡</span></span>
+            <div class="auth-head" data-st style="--i:0">
+                <div class="auth-logo"><span>⚡</span></div>
+                <div class="auth-head-text">
+                    <span class="auth-head-name">Bilols AI</span>
+                    <span class="auth-head-status"><i></i><span id="auth-head-status-text">Faol</span></span>
+                </div>
             </div>
             <div data-st style="--i:1"><h2 class="auth-title" id="lang-auth-welcome">Xush kelibsiz</h2></div>
-            <div class="auth-brand" data-st style="--i:2"><span class="auth-brand-dot"></span>Bilols AI<span class="auth-brand-dot"></span></div>
 
-            <div class="auth-tabs" data-st style="--i:3">
+            <div class="auth-tabs" data-st style="--i:2">
                 <span class="auth-tab-indicator" aria-hidden="true"></span>
                 <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Kirish</button>
                 <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Ro'yxatdan o'tish</button>
@@ -1409,34 +1403,33 @@
 
             <div id="name-field-wrap" class="auth-reveal" style="display: none;">
                 <div class="auth-field">
-                    <span class="auth-field-icon" aria-hidden="true">👤</span>
+                    <svg class="auth-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/></svg>
                     <input type="text" id="name-input" class="styled-input" placeholder="Ismingiz" autocomplete="off">
-                    <span class="auth-field-line" aria-hidden="true"></span>
                 </div>
             </div>
 
-            <div class="auth-field" data-st style="--i:4">
-                <span class="auth-field-icon" aria-hidden="true">📱</span>
+            <div class="auth-field" data-st style="--i:3">
+                <svg class="auth-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18h2"/></svg>
                 <input type="tel" id="phone-input" class="styled-input" placeholder="Telefon raqamingiz (+998 bilan)">
-                <span class="auth-field-line" aria-hidden="true"></span>
             </div>
-            <div class="auth-field auth-field-pass" data-st style="--i:5">
-                <span class="auth-field-icon" aria-hidden="true">🔒</span>
+            <div class="auth-field auth-field-pass" data-st style="--i:4">
+                <svg class="auth-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
                 <input type="password" id="pass-input" class="styled-input" placeholder="Parol">
-                <button type="button" class="auth-eye" id="auth-eye-btn" tabindex="-1" aria-label="Show password">👁️</button>
-                <span class="auth-field-line" aria-hidden="true"></span>
+                <button type="button" class="auth-eye" id="auth-eye-btn" tabindex="-1" aria-label="Show password">
+                    <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.5 10.5 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.7 8.4 2 12 2 12s3.5 7 10 7c1.8 0 3.4-.5 4.7-1.3"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+                </button>
             </div>
 
             <!-- TELEGRAM KOD KIRITISH MAYDONI -->
             <div id="code-field-wrap" class="auth-reveal" style="display: none;">
                 <div class="auth-field auth-field-code">
-                    <span class="auth-field-icon" aria-hidden="true">🤖</span>
+                    <svg class="auth-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 4.5L2.5 11.8l6.2 2.1 2.3 6.6 3.3-4.3 4.7 3.4z"/><path d="M8.7 13.9l8.6-6.4"/></svg>
                     <input type="text" id="code-input" class="styled-input" placeholder="Telegramdan kelgan 4 xonali kod" autocomplete="one-time-code" inputmode="numeric">
-                    <span class="auth-field-line" aria-hidden="true"></span>
                 </div>
             </div>
 
-            <div data-st style="--i:6">
+            <div data-st style="--i:5">
                 <button id="auth-action-btn" class="primary-btn">Tizimga kirish</button>
             </div>
             <div id="status-box" style="margin-top: 12px; font-size: 13px;"></div>
@@ -3870,312 +3863,160 @@ body.fx-no-particles .fx-spark, body.fx-no-particles .fx-coin { display: none !i
 </script>
 
 <!-- =====================================================================
-     KIRISH OYNASI — ANIMATSIYALI YANGI DIZAYN (faqat ko'rinish, mantiq o'zgarmagan)
+     KIRISH OYNASI — chat interfeysi uslubida (faqat ko'rinish, mantiq o'zgarmagan)
      ===================================================================== -->
 <style id="auth-fx-style">
-/* ---------- Fon ---------- */
 #auth-modal, #password-modal {
-    background:
-        radial-gradient(120% 70% at 50% -10%, rgba(49, 46, 129, 0.55), transparent 60%),
-        radial-gradient(90% 60% at 50% 115%, rgba(6, 95, 70, 0.4), transparent 60%),
-        rgba(2, 4, 10, 0.95) !important;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
+    background: rgba(2, 4, 10, 0.86) !important;
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    overflow-y: auto; overflow-x: hidden;
 }
-#auth-modal.active, #password-modal.active { animation: authBackdropIn 0.5s ease-out both; }
-@keyframes authBackdropIn { from { opacity: 0; } to { opacity: 1; } }
+#auth-modal.active, #password-modal.active { animation: authFade 0.25s ease-out both; }
+@keyframes authFade { from { opacity: 0; } to { opacity: 1; } }
 
-#auth-fx-canvas {
-    position: fixed; inset: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 0;
-}
-.auth-grid {
-    position: fixed; left: -50%; right: -50%; top: 52%; bottom: -60%;
-    pointer-events: none; z-index: 0;
-    background-image:
-        linear-gradient(rgba(139, 92, 246, 0.16) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(139, 92, 246, 0.16) 1px, transparent 1px);
-    background-size: 52px 52px;
-    transform: perspective(420px) rotateX(62deg);
-    transform-origin: top center;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 35%, #000 60%, transparent 100%);
-            mask-image: linear-gradient(to bottom, transparent 0%, #000 35%, #000 60%, transparent 100%);
-    animation: authGridMove 3.5s linear infinite;
-}
-@keyframes authGridMove { to { background-position: 0 52px, 0 0; } }
-
-.auth-blob {
-    position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
-    filter: blur(80px); opacity: 0.5;
-}
-.auth-blob-1 { width: 360px; height: 360px; top: -110px; left: -100px; background: var(--violet-accent); animation: authBlob1 13s ease-in-out infinite alternate; }
-.auth-blob-2 { width: 380px; height: 380px; bottom: -140px; right: -120px; background: #10b981; opacity: 0.38; animation: authBlob2 16s ease-in-out infinite alternate; }
-.auth-blob-3 { width: 260px; height: 260px; top: 35%; left: 60%; background: #3b82f6; opacity: 0.28; animation: authBlob3 11s ease-in-out infinite alternate; }
-@keyframes authBlob1 { to { transform: translate(120px, 160px) scale(1.25); } }
-@keyframes authBlob2 { to { transform: translate(-150px, -120px) scale(0.85); } }
-@keyframes authBlob3 { to { transform: translate(-220px, 60px) scale(1.3); } }
-
-/* ---------- Karta ---------- */
+/* Karta — chat pufakchalari bilan bir xil sirt */
 #auth-modal .auth-card-main,
 #password-modal .auth-card {
-    z-index: 2;
-    margin: auto;
-    max-width: 410px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 32px;
-    background: linear-gradient(165deg, rgba(22, 28, 52, 0.84) 0%, rgba(8, 11, 22, 0.92) 100%);
-    -webkit-backdrop-filter: blur(26px) saturate(160%);
-            backdrop-filter: blur(26px) saturate(160%);
-    box-shadow:
-        0 40px 90px -20px rgba(0, 0, 0, 0.95),
-        inset 0 1px 0 rgba(255, 255, 255, 0.09),
-        0 0 70px -18px var(--violet-glow);
+    margin: auto; max-width: 400px;
+    background: rgba(13, 18, 32, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 24px;
+    box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.85);
+    animation: authCardIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
-#auth-modal .auth-card-main {
-    padding: 32px 24px 24px;
-    transform: perspective(1100px) rotateX(var(--at-rx, 0deg)) rotateY(var(--at-ry, 0deg));
-    transition: transform 0.3s ease-out;
-    animation: authCardIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-}
-#password-modal .auth-card { animation: authCardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+#auth-modal .auth-card-main { padding: 22px 20px 20px; text-align: left; }
+/* eski aylanuvchi nurni o'chiramiz */
+#auth-modal .auth-card::before, #password-modal .auth-card::before { display: none; }
 @keyframes authCardIn {
-    0%   { opacity: 0; transform: perspective(1100px) translateY(70px) rotateX(22deg) scale(0.88); filter: blur(12px); }
-    60%  { filter: blur(0); }
-    100% { opacity: 1; transform: perspective(1100px) translateY(0) rotateX(0) scale(1); }
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
 }
 
-/* Aylanib yuruvchi gradient chegara */
-#auth-modal .auth-card-main::after,
-#password-modal .auth-card::after {
-    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
-    background: conic-gradient(from var(--fx-angle), transparent 0deg, var(--violet-accent) 60deg, #10b981 120deg, transparent 170deg, transparent 200deg, #3b82f6 260deg, #d946ef 310deg, transparent 360deg);
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-            mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-    animation: fxSpin 5s linear infinite;
-    pointer-events: none; z-index: 3;
-}
-
-/* Sichqoncha ortidan yuruvchi yorug'lik */
-#auth-modal .auth-spot {
-    position: absolute !important; inset: 0; z-index: 0 !important;
-    border-radius: inherit; pointer-events: none;
-    background: radial-gradient(380px circle at var(--at-mx, 50%) var(--at-my, -10%), var(--violet-glow), transparent 50%);
-    opacity: 0.3;
-}
-
-/* Yopish tugmasi */
-#auth-modal .auth-close, #password-modal .auth-close {
-    top: 16px !important; right: 16px !important;
-    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, color 0.2s, border-color 0.2s;
-}
-#auth-modal .auth-close:hover, #password-modal .auth-close:hover {
-    transform: rotate(90deg) scale(1.08);
-    background: rgba(244, 63, 94, 0.18); border-color: rgba(244, 63, 94, 0.45); color: #fff;
-}
-
-/* Elementlar navbat bilan paydo bo'ladi */
+/* Elementlar ketma-ket, sezilar-sezilmas paydo bo'ladi */
 #auth-modal.active [data-st] {
-    animation: authItemIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-    animation-delay: calc(var(--i, 0) * 75ms + 200ms);
+    animation: authItemIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 45ms + 80ms);
 }
-@keyframes authItemIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.96); filter: blur(5px); }
-    to   { opacity: 1; transform: none; filter: none; }
-}
+@keyframes authItemIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-/* ---------- Logo ---------- */
+/* Yopish */
+#auth-modal .auth-close, #password-modal .auth-close {
+    top: 18px !important; right: 18px !important;
+    width: 34px; height: 34px; border-radius: 11px;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.09);
+    color: #94a3b8; transition: background 0.2s, color 0.2s;
+}
+#auth-modal .auth-close:hover, #password-modal .auth-close:hover { background: rgba(255, 255, 255, 0.1); color: #fff; transform: none; }
+
+/* Sarlavha qatori — chat header kabi */
+#auth-modal .auth-head { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
 #auth-modal .auth-logo {
-    position: relative; width: 92px; height: 92px; margin: 4px auto 16px;
-    display: grid; place-items: center;
+    width: 38px; height: 38px; border-radius: 13px; flex-shrink: 0;
+    display: grid; place-items: center; font-size: 18px;
+    background: var(--accent-grad);
+    box-shadow: 0 4px 14px -2px var(--violet-glow);
 }
-#auth-modal .auth-logo::before {
-    content: ""; position: absolute; inset: 12px; border-radius: 50%;
-    background: var(--violet-glow); filter: blur(24px);
-    animation: authPulse 2.6s ease-in-out infinite;
-}
-.auth-logo-core {
-    position: relative; z-index: 2; width: 62px; height: 62px; border-radius: 22px;
-    display: grid; place-items: center; font-size: 30px;
-    background: var(--accent-grad); background-size: 200% 200%;
-    box-shadow: 0 12px 30px -6px var(--violet-glow), inset 0 1px 1px rgba(255, 255, 255, 0.45), inset 0 -6px 14px rgba(0, 0, 0, 0.18);
-    animation: fxGradMove 5s ease infinite, authCoreFloat 3.4s ease-in-out infinite;
-}
-.auth-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent; }
-.auth-ring-1 { border-top-color: var(--violet-accent); border-right-color: rgba(139, 92, 246, 0.2); animation: authSpin 2.8s linear infinite; }
-.auth-ring-2 { inset: 9px; border-bottom-color: #10b981; border-left-color: rgba(16, 185, 129, 0.2); animation: authSpin 2s linear infinite reverse; }
-.auth-ring-3 { inset: -9px; border: 1px dashed rgba(255, 255, 255, 0.14); animation: authSpin 12s linear infinite; }
-.auth-ring-3 i {
-    position: absolute; top: -4px; left: 50%; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%;
-    background: #fff; box-shadow: 0 0 6px #fff, 0 0 16px 4px var(--violet-glow);
-}
-@keyframes authSpin { to { transform: rotate(360deg); } }
-@keyframes authPulse { 0%,100% { transform: scale(0.85); opacity: 0.45; } 50% { transform: scale(1.2); opacity: 0.85; } }
-@keyframes authCoreFloat { 0%,100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-5px) rotate(5deg); } }
+#auth-modal .auth-head-text { display: flex; flex-direction: column; line-height: 1.25; }
+#auth-modal .auth-head-name { font-size: 14px; font-weight: 700; color: #f8fafc; }
+#auth-modal .auth-head-status { font-size: 11px; font-weight: 600; color: var(--emerald-accent); display: flex; align-items: center; gap: 5px; }
+#auth-modal .auth-head-status i { width: 6px; height: 6px; border-radius: 50%; background: var(--emerald-accent); }
 
-/* ---------- Sarlavha ---------- */
-#auth-modal .auth-title {
-    font-size: 28px; font-weight: 900; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 6px;
-    background: linear-gradient(90deg, #ffffff 0%, #c4b5fd 22%, #6ee7b7 45%, #93c5fd 68%, #ffffff 100%);
-    background-size: 300% 100%;
-    -webkit-background-clip: text; background-clip: text;
-    color: transparent; -webkit-text-fill-color: transparent;
-    animation: authTitle 7s linear infinite;
-}
-@keyframes authTitle { to { background-position: 300% 0; } }
-#auth-modal .auth-brand {
-    display: flex; align-items: center; justify-content: center; gap: 9px;
-    font-size: 11px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase;
-    color: var(--text-secondary); margin-bottom: 22px;
-}
-.auth-brand-dot {
-    width: 5px; height: 5px; border-radius: 50%; background: #10b981;
-    box-shadow: 0 0 8px #10b981; animation: authBlink 1.6s ease-in-out infinite;
-}
-.auth-brand-dot:last-child { animation-delay: 0.8s; }
-@keyframes authBlink { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.7); } }
+#auth-modal .auth-title { font-size: 22px; font-weight: 800; color: #f8fafc; letter-spacing: -0.01em; margin-bottom: 16px; }
 
-/* ---------- Tablar (suriluvchi indikator) ---------- */
+/* Tablar — silliq suriluvchi indikator */
 #auth-modal .auth-tabs {
-    position: relative; padding: 5px; margin-bottom: 22px; border-radius: 20px;
+    position: relative; padding: 4px; margin-bottom: 18px; border-radius: 14px;
     background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.4);
 }
 #auth-modal .auth-tab-indicator {
-    position: absolute; z-index: 0; top: 5px; bottom: 5px; left: 5px; width: calc(50% - 5px);
-    border-radius: 15px; background: var(--accent-grad); background-size: 200% 200%;
-    box-shadow: 0 8px 22px -6px var(--violet-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    transition: transform 0.6s cubic-bezier(0.68, -0.4, 0.27, 1.4);
-    animation: fxGradMove 4s ease infinite;
+    position: absolute; z-index: 0; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px);
+    border-radius: 10px; background: rgba(255, 255, 255, 0.09);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 #auth-modal .auth-tabs.is-register .auth-tab-indicator { transform: translateX(100%); }
 #auth-modal .auth-tab {
-    position: relative; z-index: 1; padding: 12px 6px;
+    position: relative; z-index: 1; padding: 10px 6px; font-size: 13.5px; font-weight: 600;
     background: transparent !important; box-shadow: none !important; animation: none !important;
-    transition: color 0.35s ease, transform 0.2s ease;
+    color: #94a3b8; transition: color 0.25s;
 }
-#auth-modal .auth-tab:not(.active):hover { color: #e2e8f0; }
-#auth-modal .auth-tab.active { color: #fff; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35); }
+#auth-modal .auth-tab.active { color: #f8fafc; }
 
-/* ---------- Kiritish maydonlari ---------- */
-#auth-modal .auth-field { position: relative; margin-bottom: 14px; text-align: left; }
-#auth-modal .auth-field .styled-input {
-    margin-bottom: 0; height: 56px; padding: 0 18px 0 50px; border-radius: 18px;
+/* Maydonlar — chat kiritish qatori kabi */
+#auth-modal .auth-field { position: relative; margin-bottom: 10px; }
+#auth-modal .auth-field .styled-input,
+#password-modal .styled-input {
+    margin-bottom: 0; height: 50px; padding: 0 16px 0 44px; border-radius: 14px;
     background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.09);
-    font-size: 15px; font-weight: 500;
-    transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+    font-size: 15px; animation: none !important; box-shadow: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
-#auth-modal .auth-field .styled-input::placeholder { color: rgba(148, 163, 184, 0.75); transition: opacity 0.3s; }
-#auth-modal .auth-field .styled-input:hover { border-color: rgba(255, 255, 255, 0.16); }
-#auth-modal .auth-field .styled-input:focus { background: rgba(255, 255, 255, 0.07); border-color: var(--violet-accent); }
-#auth-modal .auth-field .styled-input:focus::placeholder { opacity: 0.45; }
-#auth-modal .auth-field-pass .styled-input { padding-right: 54px; }
+#password-modal .styled-input { padding-left: 16px; margin-bottom: 10px; }
+#auth-modal .auth-field .styled-input::placeholder,
+#password-modal .styled-input::placeholder { color: #64748b; }
+#auth-modal .auth-field .styled-input:focus,
+#password-modal .styled-input:focus {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--violet-accent);
+    box-shadow: 0 0 0 3px var(--border-glow);
+}
+#auth-modal .auth-field-pass .styled-input { padding-right: 46px; }
+#auth-modal .auth-field-icon {
+    position: absolute; left: 15px; top: 50%; width: 18px; height: 18px; z-index: 2;
+    transform: translateY(-50%); color: #64748b; pointer-events: none; transition: color 0.2s;
+}
+#auth-modal .auth-field:focus-within .auth-field-icon { color: var(--violet-accent); }
 
-.auth-field-icon {
-    position: absolute; left: 16px; top: 50%; z-index: 2; font-size: 18px; line-height: 1;
-    transform: translateY(-50%); pointer-events: none;
-    filter: grayscale(0.7) opacity(0.65);
-    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s;
+#auth-modal .auth-eye {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%); z-index: 2;
+    width: 38px; height: 38px; display: grid; place-items: center;
+    border: none; border-radius: 10px; background: transparent; color: #64748b; cursor: pointer;
+    transition: color 0.2s, background 0.2s;
 }
-.auth-field:focus-within .auth-field-icon { transform: translateY(-50%) scale(1.25) rotate(-10deg); filter: none; }
-.auth-field.is-filled .auth-field-icon { filter: none; }
+#auth-modal .auth-eye svg { width: 18px; height: 18px; }
+#auth-modal .auth-eye:hover { color: #e2e8f0; background: rgba(255, 255, 255, 0.05); }
+#auth-modal .auth-eye .eye-off, #auth-modal .auth-eye.on .eye-open { display: none; }
+#auth-modal .auth-eye.on .eye-off { display: block; }
+#auth-modal .auth-eye.on { color: #e2e8f0; }
 
-.auth-field-line {
-    position: absolute; left: 22px; right: 22px; bottom: -1px; height: 2px; z-index: 2; border-radius: 2px;
-    background: var(--accent-grad); box-shadow: 0 0 12px var(--violet-glow);
-    transform: scaleX(0); transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
-    pointer-events: none;
-}
-.auth-field:focus-within .auth-field-line { transform: scaleX(1); }
+/* Ism va kod maydoni ochilishi */
+#auth-modal .auth-reveal { animation: authReveal 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes authReveal { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 
-.auth-eye {
-    position: absolute; right: 8px; top: 50%; z-index: 2; width: 40px; height: 40px;
-    transform: translateY(-50%); border: none; border-radius: 12px; background: transparent;
-    font-size: 17px; cursor: pointer; opacity: 0.55;
-    transition: opacity 0.2s, background 0.2s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.auth-eye:hover { opacity: 1; background: rgba(255, 255, 255, 0.07); }
-.auth-eye.on { opacity: 1; }
-.auth-eye:active { transform: translateY(-50%) scale(0.82); }
-
-/* Ism va kod maydonlari ochilish animatsiyasi */
-#auth-modal .auth-reveal { animation: authReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; transform-origin: top center; }
-@keyframes authReveal {
-    from { opacity: 0; transform: translateY(-12px) scaleY(0.75); filter: blur(5px); }
-    to   { opacity: 1; transform: none; filter: none; }
-}
-
-/* Telegram kodi maydoni */
-#auth-modal .auth-field-code .styled-input { border-color: rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.07); }
-#auth-modal .auth-field-code::before {
-    content: ""; position: absolute; inset: -3px; border-radius: 21px; pointer-events: none;
-    border: 2px solid rgba(16, 185, 129, 0.6);
-    animation: authCodeRing 1.9s ease-out infinite;
-}
-@keyframes authCodeRing { 0% { opacity: 0.9; transform: scale(0.98); } 100% { opacity: 0; transform: scale(1.07); } }
+#auth-modal .auth-field-code .styled-input { border-color: rgba(16, 185, 129, 0.45); }
+#auth-modal .auth-field-code .styled-input:focus { border-color: var(--emerald-accent); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+#auth-modal .auth-field-code:focus-within .auth-field-icon { color: var(--emerald-accent); }
 #auth-modal #code-input:not(:placeholder-shown) {
-    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 22px; font-weight: 700;
-    letter-spacing: 0.55em; text-align: center; padding-right: 50px; color: #6ee7b7;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 18px; font-weight: 700; letter-spacing: 0.4em;
 }
 
-/* ---------- Asosiy tugma ---------- */
+/* Asosiy tugma */
 #auth-modal #auth-action-btn {
-    height: 58px; padding: 0 20px; margin-top: 4px; border-radius: 19px;
-    font-size: 16px; letter-spacing: 0.01em;
-    box-shadow: 0 16px 34px -10px var(--violet-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    transition: transform 0.25s ease, box-shadow 0.3s ease, filter 0.3s ease;
+    height: 50px; padding: 0 18px; margin-top: 6px; border-radius: 14px;
+    font-size: 15px; font-weight: 700; animation: none; background-size: 100% 100%;
+    box-shadow: 0 8px 22px -10px var(--violet-glow);
+    transition: filter 0.2s, transform 0.15s, opacity 0.2s;
 }
-#auth-modal #auth-action-btn::before {
-    content: ""; position: absolute; top: 0; left: -60%; width: 40%; height: 100%; pointer-events: none;
-    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-    transform: skewX(-20deg);
-    animation: authSheen 3.4s ease-in-out infinite;
-}
-@keyframes authSheen { 0% { left: -60%; } 55%, 100% { left: 135%; } }
-#auth-modal #auth-action-btn::after {
-    content: "→"; display: inline-block; margin-left: 10px;
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-#auth-modal #auth-action-btn:hover { filter: brightness(1.12); box-shadow: 0 20px 44px -10px var(--violet-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
-#auth-modal #auth-action-btn:hover::after { transform: translateX(6px); }
-#auth-modal #auth-action-btn:disabled { cursor: progress; filter: saturate(0.75) brightness(0.92); }
+#auth-modal #auth-action-btn:hover { filter: brightness(1.08); }
+#auth-modal #auth-action-btn:disabled { opacity: 0.75; cursor: progress; }
 #auth-modal #auth-action-btn:disabled::after {
-    content: ""; width: 16px; height: 16px; border-radius: 50%; vertical-align: -3px;
-    border: 2.5px solid rgba(255, 255, 255, 0.35); border-top-color: #fff;
+    content: ""; display: inline-block; width: 14px; height: 14px; margin-left: 10px; vertical-align: -2px;
+    border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.35); border-top-color: #fff;
     animation: authSpin 0.7s linear infinite;
 }
+@keyframes authSpin { to { transform: rotate(360deg); } }
 
-/* ---------- Holat xabari ---------- */
-#auth-modal #status-box { line-height: 1.5; font-weight: 600; }
+/* Holat xabari */
+#auth-modal #status-box { line-height: 1.5; font-weight: 500; text-align: center; }
 #auth-modal #status-box:not(:empty) {
-    margin-top: 14px !important; padding: 11px 14px; border-radius: 14px;
-    background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.07);
+    margin-top: 12px !important; padding: 10px 12px; border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.07);
 }
-#auth-modal #status-box.auth-pop { animation: authStatusIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-@keyframes authStatusIn { from { opacity: 0; transform: translateY(8px) scale(0.94); } to { opacity: 1; transform: none; } }
+#auth-modal #status-box.auth-pop { animation: authItemIn 0.25s ease-out; }
 
-/* ---------- Parol oynasi maydonlari ---------- */
-#password-modal .styled-input { height: 54px; border-radius: 18px; background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.09); }
-#password-modal .styled-input:focus { background: rgba(255, 255, 255, 0.07); border-color: var(--violet-accent); }
-
-/* ---------- Kichik ekranlar ---------- */
-@media (max-width: 380px), (max-height: 640px) {
-    #auth-modal .auth-card-main { padding: 26px 18px 20px; }
-    #auth-modal .auth-logo { transform: scale(0.82); margin: 0 auto 8px; }
-    #auth-modal .auth-title { font-size: 24px; }
-    #auth-modal .auth-brand { margin-bottom: 16px; }
-}
-
-/* ---------- Sozlamalar / kamroq harakat ---------- */
-body.fx-no-particles #auth-fx-canvas { display: none !important; }
+@media (max-width: 360px) { #auth-modal .auth-card-main { padding: 18px 16px 16px; } }
 @media (prefers-reduced-motion: reduce) {
-    #auth-modal *, #auth-modal *::before, #auth-modal *::after,
-    #password-modal *, #password-modal *::after {
-        animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important;
-    }
-    .auth-blob, .auth-grid { animation: none !important; }
+    #auth-modal *, #auth-modal .auth-card-main, #password-modal .auth-card { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
 </style>
 
@@ -4186,180 +4027,54 @@ body.fx-no-particles #auth-fx-canvas { display: none !important; }
         if (!modal) return;
         var card = modal.querySelector('.auth-card-main');
         var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-        var fine = window.matchMedia && matchMedia('(pointer: fine)').matches;
         function isOpen() { return modal.classList.contains('active') || modal.style.display === 'flex'; }
 
-        /* --- 1. Tab indikatori --- */
+        /* Tab indikatori */
         var tabs = modal.querySelector('.auth-tabs');
         var tabReg = document.getElementById('tab-register');
         function syncTabs() { if (tabs && tabReg) tabs.classList.toggle('is-register', tabReg.classList.contains('active')); }
         if (tabReg) new MutationObserver(syncTabs).observe(tabReg, { attributes: true, attributeFilter: ['class'] });
         syncTabs();
 
-        /* --- 2. Parolni ko'rsatish / yashirish --- */
+        /* Parolni ko'rsatish / yashirish */
         var pass = document.getElementById('pass-input');
         var eye = document.getElementById('auth-eye-btn');
         function setEye(show) {
             if (!pass || !eye) return;
             pass.type = show ? 'text' : 'password';
-            eye.textContent = show ? '🙈' : '👁️';
             eye.classList.toggle('on', show);
         }
         if (eye && pass) {
-            eye.addEventListener('mousedown', function (e) { e.preventDefault(); }); // fokus yo'qolmasin
+            eye.addEventListener('mousedown', function (e) { e.preventDefault(); });
             eye.addEventListener('click', function () { setEye(pass.type === 'password'); });
         }
 
-        /* --- 3. To'ldirilgan maydon belgisi --- */
-        var fields = modal.querySelectorAll('.auth-field');
-        function syncFilled() {
-            for (var i = 0; i < fields.length; i++) {
-                var inp = fields[i].querySelector('input');
-                if (inp) fields[i].classList.toggle('is-filled', !!inp.value);
-            }
+        /* Oyna yopilganda parol yana yashiriladi */
+        /* "Faol" yozuvi chat sarlavhasidagi tarjimadan olinadi */
+        function syncStatus() {
+            var src = document.getElementById('lang-chat-active'), dst = document.getElementById('auth-head-status-text');
+            if (src && dst) dst.textContent = src.textContent.replace(/^[\s●•]+/, '');
         }
-        modal.addEventListener('input', syncFilled);
-
-        /* --- 4. Zarrachalar fon (canvas) --- */
-        var cv = document.getElementById('auth-fx-canvas');
-        var ctx = cv && cv.getContext ? cv.getContext('2d') : null;
-        var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
-        var dots = [], sparks = [], running = false;
-        var mouse = { x: -9999, y: -9999 };
-        var palette = ['#8b5cf6', '#10b981', '#3b82f6', '#d946ef'];
-
-        function readAccent() {
-            var a = getComputedStyle(document.documentElement).getPropertyValue('--violet-accent').trim();
-            if (a) palette[0] = a;
-        }
-        function resize() {
-            if (!cv) return;
-            W = window.innerWidth; H = window.innerHeight;
-            cv.width = W * DPR; cv.height = H * DPR;
-            ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-            var n = Math.min(80, Math.round(W * H / 13000));
-            dots = [];
-            for (var i = 0; i < n; i++) {
-                dots.push({
-                    x: Math.random() * W, y: Math.random() * H,
-                    vx: (Math.random() - 0.5) * 0.25, vy: -(0.1 + Math.random() * 0.35),
-                    r: 0.6 + Math.random() * 1.8, c: palette[i % palette.length],
-                    t: Math.random() * Math.PI * 2
-                });
-            }
-        }
-        function frame() {
-            if (!isOpen() || document.body.classList.contains('fx-no-particles')) { running = false; return; }
-            ctx.clearRect(0, 0, W, H);
-            var i, j, d, e, dx, dy, dist;
-            for (i = 0; i < dots.length; i++) {
-                d = dots[i];
-                d.t += 0.02;
-                d.x += d.vx; d.y += d.vy;
-                dx = d.x - mouse.x; dy = d.y - mouse.y; dist = dx * dx + dy * dy;
-                if (dist < 14400) { var f = (14400 - dist) / 14400 * 0.9; d.x += dx * f * 0.03; d.y += dy * f * 0.03; }
-                if (d.y < -10) { d.y = H + 10; d.x = Math.random() * W; }
-                if (d.x < -10) d.x = W + 10; else if (d.x > W + 10) d.x = -10;
-                ctx.globalAlpha = 0.45 + Math.sin(d.t) * 0.3;
-                ctx.fillStyle = d.c;
-                ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
-            }
-            ctx.lineWidth = 0.6;
-            for (i = 0; i < dots.length; i++) {
-                for (j = i + 1; j < dots.length; j++) {
-                    d = dots[i]; e = dots[j];
-                    dx = d.x - e.x; dy = d.y - e.y; dist = dx * dx + dy * dy;
-                    if (dist < 12100) {
-                        ctx.globalAlpha = (1 - dist / 12100) * 0.22;
-                        ctx.strokeStyle = d.c;
-                        ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(e.x, e.y); ctx.stroke();
-                    }
-                }
-            }
-            for (i = sparks.length - 1; i >= 0; i--) {
-                var s = sparks[i];
-                s.x += s.vx; s.y += s.vy; s.vy += 0.12; s.vx *= 0.98; s.life -= 1;
-                if (s.life <= 0) { sparks.splice(i, 1); continue; }
-                ctx.globalAlpha = Math.min(1, s.life / 30);
-                ctx.fillStyle = s.c;
-                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
-            }
-            ctx.globalAlpha = 1;
-            requestAnimationFrame(frame);
-        }
-        function start() {
-            if (!ctx || reduce || running) return;
-            readAccent();
-            if (!W) resize();
-            running = true;
-            requestAnimationFrame(frame);
-        }
-        function burst(el) {
-            if (!ctx || reduce || !el) return;
-            var r = el.getBoundingClientRect();
-            var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-            for (var i = 0; i < 46; i++) {
-                var a = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 5;
-                sparks.push({ x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2.5, r: 1.2 + Math.random() * 2.2, c: palette[i % palette.length], life: 40 + Math.random() * 30 });
-            }
-            start();
-        }
-        if (cv) {
-            window.addEventListener('resize', function () { if (isOpen()) resize(); else W = 0; });
-            modal.addEventListener('pointermove', function (e) { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
-            modal.addEventListener('pointerleave', function () { mouse.x = mouse.y = -9999; });
-        }
-
-        /* --- 5. Karta 3D burilishi va yorug'lik dog'i (kompyuterda) --- */
-        if (card && fine && !reduce) {
-            modal.addEventListener('pointermove', function (e) {
-                var r = card.getBoundingClientRect();
-                var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-                card.style.setProperty('--at-mx', (x * 100) + '%');
-                card.style.setProperty('--at-my', (y * 100) + '%');
-                var cx = Math.max(-1, Math.min(1, (x - 0.5) * 2)), cy = Math.max(-1, Math.min(1, (y - 0.5) * 2));
-                card.style.setProperty('--at-rx', (-cy * 4) + 'deg');
-                card.style.setProperty('--at-ry', (cx * 5) + 'deg');
-            }, { passive: true });
-            modal.addEventListener('pointerleave', function () {
-                card.style.setProperty('--at-rx', '0deg');
-                card.style.setProperty('--at-ry', '0deg');
-            });
-        }
-
-        /* --- 6. Oyna ochilganda / yopilganda --- */
+        syncStatus();
         new MutationObserver(function () {
-            if (isOpen()) { syncTabs(); syncFilled(); start(); }
-            else { setEye(false); sparks = []; }
+            if (isOpen()) { syncTabs(); syncStatus(); } else setEye(false);
         }).observe(modal, { attributes: true, attributeFilter: ['class', 'style'] });
-        if (isOpen()) start();
 
-        /* --- 7. Kod maydoni ochilganda: fokus + uchqunlar --- */
+        /* Kod maydoni ochilganda unga fokus */
         var codeWrap = document.getElementById('code-field-wrap');
         var codeInput = document.getElementById('code-input');
         var codeShown = false;
-        if (codeWrap) {
+        if (codeWrap && codeInput) {
             new MutationObserver(function () {
                 var shown = codeWrap.style.display !== 'none';
-                if (shown && !codeShown) {
-                    burst(codeWrap);
-                    setTimeout(function () { try { codeInput.focus({ preventScroll: false }); } catch (e) {} }, 380);
-                }
+                if (shown && !codeShown) setTimeout(function () { try { codeInput.focus(); } catch (e) {} }, 250);
                 codeShown = shown;
             }).observe(codeWrap, { attributes: true, attributeFilter: ['style'] });
         }
 
-        /* --- 8. Holat xabari: animatsiya, xatoda silkinish, muvaffaqiyatda uchqun --- */
+        /* Holat xabari: yumshoq paydo bo'lish, xatoda kichik silkinish */
         var status = document.getElementById('status-box');
         var lastText = '';
-        function shake() {
-            if (!card || !card.animate || reduce) return;
-            card.animate([
-                { translate: '0 0' }, { translate: '-11px 0' }, { translate: '10px 0' },
-                { translate: '-7px 0' }, { translate: '4px 0' }, { translate: '0 0' }
-            ], { duration: 480, easing: 'ease-out' });
-            try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) {}
-        }
         if (status) {
             new MutationObserver(function () {
                 var txt = status.textContent;
@@ -4368,8 +4083,10 @@ body.fx-no-particles #auth-fx-canvas { display: none !important; }
                 if (!txt) return;
                 status.classList.remove('auth-pop'); void status.offsetWidth; status.classList.add('auth-pop');
                 var c = (status.style.color || '').replace(/\s/g, '').toLowerCase();
-                if (c === 'rgb(244,63,94)' || c === '#f43f5e') shake();
-                else if (c === 'rgb(16,185,129)' || c === '#10b981') burst(document.getElementById('auth-action-btn'));
+                if ((c === 'rgb(244,63,94)' || c === '#f43f5e') && card && card.animate && !reduce) {
+                    card.animate([{ translate: '0 0' }, { translate: '-6px 0' }, { translate: '5px 0' }, { translate: '-3px 0' }, { translate: '0 0' }],
+                        { duration: 320, easing: 'ease-out' });
+                }
             }).observe(status, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['style'] });
         }
     } catch (err) { console.warn('AUTH-FX:', err); }
