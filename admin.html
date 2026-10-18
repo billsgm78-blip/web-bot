@@ -128,6 +128,9 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
 .preview { margin-top: 10px; padding: 14px; border-radius: 14px; background: #17212b; border: 1px solid rgba(255,255,255,0.06); font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
 .preview b { display: block; margin-bottom: 6px; }
 .copy { cursor: pointer; }
+.uses { margin: 0 0 6px 52px; border-left: 2px solid rgba(139,92,246,0.35); padding-left: 10px; }
+.uses:empty { display: none; }
+@media (max-width: 860px) { .uses { margin-left: 12px; } }
 .copy:hover { text-decoration: underline; }
 
 /* toast va oyna */
@@ -769,11 +772,30 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
                 h('span', { class: 'tag ' + state[1], text: state[0] })
             ]);
             var row = h('div', { class: 'row' }, [h('div', { class: 'r-ico in', text: '🎟️' }), main]);
+            var usesBox = h('div', { class: 'uses' });
+            row.appendChild(h('button', { class: 'act', title: 'Kim ishlatgan', text: '👥 ' + p.used, onclick: async function () {
+                if (usesBox.childNodes.length) { usesBox.innerHTML = ''; return; }
+                usesBox.appendChild(h('div', { class: 'loading', text: '⏳' }));
+                var x = await admin('promo_uses', { code: p.code });
+                usesBox.innerHTML = '';
+                var uses = x.uses || [];
+                if (!uses.length) { usesBox.appendChild(h('div', { class: 'sum', text: 'Hali hech kim ishlatmagan' })); return; }
+                usesBox.appendChild(h('div', { class: 'sum', text: uses.length + ' kishi · jami ' + money(uses.length * p.amount) + " so'm berilgan" }));
+                uses.forEach(function (u) {
+                    usesBox.appendChild(h('div', { class: 'row click', onclick: function () { vUser(view, u.phone); } }, [
+                        h('div', { class: 'r-ico', text: '👤' }),
+                        h('div', { class: 'r-main' }, [h('b', { text: u.name || "Noma'lum" }), h('small', { text: '+' + String(u.phone).replace(/\D/g, '') + ' · ' + fmtDate(u.at) })]),
+                        h('div', { class: 'r-amt in', text: '+' + money(p.amount) }),
+                        h('span', { style: 'color:#5d6680;font-size:20px', text: '›' })
+                    ]));
+                });
+            } }));
             if (p.active) row.appendChild(h('button', { class: 'sq', title: "O'chirish", text: '✖', onclick: async function () {
                 if (!await dialog({ title: "Promo-kodni o'chirish", text: p.code + ' boshqa ishlamaydi.', ok: "O'chirish", danger: true })) return;
                 await admin('promo_delete', { code: p.code }); vPromo(view);
             } }));
             view.appendChild(row);
+            view.appendChild(usesBox);
         });
     }
 
