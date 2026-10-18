@@ -6427,6 +6427,7 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
         function ago(ts) {
             if (!ts) return T('hali kirmagan', 'not seen yet', 'ещё не заходил');
             var s = Math.max(0, Math.floor(Date.now() / 1000 - ts));
+            if (s < 60) return T('hozirgina', 'just now', 'только что');
             if (s < 3600) return T(Math.max(1, Math.round(s / 60)) + ' daqiqa oldin', Math.max(1, Math.round(s / 60)) + ' min ago', Math.max(1, Math.round(s / 60)) + ' мин назад');
             if (s < 86400) return T(Math.round(s / 3600) + ' soat oldin', Math.round(s / 3600) + ' h ago', Math.round(s / 3600) + ' ч назад');
             return dayLabel(ts) + ' ' + hm(ts);
@@ -6495,7 +6496,7 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
         }
         function schedule() {
             clearInterval(timer);
-            timer = setInterval(function () { if (document.hidden) return; view.classList.contains('open') ? loadThread() : peek(); }, view.classList.contains('open') ? 5000 : 45000);
+            timer = setInterval(function () { if (document.hidden) return; view.classList.contains('open') ? loadThread() : peek(); }, view.classList.contains('open') ? 3000 : 30000);
         }
         function open() {
             var c = creds();
@@ -6528,6 +6529,8 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
         $('sp-send').onclick = send;
         $('sp-back').onclick = close;
         $('support-entry').onclick = open;
+        $('open-settings-btn').addEventListener('click', function () { setTimeout(peek, 50); });
+        $('open-chats-btn').addEventListener('click', function () { setTimeout(peek, 50); });
         $('drawer-support').onclick = open;
         document.addEventListener('visibilitychange', function () { if (!document.hidden) peek(); });
         setTimeout(peek, 2500); schedule();

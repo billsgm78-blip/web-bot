@@ -413,7 +413,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         btn.disabled = false;
     };
     function logout(expired) {
-        if (token && !expired) post('/api/admin-auth/logout', { token: token }).catch(function () {});
+        if (token && !expired) { goOffline(); post('/api/admin-auth/logout', { token: token }).catch(function () {}); }
         token = null;
         try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
         $('app').style.display = 'none'; $('auth').style.display = '';
@@ -469,8 +469,14 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             if (tab === 'support' && supportUnread > prevU) supRefresh();
         } catch (e) {}
     }
-    function startPing() { clearInterval(pingTimer); ping(); pingTimer = setInterval(ping, 20000); }
-    document.addEventListener('visibilitychange', function () { if (!document.hidden) ping(); });
+    function startPing() { clearInterval(pingTimer); ping(); pingTimer = setInterval(ping, 5000); }
+    // panel yopilsa yoki boshqa ilovaga o'tilsa — saytda darhol "oflayn"
+    function goOffline() {
+        if (!token) return;
+        try { fetch(API + '/api/admin/offline', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ token: token }) }); } catch (e) {}
+    }
+    document.addEventListener('visibilitychange', function () { if (document.hidden) goOffline(); else ping(); });
+    window.addEventListener('pagehide', goOffline);
 
     // ---------- Murojaatlar ----------
     var supRefresh = function () {};
