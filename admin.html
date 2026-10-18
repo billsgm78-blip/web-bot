@@ -198,6 +198,24 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
     .top h2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .top .right { flex-shrink: 0; }
 }
+
+/* Murojaatlar */
+.nav .badge.red { background: var(--red); color: #fff; }
+.sup-wrap { display: flex; flex-direction: column; height: calc(100vh - 190px); min-height: 380px; }
+.sup-head { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.sup-list { flex: 1; overflow-y: auto; padding: 12px 2px; display: flex; flex-direction: column; gap: 8px; }
+.sup-msg { max-width: 80%; padding: 9px 12px 6px; border-radius: 16px; font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-wrap: break-word; }
+.sup-msg small { display: block; text-align: right; font-size: 10.5px; opacity: 0.6; margin-top: 3px; }
+.sup-msg.user { align-self: flex-start; background: rgba(255,255,255,0.06); border: 1px solid var(--line); border-bottom-left-radius: 5px; }
+.sup-msg.admin { align-self: flex-end; background: var(--grad); color: #fff; border-bottom-right-radius: 5px; }
+.sup-bar { display: flex; gap: 8px; align-items: flex-end; padding-top: 10px; border-top: 1px solid var(--line); }
+.sup-bar textarea { flex: 1; min-height: 46px; max-height: 140px; resize: none; }
+.dot-new { width: 10px; height: 10px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+.shop-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr auto auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.shop-row .inp { height: 42px; font-size: 14px; }
+.shop-row.off { opacity: 0.5; }
+.shop-hd { font-size: 11.5px; color: var(--muted); font-weight: 700; }
+@media (max-width: 600px) { .shop-row { grid-template-columns: 1fr 1fr; } .shop-row .nm { grid-column: 1 / -1; } }
 </style>
 </head>
 <body>
@@ -267,7 +285,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
 
     var $ = function (id) { return document.getElementById(id); };
     var TOKEN_KEY = 'bilols_admin_token';
-    var token = null, ticket = null, pendingCount = 0;
+    var token = null, ticket = null, pendingCount = 0, supportUnread = 0, supPhone = null;
     try {
         var saved = JSON.parse(localStorage.getItem(TOKEN_KEY) || 'null');
         if (saved && saved.exp > Date.now()) token = saved.t;
@@ -407,8 +425,8 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
 
     // ================= PANEL =================
     var TABS = [
-        ['stats', '📊', 'Statistika'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'],
-        ['promo', '🎟️', 'Promo-kodlar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
+        ['stats', '📊', 'Statistika'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'],
+        ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
     ];
     var tab = 'stats';
     function buildNav() {
@@ -417,15 +435,17 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             TABS.forEach(function (t) {
                 var b = h('button', { class: 'nav' + (t[0] === tab ? ' active' : ''), onclick: function () { go(t[0]); } }, [h('span', { class: 'ico', text: t[1] }), t[2]]);
                 if (t[0] === 'orders' && pendingCount) b.appendChild(h('span', { class: 'badge', text: String(pendingCount) }));
+                if (t[0] === 'support' && supportUnread) b.appendChild(h('span', { class: 'badge red', text: String(supportUnread) }));
                 box.appendChild(b);
             });
         });
     }
     function go(t) {
+        if (t !== 'support') supPhone = null;
         tab = t; buildNav();
         $('page-title').textContent = TABS.filter(function (x) { return x[0] === t; })[0][2];
         var view = $('view'); view.innerHTML = '<div class="loading">⏳</div>';
-        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, settings: vSettings, log: vLog, security: vSecurity }[t];
+        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, settings: vSettings, log: vLog, security: vSecurity }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -433,6 +453,132 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
     function enterApp() {
         $('auth').style.display = 'none'; $('app').style.display = 'block';
         go('stats');
+        startPing();
+    }
+
+    // ---------- yurak urishi: admin onlayn + yangi murojaatlar ----------
+    var pingTimer = null;
+    async function ping() {
+        if (!token || document.hidden) return;
+        try {
+            var j = await admin('ping');
+            if (!j.success) return;
+            var prevU = supportUnread;
+            if (j.supportUnread !== supportUnread || j.pendingOrders !== pendingCount) { supportUnread = j.supportUnread; pendingCount = j.pendingOrders; buildNav(); }
+            if (supportUnread > prevU) toast('💬 Yangi murojaat keldi');
+            if (tab === 'support' && supportUnread > prevU) supRefresh();
+        } catch (e) {}
+    }
+    function startPing() { clearInterval(pingTimer); ping(); pingTimer = setInterval(ping, 20000); }
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) ping(); });
+
+    // ---------- Murojaatlar ----------
+    var supRefresh = function () {};
+    async function vSupport(view) {
+        var timer = null;
+        if (supPhone) return supThread(view, supPhone);
+        var j = await admin('support_threads');
+        view.innerHTML = '';
+        supportUnread = j.unread || 0; buildNav();
+        supRefresh = function () { if (tab === 'support' && !supPhone) vSupport(view); };
+        view.appendChild(h('div', { class: 'sum', style: 'margin-bottom:10px', text: "Foydalanuvchilar saytdagi «💬 Yordam» orqali yozadi. Siz bu yerdan javob berasiz — javob saytda va Telegram botda boradi. Panel ochiq turganda saytda «🟢 Admin onlayn» ko'rinadi." }));
+        if (!(j.threads || []).length) { view.appendChild(h('div', { class: 'empty', text: "Hozircha murojaatlar yo'q" })); return; }
+        j.threads.forEach(function (t) {
+            view.appendChild(h('div', { class: 'row click', onclick: function () { supPhone = t.phone; supThread(view, t.phone); } }, [
+                h('div', { class: 'r-ico', text: '👤' }),
+                h('div', { class: 'r-main' }, [
+                    h('b', { text: (t.name || "Noma'lum") + ' · +' + t.phone }),
+                    h('small', { text: (t.lastSender === 'admin' ? 'Siz: ' : '') + String(t.last || '').slice(0, 90) + ' · ' + fmtDate(t.at) })
+                ]),
+                t.unread ? h('span', { class: 'badge', style: 'background:var(--red);color:#fff;min-width:22px;height:20px;border-radius:10px;display:grid;place-items:center;font-size:11.5px;font-weight:800;padding:0 6px', text: String(t.unread) }) : (t.lastSender === 'user' ? h('span', { class: 'tag pending', text: 'Javobsiz' }) : h('span', { class: 'tag done', text: 'Javob berilgan' }))
+            ]));
+        });
+    }
+    async function supThread(view, phone) {
+        var j = await admin('support_thread', { target: phone });
+        view.innerHTML = '';
+        var u = j.user || { phone: phone };
+        var list = h('div', { class: 'sup-list' });
+        var ta = h('textarea', { class: 'inp', placeholder: 'Javob yozing... (Enter — yuborish, Shift+Enter — yangi qator)' });
+        var last = '';
+        function paint(msgs) {
+            var sig = JSON.stringify(msgs.map(function (m) { return m.id; }));
+            if (sig === last) return; last = sig;
+            list.innerHTML = '';
+            msgs.forEach(function (m) {
+                list.appendChild(h('div', { class: 'sup-msg ' + m.sender }, [m.text, h('small', { text: (m.sender === 'admin' ? 'Siz · ' : '') + fmtDate(m.at) })]));
+            });
+            list.scrollTop = list.scrollHeight;
+        }
+        async function send() {
+            var t = ta.value.trim(); if (!t) { ta.focus(); return; }
+            ta.disabled = true;
+            var x = await admin('support_reply', { target: u.phone, text: t });
+            ta.disabled = false;
+            if (!x.success) { toast(x.error || 'Xato'); return; }
+            ta.value = ''; ta.focus();
+            toast(x.telegram ? '✅ Yuborildi — saytda va botda' : '✅ Saytga yuborildi (botga kirmagan)');
+            reload();
+        }
+        async function reload() {
+            if (tab !== 'support' || supPhone !== phone) return;
+            var r = await admin('support_thread', { target: phone });
+            if (r.success) paint(r.messages || []);
+            supportUnread = Math.max(0, supportUnread); ping();
+        }
+        ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+        view.appendChild(h('div', { class: 'card sup-wrap' }, [
+            h('div', { class: 'sup-head' }, [
+                h('button', { class: 'sq', title: 'Orqaga', text: '‹', onclick: function () { supPhone = null; vSupport(view); } }),
+                h('div', { class: 'r-main' }, [h('b', { text: u.name || "Noma'lum" }), h('small', { text: '+' + u.phone + (u.webOnly ? ' · ⚠️ botga kirmagan — javob faqat saytda ko\'rinadi' : ' · javob botga ham boradi ✈️') })]),
+                h('button', { class: 'act', text: '👤 Profil', onclick: function () { supPhone = null; tab = 'users'; buildNav(); $('page-title').textContent = 'Foydalanuvchilar'; vUser(view, u.phone); } })
+            ]),
+            list,
+            h('div', { class: 'sup-bar' }, [ta, h('button', { class: 'btn', style: 'width:auto;padding:0 18px;height:46px', text: 'Yuborish', onclick: send })])
+        ]));
+        paint(j.messages || []);
+        ping();
+        supRefresh = reload;
+        var iv = setInterval(function () { if (tab !== 'support' || supPhone !== phone) { clearInterval(iv); return; } if (!document.hidden) reload(); }, 6000);
+        setTimeout(function () { ta.focus(); }, 60);
+    }
+
+    // ---------- Narxlar (do'kon) ----------
+    async function vShop(view) {
+        var j = await admin('shop_get');
+        view.innerHTML = '';
+        if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        var items = j.items.map(function (x) { return Object.assign({}, x); });
+        var box = h('div');
+        function paint() {
+            box.innerHTML = '';
+            box.appendChild(h('div', { class: 'shop-row shop-hd' }, [h('span', { class: 'nm', text: 'Nomi' }), h('span', { text: "Narx, so'm" }), h('span', { text: 'Eski narx (chizilgan)' }), h('span', { text: 'Faol' }), h('span', { text: '' })]));
+            items.forEach(function (it, i) {
+                var nm = h('input', { class: 'inp nm' }); nm.value = it.name; nm.oninput = function () { it.name = nm.value; };
+                var pr = h('input', { class: 'inp mono', inputmode: 'numeric' }); pr.value = it.price; pr.oninput = function () { it.price = parseInt(pr.value.replace(/\D/g, ''), 10) || 0; };
+                var old = h('input', { class: 'inp mono', inputmode: 'numeric', placeholder: "yo'q" }); old.value = it.old || ''; old.oninput = function () { it.old = parseInt(old.value.replace(/\D/g, ''), 10) || 0; };
+                var sw = h('div', { class: 'switch' + (it.active !== false ? ' ok' : ''), role: 'switch', onclick: function () { it.active = it.active === false; paint(); } });
+                box.appendChild(h('div', { class: 'shop-row' + (it.active === false ? ' off' : '') }, [nm, pr, old, sw,
+                    h('button', { class: 'sq', title: "O'chirish", text: '✖', onclick: function () { items.splice(i, 1); paint(); } })]));
+            });
+        }
+        paint();
+        view.appendChild(h('div', { class: 'sum', style: 'margin-bottom:10px', text: "Hamyondagi Stars va Premium narxlari. «Eski narx» yozsangiz, saytda chizilgan holda va «-%» belgisi bilan chiqadi (aksiya). Nom o'zgarsa, eski nom bilan xarid qilib bo'lmaydi." }));
+        view.appendChild(h('div', { class: 'card form' }, [box,
+            h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap' }, [
+                h('button', { class: 'act', text: '＋ Stars', onclick: function () { items.push({ name: '1000 Stars', kind: 'stars', price: 260000, old: 0, active: true }); paint(); } }),
+                h('button', { class: 'act', text: '＋ Premium', onclick: function () { items.push({ name: 'Premium 12 oy', kind: 'premium', price: 390000, old: 0, active: true }); paint(); } })
+            ]),
+            h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+                for (var i = 0; i < items.length; i++) {
+                    if (!items[i].name.trim() || !(items[i].price > 0)) { toast((i + 1) + '-qator: nom va narxni yozing'); return; }
+                    if (items[i].old && items[i].old <= items[i].price) { toast(items[i].name + ': eski narx yangisidan katta bo\'lishi kerak'); return; }
+                }
+                var x = await admin('shop_set', { items: items });
+                toast(x.success ? '✅ Saqlandi — saytda darhol yangilandi' : (x.error || 'Xato'));
+                if (x.success) vShop(view);
+            } })
+        ]));
     }
 
     function kpi(label, value, accent) { return h('div', { class: 'kpi' + (accent ? ' accent' : '') }, [h('b', { text: String(value) }), h('small', { text: label })]); }
@@ -899,7 +1045,24 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             var values = {}; for (var k in inputs) { var n = parseInt(inputs[k].value, 10); if (isNaN(n) || n < 0) { toast(LABELS[k][0] + ': noto\'g\'ri qiymat'); return; } values[k] = n; }
             var x = await admin('settings_set', { values: values }); toast(x.success ? '✅ Saqlandi — darhol kuchga kirdi' : (x.error || 'Xato'));
         } })]));
-        view.appendChild(h('div', { class: 'sum', style: 'margin-top:12px', text: "Saytni yoki alohida funksiyalarni to'xtatish — 🚦 Boshqaruv bo'limida." }));
+        // kunlik hisobot
+        var repOn = j.reportOn !== false;
+        var repSw = h('div', { class: 'switch' + (repOn ? ' ok' : ''), role: 'switch', onclick: function () { repOn = !repOn; repSw.className = 'switch' + (repOn ? ' ok' : ''); } });
+        var repTime = h('input', { class: 'inp mono', type: 'time' }); repTime.value = j.reportTime || '23:50';
+        view.appendChild(h('div', { class: 'h', text: '📊 Kunlik hisobot (botga)' }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { style: 'display:flex;align-items:center;gap:12px' }, [h('div', { style: 'flex:1' }, [h('b', { text: 'Har kuni botga hisobot yuborish' }), h('div', { class: 'sum', text: "Yangi foydalanuvchilar, AI xabarlar, savdo, to'ldirishlar, kutilayotgan buyurtmalar va javobsiz murojaatlar. Botda /hisobot — istalgan payt." })]), repSw]),
+            h('div', { class: 'lb' }, ['Yuborish vaqti (Toshkent)', repTime]),
+            h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap' }, [
+                h('button', { class: 'btn', style: 'flex:1', text: '💾 Saqlash', onclick: async function () {
+                    var x = await admin('settings_set', { values: {}, reportOn: repOn, reportTime: repTime.value || '23:50' }); toast(x.success ? '✅ Saqlandi' : (x.error || 'Xato'));
+                } }),
+                h('button', { class: 'btn ghost', style: 'flex:1', text: '📨 Hozir yuborish', onclick: async function () {
+                    var x = await admin('report_now'); toast(x.success ? '✅ Hisobot botga yuborildi' : (x.error || 'Xato'));
+                } })
+            ])
+        ]));
+        view.appendChild(h('div', { class: 'sum', style: 'margin-top:12px', text: "Saytni yoki alohida funksiyalarni to'xtatish — 🚦 Boshqaruv bo'limida. Stars/Premium narxlari — 🏷 Narxlar bo'limida." }));
     }
 
     // ---------- Jurnal ----------
@@ -907,7 +1070,8 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         login: ['🔓', 'Panelga kirildi'], login_failed: ['⚠️', "Noto'g'ri parol bilan urinish"], settings: ['⚙️', 'Sozlamalar'], balance: ['💰', "Balans o'zgartirildi"],
         sub: ['♾️', 'Obuna'], password: ['🔑', "Foydalanuvchi paroli o'rnatildi"], message: ['✉️', 'Xabar yuborildi'], broadcast: ['📢', "E'lon"],
         order: ['🛒', 'Buyurtma'], ban: ['⛔', 'Bloklandi'], unban: ['✅', 'Blokdan chiqarildi'], promo_create: ['🎟️', 'Promo-kod yaratildi'],
-        promo_delete: ['✖', "Promo-kod o'chirildi"], control: ['🚦', 'Boshqaruv'], announce: ['📣', "Saytdagi e'lon"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi']
+        promo_delete: ['✖', "Promo-kod o'chirildi"], control: ['🚦', 'Boshqaruv'], announce: ['📣', "Saytdagi e'lon"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi'],
+        support_reply: ['💬', 'Murojaatga javob'], shop: ['🏷', "Narxlar o'zgartirildi"]
     };
     async function vLog(view) {
         var j = await admin('log');

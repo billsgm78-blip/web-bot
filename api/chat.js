@@ -54,7 +54,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "API kaliti sozlanmagan." });
   }
 
-  const { history, lang, stream, phone, password } = req.body || {};
+  const { history, lang, stream, phone, password, mode } = req.body || {};
   const wantStream = stream === true;
   if (!Array.isArray(history)) {
     return res.status(400).json({ error: "Noto'g'ri format." });
@@ -90,6 +90,16 @@ export default async function handler(req, res) {
         `If the language of the user's message is unclear (for example, only an image or a very short message), reply in ${LANG_NAMES[uiLang]}.`
     }
   ];
+
+  // AI rejimlari (saytdagi 🎭 tugmasi)
+  const MODES = {
+    teacher: "MODE: Patient teacher. Explain step by step in simple words, use small examples and analogies, check understanding at the end with one short question. For math/physics show every calculation step.",
+    coder: "MODE: Senior software engineer. Give correct, complete, runnable code in fenced code blocks with the language name, explain briefly what it does and how to run it, point out bugs and edge cases. Prefer modern best practices.",
+    translator: "MODE: Professional translator. If the user names a target language, translate into it; otherwise translate Uzbek↔English and Russian→Uzbek automatically. Output the translation first, then (only if useful) 1-2 short notes on nuance. Do not answer the content, just translate it.",
+    essay: "MODE: Essay and text writer. Write well-structured texts (essay, insho, article, letter, speech) with a title, introduction, body paragraphs and conclusion. Use rich but natural language, correct grammar and punctuation. Ask for length/topic only if completely missing.",
+    exam: "MODE: Exam coach. Help prepare for tests (DTM, IELTS, SAT, school exams). When asked for practice, give questions with A/B/C/D options one at a time or as a short set, then reveal the correct answers with brief explanations. Be encouraging and concise."
+  };
+  if (mode && MODES[mode]) messages[0].content += " " + MODES[mode];
 
   let requestContainsImage = false;
 
