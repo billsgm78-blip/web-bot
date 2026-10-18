@@ -469,7 +469,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             if (tab === 'support' && supportUnread > prevU) supRefresh();
         } catch (e) {}
     }
-    function startPing() { clearInterval(pingTimer); ping(); pingTimer = setInterval(ping, 5000); }
+    function startPing() { clearInterval(pingTimer); ping(); pingTimer = setInterval(ping, 4000); }
     // panel yopilsa yoki boshqa ilovaga o'tilsa — saytda darhol "oflayn"
     function goOffline() {
         if (!token) return;

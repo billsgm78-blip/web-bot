@@ -6552,20 +6552,36 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 if (lastAdmin) { lastNotified = lastAdmin.id; try { localStorage.setItem('bilol_sup_seen', lastNotified); } catch (e) {} }
             }
         }
+        function applyPeek(j) {
+            presence = j.admin; paintPresence();
+            var prev = unread; unread = Number(j.unread || 0); paintBadges();
+            if (unread > prev && unread > 0) note(T('💬 Admin javob yozdi — Yordam bo\'limini oching', '💬 The admin replied — open Support', '💬 Админ ответил — откройте Поддержку'));
+        }
         async function peek() {
             if (view.classList.contains('open')) return;
-            try {
-                var j = await api('/api/support/list', { peek: true });
-                if (!j.success) return;
-                presence = j.admin; paintPresence();
-                var prev = unread; unread = Number(j.unread || 0); paintBadges();
-                if (unread > prev && unread > 0) note(T('💬 Admin javob yozdi — Yordam bo\'limini oching', '💬 The admin replied — open Support', '💬 Админ ответил — откройте Поддержку'));
-            } catch (e) {}
+            try { var j = await api('/api/support/list', { peek: true }); if (j.success) applyPeek(j); } catch (e) {}
+        }
+        // Chat yopiq turganda ham jonli ulanish: admin onlayn/oflayn va yangi javob darhol ko'rinadi
+        var pver = null, peeking = false;
+        async function peekLoop() {
+            if (peeking) return;
+            peeking = true;
+            while (!view.classList.contains('open') && !document.hidden) {
+                var c = creds();
+                if (!c.phone || !c.password) { await sleep(5000); continue; }
+                try {
+                    var j = await api('/api/support/list', pver === null ? { peek: true } : { peek: true, ver: pver });
+                    if (!j.success) { await sleep(5000); continue; }
+                    pver = j.ver;
+                    if (!view.classList.contains('open')) applyPeek(j);
+                } catch (e) { await sleep(3000); }
+            }
+            peeking = false;
         }
         function schedule() {
             clearInterval(timer);
             if (view.classList.contains('open')) { liveLoop(); return; }
-            timer = setInterval(function () { if (!document.hidden) peek(); }, 30000);
+            pver = null; peekLoop();
         }
         function open() {
             var c = creds();
@@ -6603,8 +6619,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         $('open-settings-btn').addEventListener('click', function () { setTimeout(peek, 50); });
         $('open-chats-btn').addEventListener('click', function () { setTimeout(peek, 50); });
         $('drawer-support').onclick = open;
-        document.addEventListener('visibilitychange', function () { if (!document.hidden) peek(); });
-        setTimeout(peek, 2500); schedule();
+        document.addEventListener('visibilitychange', function () { if (!document.hidden) { pver = null; view.classList.contains('open') ? liveLoop() : peekLoop(); } });
+        setTimeout(schedule, 1500);
 
         /* ================= 🎭 AI REJIMLARI ================= */
         var MODES = [
