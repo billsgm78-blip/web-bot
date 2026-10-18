@@ -68,12 +68,28 @@ async function toEnglishPrompt(apiKey, text) {
         messages: [{ role: "user", content: `Rewrite this image request as a short, vivid English prompt for an image generator. Output only the prompt.\n\n${text}` }]
       })
     });
-    if (!r.ok) return text;
+    if (!r.ok) return "";
     const j = await r.json().catch(() => null);
-    const out = String(j?.choices?.[0]?.message?.content || "").trim().replace(/^["']|["']$/g, "");
-    return out || text;
+    return String(j?.choices?.[0]?.message?.content || "").trim().replace(/^["']|["']$/g, "");
   } catch (e) {
-    return text;
+    return "";
+  }
+}
+
+// Zaxira tarjima: Pollinations matn xizmati (bepul)
+async function toEnglishViaPollinations(text) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const ask = `Translate to a short English image prompt, output only the prompt: ${text}`;
+    const r = await fetch(`https://text.pollinations.ai/${encodeURIComponent(ask.slice(0, 600))}?referrer=bilolsai.uz`, { signal: ctrl.signal });
+    if (!r.ok) return "";
+    const out = (await r.text()).trim().replace(/^["']|["']$/g, "");
+    return out.length > 2 && out.length < 900 ? out : "";
+  } catch (e) {
+    return "";
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -116,13 +132,18 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: "API kaliti sozlanmagan." });
   if (!text) return res.status(400).json({ error: "Rasm tavsifini yozing." });
 
-  const charge = await railway("/api/image-charge", { phone, password });
+  // Pul yechiladi va tavsif botning Google Gemini kaliti bilan inglizchaga o'giriladi
+  const charge = await railway("/api/image-charge", { phone, password, prompt: text });
   if (charge._status === 403) return res.status(401).json({ error: "Iltimos, hisobdan chiqib qayta kiring.", needLogin: true });
   if (!charge.success) return res.status(402).json({ error: charge.error || "Mablag' yetarli emas", noMoney: true, price: charge.price, balance: charge.balance });
 
   let image = null;
   lastError = "";
-  const enPrompt = await toEnglishPrompt(apiKey, text);
+  const enPrompt = (charge.prompt || "").trim()
+    || await toEnglishPrompt(apiKey, text)
+    || await toEnglishViaPollinations(text)
+    || text;
+  if (enPrompt === text) lastError += " | tarjima ishlamadi";
   try {
     image = await viaImagesEndpoint(apiKey, enPrompt);
     if (!image) image = await viaChat(apiKey, enPrompt);
