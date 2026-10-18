@@ -680,7 +680,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         (j.payments || []).forEach(function (p) {
             var st = ST[p.status] || ['off', p.status];
             var acts = (p.status === 'pending' || p.status === 'expired') ? h('div', { style: 'display:flex;gap:6px' }, [
-                h('button', { class: 'act', text: '✅ Tasdiqlash', onclick: async function () {
+                !p.receipt_file ? h('span', { class: 'tag pending', text: '🧾 Chek kutilmoqda' }) : h('button', { class: 'act', text: '✅ Tasdiqlash', onclick: async function () {
                     if (!await dialog({ title: "Qo'lda tasdiqlash", text: (p.name || '+' + p.phone_norm) + ' balansiga ' + money(p.amount) + " so'm qo'shiladi. Pul kartangizga tushganini tekshirdingizmi?", ok: 'Tasdiqlash' })) return;
                     var x = await admin('card_confirm', { id: p.id }); toast(x.success ? '✅ Balansga qo\'shildi' : (x.error || 'Xato')); reload();
                 } }),
