@@ -118,6 +118,8 @@ input, textarea, select { font-family: inherit; color: var(--text); }
 .lb { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--muted); font-weight: 600; }
 .lb .inp { height: 46px; }
 .lb small { color: var(--dim); font-weight: 500; }
+select.inp { color: inherit; appearance: auto; }
+select.inp option { background: #0d1222; color: #e8ecf8; }
 textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vertical; line-height: 1.5; outline: none; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); font-size: 15px; }
 .switch { position: relative; width: 52px; height: 30px; border-radius: 16px; background: rgba(255,255,255,0.14); border: 1px solid var(--line2); flex-shrink: 0; transition: background .25s; }
 .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .25s cubic-bezier(.3,1.4,.6,1); }
@@ -427,7 +429,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
     // ================= PANEL =================
     var TABS = [
         ['stats', '📊', 'Statistika'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'],
-        ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
+        ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
     ];
     var tab = 'stats';
     function buildNav() {
@@ -446,7 +448,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         tab = t; buildNav();
         $('page-title').textContent = TABS.filter(function (x) { return x[0] === t; })[0][2];
         var view = $('view'); view.innerHTML = '<div class="loading">⏳</div>';
-        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, settings: vSettings, log: vLog, security: vSecurity }[t];
+        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, settings: vSettings, log: vLog, security: vSecurity }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -728,6 +730,72 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             row.onclick = function () { dialog({ title: 'CardXabar xabari', text: x.text || '' }); };
             view.appendChild(row);
         });
+    }
+
+    // ---------- AI sozlamalari ----------
+    var AI_MODELS = [
+        ['google/gemini-2.0-flash-001', '⚡ Gemini 2.0 Flash — eng tez va arzon (standart)'],
+        ['google/gemini-2.5-flash', '🧠 Gemini 2.5 Flash — aqlliroq, biroz qimmatroq'],
+        ['google/gemini-2.5-pro', '💎 Gemini 2.5 Pro — eng aqlli, qimmat va sekinroq'],
+        ['openai/gpt-4o-mini', '🤖 GPT-4o mini — OpenAI, tez'],
+        ['openai/gpt-4o', '🤖 GPT-4o — OpenAI, kuchli, qimmat'],
+        ['deepseek/deepseek-chat', '🐋 DeepSeek V3 — arzon, kod va matnda yaxshi']
+    ];
+    async function vAI(view) {
+        var j = await admin('ai_get');
+        view.innerHTML = '';
+        if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        var c = j.config;
+        var sel = h('select', { class: 'inp' });
+        var known = AI_MODELS.some(function (m) { return m[0] === c.model; });
+        AI_MODELS.forEach(function (m) { var o = h('option', { value: m[0], text: m[1] }); if (m[0] === c.model) o.selected = true; sel.appendChild(o); });
+        var oc = h('option', { value: '__custom', text: '✏️ Boshqa model (OpenRouter ID)' }); if (!known) oc.selected = true; sel.appendChild(oc);
+        var custom = h('input', { class: 'inp mono', placeholder: 'masalan: anthropic/claude-3.5-haiku' }); custom.value = known ? '' : c.model;
+        var customWrap = h('div', { class: 'lb' }, ['Model ID', custom, h('small', { text: "Ro'yxat: openrouter.ai/models" })]);
+        customWrap.style.display = known ? 'none' : '';
+        sel.onchange = function () { customWrap.style.display = sel.value === '__custom' ? '' : 'none'; };
+        var fb = c.fallback !== false;
+        var fbSw = h('div', { class: 'switch' + (fb ? ' ok' : ''), role: 'switch', onclick: function () { fb = !fb; fbSw.className = 'switch' + (fb ? ' ok' : ''); } });
+        var LEN = [[800, 'Qisqa'], [1500, "O'rtacha"], [3000, 'Uzun (standart)'], [6000, 'Juda uzun']];
+        var lenSel = h('select', { class: 'inp' });
+        LEN.forEach(function (l) { var o = h('option', { value: l[0], text: l[1] + ' — ' + l[0] + ' token' }); if (+l[0] === +c.maxTokens) o.selected = true; lenSel.appendChild(o); });
+        if (!LEN.some(function (l) { return +l[0] === +c.maxTokens; })) { var ol = h('option', { value: c.maxTokens, text: c.maxTokens + ' token' }); ol.selected = true; lenSel.appendChild(ol); }
+        var temp = h('input', { type: 'range', min: '0', max: '1.5', step: '0.1', style: 'width:100%' }); temp.value = c.temperature;
+        var tempLbl = h('small');
+        function tl() { var v = +temp.value; tempLbl.textContent = v.toFixed(1) + ' — ' + (v <= 0.3 ? 'aniq va qisqa, fantaziyasiz' : v <= 0.9 ? 'muvozanatli (tavsiya)' : 'ijodiy, erkin'); }
+        temp.oninput = tl; tl();
+        var hist = h('input', { class: 'inp mono', type: 'number', min: '2', max: '30' }); hist.value = c.history;
+        var prompt = h('textarea', { class: 'inp', rows: 6, placeholder: "Masalan: Sen Bilols AI yordamchisisan. Har doim xushmuomala bo'l. Javob oxirida foydalanuvchiga Stars xizmatimizni eslatib o't. Siyosat haqida gapirma." }); prompt.value = c.prompt || '';
+        var cnt = h('small', { text: (c.prompt || '').length + ' / 3000' }); prompt.oninput = function () { cnt.textContent = prompt.value.length + ' / 3000'; };
+        function collect() {
+            return { model: sel.value === '__custom' ? custom.value.trim() : sel.value, fallback: fb, maxTokens: +lenSel.value,
+                     temperature: +temp.value, history: +hist.value || 12, prompt: prompt.value };
+        }
+        view.appendChild(h('div', { class: 'sum', style: 'margin-bottom:12px', text: "Bu sozlamalar saytdagi AI chatga darhol ta'sir qiladi. Qo'shimcha ko'rsatma, javob uzunligi va ijodkorlik Telegram botdagi AI'ga ham qo'llanadi." }));
+        view.appendChild(h('div', { class: 'h', text: '🧠 Model' }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'lb' }, ['Asosiy model', sel]), customWrap,
+            h('div', { style: 'display:flex;align-items:center;gap:12px' }, [h('div', { style: 'flex:1' }, [h('b', { text: 'Zaxira modellar' }), h('div', { class: 'sum', text: "Tanlangan model ishlamasa, avtomatik boshqasiga o'tadi (tavsiya etiladi)" })]), fbSw])
+        ]));
+        view.appendChild(h('div', { class: 'h', text: '📏 Javob' }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'form-row' }, [h('div', { class: 'lb' }, ['Javob uzunligi', lenSel]), h('div', { class: 'lb' }, ['Eslab qoladigan xabarlar', hist, h('small', { text: "Suhbatning oxirgi nechta xabarini ko'radi (2–30)" })])]),
+            h('div', { class: 'lb' }, ['Ijodkorlik (temperature)', temp, tempLbl])
+        ]));
+        view.appendChild(h('div', { class: 'h', text: "📝 Qo'shimcha ko'rsatma (tizim prompti)" }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'sum', text: "AI har bir javobda shu qoidalarga amal qiladi. Uslub, taqiqlar, reklama — shu yerga yozing. Bo'sh qoldirsangiz, standart ishlaydi." }),
+            prompt, cnt
+        ]));
+        view.appendChild(h('div', { style: 'display:flex;gap:8px;margin-top:12px' }, [
+            h('button', { class: 'btn ghost', style: 'flex:1', text: '↺ Standartga qaytarish', onclick: async function () {
+                if (!await dialog({ title: 'Standart sozlamalar', text: "Model, uzunlik va ko'rsatma boshlang'ich holatga qaytadi.", ok: 'Qaytarish' })) return;
+                var x = await admin('ai_set', { config: {}, reset: true }); toast(x.success ? '✅ Standartga qaytarildi' : (x.error || 'Xato')); vAI(view);
+            } }),
+            h('button', { class: 'btn', style: 'flex:2', text: '💾 Saqlash', onclick: async function () {
+                var x = await admin('ai_set', { config: collect() }); toast(x.success ? '✅ Saqlandi — keyingi xabardan kuchga kiradi' : (x.error || 'Xato'));
+            } })
+        ]));
     }
 
     // ---------- Narxlar (do'kon) ----------
@@ -1036,12 +1104,26 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         ]));
         function act(label, fn, red) { return h('button', { class: 'act' + (red ? ' red' : ''), text: label, onclick: fn }); }
         var reload = function () { vUser(view, u.phone); };
+        async function balanceDialog(sign) {
+            var add = sign > 0;
+            var r = await dialog({
+                title: add ? "➕ Balansga pul qo'shish" : '➖ Balansdan pul ayirish',
+                text: (u.name || '+' + u.phone) + ' · hozirgi balans: ' + money(u.balance) + " so'm",
+                fields: [{ label: "Summa (so'm)", inputmode: 'numeric', placeholder: add ? '10000' : '5000' },
+                         { label: 'Sabab (ixtiyoriy) — yozsangiz, foydalanuvchiga botda xabar boradi', placeholder: add ? 'Bonus' : "Noto'g'ri to'lov qaytarildi" }],
+                ok: add ? "Qo'shish" : 'Ayirish', danger: !add
+            });
+            if (!r) return;
+            var n = parseInt(String(r[0]).replace(/\D/g, ''), 10);
+            if (!n || n <= 0) { toast("Summani to'g'ri yozing"); return; }
+            if (!add && n > u.balance) { toast("Balansda faqat " + money(u.balance) + " so'm bor"); return; }
+            var x = await admin('topup', { target: u.phone, amount: add ? n : -n, reason: r[1], notify: !!r[1] });
+            toast(x.success ? (add ? '➕ ' : '➖ ') + money(n) + " so'm · yangi balans: " + money(x.balance) + (x.notified ? ' · xabar yuborildi' : '') : (x.error || 'Xato'));
+            if (x.success) reload();
+        }
         var acts = h('div', { class: 'actions' }, [
-            act('± Balans', async function () {
-                var r = await dialog({ title: "Balansni o'zgartirish", text: "Qo'shish: 5000 · ayirish: -5000", fields: [{ label: "Summa (so'm)", inputmode: 'numeric', placeholder: '5000' }], ok: 'Saqlash' });
-                if (!r) return; var n = parseInt(r[0], 10); if (!n) return;
-                var x = await admin('topup', { target: u.phone, amount: n }); toast(x.success ? "Balans: " + money(x.balance) + " so'm" : (x.error || 'Xato')); if (x.success) reload();
-            }),
+            act('➕ Pul qo\'shish', function () { balanceDialog(1); }),
+            act('➖ Pul ayirish', function () { balanceDialog(-1); }, true),
             act('♾️ Obuna berish', async function () {
                 var r = await dialog({ title: 'Obuna berish', fields: [{ label: 'Necha kun', inputmode: 'numeric', value: '30' }], ok: 'Berish' });
                 if (!r) return; var d = parseInt(r[0], 10); if (!(d > 0)) return;
@@ -1260,7 +1342,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         sub: ['♾️', 'Obuna'], password: ['🔑', "Foydalanuvchi paroli o'rnatildi"], message: ['✉️', 'Xabar yuborildi'], broadcast: ['📢', "E'lon"],
         order: ['🛒', 'Buyurtma'], ban: ['⛔', 'Bloklandi'], unban: ['✅', 'Blokdan chiqarildi'], promo_create: ['🎟️', 'Promo-kod yaratildi'],
         promo_delete: ['✖', "Promo-kod o'chirildi"], control: ['🚦', 'Boshqaruv'], announce: ['📣', "Saytdagi e'lon"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi'],
-        support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], shop: ['🏷', "Narxlar o'zgartirildi"]
+        support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], ai: ['🤖', "AI sozlamalari o'zgartirildi"], shop: ['🏷', "Narxlar o'zgartirildi"]
     };
     async function vLog(view) {
         var j = await admin('log');

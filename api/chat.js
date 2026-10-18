@@ -101,10 +101,17 @@ export default async function handler(req, res) {
   };
   if (mode && MODES[mode]) messages[0].content += " " + MODES[mode];
 
+  // Admin paneldagi "AI sozlamalari" (bot serveridan keladi)
+  const ai = (quota && quota.ai) || {};
+  if (typeof ai.prompt === "string" && ai.prompt.trim()) {
+    messages[0].content += "\n\nAdditional instructions from the service owner (follow them):\n" + ai.prompt.trim().slice(0, 3000);
+  }
+  const historyLimit = Math.max(2, Math.min(30, parseInt(ai.history, 10) || 12));
+
   let requestContainsImage = false;
 
   // TEZLIK: faqat oxirgi 12 ta xabarni yuboramiz (tarix o'sib ketmasin)
-  let recent = history.slice(-12);
+  let recent = history.slice(-historyLimit);
   while (recent.length && recent[0].role === "model") recent.shift();
 
   // TEZLIK: faqat eng oxirgi rasm qoladi, eskilari tashlab yuboriladi
@@ -150,14 +157,19 @@ export default async function handler(req, res) {
     "google/gemini-2.0-flash-001",
     "openai/gpt-4o-mini"
   ];
-  const modelList = requestContainsImage ? VISION_MODELS : FAST_MODELS;
+  let modelList = requestContainsImage ? VISION_MODELS : FAST_MODELS;
+  if (typeof ai.model === "string" && /^[\w.-]+\/[\w.:-]+$/.test(ai.model)) {
+    // tanlangan model birinchi; "zaxira" yoqilgan bo'lsa, ishlamasa keyingilariga o'tadi
+    modelList = ai.fallback === false ? [ai.model] : [ai.model, ...modelList.filter(m => m !== ai.model)].slice(0, 3);
+  }
 
   const requestBody = {
     model: modelList[0],
     models: modelList,
     messages: messages,
-    max_tokens: 3000
+    max_tokens: Math.max(256, Math.min(8000, parseInt(ai.maxTokens, 10) || 3000))
   };
+  if (typeof ai.temperature === "number") requestBody.temperature = Math.max(0, Math.min(1.5, ai.temperature));
   if (wantStream) requestBody.stream = true;
 
   try {
