@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#05070f">
+<title>Bilols AI — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #05070f; --panel: #0b1020; --card: rgba(255,255,255,0.035); --line: rgba(255,255,255,0.08); --line2: rgba(255,255,255,0.14);
+    --text: #eef1f8; --muted: #8b95ad; --dim: #5d6680;
+    --violet: #8b5cf6; --blue: #3b82f6; --teal: #14d8b8; --green: #10b981; --red: #f43f5e; --amber: #f59e0b;
+    --grad: linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+html, body { background: var(--bg); color: var(--text); min-height: 100%; }
+body { min-height: 100svh; }
+button { font-family: inherit; cursor: pointer; }
+input, textarea, select { font-family: inherit; color: var(--text); }
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+.glow-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(60% 40% at 15% 0%, rgba(139,92,246,0.16), transparent 70%), radial-gradient(50% 40% at 100% 100%, rgba(20,216,184,0.10), transparent 70%); }
+
+/* ---------- Kirish ---------- */
+#auth { position: relative; z-index: 1; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 20px; padding-top: calc(20px + env(safe-area-inset-top)); }
+.auth-card { width: 100%; max-width: 400px; background: rgba(13,18,32,0.92); border: 1px solid var(--line); border-radius: 24px; padding: 26px 22px 22px; box-shadow: 0 30px 80px -20px rgba(0,0,0,0.9); animation: up .45s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.logo { width: 44px; height: 44px; border-radius: 14px; background: var(--grad); display: grid; place-items: center; font-size: 21px; box-shadow: 0 6px 20px -4px rgba(139,92,246,0.6); }
+.brand b { display: block; font-size: 16px; }
+.brand small { color: var(--muted); font-size: 12.5px; }
+.auth-card h1 { font-size: 23px; font-weight: 800; margin-bottom: 6px; }
+.auth-card p.sub { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin-bottom: 18px; }
+.field { position: relative; margin-bottom: 10px; }
+.field input, .inp { width: 100%; height: 50px; padding: 0 16px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); font-size: 15px; outline: none; transition: border-color .2s, box-shadow .2s; }
+.field input:focus, .inp:focus, textarea:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(139,92,246,0.22); }
+.eye { position: absolute; right: 6px; top: 6px; width: 38px; height: 38px; border: none; border-radius: 10px; background: transparent; color: var(--muted); font-size: 16px; }
+.btn { height: 50px; width: 100%; border: none; border-radius: 14px; background: var(--grad); color: #fff; font-weight: 700; font-size: 15px; box-shadow: 0 10px 24px -12px rgba(139,92,246,0.8); transition: filter .2s, transform .1s; }
+.btn:hover { filter: brightness(1.08); }
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: .65; cursor: progress; }
+.btn.ghost { background: rgba(255,255,255,0.05); border: 1px solid var(--line2); box-shadow: none; color: var(--text); }
+.btn.danger { background: rgba(244,63,94,0.14); border: 1px solid rgba(244,63,94,0.4); color: #fda4af; box-shadow: none; }
+.msg { min-height: 20px; margin-top: 12px; font-size: 13.5px; text-align: center; line-height: 1.45; }
+.msg.err { color: #fb7185; } .msg.ok { color: #34d399; }
+.code-boxes { display: flex; gap: 8px; justify-content: space-between; margin-bottom: 12px; }
+.code-boxes input { width: 100%; min-width: 0; height: 58px; text-align: center; font-size: 24px; font-weight: 700; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--line2); outline: none; font-family: 'JetBrains Mono', monospace; }
+.code-boxes input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(20,216,184,0.2); }
+.link { background: none; border: none; color: #a5b4fc; font-size: 13.5px; font-weight: 600; margin-top: 12px; width: 100%; }
+
+/* ---------- Panel ---------- */
+#app { position: relative; z-index: 1; display: none; min-height: 100svh; }
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100svh; }
+.side { position: sticky; top: 0; height: 100svh; border-right: 1px solid var(--line); background: rgba(8,11,22,0.85); padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; padding-top: calc(18px + env(safe-area-inset-top)); }
+.side .brand { margin: 0 6px 16px; }
+.nav { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 12px; border-radius: 12px; border: none; background: transparent; color: var(--muted); font-size: 14px; font-weight: 600; text-align: left; transition: background .15s, color .15s; }
+.nav:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+.nav.active { background: rgba(139,92,246,0.14); color: #fff; box-shadow: inset 0 0 0 1px rgba(139,92,246,0.3); }
+.nav .ico { width: 22px; text-align: center; }
+.nav .badge { margin-left: auto; min-width: 22px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--amber); color: #111; font-size: 11.5px; font-weight: 800; display: grid; place-items: center; }
+.side .spacer { flex: 1; }
+.main { min-width: 0; padding: 22px 26px 40px; padding-top: calc(22px + env(safe-area-inset-top)); max-width: 1100px; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.top h2 { font-size: 24px; font-weight: 800; }
+.top .right { display: flex; gap: 8px; align-items: center; }
+.chip { padding: 7px 12px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); font-size: 12.5px; }
+.icon-btn { height: 38px; padding: 0 14px; border-radius: 11px; border: 1px solid var(--line2); background: rgba(255,255,255,0.04); color: var(--text); font-size: 13.5px; font-weight: 600; }
+.icon-btn:hover { background: rgba(255,255,255,0.08); }
+.mobile-tabs { display: none; }
+
+.grid { display: grid; gap: 12px; }
+.kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 14px; }
+.kpi { padding: 16px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
+.kpi b { display: block; font-size: 24px; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.5px; }
+.kpi small { color: var(--muted); font-size: 12.5px; }
+.kpi.accent { background: linear-gradient(140deg, rgba(139,92,246,0.18), rgba(59,130,246,0.06)); border-color: rgba(139,92,246,0.3); }
+.h { font-size: 14px; font-weight: 700; color: #cfd5e6; margin: 18px 0 10px; display: flex; align-items: center; justify-content: space-between; }
+.card { padding: 16px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
+.alert { display: flex; align-items: center; gap: 10px; width: 100%; padding: 13px 14px; border-radius: 14px; border: 1px solid rgba(245,158,11,0.35); background: rgba(245,158,11,0.10); color: #fbbf24; font-weight: 700; font-size: 14px; margin-bottom: 14px; text-align: left; }
+.chart { width: 100%; height: auto; display: block; }
+.legend { display: flex; gap: 16px; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+.row { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--line); }
+.row.click { cursor: pointer; border-radius: 12px; padding: 12px 8px; }
+.row.click:hover { background: rgba(255,255,255,0.03); }
+.r-ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 18px; flex-shrink: 0; background: rgba(255,255,255,0.05); }
+.r-ico.in { background: rgba(16,185,129,0.12); } .r-ico.out { background: rgba(244,63,94,0.10); }
+.r-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.r-main b { font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r-main small { color: var(--dim); font-size: 12px; margin-top: 2px; }
+.r-amt { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; white-space: nowrap; }
+.r-amt.in { color: #34d399; } .r-amt.out { color: #fb7185; }
+.r-amt small { display: block; font-size: 11px; color: var(--dim); font-weight: 500; }
+.tag { align-self: flex-start; margin-top: 4px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; }
+.tag.pending { background: rgba(245,158,11,0.14); color: #fbbf24; } .tag.done { background: rgba(16,185,129,0.14); color: #34d399; }
+.tag.off { background: rgba(148,163,184,0.14); color: #94a3b8; } .tag.red { background: rgba(244,63,94,0.15); color: #fb7185; }
+.sq { width: 40px; height: 40px; flex-shrink: 0; border-radius: 11px; border: 1px solid var(--line2); background: rgba(255,255,255,0.04); color: var(--text); font-size: 16px; }
+.sq:hover { background: rgba(255,255,255,0.09); }
+.filters { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.filters button { padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line2); background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; }
+.filters button.active { background: rgba(255,255,255,0.09); color: #fff; }
+.sum { color: var(--muted); font-size: 12.5px; margin: 6px 2px 4px; }
+.empty { color: var(--dim); text-align: center; padding: 36px 10px; font-size: 14px; }
+.loading { color: var(--dim); text-align: center; padding: 36px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 6px; }
+.act { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line2); background: rgba(255,255,255,0.04); color: var(--text); font-size: 13.5px; font-weight: 600; }
+.act:hover { background: rgba(255,255,255,0.09); }
+.act.red { border-color: rgba(244,63,94,0.4); color: #fda4af; background: rgba(244,63,94,0.08); }
+.back { background: none; border: none; color: #a5b4fc; font-weight: 700; font-size: 14px; padding: 2px 0 12px; }
+.user-head b { font-size: 20px; } .user-head small { display: block; color: var(--muted); font-size: 13px; margin-top: 3px; }
+.form { display: grid; gap: 10px; }
+.form-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+label.lb { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+label.lb .inp { height: 46px; }
+label.lb small { color: var(--dim); font-weight: 500; }
+textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vertical; line-height: 1.5; outline: none; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); font-size: 15px; }
+.switch { position: relative; width: 52px; height: 30px; border-radius: 16px; background: rgba(255,255,255,0.14); border: 1px solid var(--line2); flex-shrink: 0; transition: background .25s; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .25s cubic-bezier(.3,1.4,.6,1); }
+.switch.on { background: var(--red); border-color: transparent; }
+.switch.on::after { transform: translateX(22px); }
+.set-line { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.set-line b { font-size: 15px; } .set-line small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.preview { margin-top: 10px; padding: 14px; border-radius: 14px; background: #17212b; border: 1px solid rgba(255,255,255,0.06); font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.preview b { display: block; margin-bottom: 6px; }
+.copy { cursor: pointer; }
+.copy:hover { text-decoration: underline; }
+
+/* toast va oyna */
+#toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px); opacity: 0; z-index: 100; padding: 12px 18px; border-radius: 14px; background: #111827; border: 1px solid var(--line2); font-size: 14px; font-weight: 600; transition: all .25s; pointer-events: none; max-width: calc(100% - 32px); text-align: center; box-shadow: 0 16px 40px rgba(0,0,0,0.6); }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#modal { position: fixed; inset: 0; z-index: 90; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(2,4,10,0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+#modal.open { display: flex; }
+.m-card { width: 100%; max-width: 420px; background: #0d1222; border: 1px solid var(--line2); border-radius: 20px; padding: 20px; animation: up .3s cubic-bezier(.2,.8,.2,1) both; }
+.m-card h3 { font-size: 18px; margin-bottom: 4px; } .m-card p { color: var(--muted); font-size: 13.5px; margin-bottom: 14px; line-height: 1.45; }
+.m-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+
+@media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .side { display: none; }
+    .main { padding: 14px 14px 40px; padding-top: calc(14px + env(safe-area-inset-top)); }
+    .mobile-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -14px 14px; padding: 0 14px; -webkit-overflow-scrolling: touch; }
+    .mobile-tabs::-webkit-scrollbar { display: none; }
+    .mobile-tabs .nav { flex: 0 0 auto; width: auto; padding: 9px 12px; border: 1px solid var(--line); font-size: 13px; }
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .form-row { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .top h2 { font-size: 20px; }
+    .top .chip, .top .lbl { display: none; }
+    .top h2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .top .right { flex-shrink: 0; }
+}
+</style>
+</head>
+<body>
+<div class="glow-bg"></div>
+
+<!-- ============ KIRISH ============ -->
+<section id="auth">
+    <div class="auth-card" id="step-login">
+        <div class="brand"><div class="logo">⚡</div><div><b>Bilols AI</b><small>Admin panel</small></div></div>
+        <h1>Kirish</h1>
+        <p class="sub">Login va parolni kiriting. So'ng Telegram'ingizga tasdiqlash kodi keladi.</p>
+        <form id="login-form" autocomplete="on">
+            <div class="field"><input id="a-login" placeholder="Login" autocomplete="username" autocapitalize="off" spellcheck="false"></div>
+            <div class="field"><input id="a-pass" type="password" placeholder="Parol" autocomplete="current-password"><button type="button" class="eye" id="a-eye">👁</button></div>
+            <button class="btn" id="a-submit">Davom etish</button>
+        </form>
+        <div class="msg" id="a-msg"></div>
+    </div>
+
+    <div class="auth-card" id="step-code" style="display:none">
+        <div class="brand"><div class="logo">🛡</div><div><b>2-bosqich</b><small>Telegram orqali tasdiqlash</small></div></div>
+        <h1>Kodni kiriting</h1>
+        <p class="sub">Telegram botga 6 xonali kod yuborildi. Kod 5 daqiqa amal qiladi.</p>
+        <div class="code-boxes" id="code-boxes"></div>
+        <button class="btn" id="c-submit">Tasdiqlash</button>
+        <div class="msg" id="c-msg"></div>
+        <button class="link" id="c-back">← Qaytadan kirish</button>
+    </div>
+</section>
+
+<!-- ============ PANEL ============ -->
+<section id="app">
+    <div class="layout">
+        <aside class="side">
+            <div class="brand"><div class="logo">⚡</div><div><b>Bilols AI</b><small>Admin panel</small></div></div>
+            <div id="nav-side"></div>
+            <div class="spacer"></div>
+            <button class="nav" id="logout-side"><span class="ico">⎋</span>Chiqish</button>
+        </aside>
+        <main class="main">
+            <div class="top">
+                <h2 id="page-title">Statistika</h2>
+                <div class="right">
+                    <span class="chip" id="session-chip">Sessiya faol</span>
+                    <button class="icon-btn" id="refresh" title="Yangilash">↻<span class="lbl"> Yangilash</span></button>
+                    <button class="icon-btn" id="logout-top">Chiqish</button>
+                </div>
+            </div>
+            <div class="mobile-tabs" id="nav-mobile"></div>
+            <div id="view"></div>
+        </main>
+    </div>
+</section>
+
+<div id="modal"><div class="m-card" id="m-card"></div></div>
+<div id="toast"></div>
+
+<script>
+(function () {
+    'use strict';
+    // Bot serveri manzili. Har oy Railway almashsa, index.html dagi RAILWAY_URL o'qiladi (bitta joyda o'zgartirish yetarli).
+    var API = 'https://ai2-production-7d7e.up.railway.app';
+    var apiReady = fetch('/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
+        var m = t.match(/const\s+RAILWAY_URL\s*=\s*"([^"]+)"/);
+        if (m) API = m[1].replace(/\/$/, '');
+    }).catch(function () {});
+
+    var $ = function (id) { return document.getElementById(id); };
+    var TOKEN_KEY = 'bilols_admin_token';
+    var token = null, ticket = null, pendingCount = 0;
+    try {
+        var saved = JSON.parse(localStorage.getItem(TOKEN_KEY) || 'null');
+        if (saved && saved.exp > Date.now()) token = saved.t;
+    } catch (e) {}
+
+    function h(tag, attrs, kids) {
+        var e = document.createElement(tag);
+        if (attrs) for (var k in attrs) {
+            if (k === 'class') e.className = attrs[k];
+            else if (k === 'text') e.textContent = attrs[k];
+            else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), attrs[k]);
+            else if (attrs[k] !== undefined && attrs[k] !== null) e.setAttribute(k, attrs[k]);
+        }
+        (kids || []).forEach(function (c) { if (c != null) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+        return e;
+    }
+    function money(n) { return Number(n || 0).toLocaleString('ru-RU').replace(/ /g, ' '); }
+    function pad(n) { return ('0' + n).slice(-2); }
+    function fmtDate(sec) {
+        var d = new Date(sec * 1000), now = new Date(), hm = pad(d.getHours()) + ':' + pad(d.getMinutes());
+        if (d.toDateString() === now.toDateString()) return 'Bugun, ' + hm;
+        var y = new Date(now); y.setDate(now.getDate() - 1);
+        if (d.toDateString() === y.toDateString()) return 'Kecha, ' + hm;
+        return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear() + ', ' + hm;
+    }
+    function fmtDay(sec) { var d = new Date(sec * 1000); return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear(); }
+    var toastTimer;
+    function toast(t) { var el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2600); }
+
+    async function post(path, body, extraHeaders) {
+        await apiReady;
+        var r = await fetch(API + path, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, extraHeaders || {}), body: JSON.stringify(body || {}) });
+        var j = {};
+        try { j = await r.json(); } catch (e) {}
+        j._status = r.status;
+        return j;
+    }
+    async function admin(action, body) {
+        var j = await post('/api/admin/' + action, body, { 'X-Admin-Token': token || '' });
+        if (j._status === 401) { logout(true); throw new Error('auth'); }
+        return j;
+    }
+
+    // ---------- oyna (prompt/confirm o'rniga — mini app'da ham ishlaydi) ----------
+    function dialog(opts) {
+        return new Promise(function (resolve) {
+            var card = $('m-card'); card.innerHTML = '';
+            card.appendChild(h('h3', { text: opts.title }));
+            if (opts.text) card.appendChild(h('p', { text: opts.text }));
+            var inputs = (opts.fields || []).map(function (f) {
+                var inp = f.multiline ? h('textarea', { class: 'inp', placeholder: f.placeholder || '', rows: 4 }) : h('input', { class: 'inp', type: f.type || 'text', placeholder: f.placeholder || '', inputmode: f.inputmode || null });
+                if (f.value != null) inp.value = f.value;
+                card.appendChild(h('label', { class: 'lb', style: 'margin-bottom:10px' }, [f.label || '', inp]));
+                return inp;
+            });
+            function close(v) { $('modal').classList.remove('open'); resolve(v); }
+            var ok = h('button', { class: 'btn' + (opts.danger ? ' danger' : ''), text: opts.ok || 'OK', onclick: function () { close(opts.fields ? inputs.map(function (i) { return i.value.trim(); }) : true); } });
+            card.appendChild(h('div', { class: 'm-btns' }, [h('button', { class: 'btn ghost', text: 'Bekor', onclick: function () { close(null); } }), ok]));
+            $('modal').classList.add('open');
+            setTimeout(function () { (inputs[0] || ok).focus(); }, 60);
+            inputs.forEach(function (i) { i.addEventListener('keydown', function (e) { if (e.key === 'Enter' && i.tagName !== 'TEXTAREA') ok.click(); }); });
+        });
+    }
+    $('modal').addEventListener('click', function (e) { if (e.target.id === 'modal') { $('modal').classList.remove('open'); } });
+
+    // ================= KIRISH =================
+    $('a-eye').onclick = function () { var p = $('a-pass'); p.type = p.type === 'password' ? 'text' : 'password'; };
+    $('login-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var btn = $('a-submit'), msg = $('a-msg');
+        var login = $('a-login').value.trim(), pass = $('a-pass').value;
+        if (!login || !pass) { msg.className = 'msg err'; msg.textContent = 'Login va parolni kiriting.'; return; }
+        btn.disabled = true; msg.className = 'msg'; msg.textContent = '⏳';
+        try {
+            var j = await post('/api/admin-auth/login', { login: login, password: pass });
+            if (j.success) { ticket = j.ticket; showCode(); }
+            else { msg.className = 'msg err'; msg.textContent = j.error || 'Xatolik'; }
+        } catch (e2) { msg.className = 'msg err'; msg.textContent = "Server bilan bog'lanib bo'lmadi."; }
+        btn.disabled = false;
+    });
+    var boxes = [];
+    (function buildBoxes() {
+        var wrap = $('code-boxes');
+        for (var i = 0; i < 6; i++) {
+            var b = h('input', { inputmode: 'numeric', maxlength: 1, autocomplete: i === 0 ? 'one-time-code' : 'off', 'aria-label': 'Raqam ' + (i + 1) });
+            (function (idx, el) {
+                el.addEventListener('input', function () {
+                    var v = el.value.replace(/\D/g, '');
+                    if (v.length > 1) { fill(v); return; }
+                    el.value = v;
+                    if (v && idx < 5) boxes[idx + 1].focus();
+                    if (code().length === 6) $('c-submit').click();
+                });
+                el.addEventListener('keydown', function (e) { if (e.key === 'Backspace' && !el.value && idx > 0) boxes[idx - 1].focus(); });
+                el.addEventListener('paste', function (e) { var t = (e.clipboardData || window.clipboardData).getData('text'); if (t) { e.preventDefault(); fill(t); } });
+            })(i, b);
+            boxes.push(b); wrap.appendChild(b);
+        }
+    })();
+    function fill(v) { v = v.replace(/\D/g, '').slice(0, 6); boxes.forEach(function (b, i) { b.value = v[i] || ''; }); (boxes[Math.min(v.length, 5)]).focus(); if (v.length === 6) $('c-submit').click(); }
+    function code() { return boxes.map(function (b) { return b.value; }).join(''); }
+    function showCode() {
+        $('step-login').style.display = 'none'; $('step-code').style.display = '';
+        boxes.forEach(function (b) { b.value = ''; }); $('c-msg').textContent = '';
+        setTimeout(function () { boxes[0].focus(); }, 100);
+    }
+    $('c-back').onclick = function () { $('step-code').style.display = 'none'; $('step-login').style.display = ''; $('a-msg').textContent = ''; };
+    $('c-submit').onclick = async function () {
+        var btn = this, msg = $('c-msg');
+        if (code().length !== 6) { msg.className = 'msg err'; msg.textContent = '6 ta raqamni kiriting.'; return; }
+        btn.disabled = true; msg.className = 'msg'; msg.textContent = '⏳';
+        try {
+            var j = await post('/api/admin-auth/verify', { ticket: ticket, code: code() });
+            if (j.success) {
+                token = j.token;
+                try { localStorage.setItem(TOKEN_KEY, JSON.stringify({ t: token, exp: Date.now() + (j.expiresIn || 43200) * 1000 })); } catch (e) {}
+                $('a-pass').value = '';
+                enterApp();
+            } else {
+                msg.className = 'msg err'; msg.textContent = j.error || 'Xatolik';
+                if (j.expired) setTimeout(function () { $('c-back').click(); }, 1500);
+                else { boxes.forEach(function (b) { b.value = ''; }); boxes[0].focus(); }
+            }
+        } catch (e2) { msg.className = 'msg err'; msg.textContent = "Server bilan bog'lanib bo'lmadi."; }
+        btn.disabled = false;
+    };
+    function logout(expired) {
+        if (token && !expired) post('/api/admin-auth/logout', { token: token }).catch(function () {});
+        token = null;
+        try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+        $('app').style.display = 'none'; $('auth').style.display = '';
+        $('step-code').style.display = 'none'; $('step-login').style.display = '';
+        $('a-msg').className = 'msg' + (expired ? ' err' : ''); $('a-msg').textContent = expired ? 'Sessiya tugadi. Qaytadan kiring.' : '';
+    }
+    $('logout-top').onclick = function () { logout(false); };
+    $('logout-side').onclick = function () { logout(false); };
+
+    // ================= PANEL =================
+    var TABS = [
+        ['stats', '📊', 'Statistika'], ['orders', '🛒', 'Buyurtmalar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'],
+        ['promo', '🎟️', 'Promo-kodlar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
+    ];
+    var tab = 'stats';
+    function buildNav() {
+        ['nav-side', 'nav-mobile'].forEach(function (id) {
+            var box = $(id); box.innerHTML = '';
+            TABS.forEach(function (t) {
+                var b = h('button', { class: 'nav' + (t[0] === tab ? ' active' : ''), onclick: function () { go(t[0]); } }, [h('span', { class: 'ico', text: t[1] }), t[2]]);
+                if (t[0] === 'orders' && pendingCount) b.appendChild(h('span', { class: 'badge', text: String(pendingCount) }));
+                box.appendChild(b);
+            });
+        });
+    }
+    function go(t) {
+        tab = t; buildNav();
+        $('page-title').textContent = TABS.filter(function (x) { return x[0] === t; })[0][2];
+        var view = $('view'); view.innerHTML = '<div class="loading">⏳</div>';
+        var fn = { stats: vStats, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, settings: vSettings, log: vLog, security: vSecurity }[t];
+        Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
+        window.scrollTo(0, 0);
+    }
+    $('refresh').onclick = function () { go(tab); };
+    function enterApp() {
+        $('auth').style.display = 'none'; $('app').style.display = 'block';
+        go('stats');
+    }
+
+    function kpi(label, value, accent) { return h('div', { class: 'kpi' + (accent ? ' accent' : '') }, [h('b', { text: String(value) }), h('small', { text: label })]); }
+
+    // ---------- Statistika ----------
+    async function vStats(view) {
+        var j = await admin('stats');
+        view.innerHTML = '';
+        if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        pendingCount = j.pendingOrders || 0; buildNav();
+        if (j.pendingOrders) view.appendChild(h('button', { class: 'alert', onclick: function () { go('orders'); } }, ['⏳ ' + j.pendingOrders + ' ta buyurtma kutilmoqda →']));
+        view.appendChild(h('div', { class: 'h', text: 'Bugun' }));
+        view.appendChild(h('div', { class: 'grid kpis' }, [
+            kpi("Savdo, so'm", money(j.salesToday), true), kpi("To'ldirishlar, so'm", money(j.topupsToday), true),
+            kpi('Yangi foydalanuvchilar', j.newToday || 0), kpi('AI xabarlar', j.messagesToday || 0)
+        ]));
+        var sales = j.days.reduce(function (a, d) { return a + d.sales; }, 0);
+        var tops = j.days.reduce(function (a, d) { return a + d.topups; }, 0);
+        view.appendChild(h('div', { class: 'h', text: 'Umumiy' }));
+        view.appendChild(h('div', { class: 'grid kpis' }, [
+            kpi('Foydalanuvchilar', j.users), kpi('7 kunda yangi', j.new7d || 0), kpi('Obunachilar', j.activeSubs), kpi("Jami balanslar, so'm", money(j.totalBalance)),
+            kpi("14 kun savdo, so'm", money(sales)), kpi("14 kun to'ldirish, so'm", money(tops)),
+            kpi('14 kun buyurtmalar', j.days.reduce(function (a, d) { return a + d.orders; }, 0)), kpi('Kutilayotgan', j.pendingOrders || 0)
+        ]));
+        view.appendChild(h('div', { class: 'h', text: "Kunlik savdo va to'ldirishlar (so'm)" }));
+        view.appendChild(h('div', { class: 'card' }, [chart(j.days), h('div', { class: 'legend' }, [h('span', {}, [h('i', { style: 'background:#8b5cf6' }), 'Savdo']), h('span', {}, [h('i', { style: 'background:#10b981' }), "To'ldirishlar"])])]));
+    }
+    function chart(days) {
+        var NS = 'http://www.w3.org/2000/svg', W = 700, H = 230, pl = 40, n = days.length;
+        var max = Math.max(1, Math.max.apply(null, days.map(function (d) { return Math.max(d.sales, d.topups); })));
+        var bw = (W - pl) / n;
+        var svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (H + 24)); svg.setAttribute('class', 'chart');
+        function el(t, a) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; }
+        [0, 0.5, 1].forEach(function (f) {
+            var y = H - (H - 12) * f;
+            el('line', { x1: pl, x2: W, y1: y, y2: y, stroke: 'rgba(255,255,255,0.07)' });
+            var t = el('text', { x: pl - 8, y: y + 4, fill: '#5d6680', 'font-size': 11, 'text-anchor': 'end', 'font-family': 'JetBrains Mono' });
+            var v = max * f; t.textContent = v >= 1000 ? Math.round(v / 1000) + 'k' : Math.round(v);
+        });
+        days.forEach(function (d, i) {
+            var x = pl + i * bw;
+            [['sales', '#8b5cf6', 0], ['topups', '#10b981', 1]].forEach(function (s) {
+                var v = d[s[0]], hh = v ? Math.max(2, (H - 12) * v / max) : 0;
+                var r = el('rect', { x: x + 3 + s[2] * (bw - 6) / 2, y: H - hh, width: Math.max(1, (bw - 6) / 2 - 1), height: hh, rx: 3, fill: s[1] });
+                var tt = document.createElementNS(NS, 'title'); tt.textContent = d.day + ': ' + money(v); r.appendChild(tt);
+            });
+            if ((n - 1 - i) % 2 === 0) { var t = el('text', { x: x + bw / 2, y: H + 17, fill: '#5d6680', 'font-size': 11, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono' }); t.textContent = d.day.slice(8) + '.' + d.day.slice(5, 7); }
+        });
+        return svg;
+    }
+
+    // ---------- Buyurtmalar ----------
+    async function vOrders(view) {
+        var j = await admin('orders');
+        view.innerHTML = '';
+        pendingCount = (j.orders || []).length; buildNav();
+        if (!pendingCount) { view.appendChild(h('div', { class: 'empty', text: "Kutilayotgan buyurtma yo'q ✅" })); return; }
+        view.appendChild(h('div', { class: 'sum', text: "Bajarsangiz — mijozga xabar boradi. Bekor qilsangiz — pul qaytadi va xabar boradi." }));
+        j.orders.forEach(function (o) {
+            var row = h('div', { class: 'row' }, [
+                h('div', { class: 'r-ico out', text: /premium/i.test(o.item) ? '💎' : '⭐' }),
+                h('div', { class: 'r-main' }, [h('b', { text: '#' + o.id + ' · ' + (o.item || '') }), h('small', { text: '+' + o.phone_norm + ' · ' + money(o.amount) + " so'm · " + fmtDate(o.created_at) })]),
+                h('button', { class: 'sq', title: 'Bajarildi', text: '✅', onclick: function () { setOrder(o.id, 'done', row); } }),
+                h('button', { class: 'sq', title: 'Bekor (pul qaytadi)', text: '↩️', onclick: async function () { if (await dialog({ title: 'Buyurtmani bekor qilish', text: '#' + o.id + ' · ' + o.item + '. Pul mijozga qaytadi.', ok: 'Bekor qilish', danger: true })) setOrder(o.id, 'cancel', row); } })
+            ]);
+            view.appendChild(row);
+        });
+    }
+    async function setOrder(id, status, row) {
+        row.style.opacity = '0.5';
+        var j = await admin('order', { id: id, status: status });
+        if (j.success) { row.remove(); pendingCount = Math.max(0, pendingCount - 1); buildNav(); toast(status === 'done' ? '✅ Bajarildi' : '↩️ Bekor qilindi'); if (!pendingCount) go('orders'); }
+        else { row.style.opacity = ''; toast(j.error || 'Xato'); }
+    }
+
+    // ---------- Tarix ----------
+    var ICON = function (t) {
+        if (t.source === 'bonus') return '🎁'; if (t.source === 'referral') return '👥'; if (t.source === 'sub') return '♾️';
+        if (t.source === 'image') return '🎨'; if (t.source === 'refund') return '↩️'; if (t.source === 'promo') return '🎟️';
+        if (t.source === 'click' || t.source === 'payme') return '💳'; if (t.kind === 'topup') return '💰';
+        if (/premium/i.test(t.item || '')) return '💎'; if (/stars/i.test(t.item || '')) return '⭐'; return '➖';
+    };
+    var ST = { pending: ['⏳ Kutilmoqda', 'pending'], done: ['✅ Bajarildi', 'done'], cancelled: ['↩️ Bekor', 'off'], refunded: ['↩️ Qaytarildi', 'off'] };
+    function txRow(t, showPhone) {
+        var inc = t.kind === 'topup';
+        var main = h('div', { class: 'r-main' }, [h('b', { text: t.item || (inc ? "Hisob to'ldirildi" : 'Xarid') }), h('small', { text: (showPhone ? '+' + t.phone_norm + ' · ' : '') + fmtDate(t.created_at) })]);
+        if (t.status && ST[t.status]) main.appendChild(h('span', { class: 'tag ' + ST[t.status][1], text: ST[t.status][0] }));
+        return h('div', { class: 'row' }, [
+            h('div', { class: 'r-ico ' + (inc ? 'in' : 'out'), text: ICON(t) }), main,
+            h('div', { class: 'r-amt ' + (inc ? 'in' : 'out') }, [(inc ? '+' : '−') + money(t.amount), h('small', { text: t.source || '' })])
+        ]);
+    }
+    async function vTx(view, dir, q) {
+        view.innerHTML = '';
+        var f = h('div', { class: 'filters' });
+        [['all', 'Hammasi'], ['in', 'Kirim'], ['out', 'Xaridlar']].forEach(function (x) { f.appendChild(h('button', { class: dir === x[0] ? 'active' : '', text: x[1], onclick: function () { vTx(view, x[0], inp.value); } })); });
+        var inp = h('input', { class: 'inp', placeholder: "Telefon bo'yicha qidirish...", inputmode: 'numeric', style: 'margin-bottom:6px' }); inp.value = q || '';
+        var sum = h('div', { class: 'sum' }), list = h('div');
+        view.appendChild(f); view.appendChild(inp); view.appendChild(sum); view.appendChild(list);
+        var timer; inp.oninput = function () { clearTimeout(timer); timer = setTimeout(load, 350); };
+        async function load() {
+            list.innerHTML = '<div class="loading">⏳</div>';
+            var j = await admin('transactions', { direction: dir, q: inp.value });
+            list.innerHTML = '';
+            var items = j.items || [], tin = 0, tout = 0;
+            items.forEach(function (t) { if (t.kind === 'topup') tin += t.amount; else tout += t.amount; list.appendChild(txRow(t, true)); });
+            sum.textContent = items.length + ' ta · kirim +' + money(tin) + ' · chiqim −' + money(tout);
+            if (!items.length) list.appendChild(h('div', { class: 'empty', text: "Hech narsa yo'q" }));
+        }
+        load();
+    }
+
+    // ---------- Foydalanuvchilar ----------
+    function vUsers(view, q) {
+        view.innerHTML = '';
+        var inp = h('input', { class: 'inp', placeholder: 'Telefon yoki ism...', style: 'margin-bottom:6px' }); inp.value = q || '';
+        var list = h('div');
+        view.appendChild(inp); view.appendChild(list);
+        var timer; inp.oninput = function () { clearTimeout(timer); timer = setTimeout(function () { load(inp.value); }, 300); };
+        async function load(query) {
+            list.innerHTML = '<div class="loading">⏳</div>';
+            var j = await admin('users', { q: query });
+            list.innerHTML = '';
+            (j.users || []).forEach(function (u) {
+                var main = h('div', { class: 'r-main' }, [h('b', { text: (u.name || "Noma'lum") + (u.sub_until * 1000 > Date.now() ? ' ♾️' : '') }), h('small', { text: '+' + u.phone })]);
+                if (u.banned) main.appendChild(h('span', { class: 'tag red', text: '⛔ Bloklangan' }));
+                list.appendChild(h('div', { class: 'row click', onclick: function () { vUser(view, u.phone); } }, [
+                    h('div', { class: 'r-ico', text: '👤' }), main, h('div', { class: 'r-amt in', text: money(u.balance) }), h('span', { style: 'color:#5d6680;font-size:20px', text: '›' })
+                ]));
+            });
+            if (!(j.users || []).length) list.appendChild(h('div', { class: 'empty', text: 'Topilmadi' }));
+        }
+        load(q);
+    }
+    async function vUser(view, phone) {
+        view.innerHTML = '<div class="loading">⏳</div>';
+        var j = await admin('user', { target: phone });
+        view.innerHTML = '';
+        view.appendChild(h('button', { class: 'back', text: '‹ Foydalanuvchilar', onclick: function () { vUsers(view, ''); } }));
+        if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        var u = j.user, subOn = u.subUntil * 1000 > Date.now();
+        var head = h('div', { class: 'user-head' }, [h('b', { text: (u.name || "Noma'lum") + (subOn ? ' ♾️' : '') + (u.banned ? ' ⛔' : '') }),
+            h('small', { text: '+' + u.phone + (u.webOnly ? ' · botga kirmagan' : ' · Telegram ID ' + u.uid) + (u.createdAt ? ' · ' + fmtDay(u.createdAt) + ' dan' : '') })]);
+        view.appendChild(head);
+        view.appendChild(h('div', { class: 'grid kpis', style: 'margin-top:14px' }, [
+            kpi("Balans, so'm", money(u.balance), true), kpi('Obuna', subOn ? fmtDay(u.subUntil) + ' gacha' : "yo'q"),
+            kpi('Bugungi xabarlar', u.usedToday), kpi('Taklif qilganlari', u.referrals.invited + ' (' + money(u.referrals.earned) + ')')
+        ]));
+        function act(label, fn, red) { return h('button', { class: 'act' + (red ? ' red' : ''), text: label, onclick: fn }); }
+        var reload = function () { vUser(view, u.phone); };
+        var acts = h('div', { class: 'actions' }, [
+            act('± Balans', async function () {
+                var r = await dialog({ title: "Balansni o'zgartirish", text: "Qo'shish: 5000 · ayirish: -5000", fields: [{ label: "Summa (so'm)", inputmode: 'numeric', placeholder: '5000' }], ok: 'Saqlash' });
+                if (!r) return; var n = parseInt(r[0], 10); if (!n) return;
+                var x = await admin('topup', { target: u.phone, amount: n }); toast(x.success ? "Balans: " + money(x.balance) + " so'm" : (x.error || 'Xato')); if (x.success) reload();
+            }),
+            act('♾️ Obuna berish', async function () {
+                var r = await dialog({ title: 'Obuna berish', fields: [{ label: 'Necha kun', inputmode: 'numeric', value: '30' }], ok: 'Berish' });
+                if (!r) return; var d = parseInt(r[0], 10); if (!(d > 0)) return;
+                var x = await admin('sub', { target: u.phone, days: d }); toast(x.success ? 'Obuna berildi' : (x.error || 'Xato')); if (x.success) reload();
+            }),
+            subOn ? act('✖ Obunani bekor qilish', async function () {
+                if (!await dialog({ title: 'Obunani bekor qilish', text: u.name + ' — obuna darhol tugaydi.', ok: 'Bekor qilish', danger: true })) return;
+                var x = await admin('sub', { target: u.phone, days: 0 }); if (x.success) reload(); else toast(x.error || 'Xato');
+            }) : null,
+            act('🔑 Yangi parol', async function () {
+                var r = await dialog({ title: "Yangi parol o'rnatish", text: 'Foydalanuvchiga parolni o\'zingiz yetkazasiz.', fields: [{ label: 'Yangi parol (kamida 4 ta belgi)' }], ok: 'Saqlash' });
+                if (!r || !r[0]) return; var x = await admin('password', { target: u.phone, newPassword: r[0] }); toast(x.success ? "Parol o'rnatildi: " + r[0] : (x.error || 'Xato'));
+            }),
+            u.webOnly ? null : act('✉️ Xabar yozish', async function () {
+                var r = await dialog({ title: 'Botga xabar', fields: [{ label: 'Matn', multiline: true, placeholder: 'Salom! ...' }], ok: 'Yuborish' });
+                if (!r || !r[0]) return; var x = await admin('message', { target: u.phone, text: r[0] }); toast(x.success ? 'Yuborildi ✅' : (x.error || 'Xato'));
+            }),
+            u.banned ? act('✅ Blokdan chiqarish', async function () { var x = await admin('unban', { target: u.phone }); if (x.success) { toast('Blokdan chiqarildi'); reload(); } else toast(x.error || 'Xato'); })
+                : act('⛔ Bloklash', async function () {
+                    if (!await dialog({ title: 'Foydalanuvchini bloklash', text: u.name + ' saytga kira olmaydi va botda AI ishlamaydi.', ok: 'Bloklash', danger: true })) return;
+                    var x = await admin('ban', { target: u.phone }); if (x.success) { toast('Bloklandi'); reload(); } else toast(x.error || 'Xato');
+                }, true)
+        ].filter(Boolean));
+        view.appendChild(acts);
+        view.appendChild(h('div', { class: 'h', text: "To'lovlar va xaridlar" }));
+        if (!u.transactions.length) view.appendChild(h('div', { class: 'empty', text: "Hozircha yo'q" }));
+        u.transactions.forEach(function (t) { view.appendChild(txRow(t, false)); });
+    }
+
+    // ---------- Promo-kodlar ----------
+    function randomCode() { var a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = ''; for (var i = 0; i < 8; i++) s += a[Math.floor(Math.random() * a.length)]; return s; }
+    async function vPromo(view) {
+        view.innerHTML = '';
+        var code = h('input', { class: 'inp mono', placeholder: 'KOD' }); code.value = randomCode();
+        var amount = h('input', { class: 'inp', inputmode: 'numeric', placeholder: '5000', value: '5000' });
+        var uses = h('input', { class: 'inp', inputmode: 'numeric', value: '100' });
+        var days = h('input', { class: 'inp', inputmode: 'numeric', value: '30' });
+        var form = h('div', { class: 'card form' }, [
+            h('div', { class: 'form-row' }, [
+                h('label', { class: 'lb' }, ['Kod', code, h('button', { class: 'link', style: 'margin:0;text-align:left', text: '🎲 Tasodifiy', onclick: function () { code.value = randomCode(); } })]),
+                h('label', { class: 'lb' }, ["Summa (so'm)", amount]),
+                h('label', { class: 'lb' }, ['Necha kishi ishlata oladi', uses]),
+                h('label', { class: 'lb' }, ['Necha kun amal qiladi', days, h('small', { text: '0 = muddatsiz' })])
+            ]),
+            h('button', { class: 'btn', text: '➕ Promo-kod yaratish', onclick: async function () {
+                var x = await admin('promo_create', { code: code.value, amount: parseInt(amount.value, 10) || 0, maxUses: parseInt(uses.value, 10) || 1, days: parseInt(days.value, 10) || 0 });
+                if (x.success) { toast('✅ ' + x.code + ' yaratildi'); vPromo(view); } else toast(x.error || 'Xato');
+            } })
+        ]);
+        view.appendChild(form);
+        view.appendChild(h('div', { class: 'sum', style: 'margin-top:10px', text: "Foydalanuvchi kodni Hamyon → 🎟️ Promo-kod maydoniga yozadi. Har kim bitta kodni bir marta ishlatadi." }));
+        view.appendChild(h('div', { class: 'h', text: 'Promo-kodlar' }));
+        var j = await admin('promo_list');
+        var list = j.promos || [];
+        if (!list.length) view.appendChild(h('div', { class: 'empty', text: "Hali promo-kod yo'q" }));
+        var now = Date.now() / 1000;
+        list.forEach(function (p) {
+            var expired = p.expires_at && p.expires_at < now, full = p.used >= p.max_uses;
+            var state = !p.active ? ['O\'chirilgan', 'off'] : expired ? ['Muddati tugagan', 'off'] : full ? ['Tugagan', 'off'] : ['Faol', 'done'];
+            var main = h('div', { class: 'r-main' }, [
+                h('b', { class: 'mono copy', text: p.code, title: 'Nusxa olish', onclick: function () { try { navigator.clipboard.writeText(p.code); toast('Nusxalandi: ' + p.code); } catch (e) {} } }),
+                h('small', { text: money(p.amount) + " so'm · " + p.used + '/' + p.max_uses + ' ishlatilgan' + (p.expires_at ? ' · ' + fmtDay(p.expires_at) + ' gacha' : ' · muddatsiz') }),
+                h('span', { class: 'tag ' + state[1], text: state[0] })
+            ]);
+            var row = h('div', { class: 'row' }, [h('div', { class: 'r-ico in', text: '🎟️' }), main]);
+            if (p.active) row.appendChild(h('button', { class: 'sq', title: "O'chirish", text: '✖', onclick: async function () {
+                if (!await dialog({ title: "Promo-kodni o'chirish", text: p.code + ' boshqa ishlamaydi.', ok: "O'chirish", danger: true })) return;
+                await admin('promo_delete', { code: p.code }); vPromo(view);
+            } }));
+            view.appendChild(row);
+        });
+    }
+
+    // ---------- Xabar yuborish ----------
+    function vMsg(view) {
+        view.innerHTML = '';
+        var ta = h('textarea', { class: 'inp', placeholder: "Masalan: Yangi funksiya — endi rasm ham yaratish mumkin! 🎨" });
+        var cnt = h('div', { class: 'sum', text: '0 belgi' });
+        var prev = h('div', { class: 'preview' }, [h('b', { text: "📢 E'lon:" }), h('span', { text: '…' })]);
+        ta.oninput = function () { cnt.textContent = ta.value.length + ' belgi'; prev.lastChild.textContent = ta.value || '…'; };
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { style: 'font-weight:700', text: "Barcha foydalanuvchilarga e'lon (Telegram botga keladi)" }),
+            ta, cnt, h('div', { class: 'sum', text: "Ko'rinishi:" }), prev,
+            h('button', { class: 'btn', text: '📢 Hammaga yuborish', onclick: async function () {
+                var t = ta.value.trim(); if (!t) return;
+                if (!await dialog({ title: "E'lonni yuborish", text: "Xabar BARCHA foydalanuvchilarga yuboriladi. Davom etasizmi?", ok: 'Yuborish' })) return;
+                var x = await admin('broadcast', { text: t });
+                if (x.success) { toast(x.queued + ' ta foydalanuvchiga yuborilmoqda. Natija botda keladi.'); ta.value = ''; ta.oninput(); } else toast(x.error || 'Xato');
+            } })
+        ]));
+        view.appendChild(h('div', { class: 'sum', style: 'margin-top:10px', text: "Bitta odamga yozish: Foydalanuvchilar → odamni tanlang → ✉️ Xabar yozish." }));
+    }
+
+    // ---------- Sozlamalar ----------
+    async function vSettings(view) {
+        var j = await admin('settings_get');
+        view.innerHTML = '';
+        if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        var LABELS = {
+            FREE_DAILY_MESSAGES: ['Kunlik bepul xabarlar', '0 = cheklovsiz'], SUB_PRICE: ["Obuna narxi, so'm", ''], SUB_DAYS: ['Obuna muddati, kun', ''],
+            IMAGE_PRICE: ["1 ta rasm narxi, so'm", ''], DAILY_BONUS: ["Kunlik bonus, so'm", '0 = o\'chiq'], REFERRAL_BONUS: ["Taklif bonusi, so'm", '0 = o\'chiq']
+        };
+        var inputs = {};
+        var grid = h('div', { class: 'form-row' });
+        Object.keys(LABELS).forEach(function (k) {
+            var inp = h('input', { class: 'inp mono', inputmode: 'numeric' }); inp.value = j.values[k]; inputs[k] = inp;
+            grid.appendChild(h('label', { class: 'lb' }, [LABELS[k][0], inp, h('small', { text: (LABELS[k][1] ? LABELS[k][1] + ' · ' : '') + 'standart: ' + money(j.defaults[k]) })]));
+        });
+        view.appendChild(h('div', { class: 'h', text: 'Narxlar va limitlar' }));
+        view.appendChild(h('div', { class: 'card form' }, [grid, h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+            var values = {}; for (var k in inputs) { var n = parseInt(inputs[k].value, 10); if (isNaN(n) || n < 0) { toast(LABELS[k][0] + ': noto\'g\'ri qiymat'); return; } values[k] = n; }
+            var x = await admin('settings_set', { values: values }); toast(x.success ? '✅ Saqlandi — darhol kuchga kirdi' : (x.error || 'Xato'));
+        } })]));
+        view.appendChild(h('div', { class: 'h', text: 'Texnik rejim' }));
+        var sw = h('div', { class: 'switch' + (j.maintenance ? ' on' : ''), role: 'switch' });
+        var mmsg = h('input', { class: 'inp', placeholder: "Texnik ishlar olib borilmoqda. Birozdan so'ng qayting 🙏" }); mmsg.value = j.maintenanceMsg || '';
+        sw.onclick = function () { sw.classList.toggle('on'); };
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'set-line' }, [h('div', {}, [h('b', { text: 'Saytda AI chatni vaqtincha to\'xtatish' }), h('small', { text: 'Foydalanuvchilar quyidagi xabarni ko\'radi' })]), sw]),
+            mmsg,
+            h('button', { class: 'btn ghost', text: 'Qo\'llash', onclick: async function () {
+                var on = sw.classList.contains('on');
+                var x = await admin('settings_set', { maintenance: on, maintenanceMsg: mmsg.value });
+                toast(x.success ? (on ? '🛠 Texnik rejim yoqildi' : '✅ Texnik rejim o\'chirildi') : (x.error || 'Xato'));
+            } })
+        ]));
+    }
+
+    // ---------- Jurnal ----------
+    var LOG = {
+        login: ['🔓', 'Panelga kirildi'], login_failed: ['⚠️', "Noto'g'ri parol bilan urinish"], settings: ['⚙️', 'Sozlamalar'], balance: ['💰', "Balans o'zgartirildi"],
+        sub: ['♾️', 'Obuna'], password: ['🔑', "Foydalanuvchi paroli o'rnatildi"], message: ['✉️', 'Xabar yuborildi'], broadcast: ['📢', "E'lon"],
+        order: ['🛒', 'Buyurtma'], ban: ['⛔', 'Bloklandi'], unban: ['✅', 'Blokdan chiqarildi'], promo_create: ['🎟️', 'Promo-kod yaratildi'],
+        promo_delete: ['✖', "Promo-kod o'chirildi"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi']
+    };
+    async function vLog(view) {
+        var j = await admin('log');
+        view.innerHTML = '';
+        if (!(j.items || []).length) { view.appendChild(h('div', { class: 'empty', text: "Jurnal bo'sh" })); return; }
+        j.items.forEach(function (x) {
+            var m = LOG[x.action] || ['•', x.action];
+            view.appendChild(h('div', { class: 'row' }, [
+                h('div', { class: 'r-ico' + (x.action === 'login_failed' ? ' out' : ''), text: m[0] }),
+                h('div', { class: 'r-main' }, [h('b', { text: m[1] + (x.detail ? ' · ' + x.detail : '') }), h('small', { text: fmtDate(x.at) + (x.ip ? ' · IP ' + x.ip : '') })])
+            ]));
+        });
+    }
+
+    // ---------- Xavfsizlik ----------
+    async function vSecurity(view) {
+        view.innerHTML = '';
+        // parol
+        var oldP = h('input', { class: 'inp', type: 'password', autocomplete: 'current-password' });
+        var newP = h('input', { class: 'inp', type: 'password', autocomplete: 'new-password' });
+        var newP2 = h('input', { class: 'inp', type: 'password', autocomplete: 'new-password' });
+        view.appendChild(h('div', { class: 'h', text: 'Admin parolini almashtirish' }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'form-row', style: 'grid-template-columns:repeat(3,minmax(0,1fr))' }, [
+                h('label', { class: 'lb' }, ['Joriy parol', oldP]), h('label', { class: 'lb' }, ['Yangi parol (kamida 8 ta)', newP]), h('label', { class: 'lb' }, ['Yangi parolni takrorlang', newP2])
+            ]),
+            h('button', { class: 'btn', text: '🛡 Parolni almashtirish', onclick: async function () {
+                if (newP.value.length < 8) { toast('Yangi parol kamida 8 ta belgi'); return; }
+                if (newP.value !== newP2.value) { toast('Parollar bir xil emas'); return; }
+                var x = await admin('admin_password', { oldPassword: oldP.value, newPassword: newP.value });
+                if (x.success) { toast('✅ Parol almashtirildi'); oldP.value = newP.value = newP2.value = ''; } else toast(x.error || 'Xato');
+            } })
+        ]));
+        // zaxira
+        view.appendChild(h('div', { class: 'h', text: 'Zaxira nusxa' }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'sum', style: 'margin:0', text: "Bazaning to'liq nusxasi (users.db). Har oy Railway almashtirishdan oldin yuklab oling." }),
+            h('button', { class: 'btn ghost', text: '💾 users.db ni yuklab olish', onclick: async function () {
+                var btn = this; btn.disabled = true;
+                try {
+                    await apiReady;
+                    var r = await fetch(API + '/api/admin/backup', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token || '' }, body: '{}' });
+                    if (r.status === 401) { logout(true); return; }
+                    if (!r.ok) { toast('Xato: ' + r.status); return; }
+                    var blob = await r.blob(), url = URL.createObjectURL(blob), d = new Date();
+                    var a = h('a', { href: url, download: 'users-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '.db' });
+                    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+                    toast('✅ Yuklab olindi (' + Math.round(blob.size / 1024) + ' KB)');
+                } catch (e) { toast("Server bilan bog'lanib bo'lmadi"); }
+                finally { btn.disabled = false; }
+            } })
+        ]));
+        // sessiyalar
+        view.appendChild(h('div', { class: 'h' }, ['Faol sessiyalar', h('button', { class: 'act red', text: '⎋ Hamma qurilmalardan chiqish', onclick: async function () {
+            if (!await dialog({ title: 'Hamma qurilmalardan chiqish', text: 'Barcha sessiyalar, shu jumladan joriysi, yopiladi.', ok: 'Chiqish', danger: true })) return;
+            await admin('logout_all'); logout(true);
+        } })]));
+        var j = await admin('sessions');
+        (j.sessions || []).forEach(function (s) {
+            var ua = s.ua || '', dev = /iPhone|iPad/.test(ua) ? '📱 iPhone' : /Android/.test(ua) ? '📱 Android' : /Telegram/.test(ua) ? '✈️ Telegram' : '💻 Kompyuter';
+            view.appendChild(h('div', { class: 'row' }, [
+                h('div', { class: 'r-ico', text: dev.slice(0, 2) }),
+                h('div', { class: 'r-main' }, [h('b', { text: dev.slice(2).trim() + (s.current ? ' · shu qurilma' : '') }), h('small', { text: 'IP ' + (s.ip || '?') + ' · oxirgi: ' + fmtDate(s.lastSeen || s.createdAt) + ' · ' + fmtDate(s.expiresAt) + ' gacha' })]),
+                s.current ? h('span', { class: 'tag done', text: 'Joriy' }) : null
+            ]));
+        });
+    }
+
+    // ---------- start ----------
+    if (token) enterApp();
+    else setTimeout(function () { $('a-login').focus(); }, 200);
+})();
+</script>
+</body>
+</html>

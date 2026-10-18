@@ -2255,6 +2255,17 @@ html, body { height: calc(100svh + env(safe-area-inset-top)) !important; }
 #chats-drawer .drawer-panel { padding-top: calc(16px + env(safe-area-inset-top)); }
 #auth-modal, #password-modal, #reset-modal, #share-view { padding-top: calc(20px + env(safe-area-inset-top)) !important; }
 
+
+/* ---------- Promo-kod ---------- */
+.wx-promo { gap: 10px; padding: 10px 10px 10px 14px; }
+.wx-promo-input {
+    flex: 1; min-width: 0; height: 40px; padding: 0 12px; border-radius: 12px; font-size: 15px; letter-spacing: 1px;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glass); color: #f8fafc; text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+}
+.wx-promo-input::placeholder { text-transform: none; letter-spacing: 0; font-family: 'Outfit', sans-serif; color: #64748b; }
+body.theme-light .wx-promo-input { background: #f1f5f9; color: #0f172a; border-color: rgba(15, 23, 42, 0.12); }
+
 /* =================== YORUG' REJIM =================== */
 body.theme-light { background: #eef1f6 !important; color: #0f172a; --text-primary: #0f172a; --text-secondary: #475569; --border-glass: rgba(15, 23, 42, 0.12); --surface-card: #ffffff; }
 body.theme-light::before, body.theme-light .ambient-orb, body.theme-light #fx-canvas, body.theme-light .fx-star, body.theme-light .fx-cursor { opacity: 0.18 !important; }
@@ -2628,22 +2639,6 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
         </div>
     </div>
 
-    <!-- 🛠 ADMIN PANEL -->
-    <div id="admin-panel">
-        <div class="modal-header">
-            <h2>🛠 Admin panel</h2>
-            <button class="modal-close" id="admin-close">&times;</button>
-        </div>
-        <div class="adm-tabs">
-            <button type="button" class="active" data-tab="stats" id="adm-tab-stats">Statistika</button>
-            <button type="button" data-tab="orders" id="adm-tab-orders">Buyurtmalar</button>
-            <button type="button" data-tab="tx" id="adm-tab-tx">Tarix</button>
-            <button type="button" data-tab="users" id="adm-tab-users">Foydalanuvchilar</button>
-            <button type="button" data-tab="msg" id="adm-tab-msg">Xabar</button>
-        </div>
-        <div class="adm-body" id="adm-body"></div>
-    </div>
-
     <!-- 🔗 ULASHILGAN JAVOB -->
     <div id="share-view">
         <div class="share-card">
@@ -2693,14 +2688,6 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
                     <p id="lang-set-anim-sub">Harakatlanuvchi rangli sharlar</p>
                 </div>
                 <div class="toggle-switch active" id="toggle-animation"></div>
-            </div>
-
-            <div class="settings-card clickable" id="admin-entry" style="display:none">
-                <div class="settings-info">
-                    <h4 id="lang-admin-title">🛠 Admin panel</h4>
-                    <p id="lang-admin-sub">Statistika, buyurtmalar, foydalanuvchilar</p>
-                </div>
-                <span class="set-arrow">›</span>
             </div>
 
             <div class="settings-card clickable" id="install-entry" style="display:none">
@@ -2891,6 +2878,11 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
                 <div class="wx-row">
                     <button type="button" class="wx-card wx-small" id="wx-ref-open"><span class="wx-ico">👥</span><b id="wx-ref-title">Do'stlarni taklif qilish</b></button>
                     <button type="button" class="wx-card wx-small" id="wx-hist-open"><span class="wx-ico">🧾</span><b id="wx-hist-title">To'lovlar tarixi</b></button>
+                </div>
+                <div class="wx-card wx-promo">
+                    <div class="wx-ico">🎟️</div>
+                    <input type="text" id="wx-promo-input" class="wx-promo-input" placeholder="Promo-kod" autocomplete="off" autocapitalize="characters" maxlength="24">
+                    <button type="button" class="wx-btn" id="wx-promo-btn">Faollashtirish</button>
                 </div>
             </div>
 
@@ -4379,7 +4371,7 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
                 ok = !!data.text;
                 reply = data.text || data.error || tr("Javob olib bo'lmadi.", "Could not get response.", "Не удалось получить ответ.");
                 hideTyping();
-                if (data.limitReached || data.needLogin) {
+                if (data.limitReached || data.needLogin || data.maintenance) {
                     // Limit tugadi yoki qayta kirish kerak: savolni tarixdan olib tashlaymiz, keyin qayta yuborish mumkin
                     if (chatHistory.length && chatHistory[chatHistory.length - 1].role === "user") {
                         const last = chatHistory.pop();
@@ -5410,7 +5402,6 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
                 paintBonus();
                 paintSub();
                 paintTopup();
-                paintAdmin();
             } catch (e) { btn.disabled = true; btn.textContent = '—'; }
         }
         function paintBonus() {
@@ -5467,6 +5458,7 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
             if (it.source === 'image') return '🎨';
             if (it.source === 'refund') return '↩️';
             if (it.source === 'click' || it.source === 'payme') return '💳';
+            if (it.source === 'promo') return '🎟️';
             if (it.source === 'referral') return '👥';
             if (it.kind === 'topup') return '💳';
             if (/premium/i.test(it.item || '')) return '💎';
@@ -5613,6 +5605,8 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
             set('wx-bonus-title', 'Kunlik bonus', 'Daily bonus', 'Ежедневный бонус');
             set('wx-ref-title', "Do'stlarni taklif qilish", 'Invite friends', 'Пригласить друзей');
             set('wx-hist-title', "To'lovlar tarixi", 'Payment history', 'История платежей');
+            set('wx-promo-btn', 'Faollashtirish', 'Apply', 'Применить');
+            if ($('wx-promo-input')) $('wx-promo-input').placeholder = T('Promo-kod', 'Promo code', 'Промокод');
             set('lang-set-light-title', "Yorug' rejim", 'Light mode', 'Светлая тема');
             set('lang-set-light-sub', 'Oq fonli interfeys', 'White background interface', 'Интерфейс на светлом фоне');
             set('lang-attach-gen', 'Rasm yaratish', 'Create image', 'Создать изображение');
@@ -5932,304 +5926,6 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
         };
         window.addEventListener('appinstalled', function () { $('install-entry').style.display = 'none'; });
 
-        /* ================= ADMIN PANEL ================= */
-        var adm = $('admin-panel'), admTab = 'stats';
-        function paintAdmin() { $('admin-entry').style.display = rewards && rewards.isAdmin ? '' : 'none'; }
-        $('admin-entry').onclick = function () {
-            var sm = $('settings-modal');
-            if (sm) sm.style.display = 'none';
-            adm.classList.add('open');
-            showAdm('stats');
-        };
-        $('admin-close').onclick = function () { adm.classList.remove('open'); };
-        adm.querySelectorAll('.adm-tabs button').forEach(function (b) { b.onclick = function () { showAdm(b.dataset.tab); }; });
-        function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-        async function showAdm(tab) {
-            admTab = tab;
-            adm.querySelectorAll('.adm-tabs button').forEach(function (b) { b.classList.toggle('active', b.dataset.tab === tab); });
-            var body = $('adm-body');
-            body.innerHTML = '<div class="wsub-loading">⏳</div>';
-            try {
-                if (tab === 'stats') return paintStats(body, await api('/api/admin/stats'));
-                if (tab === 'orders') return paintOrders(body, await api('/api/admin/orders'));
-                if (tab === 'users') return paintUsers(body, '');
-                if (tab === 'tx') return paintTx(body, 'all', '');
-                if (tab === 'msg') return paintBroadcast(body);
-            } catch (e) { body.innerHTML = '<div class="wsub-empty">Server xatosi</div>'; }
-        }
-        function paintStats(body, j) {
-            body.innerHTML = '';
-            if (!j.success) { body.appendChild(el('div', 'wsub-empty', 'Ruxsat yo\'q')); return; }
-            var grid = el('div', 'adm-kpis');
-            var sales = j.days.reduce(function (a, d) { return a + d.sales; }, 0);
-            body.appendChild(el('div', 'adm-h', 'Bugun'));
-            var today = el('div', 'adm-kpis');
-            [["Savdo, so'm", money(j.salesToday || 0)], ["To'ldirishlar, so'm", money(j.topupsToday || 0)],
-             ["Yangi foydalanuvchilar", j.newToday || 0], ['Xabarlar', j.messagesToday]].forEach(function (k) {
-                var c = el('div', 'adm-kpi');
-                c.appendChild(el('b', null, String(k[1])));
-                c.appendChild(el('small', null, k[0]));
-                today.appendChild(c);
-            });
-            body.appendChild(today);
-            if (j.pendingOrders) {
-                var alertBox = el('button', 'adm-alert', '⏳ ' + j.pendingOrders + ' ta buyurtma kutilmoqda →');
-                alertBox.type = 'button';
-                alertBox.onclick = function () { showAdm('orders'); };
-                body.appendChild(alertBox);
-            }
-            body.appendChild(el('div', 'adm-h', 'Umumiy'));
-            [['Foydalanuvchilar', j.users], ['7 kunda yangi', j.new7d || 0], ['Obunachilar', j.activeSubs],
-             ["Jami balanslar, so'm", money(j.totalBalance)], ["14 kunlik savdo, so'm", money(sales)],
-             ['14 kunlik buyurtmalar', j.days.reduce(function (a, d) { return a + d.orders; }, 0)]].forEach(function (k) {
-                var c = el('div', 'adm-kpi');
-                c.appendChild(el('b', null, String(k[1])));
-                c.appendChild(el('small', null, k[0]));
-                grid.appendChild(c);
-            });
-            body.appendChild(grid);
-            body.appendChild(el('div', 'adm-h', "Kunlik savdo va to'ldirishlar (so'm)"));
-            body.appendChild(barChart(j.days));
-        }
-        function barChart(days) {
-            var W = 340, H = 170, pad = 22, n = days.length;
-            var max = Math.max(1, Math.max.apply(null, days.map(function (d) { return Math.max(d.sales, d.topups); })));
-            var bw = (W - pad) / n;
-            var ns = 'http://www.w3.org/2000/svg';
-            var svg = document.createElementNS(ns, 'svg');
-            svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (H + 22));
-            svg.setAttribute('class', 'adm-chart');
-            [0.5, 1].forEach(function (f) {
-                var y = H - (H - 10) * f;
-                var ln = document.createElementNS(ns, 'line');
-                ln.setAttribute('x1', pad); ln.setAttribute('x2', W); ln.setAttribute('y1', y); ln.setAttribute('y2', y);
-                ln.setAttribute('class', 'adm-grid');
-                svg.appendChild(ln);
-            });
-            days.forEach(function (d, i) {
-                var x = pad + i * bw;
-                [['sales', 'adm-bar-a', 0], ['topups', 'adm-bar-b', 1]].forEach(function (s) {
-                    var v = d[s[0]], h = v ? Math.max(2, (H - 10) * v / max) : 0;
-                    var r = document.createElementNS(ns, 'rect');
-                    r.setAttribute('x', x + 2 + s[2] * (bw - 4) / 2);
-                    r.setAttribute('y', H - h);
-                    r.setAttribute('width', Math.max(1, (bw - 4) / 2 - 1));
-                    r.setAttribute('height', h);
-                    r.setAttribute('rx', 2);
-                    r.setAttribute('class', s[1]);
-                    var t = document.createElementNS(ns, 'title');
-                    t.textContent = d.day + ': ' + (s[0] === 'sales' ? 'savdo ' : "to'ldirish ") + money(v);
-                    r.appendChild(t);
-                    svg.appendChild(r);
-                });
-                if ((n - 1 - i) % 2 === 0) {
-                    var tx = document.createElementNS(ns, 'text');
-                    tx.setAttribute('x', x + bw / 2); tx.setAttribute('y', H + 15);
-                    tx.setAttribute('class', 'adm-axis');
-                    tx.textContent = d.day.slice(8) + '.' + d.day.slice(5, 7);
-                    svg.appendChild(tx);
-                }
-            });
-            var top = document.createElementNS(ns, 'text');
-            top.setAttribute('x', 0); top.setAttribute('y', 14); top.setAttribute('class', 'adm-axis adm-axis-l');
-            top.textContent = max >= 1000 ? Math.round(max / 1000) + 'k' : String(max);
-            svg.appendChild(top);
-            var wrap = el('div', 'adm-chart-wrap');
-            wrap.appendChild(svg);
-            var lg = el('div', 'adm-legend');
-            lg.innerHTML = '<span><i class="adm-bar-a"></i>Savdo</span><span><i class="adm-bar-b"></i>To\'ldirishlar</span>';
-            wrap.appendChild(lg);
-            return wrap;
-        }
-        function paintOrders(body, j) {
-            body.innerHTML = '';
-            if (!j.success) { body.appendChild(el('div', 'wsub-empty', 'Ruxsat yo\'q')); return; }
-            if (!j.orders.length) { body.appendChild(el('div', 'wsub-empty', "Kutilayotgan buyurtma yo'q ✅")); return; }
-            j.orders.forEach(function (o) {
-                var row = el('div', 'adm-order');
-                var info = el('div', 'hist-main');
-                info.appendChild(el('b', null, '#' + o.id + ' · ' + (o.item || '')));
-                info.appendChild(el('small', null, '+' + o.phone_norm + ' · ' + money(o.amount) + " so'm · " + fmtDate(o.created_at * 1000)));
-                row.appendChild(info);
-                var ok = el('button', 'adm-btn ok', '✅');
-                var no = el('button', 'adm-btn no', '↩️');
-                ok.title = 'Bajarildi'; no.title = 'Bekor qilish (pul qaytadi)';
-                ok.onclick = function () { setOrder(o.id, 'done', row); };
-                no.onclick = function () { if (confirm('Bekor qilinsinmi? Pul mijozga qaytadi.')) setOrder(o.id, 'cancel', row); };
-                row.appendChild(ok); row.appendChild(no);
-                body.appendChild(row);
-            });
-        }
-        async function setOrder(id, status, row) {
-            row.style.opacity = '0.5';
-            var j = await api('/api/admin/order', { id: id, status: status });
-            if (j.success) row.remove(); else { row.style.opacity = ''; notify(j.error || 'Xato'); }
-            if (!$('adm-body').querySelector('.adm-order')) showAdm('orders');
-        }
-        function paintUsers(body, q) {
-            body.innerHTML = '';
-            var inp = el('input', 'topup-input adm-search');
-            inp.placeholder = 'Telefon yoki ism...';
-            inp.value = q;
-            var list = el('div');
-            var timer = null;
-            inp.oninput = function () { clearTimeout(timer); timer = setTimeout(function () { load(inp.value); }, 300); };
-            body.appendChild(inp);
-            body.appendChild(list);
-            async function load(query) {
-                var j = await api('/api/admin/users', { q: query });
-                list.innerHTML = '';
-                (j.users || []).forEach(function (u) {
-                    var row = el('div', 'adm-order adm-click');
-                    var info = el('div', 'hist-main');
-                    info.appendChild(el('b', null, (u.name || 'Noma\'lum') + (u.sub_until * 1000 > Date.now() ? ' ♾️' : '')));
-                    info.appendChild(el('small', null, '+' + u.phone));
-                    row.appendChild(info);
-                    row.appendChild(el('div', 'hist-amt in', money(u.balance)));
-                    row.appendChild(el('span', 'set-arrow', '›'));
-                    row.onclick = function () { paintUserDetail(body, u.phone); };
-                    list.appendChild(row);
-                });
-                if (!(j.users || []).length) list.appendChild(el('div', 'wsub-empty', 'Topilmadi'));
-            }
-            load(q);
-        }
-
-
-        function txRow(t, showPhone) {
-            var inc = t.kind === 'topup';
-            var row = el('div', 'hist-item');
-            var ico = el('div', 'hist-ico ' + (inc ? 'in' : 'out'), itemIcon(t));
-            var main = el('div', 'hist-main');
-            main.appendChild(el('b', null, itemLabel(t)));
-            main.appendChild(el('small', null, (showPhone ? '+' + t.phone_norm + ' · ' : '') + fmtDate((t.created_at || 0) * 1000)));
-            var stMap = { pending: '⏳ Kutilmoqda', done: '✅ Bajarildi', cancelled: '↩️ Bekor', refunded: '↩️ Qaytarildi' };
-            if (t.status && stMap[t.status]) main.appendChild(el('span', 'hist-status ' + (t.status === 'pending' ? 'pending' : t.status === 'done' ? 'done' : 'cancelled'), stMap[t.status]));
-            var amt = el('div', 'hist-amt ' + (inc ? 'in' : 'out'));
-            amt.appendChild(el('span', null, (inc ? '+' : '−') + money(t.amount)));
-            if (t.source) amt.appendChild(el('small', null, t.source));
-            row.appendChild(ico); row.appendChild(main); row.appendChild(amt);
-            return row;
-        }
-        async function paintTx(body, dir, q) {
-            body.innerHTML = '';
-            var f = el('div', 'hist-filter');
-            [['all', 'Hammasi'], ['in', 'Kirim'], ['out', 'Xaridlar']].forEach(function (x) {
-                var b = el('button', dir === x[0] ? 'active' : null, x[1]);
-                b.type = 'button';
-                b.onclick = function () { paintTx(body, x[0], inp.value); };
-                f.appendChild(b);
-            });
-            body.appendChild(f);
-            var inp = el('input', 'topup-input adm-search');
-            inp.placeholder = "Telefon bo'yicha qidirish...";
-            inp.inputMode = 'numeric';
-            inp.value = q || '';
-            var timer = null;
-            inp.oninput = function () { clearTimeout(timer); timer = setTimeout(function () { load(); }, 350); };
-            body.appendChild(inp);
-            var sum = el('div', 'adm-sum');
-            body.appendChild(sum);
-            var list = el('div');
-            body.appendChild(list);
-            async function load() {
-                list.innerHTML = '<div class="wsub-loading">⏳</div>';
-                var j = await api('/api/admin/transactions', { direction: dir, q: inp.value });
-                list.innerHTML = '';
-                var items = j.items || [];
-                var tin = 0, tout = 0;
-                items.forEach(function (t) { if (t.kind === 'topup') tin += t.amount; else tout += t.amount; list.appendChild(txRow(t, true)); });
-                sum.textContent = items.length + " ta · kirim +" + money(tin) + " · chiqim −" + money(tout);
-                if (!items.length) list.appendChild(el('div', 'wsub-empty', "Hech narsa yo'q"));
-            }
-            load();
-        }
-        async function paintUserDetail(body, phone) {
-            body.innerHTML = '<div class="wsub-loading">⏳</div>';
-            var j = await api('/api/admin/user', { target: phone });
-            body.innerHTML = '';
-            var back = el('button', 'adm-back', '‹ Foydalanuvchilar');
-            back.type = 'button';
-            back.onclick = function () { paintUsers(body, ''); };
-            body.appendChild(back);
-            if (!j.success) { body.appendChild(el('div', 'wsub-empty', j.error || 'Xato')); return; }
-            var u = j.user;
-            var head = el('div', 'adm-user-head');
-            head.appendChild(el('b', null, (u.name || "Noma'lum") + (u.subUntil * 1000 > Date.now() ? ' ♾️' : '')));
-            head.appendChild(el('small', null, '+' + u.phone + (u.webOnly ? ' · botga kirmagan' : '') + (u.createdAt ? ' · ' + fmtDay(u.createdAt) + ' dan' : '')));
-            body.appendChild(head);
-            var kp = el('div', 'adm-kpis');
-            var balB;
-            [["Balans, so'm", money(u.balance)], ['Obuna', u.subUntil * 1000 > Date.now() ? fmtDay(u.subUntil) + ' gacha' : "yo'q"],
-             ['Bugungi xabarlar', u.usedToday], ['Taklif qilganlari', u.referrals.invited]].forEach(function (k, i) {
-                var c = el('div', 'adm-kpi');
-                var b = el('b', null, String(k[1]));
-                if (i === 0) balB = b;
-                c.appendChild(b); c.appendChild(el('small', null, k[0]));
-                kp.appendChild(c);
-            });
-            body.appendChild(kp);
-            var acts = el('div', 'adm-actions');
-            function act(label, fn) { var b = el('button', 'adm-act', label); b.type = 'button'; b.onclick = fn; acts.appendChild(b); }
-            act('± Balans', async function () {
-                var n = parseInt(prompt("Summa (so'm). Qo'shish: 5000, ayirish: -5000", ''), 10);
-                if (!n) return;
-                var r = await api('/api/admin/topup', { target: u.phone, amount: n });
-                if (r.success) { notify('Balans: ' + money(r.balance) + " so'm"); paintUserDetail(body, u.phone); } else notify(r.error || 'Xato');
-            });
-            act('♾️ +30 kun obuna', async function () {
-                var r = await api('/api/admin/sub', { target: u.phone, days: 30 });
-                if (r.success) { notify('Obuna berildi'); paintUserDetail(body, u.phone); } else notify(r.error || 'Xato');
-            });
-            if (u.subUntil * 1000 > Date.now()) act('✖ Obunani bekor qilish', async function () {
-                if (!confirm('Obuna bekor qilinsinmi?')) return;
-                var r = await api('/api/admin/sub', { target: u.phone, days: 0 });
-                if (r.success) paintUserDetail(body, u.phone); else notify(r.error || 'Xato');
-            });
-            act('🔑 Yangi parol', async function () {
-                var pw = prompt('Yangi parol (kamida 4 ta belgi):', '');
-                if (!pw) return;
-                var r = await api('/api/admin/password', { target: u.phone, newPassword: pw });
-                notify(r.success ? "Parol o'rnatildi: " + pw : (r.error || 'Xato'));
-            });
-            if (!u.webOnly) act('✉️ Xabar yozish', async function () {
-                var t = prompt('Foydalanuvchiga botda boradigan xabar:', '');
-                if (!t) return;
-                var r = await api('/api/admin/message', { target: u.phone, text: t });
-                notify(r.success ? 'Yuborildi ✅' : (r.error || 'Xato'));
-            });
-            body.appendChild(acts);
-            body.appendChild(el('div', 'adm-h', "To'lovlar va xaridlar"));
-            if (!u.transactions.length) body.appendChild(el('div', 'wsub-empty', "Hozircha yo'q"));
-            u.transactions.forEach(function (t) { body.appendChild(txRow(t, false)); });
-        }
-        function paintBroadcast(body) {
-            body.innerHTML = '';
-            body.appendChild(el('div', 'adm-h', "Barcha foydalanuvchilarga e'lon (botga keladi)"));
-            var ta = el('textarea', 'topup-input adm-textarea');
-            ta.placeholder = "Masalan: Yangi funksiya — endi rasm ham yaratish mumkin! 🎨";
-            ta.rows = 6;
-            body.appendChild(ta);
-            var cnt = el('div', 'adm-sum', '0 belgi');
-            ta.oninput = function () { cnt.textContent = ta.value.length + ' belgi'; };
-            body.appendChild(cnt);
-            var send = el('button', 'wx-btn adm-send', "📢 Hammaga yuborish");
-            send.type = 'button';
-            send.onclick = async function () {
-                var t = ta.value.trim();
-                if (!t) return;
-                if (!confirm("E'lon BARCHA foydalanuvchilarga yuborilsinmi?")) return;
-                send.disabled = true;
-                var r = await api('/api/admin/broadcast', { text: t });
-                send.disabled = false;
-                if (r.success) { notify(r.queued + " ta foydalanuvchiga yuborilmoqda. Natija botda keladi."); ta.value = ''; cnt.textContent = '0 belgi'; }
-                else notify(r.error || 'Xato');
-            };
-            body.appendChild(send);
-            body.appendChild(el('div', 'adm-note', "Bitta odamga yozish uchun: Foydalanuvchilar → odamni tanlang → ✉️ Xabar yozish."));
-        }
-
-
         /* ================= PAROLNI TIKLASH (Telegram bot orqali) ================= */
         var resetModal = $('reset-modal'), resetToken = null;
         function resetStatus(msg, kind) {
@@ -6367,6 +6063,26 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
                 }
             } catch (e) {}
         })();
+
+        /* ================= PROMO-KOD ================= */
+        $('wx-promo-btn').onclick = async function () {
+            var btn = this, inp = $('wx-promo-input');
+            var code = inp.value.trim();
+            if (code.length < 3) { inp.focus(); return; }
+            btn.disabled = true;
+            try {
+                var j = await api('/api/promo/redeem', { code: code });
+                if (j.success) {
+                    inp.value = '';
+                    notify(T("🎉 +" + money(j.amount) + " so'm balansingizga qo'shildi!", '🎉 +' + money(j.amount) + ' UZS added to your balance!', '🎉 +' + money(j.amount) + ' сум зачислено на баланс!'));
+                    if (typeof refreshBalance === 'function') refreshBalance();
+                } else {
+                    notify(j._status === 403 ? T('Iltimos, qayta kiring.', 'Please log in again.', 'Пожалуйста, войдите снова.') : (j.error || 'Error'));
+                }
+            } catch (e) { notify(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.')); }
+            btn.disabled = false;
+        };
+        $('wx-promo-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('wx-promo-btn').click(); });
 
         // Kirgan foydalanuvchi uchun bonus/obuna/admin ma'lumotlarini oldindan yuklaymiz
         setTimeout(function () { if (creds().phone && creds().password) loadRewards(); }, 1500);

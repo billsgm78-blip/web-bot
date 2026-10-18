@@ -70,6 +70,9 @@ export default async function handler(req, res) {
   if (quota.needLogin) {
     return res.status(401).json({ error: LOGIN_MSG[uiLang], needLogin: true });
   }
+  if (!quota.allowed && quota.maintenance) {
+    return res.status(503).json({ error: "🛠 " + (quota.message || "Texnik ishlar olib borilmoqda."), maintenance: true });
+  }
   if (!quota.allowed) {
     return res.status(429).json({ error: QUOTA_MSG[uiLang](quota.limit || ""), limitReached: true, limit: quota.limit, subPrice: quota.subPrice });
   }
