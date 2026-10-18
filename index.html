@@ -2266,6 +2266,57 @@ html, body { height: calc(100svh + env(safe-area-inset-top)) !important; }
 .wx-promo-input::placeholder { text-transform: none; letter-spacing: 0; font-family: 'Outfit', sans-serif; color: #64748b; }
 body.theme-light .wx-promo-input { background: #f1f5f9; color: #0f172a; border-color: rgba(15, 23, 42, 0.12); }
 
+
+/* ---------- Sayt holati: to'liq blok, o'chirilgan funksiyalar, e'lon ---------- */
+#site-lock {
+    position: fixed; inset: 0; z-index: 2147483000; display: none; align-items: center; justify-content: center;
+    padding: 24px; padding-top: calc(24px + env(safe-area-inset-top)); background: radial-gradient(70% 50% at 50% 30%, rgba(139,92,246,0.18), transparent 70%), #04060d;
+}
+#site-lock.show { display: flex; animation: authFade .3s ease-out both; }
+.lock-card { max-width: 420px; width: 100%; text-align: center; }
+.lock-ico { width: 84px; height: 84px; margin: 0 auto 20px; border-radius: 26px; display: grid; place-items: center; font-size: 40px;
+    background: var(--accent-grad); box-shadow: 0 16px 50px -10px var(--violet-glow); animation: lockFloat 3.4s ease-in-out infinite; }
+@keyframes lockFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.lock-card h1 { font-size: 26px; font-weight: 800; color: #f8fafc; margin-bottom: 12px; letter-spacing: -0.01em; }
+.lock-card p { font-size: 15.5px; line-height: 1.6; color: #cbd5e1; white-space: pre-wrap; word-break: break-word; }
+.lock-card button { margin-top: 26px; padding: 12px 22px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05);
+    color: #e2e8f0; font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; }
+.lock-brand { margin-top: 30px; font-size: 12px; letter-spacing: 0.3em; color: #64748b; font-weight: 700; }
+.feat-off { opacity: 0.45 !important; filter: grayscale(0.4); position: relative; }
+.feat-off::after { content: "🔒"; position: absolute; top: 4px; right: 6px; font-size: 12px; filter: none; }
+#chat-off-note {
+    display: none; align-items: center; gap: 10px; margin: 0 12px 8px; padding: 10px 12px; border-radius: 14px;
+    background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.35); color: #fcd34d; font-size: 13.5px; line-height: 1.45;
+}
+#chat-off-note.show { display: flex; }
+#auth-off-note { display: none; margin-bottom: 14px; padding: 10px 12px; border-radius: 12px; background: rgba(245,158,11,0.10);
+    border: 1px solid rgba(245,158,11,0.35); color: #fcd34d; font-size: 13.5px; line-height: 1.45; text-align: left; }
+#auth-off-note.show { display: block; }
+#site-ann {
+    position: fixed; left: 50%; top: calc(74px + env(safe-area-inset-top)); transform: translateX(-50%); z-index: 9000;
+    width: calc(100% - 24px); max-width: 436px; display: none; gap: 10px; align-items: flex-start;
+    padding: 12px 12px 12px 14px; border-radius: 16px; box-shadow: 0 14px 40px rgba(0,0,0,0.55); animation: annIn .45s cubic-bezier(.2,.8,.2,1) both;
+}
+#site-ann.show { display: flex; }
+@keyframes annIn { from { opacity: 0; transform: translate(-50%, -12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+#site-ann .ann-ico { font-size: 20px; line-height: 1.2; }
+#site-ann .ann-body { flex: 1; min-width: 0; }
+#site-ann .ann-body b { display: block; font-size: 14px; margin-bottom: 2px; }
+#site-ann .ann-body span { font-size: 13.5px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+#site-ann .ann-x { width: 28px; height: 28px; border-radius: 9px; border: none; background: rgba(255,255,255,0.12); color: inherit; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+.ann-info { background: #0f2747; border: 1px solid rgba(59,130,246,0.5); color: #dbeafe; }
+.ann-warning { background: #3a2a07; border: 1px solid rgba(245,158,11,0.55); color: #fde68a; }
+.ann-success { background: #0b3326; border: 1px solid rgba(16,185,129,0.5); color: #d1fae5; }
+.ann-promo { background: linear-gradient(135deg, #3b1d7a, #1e3a8a); border: 1px solid rgba(167,139,250,0.55); color: #ede9fe; }
+#site-ann-pop { position: fixed; inset: 0; z-index: 2147482000; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(2,4,10,0.75);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+#site-ann-pop.show { display: flex; animation: authFade .25s ease-out both; }
+.ann-pop-card { width: 100%; max-width: 380px; border-radius: 22px; padding: 22px 20px 18px; text-align: center; animation: authCardIn .45s cubic-bezier(.2,.8,.2,1) both; }
+.ann-pop-card .ann-ico { font-size: 40px; margin-bottom: 10px; }
+.ann-pop-card b { display: block; font-size: 20px; margin-bottom: 8px; }
+.ann-pop-card p { font-size: 15px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; opacity: 0.92; }
+.ann-pop-card button { margin-top: 18px; width: 100%; height: 48px; border: none; border-radius: 14px; background: rgba(255,255,255,0.16); color: inherit; font-weight: 700; font-size: 15px; cursor: pointer; font-family: inherit; }
+
 /* =================== YORUG' REJIM =================== */
 body.theme-light { background: #eef1f6 !important; color: #0f172a; --text-primary: #0f172a; --text-secondary: #475569; --border-glass: rgba(15, 23, 42, 0.12); --surface-card: #ffffff; }
 body.theme-light::before, body.theme-light .ambient-orb, body.theme-light #fx-canvas, body.theme-light .fx-star, body.theme-light .fx-cursor { opacity: 0.18 !important; }
@@ -2459,6 +2510,7 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
             </div>
             <div data-st style="--i:1"><h2 class="auth-title" id="lang-auth-welcome">Xush kelibsiz</h2></div>
 
+            <div id="auth-off-note"></div>
             <div class="auth-tabs" data-st style="--i:2">
                 <span class="auth-tab-indicator" aria-hidden="true"></span>
                 <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Kirish</button>
@@ -2583,6 +2635,8 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
             <div class="doc-meta"><b id="doc-name"></b><small id="doc-info"></small></div>
             <button type="button" class="doc-remove" id="doc-remove">&times;</button>
         </div>
+
+        <div id="chat-off-note"><span>🔒</span><span id="chat-off-text"></span></div>
 
         <!-- 🎨 RASM YARATISH REJIMI -->
         <div id="gen-mode" style="display: none;">
@@ -5674,7 +5728,7 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
                     if (typeof refreshBalance === 'function') refreshBalance();
                     notify(T('♾️ Obuna faollashdi!', '♾️ Subscription activated!', '♾️ Подписка активирована!'));
                 } else {
-                    notify(j._status === 403 ? T('Iltimos, qayta kiring.', 'Please log in again.', 'Пожалуйста, войдите снова.') : T("Balans yetarli emas. Avval hisobni to'ldiring.", 'Not enough balance. Top up first.', 'Недостаточно средств. Сначала пополните счёт.'));
+                    notify(j.blocked ? j.error : j._status === 403 ? T('Iltimos, qayta kiring.', 'Please log in again.', 'Пожалуйста, войдите снова.') : T("Balans yetarli emas. Avval hisobni to'ldiring.", 'Not enough balance. Top up first.', 'Недостаточно средств. Сначала пополните счёт.'));
                 }
             } catch (e) { notify(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.')); }
             btn.disabled = false;
@@ -6101,5 +6155,141 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
 })();
 </script>
 
+
+<script id="site-control-script">
+/* Admin paneldan boshqariladi: butun saytni bloklash, alohida funksiyalarni o'chirish va e'lon. */
+(function () {
+    try {
+        var $ = function (id) { return document.getElementById(id); };
+        var T = function (uz, en, ru) { return typeof tr === 'function' ? tr(uz, en, ru) : uz; };
+        var note = function (m) { if (typeof showNotification === 'function') showNotification(m); else alert(m); };
+        var st = null;
+        var DEF = function (k) {
+            return {
+                lock: T("Saytda texnik ishlar olib borilmoqda. Tez orada qaytamiz 🙏", "We're doing some maintenance. We'll be back soon 🙏", "На сайте ведутся технические работы. Скоро вернёмся 🙏"),
+                feature: T("Bu funksiya vaqtincha o'chirilgan.", 'This feature is temporarily disabled.', 'Эта функция временно отключена.')
+            }[k];
+        };
+        function off(key) { return !!(st && (st.lockAll || (st.features && st.features[key] && st.features[key].off))); }
+        function msg(key) {
+            if (!st) return DEF('feature');
+            if (st.lockAll) return st.lockMsg || DEF('lock');
+            var f = st.features && st.features[key];
+            return (f && f.msg) || DEF('feature');
+        }
+
+        // ---- to'liq blok oynasi ----
+        var lock = document.createElement('div');
+        lock.id = 'site-lock';
+        lock.innerHTML = '<div class="lock-card"><div class="lock-ico">🛠</div><h1></h1><p></p><button type="button"></button><div class="lock-brand">BILOLS AI</div></div>';
+        document.body.appendChild(lock);
+        lock.querySelector('button').onclick = function () { this.textContent = '⏳'; load(); };
+
+        // ---- e'lon ----
+        var ban = document.createElement('div');
+        ban.id = 'site-ann';
+        ban.innerHTML = '<span class="ann-ico"></span><div class="ann-body"><b></b><span></span></div><button type="button" class="ann-x" aria-label="Yopish">×</button>';
+        document.body.appendChild(ban);
+        var pop = document.createElement('div');
+        pop.id = 'site-ann-pop';
+        pop.innerHTML = '<div class="ann-pop-card"><div class="ann-ico"></div><b></b><p></p><button type="button"></button></div>';
+        document.body.appendChild(pop);
+        var ICO = { info: 'ℹ️', warning: '⚠️', success: '✅', promo: '🎉' };
+        function seen(id) { try { return localStorage.getItem('bilol_ai_ann_seen') === String(id); } catch (e) { return false; } }
+        function markSeen(id) { try { localStorage.setItem('bilol_ai_ann_seen', String(id)); } catch (e) {} }
+
+        var GUARDS = [
+            ['#attach-gen', 'image'],
+            ['#attach-doc', 'files'], ['#attach-image', 'files'], ['#live-camera-btn', 'files'],
+            ['.pack-card', 'shop'], ['#wx-sub-btn', 'sub'], ['#wx-topup-btn', 'topup'], ['#wx-bonus-btn', 'bonus'], ['#wx-promo-btn', 'promo'],
+            ['#auth-action-btn', 'auth'], ['#reset-send', 'auth']
+        ];
+        function chatBlocked() { return off('chat') && !(window.BilolUI && window.BilolUI.isImageMode && window.BilolUI.isImageMode()); }
+
+        function apply() {
+            // to'liq blok
+            if (st && st.lockAll) {
+                lock.querySelector('h1').textContent = st.lockTitle || T("Vaqtincha to'xtatildi", 'Temporarily unavailable', 'Временно недоступно');
+                lock.querySelector('p').textContent = st.lockMsg || DEF('lock');
+                lock.querySelector('button').textContent = T('🔄 Qayta tekshirish', '🔄 Check again', '🔄 Проверить снова');
+                lock.classList.add('show');
+            } else lock.classList.remove('show');
+            // tugmalarni belgilash
+            GUARDS.forEach(function (g) {
+                document.querySelectorAll(g[0]).forEach(function (el) { el.classList.toggle('feat-off', off(g[1])); });
+            });
+            // chat
+            var cn = $('chat-off-note');
+            if (cn) {
+                cn.classList.toggle('show', off('chat'));
+                $('chat-off-text').textContent = off('chat') ? msg('chat') : '';
+            }
+            // kirish oynasi
+            var an = $('auth-off-note');
+            if (an) { an.classList.toggle('show', off('auth')); an.textContent = off('auth') ? '🔒 ' + msg('auth') : ''; }
+            // e'lon
+            var a = st && !st.lockAll ? st.announcement : null;
+            ban.classList.remove('show'); pop.classList.remove('show');
+            if (a && !seen(a.id)) {
+                var style = ICO[a.style] ? a.style : 'info';
+                if (a.mode === 'popup') {
+                    var card = pop.querySelector('.ann-pop-card');
+                    card.className = 'ann-pop-card ann-' + style;
+                    card.querySelector('.ann-ico').textContent = ICO[style];
+                    card.querySelector('b').textContent = a.title || T("E'lon", 'Announcement', 'Объявление');
+                    card.querySelector('p').textContent = a.text;
+                    var btn = card.querySelector('button');
+                    btn.textContent = T('Tushunarli', 'Got it', 'Понятно');
+                    btn.onclick = function () { markSeen(a.id); pop.classList.remove('show'); };
+                    pop.classList.add('show');
+                } else {
+                    ban.className = 'ann-' + style;
+                    ban.querySelector('.ann-ico').textContent = ICO[style];
+                    var b = ban.querySelector('.ann-body b');
+                    b.textContent = a.title || '';
+                    b.style.display = a.title ? '' : 'none';
+                    ban.querySelector('.ann-body span').textContent = a.text;
+                    ban.querySelector('.ann-x').onclick = function () { markSeen(a.id); ban.classList.remove('show'); };
+                    ban.classList.add('show');
+                }
+            }
+        }
+
+        // bloklangan tugmani bosganda — sababini ko'rsatamiz (asl amal ishlamaydi)
+        document.addEventListener('click', function (e) {
+            var t = e.target;
+            if (!t || !t.closest) return;
+            if (t.closest('#send-btn') && chatBlocked()) { e.stopImmediatePropagation(); e.preventDefault(); note('🔒 ' + msg('chat')); return; }
+            for (var i = 0; i < GUARDS.length; i++) {
+                if (t.closest(GUARDS[i][0]) && off(GUARDS[i][1])) {
+                    e.stopImmediatePropagation(); e.preventDefault();
+                    note('🔒 ' + msg(GUARDS[i][1]));
+                    var am = $('attach-menu'); if (am) am.classList.remove('open');
+                    return;
+                }
+            }
+        }, true);
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && e.target && e.target.id === 'chat-input' && chatBlocked()) { e.stopImmediatePropagation(); e.preventDefault(); note('🔒 ' + msg('chat')); }
+        }, true);
+
+        async function load() {
+            try {
+                var r = await fetch(RAILWAY_URL + '/api/site-status', { cache: 'no-store' });
+                var j = await r.json();
+                if (j && j.success) { st = j; apply(); }
+            } catch (e) {}
+            var lb = lock.querySelector('button'); if (lb && lb.textContent === '⏳') lb.textContent = T('🔄 Qayta tekshirish', '🔄 Check again', '🔄 Проверить снова');
+        }
+        load();
+        setInterval(load, 60000);
+        document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });
+        // til almashganda matnlar yangilansin
+        var prev = window.setAppLanguage;
+        if (typeof prev === 'function') window.setAppLanguage = function () { var r = prev.apply(this, arguments); apply(); return r; };
+        window.BilolSite = { status: function () { return st; }, reload: load };
+    } catch (err) { console.warn('SITE-CONTROL:', err); if (window.__reportError) window.__reportError('SITE-CONTROL: ' + (err && err.message || err)); }
+})();
+</script>
 </body>
 </html>

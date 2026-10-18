@@ -135,6 +135,7 @@ export default async function handler(req, res) {
   // Pul yechiladi va tavsif botning Google Gemini kaliti bilan inglizchaga o'giriladi
   const charge = await railway("/api/image-charge", { phone, password, prompt: text });
   if (charge._status === 403) return res.status(401).json({ error: "Iltimos, hisobdan chiqib qayta kiring.", needLogin: true });
+  if (charge.blocked) return res.status(503).json({ error: charge.message || "Bu funksiya vaqtincha o'chirilgan.", blocked: true });
   if (!charge.success) return res.status(402).json({ error: charge.error || "Mablag' yetarli emas", noMoney: true, price: charge.price, balance: charge.balance });
 
   let image = null;

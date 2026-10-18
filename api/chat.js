@@ -27,6 +27,7 @@ async function checkQuota(phone, password) {
     });
     if (r.status === 403) return { allowed: false, needLogin: true };
     const j = await r.json().catch(() => ({}));
+    if (j.blocked) return { allowed: false, maintenance: true, message: j.message };
     if (!j.success) return { allowed: true };
     return j;
   } catch (e) {

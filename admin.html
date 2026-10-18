@@ -115,9 +115,9 @@ input, textarea, select { font-family: inherit; color: var(--text); }
 .user-head b { font-size: 20px; } .user-head small { display: block; color: var(--muted); font-size: 13px; margin-top: 3px; }
 .form { display: grid; gap: 10px; }
 .form-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
-label.lb { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--muted); font-weight: 600; }
-label.lb .inp { height: 46px; }
-label.lb small { color: var(--dim); font-weight: 500; }
+.lb { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.lb .inp { height: 46px; }
+.lb small { color: var(--dim); font-weight: 500; }
 textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vertical; line-height: 1.5; outline: none; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); font-size: 15px; }
 .switch { position: relative; width: 52px; height: 30px; border-radius: 16px; background: rgba(255,255,255,0.14); border: 1px solid var(--line2); flex-shrink: 0; transition: background .25s; }
 .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .25s cubic-bezier(.3,1.4,.6,1); }
@@ -138,6 +138,48 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
 .m-card { width: 100%; max-width: 420px; background: #0d1222; border: 1px solid var(--line2); border-radius: 20px; padding: 20px; animation: up .3s cubic-bezier(.2,.8,.2,1) both; }
 .m-card h3 { font-size: 18px; margin-bottom: 4px; } .m-card p { color: var(--muted); font-size: 13.5px; margin-bottom: 14px; line-height: 1.45; }
 .m-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+
+
+/* ---------- Boshqaruv ---------- */
+.lock-hero { display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 18px; border: 1px solid var(--line); background: var(--card); transition: border-color .25s, background .25s; }
+.lock-hero.on { border-color: rgba(244,63,94,0.55); background: rgba(244,63,94,0.08); }
+.lock-hero .big { font-size: 30px; }
+.lock-hero b { font-size: 16px; display: block; } .lock-hero small { color: var(--muted); font-size: 13px; }
+.lock-hero .grow { flex: 1; min-width: 0; }
+.feat { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); }
+.feat.off { border-color: rgba(245,158,11,0.45); background: rgba(245,158,11,0.06); }
+.feat .name { font-weight: 700; font-size: 14.5px; } .feat .state { font-size: 12px; color: var(--muted); }
+.feat.off .state { color: #fbbf24; }
+.feat .inp { grid-column: 1 / -1; height: 42px; font-size: 14px; display: none; }
+.feat.off .inp { display: block; }
+.switch.ok { background: var(--green); border-color: transparent; }
+.switch.ok::after { transform: translateX(22px); }
+.feat-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.pv-phone { width: 260px; height: 460px; margin: 0 auto; border-radius: 30px; border: 1px solid var(--line2); background: #04060d; position: relative; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+.pv-lock { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 22px; text-align: center;
+    background: radial-gradient(70% 50% at 50% 30%, rgba(139,92,246,0.22), transparent 70%), #04060d; }
+.pv-lock .i { width: 58px; height: 58px; border-radius: 18px; background: var(--grad); display: grid; place-items: center; font-size: 28px; margin-bottom: 14px; }
+.pv-lock b { font-size: 18px; margin-bottom: 8px; } .pv-lock p { font-size: 12.5px; color: #cbd5e1; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.pv-chat { position: absolute; inset: 0; background: linear-gradient(160deg, #0b1020, #05070f); }
+.pv-chat .bar { height: 46px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; padding: 0 12px; font-size: 12px; font-weight: 700; }
+.pv-chat .bar i { width: 24px; height: 24px; border-radius: 8px; background: var(--grad); display: grid; place-items: center; font-style: normal; font-size: 12px; }
+.pv-ban { position: absolute; left: 10px; right: 10px; top: 56px; padding: 10px; border-radius: 12px; font-size: 11.5px; line-height: 1.4; display: flex; gap: 8px; white-space: pre-wrap; word-break: break-word; }
+.pv-pop { position: absolute; inset: 0; background: rgba(2,4,10,0.7); display: flex; align-items: center; justify-content: center; padding: 18px; }
+.pv-pop > div { width: 100%; border-radius: 16px; padding: 16px; text-align: center; font-size: 12px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+.pv-pop .ico { font-size: 26px; } .pv-pop b { display: block; font-size: 15px; margin: 4px 0 6px; }
+.pv-pop .ok { margin-top: 10px; padding: 8px; border-radius: 10px; background: rgba(255,255,255,0.16); font-weight: 700; }
+.ann-info { background: #0f2747; border: 1px solid rgba(59,130,246,0.5); color: #dbeafe; }
+.ann-warning { background: #3a2a07; border: 1px solid rgba(245,158,11,0.55); color: #fde68a; }
+.ann-success { background: #0b3326; border: 1px solid rgba(16,185,129,0.5); color: #d1fae5; }
+.ann-promo { background: linear-gradient(135deg, #3b1d7a, #1e3a8a); border: 1px solid rgba(167,139,250,0.55); color: #ede9fe; }
+.seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.seg button { padding: 9px 12px; border-radius: 11px; border: 1px solid var(--line2); background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; }
+.seg button.active { background: rgba(139,92,246,0.18); color: #fff; border-color: rgba(139,92,246,0.45); }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: start; }
+.chk { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text); cursor: pointer; }
+.chk input { width: 18px; height: 18px; accent-color: var(--violet); }
+@media (max-width: 860px) { .feat-grid, .two { grid-template-columns: 1fr; } .pv-phone { width: 240px; height: 420px; } }
 
 @media (max-width: 860px) {
     .layout { grid-template-columns: 1fr; }
@@ -362,7 +404,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
 
     // ================= PANEL =================
     var TABS = [
-        ['stats', '📊', 'Statistika'], ['orders', '🛒', 'Buyurtmalar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'],
+        ['stats', '📊', 'Statistika'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'],
         ['promo', '🎟️', 'Promo-kodlar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
     ];
     var tab = 'stats';
@@ -380,7 +422,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         tab = t; buildNav();
         $('page-title').textContent = TABS.filter(function (x) { return x[0] === t; })[0][2];
         var view = $('view'); view.innerHTML = '<div class="loading">⏳</div>';
-        var fn = { stats: vStats, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, settings: vSettings, log: vLog, security: vSecurity }[t];
+        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, settings: vSettings, log: vLog, security: vSecurity }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -437,6 +479,124 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             if ((n - 1 - i) % 2 === 0) { var t = el('text', { x: x + bw / 2, y: H + 17, fill: '#5d6680', 'font-size': 11, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono' }); t.textContent = d.day.slice(8) + '.' + d.day.slice(5, 7); }
         });
         return svg;
+    }
+
+
+    // ---------- Boshqaruv: bloklash va e'lon ----------
+    async function vControl(view) {
+        var j = await admin('control_get');
+        view.innerHTML = '';
+        if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        var st = j.state, FEAT = j.features, DEFL = j.defaults;
+        var ICO = { chat: '💬', image: '🎨', files: '📎', shop: '⭐', sub: '♾️', topup: '💳', bonus: '🎁', promo: '🎟️', auth: '🔐' };
+
+        // ===== 1. Butun sayt =====
+        var lockOn = st.lockAll;
+        var lockSw = h('div', { class: 'switch' + (lockOn ? ' on' : ''), role: 'switch' });
+        var lockTitle = h('input', { class: 'inp', placeholder: "Vaqtincha to'xtatildi", maxlength: 80 }); lockTitle.value = st.lockTitle || '';
+        var lockMsg = h('textarea', { class: 'inp', placeholder: DEFL.lock, maxlength: 500, style: 'min-height:100px' }); lockMsg.value = st.lockMsg || '';
+        var hero = h('div', { class: 'lock-hero' + (lockOn ? ' on' : '') }, [
+            h('div', { class: 'big', text: lockOn ? '⛔' : '🟢' }),
+            h('div', { class: 'grow' }, [h('b', { text: 'Butun saytni bloklash' }), h('small', { text: lockOn ? "Sayt hozir BLOKLANGAN — hamma blok oynasini ko'ryapti" : 'Sayt ishlayapti' })]),
+            lockSw
+        ]);
+        var pvLock = h('div', { class: 'pv-lock' }, [h('div', { class: 'i', text: '🛠' }), h('b'), h('p')]);
+        function paintLockPv() {
+            pvLock.children[1].textContent = lockTitle.value.trim() || "Vaqtincha to'xtatildi";
+            pvLock.children[2].textContent = lockMsg.value.trim() || DEFL.lock;
+        }
+        lockTitle.oninput = lockMsg.oninput = paintLockPv; paintLockPv();
+        lockSw.onclick = function () { lockSw.classList.toggle('on'); };
+        view.appendChild(h('div', { class: 'h', text: "Butun sayt" }));
+        view.appendChild(h('div', { class: 'two' }, [
+            h('div', { class: 'form' }, [
+                hero,
+                h('label', { class: 'lb' }, ['Ekrandagi sarlavha', lockTitle]),
+                h('label', { class: 'lb' }, ['Sababi (foydalanuvchilar shu matnni ko\'radi)', lockMsg]),
+                h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+                    var on = lockSw.classList.contains('on');
+                    if (on && !lockOn && !await dialog({ title: 'Saytni bloklash', text: "Barcha foydalanuvchilar uchun sayt to'xtaydi (admin panel ishlayveradi). Davom etasizmi?", ok: 'Bloklash', danger: true })) return;
+                    var x = await admin('control_set', { lockAll: on, lockTitle: lockTitle.value, lockMsg: lockMsg.value });
+                    if (x.success) { toast(on ? '⛔ Sayt bloklandi' : '🟢 Sayt ochiq'); vControl(view); } else toast(x.error || 'Xato');
+                } })
+            ]),
+            h('div', {}, [h('div', { class: 'sum', text: "Ko'rinishi:" }), h('div', { class: 'pv-phone' }, [pvLock])])
+        ]));
+
+        // ===== 2. Alohida funksiyalar =====
+        view.appendChild(h('div', { class: 'h', text: 'Alohida funksiyalar' }));
+        view.appendChild(h('div', { class: 'sum', style: 'margin-top:-4px;margin-bottom:10px', text: "Yashil — ishlayapti. O'chirsangiz, sababini yozing: foydalanuvchi tugmani bosganda shu matn chiqadi. Server tomonida ham bloklanadi." }));
+        var grid = h('div', { class: 'feat-grid' }), rows = {};
+        Object.keys(FEAT).forEach(function (k) {
+            var cur = st.features[k] || { off: false, msg: '' };
+            var sw = h('div', { class: 'switch' + (cur.off ? '' : ' ok'), role: 'switch' });
+            var reason = h('input', { class: 'inp', placeholder: 'Sababi: ' + DEFL.feature, maxlength: 300 }); reason.value = cur.msg || '';
+            var stateEl = h('div', { class: 'state', text: cur.off ? "🔒 O'chirilgan" : '✅ Ishlayapti' });
+            var box = h('div', { class: 'feat' + (cur.off ? ' off' : '') }, [h('div', {}, [h('div', { class: 'name', text: (ICO[k] || '•') + ' ' + FEAT[k] }), stateEl]), sw, reason]);
+            sw.onclick = function () {
+                var nowOff = sw.classList.contains('ok');
+                sw.classList.toggle('ok', !nowOff); box.classList.toggle('off', nowOff);
+                stateEl.textContent = nowOff ? "🔒 O'chiriladi (saqlang)" : '✅ Yoqiladi (saqlang)';
+                if (nowOff) setTimeout(function () { reason.focus(); }, 50);
+            };
+            rows[k] = { sw: sw, reason: reason };
+            grid.appendChild(box);
+        });
+        view.appendChild(grid);
+        view.appendChild(h('div', { style: 'margin-top:12px' }, [h('button', { class: 'btn', text: '💾 Funksiyalarni saqlash', onclick: async function () {
+            var features = {};
+            Object.keys(rows).forEach(function (k) { features[k] = { off: !rows[k].sw.classList.contains('ok'), msg: rows[k].reason.value }; });
+            var x = await admin('control_set', { features: features });
+            if (x.success) { toast('✅ Saqlandi — saytda 1 daqiqa ichida kuchga kiradi'); vControl(view); } else toast(x.error || 'Xato');
+        } })]));
+
+        // ===== 3. Hammaga xabar (saytdagi e'lon) =====
+        var d = j.announcementDraft;
+        var annOn = d.on, style = d.style || 'info', mode = d.mode || 'banner';
+        var aTitle = h('input', { class: 'inp', placeholder: 'Masalan: Yangilik!', maxlength: 80 }); aTitle.value = d.title || '';
+        var aText = h('textarea', { class: 'inp', placeholder: "Masalan: Bugun 22:00 dan 23:00 gacha texnik ishlar bo'ladi.", maxlength: 1000, style: 'min-height:110px' }); aText.value = d.text || '';
+        var tg = h('input', { type: 'checkbox' });
+        var STY = [['info', 'ℹ️ Ma\'lumot'], ['warning', '⚠️ Ogohlantirish'], ['success', '✅ Yaxshi xabar'], ['promo', '🎉 Aksiya']];
+        var MOD = [['banner', '▭ Tepada banner'], ['popup', '◻︎ Ekran o\'rtasida oyna']];
+        var styleSeg = h('div', { class: 'seg' }), modeSeg = h('div', { class: 'seg' });
+        function seg(box, list, cur, set) {
+            box.innerHTML = '';
+            list.forEach(function (x) { box.appendChild(h('button', { class: x[0] === cur ? 'active' : '', text: x[1], onclick: function () { set(x[0]); seg(box, list, x[0], set); paintAnnPv(); } })); });
+        }
+        seg(styleSeg, STY, style, function (v) { style = v; });
+        seg(modeSeg, MOD, mode, function (v) { mode = v; });
+        var pvChat = h('div', { class: 'pv-chat' }, [h('div', { class: 'bar' }, [h('i', { text: '⚡' }), 'Bilols AI'])]);
+        var EMO = { info: 'ℹ️', warning: '⚠️', success: '✅', promo: '🎉' };
+        function paintAnnPv() {
+            while (pvChat.children.length > 1) pvChat.removeChild(pvChat.lastChild);
+            var t = aText.value.trim() || '…', ti = aTitle.value.trim();
+            if (mode === 'popup') {
+                pvChat.appendChild(h('div', { class: 'pv-pop' }, [h('div', { class: 'ann-' + style }, [h('div', { class: 'ico', text: EMO[style] }), h('b', { text: ti || "E'lon" }), t, h('div', { class: 'ok', text: 'Tushunarli' })])]));
+            } else {
+                pvChat.appendChild(h('div', { class: 'pv-ban ann-' + style }, [h('span', { text: EMO[style] }), h('div', {}, [ti ? h('b', { text: ti, style: 'display:block' }) : null, t])]));
+            }
+        }
+        aText.oninput = aTitle.oninput = paintAnnPv; paintAnnPv();
+        view.appendChild(h('div', { class: 'h' }, ["Hammaga xabar (saytda chiqadi)", h('span', { class: 'tag ' + (annOn ? 'done' : 'off'), text: annOn ? "Hozir ko'rsatilmoqda" : "O'chiq" })]));
+        view.appendChild(h('div', { class: 'two' }, [
+            h('div', { class: 'form' }, [
+                h('label', { class: 'lb' }, ['Sarlavha (ixtiyoriy)', aTitle]),
+                h('label', { class: 'lb' }, ['Xabar matni', aText]),
+                h('div', { class: 'lb' }, ['Turi', styleSeg]),
+                h('div', { class: 'lb' }, ["Qanday ko'rinadi", modeSeg]),
+                h('label', { class: 'chk' }, [tg, "Telegram botga ham yuborish"]),
+                h('button', { class: 'btn', text: annOn ? "📣 Yangilash va qayta ko'rsatish" : "📣 Hammaga ko'rsatish", onclick: async function () {
+                    if (!aText.value.trim()) { toast('Xabar matnini yozing'); aText.focus(); return; }
+                    var x = await admin('announce_set', { on: true, title: aTitle.value, text: aText.value, style: style, mode: mode, telegram: tg.checked });
+                    if (x.success) { toast("✅ E'lon saytda ko'rsatilmoqda" + (x.queued ? ' · botga ' + x.queued + ' ta' : '')); vControl(view); } else toast(x.error || 'Xato');
+                } }),
+                annOn ? h('button', { class: 'btn ghost', text: "✖ E'lonni olib tashlash", onclick: async function () {
+                    var x = await admin('announce_set', { on: false }); if (x.success) { toast("E'lon olib tashlandi"); vControl(view); }
+                } }) : null
+            ].filter(Boolean)),
+            h('div', {}, [h('div', { class: 'sum', text: "Ko'rinishi:" }), h('div', { class: 'pv-phone' }, [pvChat])])
+        ]));
+        view.appendChild(h('div', { class: 'sum', style: 'margin-top:10px', text: "Har bir foydalanuvchi e'lonni yopguncha ko'radi. Matnni yangilasangiz, yopganlarga ham qayta chiqadi." }));
     }
 
     // ---------- Buyurtmalar ----------
@@ -583,7 +743,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         var days = h('input', { class: 'inp', inputmode: 'numeric', value: '30' });
         var form = h('div', { class: 'card form' }, [
             h('div', { class: 'form-row' }, [
-                h('label', { class: 'lb' }, ['Kod', code, h('button', { class: 'link', style: 'margin:0;text-align:left', text: '🎲 Tasodifiy', onclick: function () { code.value = randomCode(); } })]),
+                h('div', { class: 'lb' }, ['Kod', code, h('button', { class: 'link', style: 'margin:0;text-align:left', text: '🎲 Tasodifiy', onclick: function () { code.value = randomCode(); } })]),
                 h('label', { class: 'lb' }, ["Summa (so'm)", amount]),
                 h('label', { class: 'lb' }, ['Necha kishi ishlata oladi', uses]),
                 h('label', { class: 'lb' }, ['Necha kun amal qiladi', days, h('small', { text: '0 = muddatsiz' })])
@@ -657,19 +817,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             var values = {}; for (var k in inputs) { var n = parseInt(inputs[k].value, 10); if (isNaN(n) || n < 0) { toast(LABELS[k][0] + ': noto\'g\'ri qiymat'); return; } values[k] = n; }
             var x = await admin('settings_set', { values: values }); toast(x.success ? '✅ Saqlandi — darhol kuchga kirdi' : (x.error || 'Xato'));
         } })]));
-        view.appendChild(h('div', { class: 'h', text: 'Texnik rejim' }));
-        var sw = h('div', { class: 'switch' + (j.maintenance ? ' on' : ''), role: 'switch' });
-        var mmsg = h('input', { class: 'inp', placeholder: "Texnik ishlar olib borilmoqda. Birozdan so'ng qayting 🙏" }); mmsg.value = j.maintenanceMsg || '';
-        sw.onclick = function () { sw.classList.toggle('on'); };
-        view.appendChild(h('div', { class: 'card form' }, [
-            h('div', { class: 'set-line' }, [h('div', {}, [h('b', { text: 'Saytda AI chatni vaqtincha to\'xtatish' }), h('small', { text: 'Foydalanuvchilar quyidagi xabarni ko\'radi' })]), sw]),
-            mmsg,
-            h('button', { class: 'btn ghost', text: 'Qo\'llash', onclick: async function () {
-                var on = sw.classList.contains('on');
-                var x = await admin('settings_set', { maintenance: on, maintenanceMsg: mmsg.value });
-                toast(x.success ? (on ? '🛠 Texnik rejim yoqildi' : '✅ Texnik rejim o\'chirildi') : (x.error || 'Xato'));
-            } })
-        ]));
+        view.appendChild(h('div', { class: 'sum', style: 'margin-top:12px', text: "Saytni yoki alohida funksiyalarni to'xtatish — 🚦 Boshqaruv bo'limida." }));
     }
 
     // ---------- Jurnal ----------
@@ -677,7 +825,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         login: ['🔓', 'Panelga kirildi'], login_failed: ['⚠️', "Noto'g'ri parol bilan urinish"], settings: ['⚙️', 'Sozlamalar'], balance: ['💰', "Balans o'zgartirildi"],
         sub: ['♾️', 'Obuna'], password: ['🔑', "Foydalanuvchi paroli o'rnatildi"], message: ['✉️', 'Xabar yuborildi'], broadcast: ['📢', "E'lon"],
         order: ['🛒', 'Buyurtma'], ban: ['⛔', 'Bloklandi'], unban: ['✅', 'Blokdan chiqarildi'], promo_create: ['🎟️', 'Promo-kod yaratildi'],
-        promo_delete: ['✖', "Promo-kod o'chirildi"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi']
+        promo_delete: ['✖', "Promo-kod o'chirildi"], control: ['🚦', 'Boshqaruv'], announce: ['📣', "Saytdagi e'lon"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi']
     };
     async function vLog(view) {
         var j = await admin('log');
