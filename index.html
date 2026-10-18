@@ -6443,8 +6443,28 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             var lb = lock.querySelector('button'); if (lb && lb.textContent === '⏳') lb.textContent = T('🔄 Qayta tekshirish', '🔄 Check again', '🔄 Проверить снова');
         }
         load();
-        setInterval(load, 60000);
+        setInterval(function () { if (!document.hidden) load(); }, 15000);
         document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });
+        window.addEventListener('focus', load);
+        // Server "bloklangan" (503) deb javob bersa — sahifani yangilashni kutmasdan darhol blok oynasini ko'rsatamiz
+        var _fetch = window.fetch;
+        var lastCheck = 0;
+        window.fetch = function (input, init) {
+            var url = typeof input === 'string' ? input : (input && input.url) || '';
+            return _fetch.apply(this, arguments).then(function (res) {
+                try {
+                    if (res && res.status === 503 && url.indexOf('/api/site-status') < 0 && Date.now() - lastCheck > 1500) {
+                        lastCheck = Date.now();
+                        load();
+                    }
+                } catch (e) {}
+                return res;
+            });
+        };
+        // chiqish/kirish tugmalari bosilganda ham holatni tekshiramiz
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.closest && e.target.closest('#logout-btn, #auth-action-btn, #auth-submit, .auth-tab')) setTimeout(load, 300);
+        }, true);
         // til almashganda matnlar yangilansin
         var prev = window.setAppLanguage;
         if (typeof prev === 'function') window.setAppLanguage = function () { var r = prev.apply(this, arguments); apply(); return r; };
