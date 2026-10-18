@@ -524,7 +524,11 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             ta.disabled = true;
             var x = await admin('support_reply', image ? { target: u.phone, text: t, image: image } : { target: u.phone, text: t });
             ta.disabled = false;
-            if (!x.success) { toast(x.error || 'Xato'); return; }
+            if (!x.success) {
+                // eski server rasmni tanimaydi — Railway hali yangilanmagan
+                toast(image && /matn yo'q/.test(x.error || '') ? "⏳ Server hali yangilanmoqda — 1-2 daqiqadan so'ng qayta urinib ko'ring" : (x.error || 'Xato'));
+                return;
+            }
             ta.value = ''; ta.focus();
             toast(x.telegram ? '✅ Yuborildi — saytda va botda' : '✅ Saytga yuborildi (botga kirmagan)');
             reload();
