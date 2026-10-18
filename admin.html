@@ -210,6 +210,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
 .sup-msg.admin { align-self: flex-end; background: var(--grad); color: #fff; border-bottom-right-radius: 5px; }
 .sup-bar { display: flex; gap: 8px; align-items: flex-end; padding-top: 10px; border-top: 1px solid var(--line); }
 .sup-bar textarea { flex: 1; min-height: 46px; max-height: 140px; resize: none; }
+.sup-img { display: block; max-width: 100%; max-height: 320px; border-radius: 12px; margin-bottom: 4px; cursor: zoom-in; }
 .dot-new { width: 10px; height: 10px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
 .shop-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr auto auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .shop-row .inp { height: 42px; font-size: 14px; }
@@ -494,7 +495,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
                 h('div', { class: 'r-ico', text: '👤' }),
                 h('div', { class: 'r-main' }, [
                     h('b', { text: (t.pid ? '🆔 ' + t.pid + ' · ' : '') + (t.name || "Noma'lum") + ' · +' + t.phone }),
-                    h('small', { text: (t.lastSender === 'admin' ? 'Siz: ' : '') + String(t.last || '').slice(0, 90) + ' · ' + fmtDate(t.at) })
+                    h('small', { text: (t.lastSender === 'admin' ? 'Siz: ' : '') + (String(t.last || '').slice(0, 90) || '🖼 Rasm') + ' · ' + fmtDate(t.at) })
                 ]),
                 t.unread ? h('span', { class: 'badge', style: 'background:var(--red);color:#fff;min-width:22px;height:20px;border-radius:10px;display:grid;place-items:center;font-size:11.5px;font-weight:800;padding:0 6px', text: String(t.unread) }) : (t.lastSender === 'user' ? h('span', { class: 'tag pending', text: 'Javobsiz' }) : h('span', { class: 'tag done', text: 'Javob berilgan' }))
             ]));
@@ -512,14 +513,16 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             if (sig === last) return; last = sig;
             list.innerHTML = '';
             msgs.forEach(function (m) {
-                list.appendChild(h('div', { class: 'sup-msg ' + m.sender }, [m.text, h('small', { text: (m.sender === 'admin' ? 'Siz · ' : '') + fmtDate(m.at) + (m.sender === 'admin' ? (m.read_by_user ? '  ✓✓ o\'qildi' : '  ✓') : '') })]));
+                var img = m.image ? h('img', { src: API + '/api/support/img/' + m.image, class: 'sup-img', alt: '' }) : null;
+                if (img) { img.onload = function () { list.scrollTop = list.scrollHeight; }; img.onclick = function () { window.open(img.src, '_blank'); }; }
+                list.appendChild(h('div', { class: 'sup-msg ' + m.sender }, [img, m.text ? h('span', { text: m.text }) : null, h('small', { text: (m.sender === 'admin' ? 'Siz · ' : '') + fmtDate(m.at) + (m.sender === 'admin' ? (m.read_by_user ? '  ✓✓ o\'qildi' : '  ✓') : '') })]));
             });
             list.scrollTop = list.scrollHeight;
         }
-        async function send() {
-            var t = ta.value.trim(); if (!t) { ta.focus(); return; }
+        async function send(image) {
+            var t = ta.value.trim(); if (!t && !image) { ta.focus(); return; }
             ta.disabled = true;
-            var x = await admin('support_reply', { target: u.phone, text: t });
+            var x = await admin('support_reply', image ? { target: u.phone, text: t, image: image } : { target: u.phone, text: t });
             ta.disabled = false;
             if (!x.success) { toast(x.error || 'Xato'); return; }
             ta.value = ''; ta.focus();
@@ -544,6 +547,23 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             }
         })();
         ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+        var fileIn = h('input', { type: 'file', accept: 'image/*', style: 'display:none' });
+        fileIn.onchange = function () {
+            var f = fileIn.files && fileIn.files[0]; fileIn.value = '';
+            if (!f || !/^image\//.test(f.type)) return;
+            var fr = new FileReader();
+            fr.onload = function () {
+                var im = new Image();
+                im.onload = function () {
+                    var k = Math.min(1, 1280 / Math.max(im.width, im.height)), c = document.createElement('canvas');
+                    c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+                    var ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(im, 0, 0, c.width, c.height);
+                    toast('⏳ Rasm yuborilmoqda...'); send(c.toDataURL('image/jpeg', 0.82));
+                };
+                im.src = fr.result;
+            };
+            fr.readAsDataURL(f);
+        };
         view.appendChild(h('div', { class: 'card sup-wrap' }, [
             h('div', { class: 'sup-head' }, [
                 h('button', { class: 'sq', title: 'Orqaga', text: '‹', onclick: function () { supPhone = null; vSupport(view); } }),
@@ -551,7 +571,8 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
                 h('button', { class: 'act', text: '👤 Profil', onclick: function () { supPhone = null; tab = 'users'; buildNav(); $('page-title').textContent = 'Foydalanuvchilar'; vUser(view, u.phone); } })
             ]),
             list,
-            h('div', { class: 'sup-bar' }, [ta, h('button', { class: 'btn', style: 'width:auto;padding:0 18px;height:46px', text: 'Yuborish', onclick: send })])
+            h('div', { class: 'sup-bar' }, [fileIn, h('button', { class: 'sq', title: 'Rasm yuborish', style: 'height:46px;width:46px;font-size:19px', text: '📎', onclick: function () { fileIn.click(); } }),
+                ta, h('button', { class: 'btn', style: 'width:auto;padding:0 18px;height:46px', text: 'Yuborish', onclick: function () { send(); } })])
         ]));
         paint(j.messages || []);
         ping();
