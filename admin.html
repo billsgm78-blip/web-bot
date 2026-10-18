@@ -139,7 +139,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
 #modal { position: fixed; inset: 0; z-index: 90; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(2,4,10,0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 #modal.open { display: flex; }
 .m-card { width: 100%; max-width: 420px; background: #0d1222; border: 1px solid var(--line2); border-radius: 20px; padding: 20px; animation: up .3s cubic-bezier(.2,.8,.2,1) both; }
-.m-card h3 { font-size: 18px; margin-bottom: 4px; } .m-card p { color: var(--muted); font-size: 13.5px; margin-bottom: 14px; line-height: 1.45; }
+.m-card h3 { font-size: 18px; margin-bottom: 4px; } .m-card p { color: var(--muted); font-size: 13.5px; margin-bottom: 14px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
 .m-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
 
 
@@ -426,7 +426,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
     // ================= PANEL =================
     var TABS = [
         ['stats', '📊', 'Statistika'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'],
-        ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
+        ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
     ];
     var tab = 'stats';
     function buildNav() {
@@ -445,7 +445,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         tab = t; buildNav();
         $('page-title').textContent = TABS.filter(function (x) { return x[0] === t; })[0][2];
         var view = $('view'); view.innerHTML = '<div class="loading">⏳</div>';
-        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, settings: vSettings, log: vLog, security: vSecurity }[t];
+        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, settings: vSettings, log: vLog, security: vSecurity }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -557,6 +557,137 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         ping();
         supRefresh = reload;
         setTimeout(function () { ta.focus(); }, 60);
+    }
+
+    // ---------- Karta (avto to'lov) ----------
+    var cardStep = '';
+    async function vCard(view) {
+        var j = await admin('card_get');
+        view.innerHTML = '';
+        if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        var w = j.watcher || {}, c = j.config || {};
+        if (w.loginStep && !cardStep) cardStep = w.loginStep;
+        if (w.connected) cardStep = '';
+        function reload() { vCard(view); }
+        function field(label, inp, hint) { return h('label', { class: 'lb' }, [label, inp, hint ? h('small', { text: hint }) : null]); }
+
+        // holat
+        var state = j.ready ? ['done', "✅ Ishlayapti — foydalanuvchilar botda «💳 Balans to'ldirish» tugmasini ko'radi"]
+            : !w.connected ? ['pending', '1-qadam: Telegram akkauntingizni ulang']
+            : !c.number ? ['pending', '2-qadam: karta raqamini yozing va yoqing']
+            : ['off', "O'chirilgan — pastda yoqing"];
+        view.appendChild(h('div', { class: 'card', style: 'margin-bottom:14px;display:flex;gap:12px;align-items:center' }, [
+            h('div', { class: 'r-ico', text: '💳' }),
+            h('div', { class: 'r-main' }, [h('b', { text: "Kartaga to'lov — avtomatik" }), h('small', { text: "Foydalanuvchi botda summani yozadi → kartangizga o'tkazadi → CardXabar xabari keladi → balans o'zi to'ladi." })]),
+            h('span', { class: 'tag ' + state[0], text: state[1] })
+        ]));
+
+        // 1. akkaunt
+        view.appendChild(h('div', { class: 'h', text: '1. Telegram akkaunt (CardXabar shu akkauntga keladi)' }));
+        if (!w.available) view.appendChild(h('div', { class: 'card', text: "⚠️ Serverda telethon o'rnatilmagan. Railway'da qayta deploy qiling." }));
+        if (w.connected) {
+            view.appendChild(h('div', { class: 'card form' }, [
+                h('div', { class: 'row', style: 'border:none' }, [h('div', { class: 'r-ico', text: '🟢' }), h('div', { class: 'r-main' }, [h('b', { text: 'Ulangan: ' + (w.account || '') }), h('small', { text: (w.phone || '') + ' · CardXabar xabarlarini kuzatyapti' })]),
+                    h('button', { class: 'act red', text: 'Uzish', onclick: async function () {
+                        if (!await dialog({ title: 'Akkauntni uzish', text: "Avto to'lov to'xtaydi. Telegram'dagi «Qurilmalar» ro'yxatidan ham o'chadi.", ok: 'Uzish', danger: true })) return;
+                        await admin('card_logout'); toast('Uzildi'); reload();
+                    } })])
+            ]));
+        } else if (cardStep === 'code' || cardStep === 'password') {
+            var inp = h('input', { class: 'inp mono', type: cardStep === 'password' ? 'password' : 'text', inputmode: cardStep === 'code' ? 'numeric' : null, autocomplete: cardStep === 'code' ? 'one-time-code' : 'current-password' });
+            var btn = h('button', { class: 'btn', text: cardStep === 'code' ? 'Tasdiqlash' : 'Kirish', onclick: async function () {
+                if (!inp.value.trim()) { inp.focus(); return; }
+                btn.disabled = true;
+                var x = await admin(cardStep === 'code' ? 'card_login_code' : 'card_login_password', cardStep === 'code' ? { code: inp.value } : { password: inp.value });
+                btn.disabled = false;
+                if (!x.success) { toast(x.error || 'Xato'); return; }
+                if (x.need2fa) { cardStep = 'password'; toast('2 bosqichli parolni kiriting'); }
+                else { cardStep = ''; toast('✅ Akkaunt ulandi'); }
+                reload();
+            } });
+            inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') btn.click(); });
+            view.appendChild(h('div', { class: 'card form' }, [
+                field(cardStep === 'code' ? "Telegram'ga kelgan kod (Telegram ilovasidagi «Telegram» chatida)" : '🔐 2 bosqichli parol (Cloud password)', inp),
+                h('div', { style: 'display:flex;gap:8px' }, [h('button', { class: 'btn ghost', text: 'Bekor', onclick: async function () { await admin('card_login_cancel'); cardStep = ''; reload(); } }), btn])
+            ]));
+            setTimeout(function () { inp.focus(); }, 60);
+        } else {
+            var apiId = h('input', { class: 'inp mono', inputmode: 'numeric', placeholder: '12345678' }); apiId.value = j.apiId || '';
+            var apiHash = h('input', { class: 'inp mono', placeholder: '0123456789abcdef0123456789abcdef' });
+            var phone = h('input', { class: 'inp mono', inputmode: 'tel', placeholder: '+998 90 123 45 67' });
+            var send = h('button', { class: 'btn', text: '📨 Kod yuborish', onclick: async function () {
+                send.disabled = true;
+                var x = await admin('card_login_start', { apiId: apiId.value, apiHash: apiHash.value, phone: phone.value });
+                send.disabled = false;
+                if (!x.success) { toast(x.error || 'Xato'); return; }
+                cardStep = 'code'; toast("Kod Telegram'ingizga yuborildi"); reload();
+            } });
+            view.appendChild(h('div', { class: 'card form' }, [
+                h('div', { class: 'sum', style: 'line-height:1.6' }, [
+                    "API kalit olish (bir marta, 2 daqiqa): ", h('a', { href: 'https://my.telegram.org/apps', target: '_blank', rel: 'noopener', style: 'color:#a78bfa', text: 'my.telegram.org/apps' }),
+                    " → raqamingiz bilan kiring → «App title» va «Short name» ga istalgan nom (masalan BilolsPay) → Create → «App api_id» va «App api_hash» ni shu yerga ko'chiring."
+                ]),
+                h('div', { class: 'form-row' }, [field('API ID', apiId), field('API HASH', apiHash)]),
+                field('Telefon raqamingiz (CardXabar ulangan akkaunt)', phone),
+                send
+            ]));
+        }
+
+        // 2. karta
+        var num = h('input', { class: 'inp mono', inputmode: 'numeric', placeholder: '8600 1234 5678 9012' }); num.value = c.number || '';
+        var owner = h('input', { class: 'inp', placeholder: 'BILOL R.' }); owner.value = c.owner || '';
+        var src = h('input', { class: 'inp mono' }); src.value = c.sources || 'CardXabarBot';
+        var on = !!c.on;
+        var sw = h('div', { class: 'switch' + (on ? ' ok' : ''), role: 'switch', onclick: function () { on = !on; sw.className = 'switch' + (on ? ' ok' : ''); } });
+        view.appendChild(h('div', { class: 'h', text: '2. Karta va yoqish' }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'form-row' }, [field('Karta raqami', num), field('Karta egasi (botda ko\'rinadi)', owner)]),
+            field('Xabar keladigan bot(lar)', src, "Username, @ siz. Bir nechta bo'lsa vergul bilan: CardXabarBot, HUMOcardbot"),
+            h('div', { style: 'display:flex;align-items:center;gap:12px' }, [h('div', { style: 'flex:1' }, [h('b', { text: "Avto to'lovni yoqish" }), h('div', { class: 'sum', text: "Yoqilganda botda «💳 Balans to'ldirish» tugmasi va saytda «Karta» varianti chiqadi." })]), sw]),
+            h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+                var x = await admin('card_set', { number: num.value, owner: owner.value, sources: src.value, on: on });
+                toast(x.success ? (x.ready ? '✅ Saqlandi — ishlayapti' : '✅ Saqlandi') : (x.error || 'Xato')); if (x.success) reload();
+            } })
+        ]));
+
+        // test
+        var tt = h('textarea', { class: 'inp', placeholder: "CardXabar xabarini shu yerga qo'ying — summani to'g'ri o'qiyotganini tekshiring" });
+        var tr = h('div', { class: 'sum' });
+        view.appendChild(h('div', { class: 'h', text: '🧪 Xabarni tekshirish' }));
+        view.appendChild(h('div', { class: 'card form' }, [tt, h('button', { class: 'btn ghost', text: 'Tekshirish', onclick: async function () {
+            var x = await admin('card_test', { text: tt.value });
+            tr.textContent = x.amount ? '✅ Kirim: ' + money(x.amount) + " so'm" : "❌ Kirim deb topilmadi (xarid/yechib olish yoki format notanish)";
+        } }), tr]));
+
+        // so'rovlar
+        var ST = { pending: ['pending', 'Kutilmoqda'], paid: ['done', "To'landi"], expired: ['off', 'Muddati o\'tdi'], cancelled: ['off', 'Bekor'] };
+        view.appendChild(h('div', { class: 'h' }, ["So'rovlar", h('button', { class: 'act', text: '↻', onclick: reload })]));
+        if (!(j.payments || []).length) view.appendChild(h('div', { class: 'empty', text: "Hali so'rov yo'q" }));
+        (j.payments || []).forEach(function (p) {
+            var st = ST[p.status] || ['off', p.status];
+            var acts = (p.status === 'pending' || p.status === 'expired') ? h('div', { style: 'display:flex;gap:6px' }, [
+                h('button', { class: 'act', text: '✅ Tasdiqlash', onclick: async function () {
+                    if (!await dialog({ title: "Qo'lda tasdiqlash", text: (p.name || '+' + p.phone_norm) + ' balansiga ' + money(p.amount) + " so'm qo'shiladi. Pul kartangizga tushganini tekshirdingizmi?", ok: 'Tasdiqlash' })) return;
+                    var x = await admin('card_confirm', { id: p.id }); toast(x.success ? '✅ Balansga qo\'shildi' : (x.error || 'Xato')); reload();
+                } }),
+                p.status === 'pending' ? h('button', { class: 'sq', title: 'Bekor qilish', text: '✖', onclick: async function () { await admin('card_cancel', { id: p.id }); reload(); } }) : null
+            ]) : h('span', { class: 'tag ' + st[0], text: st[1] });
+            view.appendChild(h('div', { class: 'row' }, [
+                h('div', { class: 'r-ico', text: p.status === 'paid' ? '✅' : '💳' }),
+                h('div', { class: 'r-main' }, [h('b', { text: money(p.amount) + " so'm · " + (p.name || "Noma'lum") }), h('small', { text: '+' + String(p.phone || p.phone_norm).replace(/\D/g, '') + ' · ' + fmtDate(p.created_at) + (p.status === 'pending' ? ' · kutilmoqda' : '') })]),
+                acts
+            ]));
+        });
+        view.appendChild(h('div', { class: 'h', text: 'Kartaga kelgan pullar (CardXabar)' }));
+        if (!(j.incoming || []).length) view.appendChild(h('div', { class: 'empty', text: "Hali xabar kelmagan" }));
+        (j.incoming || []).forEach(function (x) {
+            var row = h('div', { class: 'row click' }, [
+                h('div', { class: 'r-ico', text: x.payment_id ? '🔗' : '❔' }),
+                h('div', { class: 'r-main' }, [h('b', { text: '+' + money(x.amount) + " so'm" }), h('small', { text: fmtDate(x.created_at) + (x.payment_id ? " · so'rovga ulandi" : " · mos so'rov yo'q — bosib xabarni ko'ring") })])
+            ]);
+            row.onclick = function () { dialog({ title: 'CardXabar xabari', text: x.text || '' }); };
+            view.appendChild(row);
+        });
     }
 
     // ---------- Narxlar (do'kon) ----------
@@ -1087,7 +1218,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         sub: ['♾️', 'Obuna'], password: ['🔑', "Foydalanuvchi paroli o'rnatildi"], message: ['✉️', 'Xabar yuborildi'], broadcast: ['📢', "E'lon"],
         order: ['🛒', 'Buyurtma'], ban: ['⛔', 'Bloklandi'], unban: ['✅', 'Blokdan chiqarildi'], promo_create: ['🎟️', 'Promo-kod yaratildi'],
         promo_delete: ['✖', "Promo-kod o'chirildi"], control: ['🚦', 'Boshqaruv'], announce: ['📣', "Saytdagi e'lon"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi'],
-        support_reply: ['💬', 'Murojaatga javob'], shop: ['🏷', "Narxlar o'zgartirildi"]
+        support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], shop: ['🏷', "Narxlar o'zgartirildi"]
     };
     async function vLog(view) {
         var j = await admin('log');

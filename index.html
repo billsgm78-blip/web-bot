@@ -2115,6 +2115,7 @@ body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
     background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glass); color: #f8fafc;
 }
 .topup-providers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.topup-providers .pay-card { grid-column: 1 / -1; background: linear-gradient(135deg, #0ea5e9, #6366f1) !important; color: #fff !important; }
 .pay-btn { height: 50px; border-radius: 14px; border: none; color: #fff; font-weight: 800; font-size: 16px; cursor: pointer; }
 .pay-click { background: #0d6efd; }
 .pay-payme { background: #00b9c0; }
@@ -6007,9 +6008,11 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
         /* ================= HISOBNI TO'LDIRISH (Click / Payme) ================= */
         function paintTopup() {
             var card = $('wx-topup');
-            var on = rewards && rewards.payProviders && rewards.payProviders.length;
-            card.style.display = on ? '' : 'none';
-            if (on) $('wx-topup-sub').textContent = rewards.payProviders.map(function (p) { return p === 'click' ? 'Click' : 'Payme'; }).join(T(' yoki ', ' or ', ' или ')) + T(' orqali', '', '');
+            var provs = (rewards && rewards.payProviders) || [];
+            var names = provs.map(function (p) { return p === 'click' ? 'Click' : 'Payme'; });
+            if (rewards && rewards.cardBot) names.unshift(T('Karta', 'Card', 'Карта'));
+            card.style.display = names.length ? '' : 'none';
+            if (names.length) $('wx-topup-sub').textContent = names.join(T(' yoki ', ' or ', ' или ')) + T(' orqali', '', '');
         }
         var sheet = $('topup-sheet');
         $('wx-topup-btn').onclick = function () {
@@ -6024,6 +6027,22 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
             });
             var prov = $('topup-providers');
             prov.innerHTML = '';
+            if (rewards.cardBot) {
+                var cb = document.createElement('button');
+                cb.type = 'button';
+                cb.className = 'pay-btn pay-card';
+                cb.textContent = T('💳 Karta (bot orqali)', '💳 Card (via bot)', '💳 Карта (через бот)');
+                cb.onclick = function () {
+                    var amount = parseInt($('topup-amount').value, 10);
+                    var url = rewards.cardBot + (amount >= 1000 ? '_' + amount : '');
+                    try {
+                        var tg = window.Telegram && window.Telegram.WebApp;
+                        if (tg && tg.initData && tg.openTelegramLink) { tg.openTelegramLink(url); return; }
+                    } catch (e) {}
+                    window.open(url, '_blank', 'noopener');
+                };
+                prov.appendChild(cb);
+            }
             (rewards.payProviders || []).forEach(function (p) {
                 var b = document.createElement('button');
                 b.type = 'button';
