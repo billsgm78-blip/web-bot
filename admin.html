@@ -578,7 +578,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             : ['off', "O'chirilgan — pastda yoqing"];
         view.appendChild(h('div', { class: 'card', style: 'margin-bottom:14px;display:flex;gap:12px;align-items:center' }, [
             h('div', { class: 'r-ico', text: '💳' }),
-            h('div', { class: 'r-main' }, [h('b', { text: "Kartaga to'lov — avtomatik" }), h('small', { text: "Foydalanuvchi botda summani yozadi → kartangizga o'tkazadi → CardXabar xabari keladi → balans o'zi to'ladi." })]),
+            h('div', { class: 'r-main' }, [h('b', { text: "Kartaga to'lov — avtomatik" }), h('small', { text: "Foydalanuvchi botda summani yozadi → kartangizga o'tkazadi → botga chek tashlaydi → CardXabar xabari keladi → balans o'zi to'ladi. Chek + ID + CardXabar sizga botda keladi." })]),
             h('span', { class: 'tag ' + state[0], text: state[1] })
         ]));
 
@@ -660,7 +660,21 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         } }), tr]));
 
         // so'rovlar
-        var ST = { pending: ['pending', 'Kutilmoqda'], paid: ['done', "To'landi"], expired: ['off', 'Muddati o\'tdi'], cancelled: ['off', 'Bekor'] };
+        var ST = { pending: ['pending', 'Kutilmoqda'], paid: ['done', "To'landi"], expired: ['off', 'Muddati o\'tdi'], cancelled: ['off', 'Bekor'], rejected: ['red', 'Rad etildi'] };
+        async function showReceipt(p) {
+            try {
+                await apiReady;
+                var r = await fetch(API + '/api/admin/card_receipt', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token || '' }, body: JSON.stringify({ id: p.id }) });
+                if (!r.ok) { var e = {}; try { e = await r.json(); } catch (x) {} toast(e.error || 'Chek yuklanmadi'); return; }
+                var blob = await r.blob(), url = URL.createObjectURL(blob);
+                if (blob.type === 'application/pdf') { window.open(url, '_blank'); return; }
+                var card = $('m-card'); card.innerHTML = '';
+                card.appendChild(h('h3', { text: '🧾 Chek · ' + money(p.amount) + " so'm" + (p.pid ? ' · ID ' + p.pid : '') }));
+                card.appendChild(h('img', { src: url, style: 'width:100%;max-height:65vh;object-fit:contain;border-radius:12px;margin:8px 0 12px;background:#000' }));
+                card.appendChild(h('div', { class: 'm-btns' }, [h('button', { class: 'btn', text: 'Yopish', onclick: function () { $('modal').classList.remove('open'); URL.revokeObjectURL(url); } })]));
+                $('modal').classList.add('open');
+            } catch (e) { toast("Server bilan bog'lanib bo'lmadi"); }
+        }
         view.appendChild(h('div', { class: 'h' }, ["So'rovlar", h('button', { class: 'act', text: '↻', onclick: reload })]));
         if (!(j.payments || []).length) view.appendChild(h('div', { class: 'empty', text: "Hali so'rov yo'q" }));
         (j.payments || []).forEach(function (p) {
@@ -674,7 +688,8 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             ]) : h('span', { class: 'tag ' + st[0], text: st[1] });
             view.appendChild(h('div', { class: 'row' }, [
                 h('div', { class: 'r-ico', text: p.status === 'paid' ? '✅' : '💳' }),
-                h('div', { class: 'r-main' }, [h('b', { text: money(p.amount) + " so'm · " + (p.pid ? '🆔 ' + p.pid + ' · ' : '') + (p.name || "Noma'lum") }), h('small', { text: '+' + String(p.phone || p.phone_norm).replace(/\D/g, '') + ' · ' + fmtDate(p.created_at) + (p.status === 'pending' ? ' · kutilmoqda' : '') })]),
+                h('div', { class: 'r-main' }, [h('b', { text: money(p.amount) + " so'm · " + (p.pid ? '🆔 ' + p.pid + ' · ' : '') + (p.name || "Noma'lum") }), h('small', { text: '+' + String(p.phone || p.phone_norm).replace(/\D/g, '') + ' · ' + fmtDate(p.created_at) + (p.money_at ? ' · 💰 pul keldi' : (p.status === 'pending' ? " · 💰 pul yo'q" : '')) + (p.receipt_at ? ' · 🧾 chek bor' : (p.status === 'pending' ? " · 🧾 chek yo'q" : '')) })]),
+                p.receipt_file ? h('button', { class: 'act', text: '🧾 Chek', onclick: function () { showReceipt(p); } }) : null,
                 acts
             ]));
         });
