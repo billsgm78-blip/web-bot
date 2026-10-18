@@ -720,10 +720,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
                 var r = await dialog({ title: "Yangi parol o'rnatish", text: 'Foydalanuvchiga parolni o\'zingiz yetkazasiz.', fields: [{ label: 'Yangi parol (kamida 4 ta belgi)' }], ok: 'Saqlash' });
                 if (!r || !r[0]) return; var x = await admin('password', { target: u.phone, newPassword: r[0] }); toast(x.success ? "Parol o'rnatildi: " + r[0] : (x.error || 'Xato'));
             }),
-            u.webOnly ? null : act('✉️ Xabar yozish', async function () {
-                var r = await dialog({ title: 'Botga xabar', fields: [{ label: 'Matn', multiline: true, placeholder: 'Salom! ...' }], ok: 'Yuborish' });
-                if (!r || !r[0]) return; var x = await admin('message', { target: u.phone, text: r[0] }); toast(x.success ? 'Yuborildi ✅' : (x.error || 'Xato'));
-            }),
+            u.webOnly ? null : act('✉️ Xabar yozish', function () { openMessageTo({ uid: u.uid, name: u.name, phone: u.phone }); }),
             u.banned ? act('✅ Blokdan chiqarish', async function () { var x = await admin('unban', { target: u.phone }); if (x.success) { toast('Blokdan chiqarildi'); reload(); } else toast(x.error || 'Xato'); })
                 : act('⛔ Bloklash', async function () {
                     if (!await dialog({ title: 'Foydalanuvchini bloklash', text: u.name + ' saytga kira olmaydi va botda AI ishlamaydi.', ok: 'Bloklash', danger: true })) return;
@@ -799,25 +796,88 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         });
     }
 
-    // ---------- Xabar yuborish ----------
-    function vMsg(view) {
+    // ---------- Xabar yuborish: hammaga yoki bitta odamga ----------
+    var msgMode = 'all', msgTarget = null;
+    function vMsg(view, keepTarget) {
         view.innerHTML = '';
-        var ta = h('textarea', { class: 'inp', placeholder: "Masalan: Yangi funksiya — endi rasm ham yaratish mumkin! 🎨" });
+        if (!keepTarget) msgTarget = null;
+        var seg = h('div', { class: 'seg', style: 'margin-bottom:12px' });
+        [['all', '📢 Hammaga'], ['one', '👤 Bitta odamga']].forEach(function (x) {
+            seg.appendChild(h('button', { class: msgMode === x[0] ? 'active' : '', text: x[1], onclick: function () { msgMode = x[0]; vMsg(view, true); } }));
+        });
+        view.appendChild(seg);
+        var ta = h('textarea', { class: 'inp', placeholder: msgMode === 'all' ? "Masalan: Yangi funksiya — endi rasm ham yaratish mumkin! 🎨" : 'Masalan: Salom! Buyurtmangiz tayyor bo\'ldi ✅' });
         var cnt = h('div', { class: 'sum', text: '0 belgi' });
-        var prev = h('div', { class: 'preview' }, [h('b', { text: "📢 E'lon:" }), h('span', { text: '…' })]);
+        var head = msgMode === 'all' ? "📢 E'lon:" : '✉️ Admin xabari:';
+        var prev = h('div', { class: 'preview' }, [h('b', { text: head }), h('span', { text: '…' })]);
         ta.oninput = function () { cnt.textContent = ta.value.length + ' belgi'; prev.lastChild.textContent = ta.value || '…'; };
+
+        if (msgMode === 'all') {
+            view.appendChild(h('div', { class: 'card form' }, [
+                h('div', { style: 'font-weight:700', text: "Barcha foydalanuvchilarga e'lon (Telegram botga keladi)" }),
+                ta, cnt, h('div', { class: 'sum', text: "Botda shunday ko'rinadi:" }), prev,
+                h('button', { class: 'btn', text: '📢 Hammaga yuborish', onclick: async function () {
+                    var t = ta.value.trim(); if (!t) { ta.focus(); return; }
+                    if (!await dialog({ title: "E'lonni yuborish", text: "Xabar BARCHA foydalanuvchilarga yuboriladi. Davom etasizmi?", ok: 'Yuborish' })) return;
+                    var x = await admin('broadcast', { text: t });
+                    if (x.success) { toast(x.queued + ' ta foydalanuvchiga yuborilmoqda. Natija botda keladi.'); ta.value = ''; ta.oninput(); } else toast(x.error || 'Xato');
+                } })
+            ]));
+            view.appendChild(h('div', { class: 'sum', style: 'margin-top:10px', text: "Saytning o'zida chiqadigan e'lon uchun — 🚦 Boshqaruv bo'limi." }));
+            return;
+        }
+
+        // --- bitta odamga ---
+        var search = h('input', { class: 'inp', placeholder: 'Telefon yoki ism bilan qidiring...' });
+        var results = h('div');
+        var chosen = h('div');
+        function webOnly(uid) { var s = String(uid); return (s.indexOf('77') === 0 && s.length === 11) || s === '999999999'; }
+        function paintChosen() {
+            chosen.innerHTML = '';
+            if (!msgTarget) return;
+            var wo = webOnly(msgTarget.uid);
+            chosen.appendChild(h('div', { class: 'row', style: 'border:1px solid rgba(139,92,246,0.45);border-radius:14px;padding:10px 12px;background:rgba(139,92,246,0.08);margin-bottom:4px' }, [
+                h('div', { class: 'r-ico', text: '👤' }),
+                h('div', { class: 'r-main' }, [h('b', { text: msgTarget.name || "Noma'lum" }), h('small', { text: '+' + msgTarget.phone + (wo ? ' · ⚠️ botga kirmagan — xabar bormaydi' : ' · Telegram ✅') })]),
+                h('button', { class: 'sq', title: 'Boshqa odam', text: '✖', onclick: function () { msgTarget = null; paintChosen(); search.style.display = ''; search.value = ''; search.focus(); } })
+            ]));
+            search.style.display = 'none'; results.innerHTML = '';
+        }
+        var timer;
+        search.oninput = function () {
+            clearTimeout(timer);
+            var q = search.value.trim();
+            if (q.length < 2) { results.innerHTML = ''; return; }
+            timer = setTimeout(async function () {
+                var j = await admin('users', { q: q });
+                results.innerHTML = '';
+                (j.users || []).slice(0, 8).forEach(function (u) {
+                    results.appendChild(h('div', { class: 'row click', onclick: function () { msgTarget = u; paintChosen(); ta.focus(); } }, [
+                        h('div', { class: 'r-ico', text: '👤' }),
+                        h('div', { class: 'r-main' }, [h('b', { text: (u.name || "Noma'lum") + (u.banned ? ' ⛔' : '') }), h('small', { text: '+' + u.phone + (webOnly(u.uid) ? ' · botga kirmagan' : '') })]),
+                        h('span', { style: 'color:#5d6680;font-size:20px', text: '›' })
+                    ]));
+                });
+                if (!(j.users || []).length) results.appendChild(h('div', { class: 'sum', text: 'Topilmadi' }));
+            }, 300);
+        };
         view.appendChild(h('div', { class: 'card form' }, [
-            h('div', { style: 'font-weight:700', text: "Barcha foydalanuvchilarga e'lon (Telegram botga keladi)" }),
-            ta, cnt, h('div', { class: 'sum', text: "Ko'rinishi:" }), prev,
-            h('button', { class: 'btn', text: '📢 Hammaga yuborish', onclick: async function () {
-                var t = ta.value.trim(); if (!t) return;
-                if (!await dialog({ title: "E'lonni yuborish", text: "Xabar BARCHA foydalanuvchilarga yuboriladi. Davom etasizmi?", ok: 'Yuborish' })) return;
-                var x = await admin('broadcast', { text: t });
-                if (x.success) { toast(x.queued + ' ta foydalanuvchiga yuborilmoqda. Natija botda keladi.'); ta.value = ''; ta.oninput(); } else toast(x.error || 'Xato');
+            h('div', { style: 'font-weight:700', text: 'Kimga yuboramiz?' }),
+            search, results, chosen,
+            h('div', { style: 'font-weight:700;margin-top:6px', text: 'Xabar' }),
+            ta, cnt, h('div', { class: 'sum', text: "Botda shunday ko'rinadi:" }), prev,
+            h('button', { class: 'btn', text: '✉️ Yuborish', onclick: async function () {
+                if (!msgTarget) { toast('Avval foydalanuvchini tanlang'); search.focus(); return; }
+                var t = ta.value.trim(); if (!t) { ta.focus(); return; }
+                var x = await admin('message', { target: msgTarget.phone, text: t });
+                if (x.success) { toast('✅ ' + (msgTarget.name || msgTarget.phone) + 'ga yuborildi'); ta.value = ''; ta.oninput(); }
+                else toast(x.error || 'Xato');
             } })
         ]));
-        view.appendChild(h('div', { class: 'sum', style: 'margin-top:10px', text: "Bitta odamga yozish: Foydalanuvchilar → odamni tanlang → ✉️ Xabar yozish." }));
+        paintChosen();
+        setTimeout(function () { (msgTarget ? ta : search).focus(); }, 50);
     }
+    function openMessageTo(user) { msgMode = 'one'; msgTarget = user; tab = 'msg'; buildNav(); $('page-title').textContent = 'Xabar yuborish'; vMsg($('view'), true); }
 
     // ---------- Sozlamalar ----------
     async function vSettings(view) {
