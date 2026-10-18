@@ -479,7 +479,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
     window.addEventListener('pagehide', goOffline);
 
     // ---------- Murojaatlar ----------
-    var supRefresh = function () {};
+    var supRefresh = function () {}, supLoop = 0;
     async function vSupport(view) {
         var timer = null;
         if (supPhone) return supThread(view, supPhone);
@@ -508,11 +508,11 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         var ta = h('textarea', { class: 'inp', placeholder: 'Javob yozing... (Enter — yuborish, Shift+Enter — yangi qator)' });
         var last = '';
         function paint(msgs) {
-            var sig = JSON.stringify(msgs.map(function (m) { return m.id; }));
+            var sig = JSON.stringify(msgs.map(function (m) { return [m.id, m.read_by_user]; }));
             if (sig === last) return; last = sig;
             list.innerHTML = '';
             msgs.forEach(function (m) {
-                list.appendChild(h('div', { class: 'sup-msg ' + m.sender }, [m.text, h('small', { text: (m.sender === 'admin' ? 'Siz · ' : '') + fmtDate(m.at) })]));
+                list.appendChild(h('div', { class: 'sup-msg ' + m.sender }, [m.text, h('small', { text: (m.sender === 'admin' ? 'Siz · ' : '') + fmtDate(m.at) + (m.sender === 'admin' ? (m.read_by_user ? '  ✓✓ o\'qildi' : '  ✓') : '') })]));
             });
             list.scrollTop = list.scrollHeight;
         }
@@ -526,12 +526,23 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             toast(x.telegram ? '✅ Yuborildi — saytda va botda' : '✅ Saytga yuborildi (botga kirmagan)');
             reload();
         }
+        var ver = j.ver;
         async function reload() {
             if (tab !== 'support' || supPhone !== phone) return;
             var r = await admin('support_thread', { target: phone });
-            if (r.success) paint(r.messages || []);
-            supportUnread = Math.max(0, supportUnread); ping();
+            if (r.success) { ver = r.ver; paint(r.messages || []); }
         }
+        // jonli ulanish: yangi xabar yoki "o'qildi" bo'lishi bilan darhol keladi
+        var myLoop = ++supLoop;
+        (async function live() {
+            while (tab === 'support' && supPhone === phone && token && myLoop === supLoop) {
+                try {
+                    var r = await admin('support_thread', { target: phone, ver: ver });
+                    if (tab !== 'support' || supPhone !== phone) break;
+                    if (r.success) { ver = r.ver; paint(r.messages || []); } else await new Promise(function (ok) { setTimeout(ok, 3000); });
+                } catch (e) { if (e && e.message === 'auth') break; await new Promise(function (ok) { setTimeout(ok, 2000); }); }
+            }
+        })();
         ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
         view.appendChild(h('div', { class: 'card sup-wrap' }, [
             h('div', { class: 'sup-head' }, [
@@ -545,7 +556,6 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         paint(j.messages || []);
         ping();
         supRefresh = reload;
-        var iv = setInterval(function () { if (tab !== 'support' || supPhone !== phone) { clearInterval(iv); return; } if (!document.hidden) reload(); }, 6000);
         setTimeout(function () { ta.focus(); }, 60);
     }
 

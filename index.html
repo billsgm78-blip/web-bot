@@ -2396,6 +2396,8 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
 .sp-msg.admin { align-self: flex-start; background: rgba(255, 255, 255, 0.07); border: 1px solid var(--border-glass); border-bottom-left-radius: 5px; }
 .sp-msg.admin::before { content: "🛠 Admin"; display: block; font-size: 11px; font-weight: 700; color: #a78bfa; margin-bottom: 2px; }
 .sp-msg.sending { opacity: 0.6; }
+.sp-tick { letter-spacing: -3px; margin-left: 2px; }
+.sp-tick.read { color: #bae6fd; font-weight: 800; }
 .sp-day { align-self: center; font-size: 11px; color: #64748b; padding: 4px 10px; border-radius: 10px; background: rgba(255,255,255,0.04); }
 .sp-empty { margin: auto; text-align: center; color: #94a3b8; font-size: 13.5px; line-height: 1.6; padding: 20px; max-width: 300px; }
 .sp-empty b { display: block; font-size: 34px; margin-bottom: 6px; }
@@ -6466,15 +6468,36 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
                 if (dl !== lastDay) { var d = document.createElement('div'); d.className = 'sp-day'; d.textContent = dl; list.appendChild(d); lastDay = dl; }
                 var el = document.createElement('div');
                 el.className = 'sp-msg ' + (m.sender === 'admin' ? 'admin' : 'me') + (m.sending ? ' sending' : '');
-                el.innerHTML = esc(m.text) + '<small>' + (m.sending ? '⏳' : hm(m.at) + (m.sender === 'user' ? ' ✓' : '')) + '</small>';
+                el.innerHTML = esc(m.text) + '<small>' + (m.sending ? '⏳' : hm(m.at) + (m.sender === 'user' ? (m.read ? ' <span class="sp-tick read">✓✓</span>' : ' <span class="sp-tick">✓</span>') : '')) + '</small>';
                 list.appendChild(el);
             });
             list.scrollTop = list.scrollHeight;
+        }
+        var ver = null, polling = false;
+        function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+        // Jonli ulanish: server yangi xabar / ✓✓ / onlayn o'zgarishi bo'lishi bilan darhol javob qaytaradi
+        async function liveLoop() {
+            if (polling) return;
+            polling = true;
+            while (view.classList.contains('open')) {
+                try {
+                    var j = await api('/api/support/list', ver === null ? null : { ver: ver });
+                    if (!j.success) { await sleep(3000); continue; }
+                    ver = j.ver;
+                    applyThread(j);
+                } catch (e) { await sleep(2000); }
+            }
+            polling = false;
         }
         async function loadThread() {
             try {
                 var j = await api('/api/support/list');
                 if (!j.success) return;
+                applyThread(j);
+            } catch (e) {}
+        }
+        function applyThread(j) {
+            {
                 presence = j.admin;
                 var changed = JSON.stringify(j.messages) !== JSON.stringify(msgs);
                 msgs = j.messages || [];
@@ -6482,7 +6505,7 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
                 if (changed) render();
                 var lastAdmin = msgs.filter(function (m) { return m.sender === 'admin'; }).pop();
                 if (lastAdmin) { lastNotified = lastAdmin.id; try { localStorage.setItem('bilol_sup_seen', lastNotified); } catch (e) {} }
-            } catch (e) {}
+            }
         }
         async function peek() {
             if (view.classList.contains('open')) return;
@@ -6496,7 +6519,8 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
         }
         function schedule() {
             clearInterval(timer);
-            timer = setInterval(function () { if (document.hidden) return; view.classList.contains('open') ? loadThread() : peek(); }, view.classList.contains('open') ? 3000 : 30000);
+            if (view.classList.contains('open')) { liveLoop(); return; }
+            timer = setInterval(function () { if (!document.hidden) peek(); }, 30000);
         }
         function open() {
             var c = creds();
@@ -6504,7 +6528,7 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
             var sm = $('settings-modal'); if (sm) sm.style.display = 'none';
             var dr = $('chats-drawer'); if (dr) dr.classList.remove('open');
             view.classList.add('open');
-            render(); paintPresence(); loadThread(); schedule();
+            ver = null; render(); paintPresence(); schedule();
             setTimeout(function () { try { input.focus({ preventScroll: true }); } catch (e) {} }, 250);
         }
         function close() { view.classList.remove('open'); schedule(); }
@@ -6517,7 +6541,9 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
             try {
                 var j = await api('/api/support/send', { text: text });
                 if (!j.success) throw new Error(j.error || 'xato');
-                msgs[msgs.indexOf(tmp)] = j.message; presence = j.admin || presence; paintPresence(); render();
+                var ix = msgs.indexOf(tmp);
+                if (ix >= 0) { if (msgs.some(function (m) { return m.id === j.message.id; })) msgs.splice(ix, 1); else msgs[ix] = j.message; }
+                presence = j.admin || presence; paintPresence(); render();
             } catch (e) {
                 msgs.splice(msgs.indexOf(tmp), 1); render(); input.value = text; grow();
                 note('⚠️ ' + (e.message || T('Yuborilmadi', 'Not sent', 'Не отправлено')));
