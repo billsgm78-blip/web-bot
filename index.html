@@ -6041,14 +6041,31 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 cb.type = 'button';
                 cb.className = 'pay-btn pay-card';
                 cb.textContent = T('💳 Karta (bot orqali)', '💳 Card (via bot)', '💳 Карта (через бот)');
-                cb.onclick = function () {
+                cb.onclick = async function () {
                     var amount = parseInt($('topup-amount').value, 10);
-                    var url = rewards.cardBot + (amount >= 1000 ? '_' + amount : '');
+                    var st = $('topup-status');
+                    if (!amount || amount < 1000) { st.textContent = T("Avval summani kiriting (kamida 1 000 so'm).", 'Enter an amount first (min 1,000 UZS).', 'Сначала введите сумму (от 1 000 сум).'); $('topup-amount').focus(); return; }
+                    function openBot(url) {
+                        if (!url) return;
+                        try {
+                            var tg = window.Telegram && window.Telegram.WebApp;
+                            if (tg && tg.initData && tg.openTelegramLink) { tg.openTelegramLink(url); return; }
+                        } catch (e) {}
+                        var w = window.open(url, '_blank');
+                        if (w) { try { w.opener = null; } catch (e) {} } else location.href = url;
+                    }
+                    cb.disabled = true; st.textContent = '⏳';
                     try {
-                        var tg = window.Telegram && window.Telegram.WebApp;
-                        if (tg && tg.initData && tg.openTelegramLink) { tg.openTelegramLink(url); return; }
-                    } catch (e) {}
-                    window.open(url, '_blank', 'noopener');
+                        var j = await api('/api/card/topup', { amount: amount });
+                        if (j.success) {
+                            st.textContent = T('✅ Karta raqami botga yuborildi — botda davom eting', '✅ Card details sent to the bot — continue there', '✅ Реквизиты отправлены в бот — продолжите там');
+                            openBot(j.botUrl);
+                        } else if (j.needBot) {
+                            st.textContent = T('Botga o\'ting va «Start» ni bosing', 'Open the bot and press Start', 'Откройте бот и нажмите «Старт»');
+                            openBot(j.botUrl || (rewards.cardBot + '_' + amount));
+                        } else st.textContent = '⚠️ ' + (j.error || 'Xato');
+                    } catch (e) { openBot(rewards.cardBot + '_' + amount); }
+                    cb.disabled = false;
                 };
                 prov.appendChild(cb);
             }
