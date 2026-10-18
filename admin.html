@@ -493,7 +493,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             view.appendChild(h('div', { class: 'row click', onclick: function () { supPhone = t.phone; supThread(view, t.phone); } }, [
                 h('div', { class: 'r-ico', text: '👤' }),
                 h('div', { class: 'r-main' }, [
-                    h('b', { text: (t.name || "Noma'lum") + ' · +' + t.phone }),
+                    h('b', { text: (t.pid ? '🆔 ' + t.pid + ' · ' : '') + (t.name || "Noma'lum") + ' · +' + t.phone }),
                     h('small', { text: (t.lastSender === 'admin' ? 'Siz: ' : '') + String(t.last || '').slice(0, 90) + ' · ' + fmtDate(t.at) })
                 ]),
                 t.unread ? h('span', { class: 'badge', style: 'background:var(--red);color:#fff;min-width:22px;height:20px;border-radius:10px;display:grid;place-items:center;font-size:11.5px;font-weight:800;padding:0 6px', text: String(t.unread) }) : (t.lastSender === 'user' ? h('span', { class: 'tag pending', text: 'Javobsiz' }) : h('span', { class: 'tag done', text: 'Javob berilgan' }))
@@ -674,7 +674,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             ]) : h('span', { class: 'tag ' + st[0], text: st[1] });
             view.appendChild(h('div', { class: 'row' }, [
                 h('div', { class: 'r-ico', text: p.status === 'paid' ? '✅' : '💳' }),
-                h('div', { class: 'r-main' }, [h('b', { text: money(p.amount) + " so'm · " + (p.name || "Noma'lum") }), h('small', { text: '+' + String(p.phone || p.phone_norm).replace(/\D/g, '') + ' · ' + fmtDate(p.created_at) + (p.status === 'pending' ? ' · kutilmoqda' : '') })]),
+                h('div', { class: 'r-main' }, [h('b', { text: money(p.amount) + " so'm · " + (p.pid ? '🆔 ' + p.pid + ' · ' : '') + (p.name || "Noma'lum") }), h('small', { text: '+' + String(p.phone || p.phone_norm).replace(/\D/g, '') + ' · ' + fmtDate(p.created_at) + (p.status === 'pending' ? ' · kutilmoqda' : '') })]),
                 acts
             ]));
         });
@@ -929,7 +929,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
     var ST = { pending: ['⏳ Kutilmoqda', 'pending'], done: ['✅ Bajarildi', 'done'], cancelled: ['↩️ Bekor', 'off'], refunded: ['↩️ Qaytarildi', 'off'] };
     function txRow(t, showPhone) {
         var inc = t.kind === 'topup';
-        var main = h('div', { class: 'r-main' }, [h('b', { text: t.item || (inc ? "Hisob to'ldirildi" : 'Xarid') }), h('small', { text: (showPhone ? '+' + t.phone_norm + ' · ' : '') + fmtDate(t.created_at) })]);
+        var main = h('div', { class: 'r-main' }, [h('b', { text: t.item || (inc ? "Hisob to'ldirildi" : 'Xarid') }), h('small', { text: (showPhone ? (t.pid ? '🆔 ' + t.pid + ' · ' : '') + '+' + t.phone_norm + ' · ' : '') + fmtDate(t.created_at) })]);
         if (t.status && ST[t.status]) main.appendChild(h('span', { class: 'tag ' + ST[t.status][1], text: ST[t.status][0] }));
         return h('div', { class: 'row' }, [
             h('div', { class: 'r-ico ' + (inc ? 'in' : 'out'), text: ICON(t) }), main,
@@ -940,7 +940,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         view.innerHTML = '';
         var f = h('div', { class: 'filters' });
         [['all', 'Hammasi'], ['in', 'Kirim'], ['out', 'Xaridlar']].forEach(function (x) { f.appendChild(h('button', { class: dir === x[0] ? 'active' : '', text: x[1], onclick: function () { vTx(view, x[0], inp.value); } })); });
-        var inp = h('input', { class: 'inp', placeholder: "Telefon bo'yicha qidirish...", inputmode: 'numeric', style: 'margin-bottom:6px' }); inp.value = q || '';
+        var inp = h('input', { class: 'inp', placeholder: "🔎 ID yoki telefon bo'yicha qidirish...", inputmode: 'numeric', style: 'margin-bottom:6px' }); inp.value = q || '';
         var sum = h('div', { class: 'sum' }), list = h('div');
         view.appendChild(f); view.appendChild(inp); view.appendChild(sum); view.appendChild(list);
         var timer; inp.oninput = function () { clearTimeout(timer); timer = setTimeout(load, 350); };
@@ -959,7 +959,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
     // ---------- Foydalanuvchilar ----------
     function vUsers(view, q) {
         view.innerHTML = '';
-        var inp = h('input', { class: 'inp', placeholder: 'Telefon yoki ism...', style: 'margin-bottom:6px' }); inp.value = q || '';
+        var inp = h('input', { class: 'inp', placeholder: '🔎 ID (masalan 1042), telefon yoki ism...', style: 'margin-bottom:6px' }); inp.value = q || '';
         var list = h('div');
         view.appendChild(inp); view.appendChild(list);
         var timer; inp.oninput = function () { clearTimeout(timer); timer = setTimeout(function () { load(inp.value); }, 300); };
@@ -967,8 +967,10 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             list.innerHTML = '<div class="loading">⏳</div>';
             var j = await admin('users', { q: query });
             list.innerHTML = '';
+            var exact = /^\s*#?\s*(id)?\s*\d{1,7}\s*$/i.test(query || '') && (j.users || [])[0] && String((j.users || [])[0].pid) === String(query).replace(/\D/g, '');
+            if (exact) list.appendChild(h('div', { class: 'sum', style: 'margin:4px 0 8px;color:#34d399', text: '✅ ID ' + j.users[0].pid + ' — ' + (j.users[0].name || "Noma'lum") }));
             (j.users || []).forEach(function (u) {
-                var main = h('div', { class: 'r-main' }, [h('b', { text: (u.name || "Noma'lum") + (u.sub_until * 1000 > Date.now() ? ' ♾️' : '') }), h('small', { text: '+' + u.phone })]);
+                var main = h('div', { class: 'r-main' }, [h('b', { text: (u.name || "Noma'lum") + (u.sub_until * 1000 > Date.now() ? ' ♾️' : '') }), h('small', { text: (u.pid ? '🆔 ' + u.pid + ' · ' : '') + '+' + u.phone })]);
                 if (u.banned) main.appendChild(h('span', { class: 'tag red', text: '⛔ Bloklangan' }));
                 list.appendChild(h('div', { class: 'row click', onclick: function () { vUser(view, u.phone); } }, [
                     h('div', { class: 'r-ico', text: '👤' }), main, h('div', { class: 'r-amt in', text: money(u.balance) }), h('span', { style: 'color:#5d6680;font-size:20px', text: '›' })
@@ -985,7 +987,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         view.appendChild(h('button', { class: 'back', text: '‹ Foydalanuvchilar', onclick: function () { vUsers(view, ''); } }));
         if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
         var u = j.user, subOn = u.subUntil * 1000 > Date.now();
-        var head = h('div', { class: 'user-head' }, [h('b', { text: (u.name || "Noma'lum") + (subOn ? ' ♾️' : '') + (u.banned ? ' ⛔' : '') }),
+        var head = h('div', { class: 'user-head' }, [h('b', { text: (u.pid ? '🆔 ' + u.pid + ' · ' : '') + (u.name || "Noma'lum") + (subOn ? ' ♾️' : '') + (u.banned ? ' ⛔' : '') }),
             h('small', { text: '+' + u.phone + (u.webOnly ? ' · botga kirmagan' : ' · Telegram ID ' + u.uid) + (u.createdAt ? ' · ' + fmtDay(u.createdAt) + ' dan' : '') })]);
         view.appendChild(head);
         view.appendChild(h('div', { class: 'grid kpis', style: 'margin-top:14px' }, [
@@ -1121,7 +1123,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         }
 
         // --- bitta odamga ---
-        var search = h('input', { class: 'inp', placeholder: 'Telefon yoki ism bilan qidiring...' });
+        var search = h('input', { class: 'inp', placeholder: 'ID, telefon yoki ism bilan qidiring...' });
         var results = h('div');
         var chosen = h('div');
         function webOnly(uid) { var s = String(uid); return (s.indexOf('77') === 0 && s.length === 11) || s === '999999999'; }

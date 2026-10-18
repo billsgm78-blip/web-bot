@@ -2425,6 +2425,13 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
 #mode-menu button.active { background: rgba(16, 185, 129, 0.14); }
 #mode-menu button small { display: block; font-size: 11px; color: #94a3b8; font-weight: 500; }
 #mode-menu button b { display: block; }
+/* Foydalanuvchi ID */
+.uid-chip { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); color: #e2e8f0; font: inherit; font-size: 13px; }
+.uid-chip b { font-family: 'JetBrains Mono', monospace; color: #fbbf24; letter-spacing: 0.5px; }
+.uid-line { margin-top: 3px; font-size: 12.5px; color: #94a3b8; }
+.uid-line b { font-family: 'JetBrains Mono', monospace; color: #fbbf24; }
+body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); background: #fff; }
 /* Eski narx (chizilgan) */
 .pack-old { font-size: 11.5px; color: #94a3b8; text-decoration: line-through; margin-right: 6px; font-weight: 600; }
 .pack-sale { position: absolute; top: 0; right: 0; font-size: 10.5px; font-weight: 800; color: #fff; background: #ef4444; padding: 3px 8px; border-radius: 0 14px 0 10px; }
@@ -2886,6 +2893,7 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
                 <div class="settings-info">
                     <h4 id="lang-set-profile">Faol Profil <span style="font-size:11px; color:var(--violet-accent); font-weight:700;">(Parolni yangilash 🔑)</span></h4>
                     <p id="settings-profile-info">Yuklanmoqda...</p>
+                    <p class="uid-line" id="settings-pid" style="display:none">🆔 ID: <b class="uid-val"></b></p>
                 </div>
                 <span class="animated-emoji" style="font-size: 20px;">👤</span>
             </div>
@@ -3016,6 +3024,7 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
                 <span class="balance-num" id="modal-balance">0</span>
                 <span class="balance-currency" id="lang-wallet-curr">so'm</span>
             </div>
+            <button type="button" class="uid-chip" id="uid-chip" style="display:none" title="Nusxa olish">🆔 ID: <b class="uid-val"></b></button>
         </div>
 
         <div class="pack-scroll-area">
@@ -6665,6 +6674,31 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
         }
         if (typeof prevLang === 'function') window.setAppLanguage = function () { var r = prevLang.apply(this, arguments); applyLang(); return r; };
         applyLang();
+        /* ================= 🆔 FOYDALANUVCHI ID ================= */
+        var myPid = null;
+        function paintPid() {
+            document.querySelectorAll('.uid-val').forEach(function (el) { el.textContent = myPid || ''; });
+            $('uid-chip').style.display = myPid ? '' : 'none';
+            $('settings-pid').style.display = myPid ? '' : 'none';
+        }
+        async function loadPid() {
+            var c = creds();
+            if (!c.phone || !c.password) { myPid = null; paintPid(); return; }
+            try { var cached = localStorage.getItem('bilol_pid_' + c.phone); if (cached) { myPid = cached; paintPid(); } } catch (e) {}
+            try {
+                var j = await api('/api/rewards');
+                if (j.success && j.publicId) { myPid = String(j.publicId); paintPid(); try { localStorage.setItem('bilol_pid_' + c.phone, myPid); } catch (e) {} }
+            } catch (e) {}
+        }
+        $('uid-chip').onclick = function () {
+            if (!myPid) return;
+            var done = function () { note(T('🆔 ID nusxalandi: ', '🆔 ID copied: ', '🆔 ID скопирован: ') + myPid); };
+            try { navigator.clipboard.writeText(myPid).then(done, done); } catch (e) { done(); }
+        };
+        loadPid();
+        if (ow) ow.addEventListener('click', loadPid);
+        $('open-settings-btn').addEventListener('click', loadPid);
+
         window.BilolSupport = { open: open, refresh: peek };
     } catch (err) { console.warn('SUPPORT:', err); if (window.__reportError) window.__reportError('SUPPORT: ' + (err && err.message || err)); }
 })();
