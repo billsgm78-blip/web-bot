@@ -39,7 +39,13 @@ async function checkQuota(phone, password, model) {
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  {
+    const o = String(req.headers.origin || "");
+    const ok = /^https:\/\/((www\.)?bilolsai\.uz|web-bot(-[a-z0-9-]+)?\.vercel\.app|[a-z0-9-]+-billsgm78-blips-projects\.vercel\.app)$/.test(o) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
+    res.setHeader("Access-Control-Allow-Origin", ok ? o : "https://bilolsai.uz");
+    res.setHeader("Vary", "Origin");
+    if (o && !ok) { res.status(403).json({ error: "Ruxsat yo'q." }); return; }
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
   res.setHeader(
     "Access-Control-Allow-Headers",

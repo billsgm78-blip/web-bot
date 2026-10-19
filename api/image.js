@@ -120,7 +120,13 @@ async function viaPollinations(prompt) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  {
+    const o = String(req.headers.origin || "");
+    const ok = /^https:\/\/((www\.)?bilolsai\.uz|web-bot(-[a-z0-9-]+)?\.vercel\.app|[a-z0-9-]+-billsgm78-blips-projects\.vercel\.app)$/.test(o) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
+    res.setHeader("Access-Control-Allow-Origin", ok ? o : "https://bilolsai.uz");
+    res.setHeader("Vary", "Origin");
+    if (o && !ok) { res.status(403).json({ error: "Ruxsat yo'q." }); return; }
+  }
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(200).end();
@@ -157,7 +163,7 @@ export default async function handler(req, res) {
 
   if (!image) {
     const refund = await railway("/api/image-refund", { txId: charge.txId, refundToken: charge.refundToken }).catch(() => ({}));
-    return res.status(502).json({ error: "Rasm yaratib bo'lmadi. Pul balansingizga qaytarildi.", refunded: !!refund.success, balance: refund.balance, detail: lastError });
+    return res.status(502).json({ error: "Rasm yaratib bo'lmadi. Pul balansingizga qaytarildi.", refunded: !!refund.success, balance: refund.balance });
   }
   return res.status(200).json({ image, balance: charge.balance });
 }
