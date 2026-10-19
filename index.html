@@ -10,7 +10,7 @@
             var app = /BilolsAIApp/.test(ua);
             var android = /Android/i.test(ua);
             var weak = (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
-            if (app || (android && weak)) document.documentElement.classList.add('lite');
+            if (app || android || weak) document.documentElement.classList.add('lite');
             if (app) document.documentElement.classList.add('in-app');
         } catch (e) {}
     })();
@@ -21,6 +21,23 @@
     html.lite .landing-logo-glow { filter: none !important; animation: none !important; opacity: .35 !important; }
     html.lite #fx-canvas, html.lite .fx-star, html.lite .fx-cursor { display: none !important; }
     html.lite .feature-card, html.lite .pack-card { transform: none !important; }
+    /* Bezak animatsiyalari to'xtaydi (doimiy qayta chizish telefonni qotiradi) */
+    html.lite *, html.lite *::before, html.lite *::after { animation-iteration-count: 1 !important; }
+    html.lite body::before { animation: none !important; filter: none !important; }
+    html.lite .container::after, html.lite .auth-card::before, html.lite .feature-modal-card::before,
+    html.lite .landing-logo-wrapper::before, html.lite .landing-logo-wrapper::after,
+    html.lite .chat-header::after, html.lite .input-bar::before, html.lite .landing-btn-enhanced::after,
+    html.lite .landing-chip::after, html.lite .wallet-pill::after, html.lite .balance-badge::after,
+    html.lite .swipe-toast::after { animation: none !important; }
+    html.lite .landing-title, html.lite .landing-logo-wrapper, html.lite .landing-logo, html.lite .landing-chip,
+    html.lite .feature-icon-wrap, html.lite .feature-tag, html.lite .landing-btn-enhanced, html.lite .auth-tab.active,
+    html.lite .primary-btn, html.lite .avatar, html.lite .send-btn, html.lite .capture-btn, html.lite .balance-badge,
+    html.lite .toggle-switch.active, html.lite .styled-input:focus, html.lite .animated-emoji, html.lite .lock-ico,
+    html.lite #lang-chat-active, html.lite .ambient-orb { animation: none !important; }
+    /* Kerakli (ma'noli) animatsiyalar ishlayveradi */
+    html.lite .dot, html.lite .gen-skeleton, html.lite .sp-ava i.on, html.lite #auth-modal #auth-action-btn:disabled::after,
+    html.lite .ai-body.is-typing > :last-child::after, html.lite .ai-body.is-typing:not(:has(*))::after,
+    html.lite [class*="spin"], html.lite [class*="loader"], html.lite [class*="typing"] { animation-iteration-count: infinite !important; }
     html.in-app body { -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; overscroll-behavior: none; }
     html.in-app input, html.in-app textarea, html.in-app [contenteditable], html.in-app .msg-ai, html.in-app .msg-user { -webkit-user-select: text; user-select: text; }
     </style>
@@ -2847,6 +2864,10 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                     <span class="ds-text"><b id="lang-ds-title">Yordam — admin bilan chat</b><small id="ds-status">Savol, taklif yoki muammo</small></span>
                     <span class="sp-badge" id="ds-badge"></span>
                 </button>
+                <a class="drawer-support drawer-app" id="drawer-app" href="/apkyuklash">
+                    <span class="ds-ico">📱</span>
+                    <span class="ds-text"><b>Android ilovani yuklab olish</b><small>Tezroq va qulayroq — brauzersiz</small></span>
+                </a>
             </aside>
         </div>
     </div>
@@ -6957,6 +6978,55 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
         window.BilolSupport = { open: open, refresh: peek };
     } catch (err) { console.warn('SUPPORT:', err); if (window.__reportError) window.__reportError('SUPPORT: ' + (err && err.message || err)); }
+})();
+</script>
+
+<!-- 📱 Android ilova taklifi -->
+<style id="app-promo-style">
+.drawer-app { text-decoration: none; background: rgba(99, 102, 241, .10) !important; border-color: rgba(99, 102, 241, .4) !important; }
+html.in-app .drawer-app { display: none !important; }
+#app-promo { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 2147483000;
+    max-width: 460px; margin: 0 auto; display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; border-radius: 20px;
+    background: #0f1524; border: 1px solid rgba(99, 102, 241, .45); box-shadow: 0 20px 50px -10px rgba(0, 0, 0, .7);
+    transform: translateY(140%); transition: transform .45s cubic-bezier(.18, .89, .32, 1.15); font-family: 'Outfit', sans-serif; }
+#app-promo.show { transform: none; }
+#app-promo img { width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0; }
+#app-promo .ap-t { flex: 1; min-width: 0; }
+#app-promo .ap-t b { display: block; color: #f8fafc; font-size: 15px; }
+#app-promo .ap-t small { color: #94a3b8; font-size: 12.5px; }
+#app-promo .ap-go { padding: 11px 16px; border-radius: 14px; border: 0; color: #fff; font: 800 14px 'Outfit', sans-serif; text-decoration: none; white-space: nowrap;
+    background: linear-gradient(135deg, #10b981, #3b82f6 55%, #8b5cf6); }
+#app-promo .ap-x { width: 30px; height: 30px; border-radius: 10px; border: 0; background: rgba(148, 163, 184, .12); color: #cbd5e1; font-size: 18px; line-height: 1; cursor: pointer; flex-shrink: 0; }
+body.theme-light #app-promo { background: #fff; border-color: rgba(99, 102, 241, .35); }
+body.theme-light #app-promo .ap-t b { color: #0f172a; }
+</style>
+<div id="app-promo" role="dialog" aria-label="Android ilova" hidden>
+    <img src="/icons/icon-192.png" alt="">
+    <div class="ap-t"><b>Bilols AI ilovasi</b><small>Tezroq, qotmaydi, brauzersiz</small></div>
+    <a class="ap-go" id="app-promo-go" href="/apkyuklash">Yuklab olish</a>
+    <button type="button" class="ap-x" id="app-promo-x" aria-label="Yopish">&times;</button>
+</div>
+<script>
+(function () {
+    try {
+        var ua = navigator.userAgent || '';
+        if (/BilolsAIApp/.test(ua) || !/Android/i.test(ua)) return;   // faqat Android brauzerida
+        var KEY = 'bilol_app_promo_until';
+        var until = 0; try { until = +localStorage.getItem(KEY) || 0; } catch (e) {}
+        if (Date.now() < until) return;
+        var el = document.getElementById('app-promo');
+        function hide(days) {
+            el.classList.remove('show');
+            try { localStorage.setItem(KEY, String(Date.now() + days * 864e5)); } catch (e) {}
+            setTimeout(function () { el.hidden = true; }, 500);
+        }
+        document.getElementById('app-promo-x').addEventListener('click', function () { hide(3); });
+        document.getElementById('app-promo-go').addEventListener('click', function () { hide(14); });
+        setTimeout(function () {
+            el.hidden = false;
+            requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add('show'); }); });
+        }, 2500);
+    } catch (e) {}
 })();
 </script>
 </body>

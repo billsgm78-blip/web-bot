@@ -1,3 +1,21 @@
 {
-  "rewrites": [{ "source": "/admin", "destination": "/admin.html" }]
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/apkyuklash", "destination": "/apk.html" },
+    { "source": "/apk", "destination": "/apk.html" }
+  ],
+  "headers": [
+    {
+      "source": "/download/(.*)\\.apk",
+      "headers": [
+        { "key": "Content-Type", "value": "application/vnd.android.package-archive" },
+        { "key": "Content-Disposition", "value": "attachment; filename=\"Bilols-AI.apk\"" },
+        { "key": "Cache-Control", "value": "public, max-age=300" }
+      ]
+    },
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+    }
+  ]
 }

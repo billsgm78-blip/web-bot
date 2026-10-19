@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bilols AI — Android ilovasini yuklab olish</title>
+<meta name="description" content="Bilols AI Android ilovasi: AI chat, rasm yaratish, hamyon va yordam — bitta ilovada.">
+<meta name="theme-color" content="#03060d">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root { --bg: #03060d; --card: #0d1220; --line: rgba(148, 163, 184, .16); --text: #f8fafc; --muted: #94a3b8;
+        --g: linear-gradient(135deg, #10b981, #3b82f6 55%, #8b5cf6); }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Outfit', system-ui, sans-serif; }
+body { min-height: 100vh; min-height: 100dvh;
+       background: radial-gradient(circle at 20% 0%, rgba(139, 92, 246, .22), transparent 45%),
+                   radial-gradient(circle at 90% 100%, rgba(16, 185, 129, .18), transparent 45%), var(--bg); }
+.wrap { max-width: 460px; margin: 0 auto; padding: calc(28px + env(safe-area-inset-top)) 18px calc(28px + env(safe-area-inset-bottom)); }
+.hero { text-align: center; }
+.logo { width: 96px; height: 96px; border-radius: 26px; display: block; margin: 8px auto 18px;
+        box-shadow: 0 18px 50px -12px rgba(99, 102, 241, .7); }
+h1 { font-size: 30px; line-height: 1.1; margin: 0 0 8px; font-weight: 800; letter-spacing: -.02em; }
+h1 span { background: var(--g); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sub { color: var(--muted); font-size: 15.5px; line-height: 1.5; margin: 0 auto 22px; max-width: 340px; }
+.meta { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+.meta span { font-size: 12.5px; font-weight: 600; color: #cbd5e1; padding: 6px 12px; border-radius: 999px; background: rgba(148, 163, 184, .1); border: 1px solid var(--line); }
+.btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 18px; border: 0; border-radius: 18px;
+       background: var(--g); color: #fff; font: 800 18px/1 'Outfit', sans-serif; text-decoration: none; cursor: pointer;
+       box-shadow: 0 16px 40px -14px rgba(59, 130, 246, .9); transition: transform .15s ease; }
+.btn:active { transform: scale(.98); }
+.btn small { font-weight: 600; font-size: 13px; opacity: .85; }
+.ghost { display: block; text-align: center; margin-top: 12px; color: var(--muted); font-size: 14px; text-decoration: none; padding: 10px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 18px; margin-top: 22px; }
+.card h2 { font-size: 16px; margin: 0 0 14px; }
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.steps li { position: relative; padding: 0 0 14px 42px; color: #cbd5e1; font-size: 14.5px; line-height: 1.45; counter-increment: s; }
+.steps li:last-child { padding-bottom: 0; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: -2px; width: 28px; height: 28px; border-radius: 9px;
+                    display: grid; place-items: center; font-weight: 800; font-size: 14px; color: #fff; background: rgba(99, 102, 241, .25); border: 1px solid rgba(99, 102, 241, .5); }
+.steps b { color: #fff; }
+.feat { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.feat div { background: rgba(148, 163, 184, .06); border: 1px solid var(--line); border-radius: 14px; padding: 12px; font-size: 13.5px; color: #cbd5e1; }
+.feat i { font-style: normal; font-size: 20px; display: block; margin-bottom: 4px; }
+.note { font-size: 13px; color: var(--muted); line-height: 1.5; margin: 0; }
+.inapp { display: none; text-align: center; padding: 14px; border-radius: 16px; background: rgba(16, 185, 129, .12); border: 1px solid rgba(16, 185, 129, .4); color: #a7f3d0; font-weight: 600; margin-bottom: 14px; }
+html.in-app .inapp { display: block; }
+html.in-app #dl { display: none; }
+</style>
+<script>if (/BilolsAIApp/.test(navigator.userAgent)) document.documentElement.classList.add('in-app');</script>
+</head>
+<body>
+<main class="wrap">
+    <section class="hero">
+        <img class="logo" src="/icons/icon-192.png" alt="Bilols AI" width="96" height="96">
+        <h1>Bilols AI <span>ilovasi</span></h1>
+        <p class="sub">AI chat, rasm yaratish, Stars va Premium, hamyon va admin bilan yordam chati. Hammasi telefoningizda, brauzersiz.</p>
+        <div class="meta"><span>Android 7+</span><span>Versiya 2.0.0</span><span>0,8 MB</span><span>Bepul</span></div>
+        <div class="inapp">✅ Siz allaqachon Bilols AI ilovasidasiz</div>
+        <a class="btn" id="dl" href="/download/bilols-ai.apk" download="Bilols-AI.apk">⬇️ Yuklab olish <small>APK</small></a>
+        <a class="ghost" href="/">← Saytga qaytish</a>
+    </section>
+
+    <section class="card">
+        <h2>📲 Qanday o'rnatiladi</h2>
+        <ol class="steps">
+            <li><b>"Yuklab olish"</b> tugmasini bosing va fayl yuklanishini kuting.</li>
+            <li>Yuklangan <b>Bilols-AI.apk</b> faylini oching.</li>
+            <li>Telefon "Noma'lum manba" deb so'rasa, <b>Sozlamalar → Ruxsat berish</b> ni bosing.</li>
+            <li><b>O'rnatish</b> ni bosing. Tayyor! Ilova bosh ekranda paydo bo'ladi.</li>
+        </ol>
+    </section>
+
+    <section class="card">
+        <h2>⚡ Ilovada nimalar bor</h2>
+        <div class="feat">
+            <div><i>💬</i>AI chat va 5 rejim</div>
+            <div><i>🎨</i>Rasm yaratish</div>
+            <div><i>⭐</i>Stars va Premium</div>
+            <div><i>💳</i>Hamyon, karta orqali</div>
+            <div><i>🛠</i>Admin bilan chat</div>
+            <div><i>🌍</i>3 til: UZ / RU / EN</div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>🍏 iPhone uchun</h2>
+        <p class="note">iPhone'da APK ishlamaydi. Saytni <b>Safari</b>'da oching → pastdagi <b>Ulashish</b> tugmasi → <b>"Bosh ekranga qo'shish"</b>. Ilova kabi ochiladi.</p>
+    </section>
+</main>
+</body>
+</html>
