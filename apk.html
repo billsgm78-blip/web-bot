@@ -47,6 +47,14 @@ h1 span { background: var(--g); -webkit-background-clip: text; background-clip: 
 .note { font-size: 13px; color: var(--muted); line-height: 1.5; margin: 0; }
 .inapp { display: none; text-align: center; padding: 14px; border-radius: 16px; background: rgba(16, 185, 129, .12); border: 1px solid rgba(16, 185, 129, .4); color: #a7f3d0; font-weight: 600; margin-bottom: 14px; }
 html.in-app .inapp { display: block; }
+.maint { text-align: center; padding: 22px 18px; border-radius: 20px; background: rgba(245, 158, 11, .1); border: 1px solid rgba(245, 158, 11, .45); }
+.maint .mi { font-size: 44px; line-height: 1; margin-bottom: 8px; }
+.maint b { display: block; font-size: 20px; color: #fde68a; margin-bottom: 6px; }
+.maint p { margin: 0 0 10px; color: #e2e8f0; font-size: 15px; line-height: 1.5; }
+.maint small { color: var(--muted); font-size: 13px; }
+.maint a { color: #93c5fd; }
+.maint-load { text-align: center; color: var(--muted); font-size: 14px; padding: 18px; }
+[hidden] { display: none !important; }
 </style>
 <script>if (/BilolsAIApp/.test(navigator.userAgent)) document.documentElement.classList.add('in-app');</script>
 </head>
@@ -58,11 +66,13 @@ html.in-app .inapp { display: block; }
         <p class="sub">AI chat, rasm yaratish, Stars va Premium, hamyon va admin bilan yordam chati. Hammasi telefoningizda, brauzersiz.</p>
         <div class="meta"><span>Android 7+</span><span>Versiya 2.0.0</span><span>0,8 MB</span><span>Bepul</span></div>
         <div class="inapp">✅ Siz ilovadasiz. Yangi versiyani shu yerdan yuklab olishingiz mumkin.</div>
-        <a class="btn" id="dl" href="/download/bilols-ai.apk" download="Bilols-AI.apk">⬇️ Yuklab olish <small>APK</small></a>
+        <a class="btn" id="dl" href="/download/bilols-ai.apk" download="Bilols-AI.apk" hidden>⬇️ Yuklab olish <small>APK</small></a>
+        <div class="maint" id="maint" hidden><div class="mi">🛠</div><b>Texnik ishlar</b><p id="maint-msg">Android ilovada texnik ishlar olib borilmoqda. Tez orada yangi versiya chiqadi!</p><small>Hozircha saytdan foydalanishingiz mumkin: <a href="/">bilolsai.uz</a></small></div>
+        <div class="maint-load" id="maint-load">Tekshirilmoqda…</div>
         <a class="ghost" href="/">← Saytga qaytish</a>
     </section>
 
-    <section class="card">
+    <section class="card steps-card" hidden>
         <h2>📲 Qanday o'rnatiladi</h2>
         <ol class="steps">
             <li><b>"Yuklab olish"</b> tugmasini bosing va fayl yuklanishini kuting.</li>
@@ -89,5 +99,22 @@ html.in-app .inapp { display: block; }
         <p class="note">iPhone'da APK ishlamaydi. Saytni <b>Safari</b>'da oching → pastdagi <b>Ulashish</b> tugmasi → <b>"Bosh ekranga qo'shish"</b>. Ilova kabi ochiladi.</p>
     </section>
 </main>
+<script>
+(function () {
+    var API = 'https://ai2-production-7d7e.up.railway.app/api/site-status';
+    var dl = document.getElementById('dl'), mt = document.getElementById('maint'), ld = document.getElementById('maint-load');
+    function show(on, msg) {
+        ld.hidden = true;
+        dl.hidden = !on; mt.hidden = !!on;
+        if (!on && msg) document.getElementById('maint-msg').textContent = msg;
+        document.querySelectorAll('.steps-card').forEach(function (e) { e.hidden = !on; });
+    }
+    var t = setTimeout(function () { show(false); }, 8000);
+    fetch(API, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
+        clearTimeout(t);
+        var a = j && j.apk; show(!!(a && a.on), a && a.msg);
+    }).catch(function () { clearTimeout(t); show(false); });
+})();
+</script>
 </body>
 </html>

@@ -2915,7 +2915,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 </button>
                 <a class="drawer-support drawer-app" id="drawer-app" href="/apkyuklash">
                     <span class="ds-ico">📱</span>
-                    <span class="ds-text"><b>Android ilovani yuklab olish</b><small>Tezroq va qulayroq — brauzersiz</small></span>
+                    <span class="ds-text"><b>Android ilova</b><small id="drawer-app-sub">Tez orada — texnik ishlar</small></span>
                 </a>
             </aside>
         </div>
@@ -7031,6 +7031,14 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 </script>
 
 <!-- 📱 Android ilova taklifi -->
+<script>
+(function () {
+    fetch('https://ai2-production-7d7e.up.railway.app/api/site-status', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (st) {
+        var el = document.getElementById('drawer-app-sub');
+        if (el && st && st.apk && st.apk.on) el.textContent = 'Yuklab olish — tezroq va qulayroq';
+    }).catch(function () {});
+})();
+</script>
 <style id="app-promo-style">
 .drawer-app { text-decoration: none; background: rgba(99, 102, 241, .10) !important; border-color: rgba(99, 102, 241, .4) !important; }
 html.in-app .drawer-app { display: none !important; }
@@ -7104,7 +7112,12 @@ body.theme-light #app-promo .ap-t b { color: #0f172a; }
             el.classList.remove('show');
             setTimeout(function () { if (!el.classList.contains('show')) el.hidden = true; }, 500);
         }
-        setTimeout(function () {
+        setTimeout(async function () {
+            if (!onLanding()) return;
+            try {   // admin "texnik ishlar" qo'ygan bo'lsa — taklif chiqmaydi
+                var st = await fetch('https://ai2-production-7d7e.up.railway.app/api/site-status', { cache: 'no-store' }).then(function (r) { return r.json(); });
+                if (!st || !st.apk || !st.apk.on) return;
+            } catch (e) { return; }
             if (!onLanding()) return;
             el.hidden = false;
             requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add('show'); }); });
