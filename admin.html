@@ -212,6 +212,12 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
 .sup-msg.admin { align-self: flex-end; background: var(--grad); color: #fff; border-bottom-right-radius: 5px; }
 .sup-bar { display: flex; gap: 8px; align-items: flex-end; padding-top: 10px; border-top: 1px solid var(--line); }
 .sup-bar textarea { flex: 1; min-height: 46px; max-height: 140px; resize: none; }
+.or-line { display: flex; align-items: center; gap: 12px; margin: 16px 0 12px; color: var(--muted); font-size: 12.5px; }
+.or-line::before, .or-line::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.faceid-btn { background: rgba(255,255,255,0.06) !important; border: 1px solid var(--line2) !important; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.faceid-btn .fid-ico { font-size: 22px; }
+.faceid-btn.scan .fid-ico { animation: fidScan 1s ease-in-out infinite; }
+@keyframes fidScan { 0%,100% { transform: scale(1); filter: none; } 50% { transform: scale(1.18); filter: drop-shadow(0 0 10px #3b82f6); } }
 .sup-img { display: block; max-width: 100%; max-height: 320px; border-radius: 12px; margin-bottom: 4px; cursor: zoom-in; }
 .dot-new { width: 10px; height: 10px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
 .shop-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr auto auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
@@ -236,6 +242,8 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             <div class="field"><input id="a-pass" type="password" placeholder="Parol" autocomplete="current-password"><button type="button" class="eye" id="a-eye">👁</button></div>
             <button class="btn" id="a-submit">Davom etish</button>
         </form>
+        <div class="or-line"><span>yoki</span></div>
+        <button type="button" class="btn faceid-btn" id="a-faceid"><span class="fid-ico">🙂</span> Face ID bilan kirish</button>
         <div class="msg" id="a-msg"></div>
     </div>
 
@@ -370,6 +378,38 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         } catch (e2) { msg.className = 'msg err'; msg.textContent = "Server bilan bog'lanib bo'lmadi."; }
         btn.disabled = false;
     });
+    // ---------- Face ID (WebAuthn / passkey) ----------
+    function b64uToBuf(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; var bin = atob(s), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; }
+    function bufToB64u(b) { var u = new Uint8Array(b), s = ''; for (var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+    function credToJSON(c) {
+        var r = c.response, out = { id: c.id, rawId: bufToB64u(c.rawId), type: c.type, clientExtensionResults: (c.getClientExtensionResults && c.getClientExtensionResults()) || {}, response: { clientDataJSON: bufToB64u(r.clientDataJSON) } };
+        if (r.attestationObject) { out.response.attestationObject = bufToB64u(r.attestationObject); if (r.getTransports) out.response.transports = r.getTransports(); }
+        if (r.authenticatorData) { out.response.authenticatorData = bufToB64u(r.authenticatorData); out.response.signature = bufToB64u(r.signature); if (r.userHandle) out.response.userHandle = bufToB64u(r.userHandle); }
+        if (c.authenticatorAttachment) out.authenticatorAttachment = c.authenticatorAttachment;
+        return out;
+    }
+    var faceSupported = !!(window.PublicKeyCredential && navigator.credentials);
+    if (!faceSupported) { $('a-faceid').style.display = 'none'; document.querySelector('.or-line').style.display = 'none'; }
+    $('a-faceid').onclick = async function () {
+        var btn = this, msg = $('a-msg');
+        btn.disabled = true; btn.classList.add('scan'); msg.className = 'msg'; msg.textContent = '🙂 Yuzingizni skanerlang...';
+        try {
+            var o = await post('/api/admin-auth/passkey/options', {});
+            if (!o.success) { msg.className = 'msg err'; msg.textContent = o.error || 'Xatolik'; return; }
+            var pk = o.options;
+            pk.challenge = b64uToBuf(pk.challenge);
+            (pk.allowCredentials || []).forEach(function (c) { c.id = b64uToBuf(c.id); });
+            var cred = await navigator.credentials.get({ publicKey: pk });
+            msg.textContent = '⏳ Tekshirilmoqda...';
+            var j = await post('/api/admin-auth/passkey/login', { cid: o.cid, credential: credToJSON(cred) });
+            if (j.success) { ticket = j.ticket; showCode(); }
+            else { msg.className = 'msg err'; msg.textContent = j.error || 'Face ID tasdiqlanmadi'; }
+        } catch (e) {
+            msg.className = 'msg err';
+            msg.textContent = e && e.name === 'NotAllowedError' ? 'Bekor qilindi yoki yuz tanilmadi.' : "Face ID ishlamadi: " + ((e && e.message) || e);
+        } finally { btn.disabled = false; btn.classList.remove('scan'); }
+    };
+
     var boxes = [];
     (function buildBoxes() {
         var wrap = $('code-boxes');
@@ -1418,7 +1458,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         sub: ['♾️', 'Obuna'], password: ['🔑', "Foydalanuvchi paroli o'rnatildi"], message: ['✉️', 'Xabar yuborildi'], broadcast: ['📢', "E'lon"],
         order: ['🛒', 'Buyurtma'], ban: ['⛔', 'Bloklandi'], unban: ['✅', 'Blokdan chiqarildi'], promo_create: ['🎟️', 'Promo-kod yaratildi'],
         promo_delete: ['✖', "Promo-kod o'chirildi"], control: ['🚦', 'Boshqaruv'], announce: ['📣', "Saytdagi e'lon"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi'],
-        support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], ai: ['🤖', "AI sozlamalari o'zgartirildi"], notify: ['🔔', 'Bildirishnomalar'], shop: ['🏷', "Narxlar o'zgartirildi"]
+        support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], ai: ['🤖', "AI sozlamalari o'zgartirildi"], notify: ['🔔', 'Bildirishnomalar'], login_faceid: ['🙂', 'Face ID bilan kirildi'], faceid_add: ['🙂', "Face ID qo'shildi"], faceid_del: ['✖', "Face ID o'chirildi"], shop: ['🏷', "Narxlar o'zgartirildi"]
     };
     async function vLog(view) {
         var j = await admin('log');
@@ -1436,6 +1476,46 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
     // ---------- Xavfsizlik ----------
     async function vSecurity(view) {
         view.innerHTML = '';
+        // Face ID
+        view.appendChild(h('div', { class: 'h', text: '🙂 Face ID bilan kirish' }));
+        var fidCard = h('div', { class: 'card form' });
+        view.appendChild(fidCard);
+        async function paintFid() {
+            fidCard.innerHTML = '';
+            fidCard.appendChild(h('div', { class: 'sum', style: 'line-height:1.55', text: "Telefoningizning Face ID'si (3D yuz skaneri) yoki barmoq izi bilan parolsiz kirasiz. Yuz tasviri hech qayerga yuborilmaydi — qurilma faqat raqamli imzo beradi. Face ID'dan keyin ham Telegram'ga kod keladi (2-bosqich)." }));
+            if (!faceSupported) { fidCard.appendChild(h('div', { class: 'sum', style: 'color:#fbbf24', text: "⚠️ Bu brauzer Face ID'ni qo'llamaydi. iPhone'da Safari, Android'da Chrome orqali oching." }) ); return; }
+            var j = await admin('passkey_list');
+            (j.keys || []).forEach(function (k) {
+                fidCard.appendChild(h('div', { class: 'row' }, [
+                    h('div', { class: 'r-ico', text: '🙂' }),
+                    h('div', { class: 'r-main' }, [h('b', { text: k.name || 'Qurilma' }), h('small', { text: "Qo'shilgan: " + (k.created ? fmtDate(k.created) : '?') + ' · oxirgi kirish: ' + (k.last ? fmtDate(k.last) : "hali yo'q") })]),
+                    h('button', { class: 'sq', title: "O'chirish", text: '✖', onclick: async function () {
+                        if (!await dialog({ title: "Face ID'ni o'chirish", text: (k.name || 'Qurilma') + " bilan endi kirib bo'lmaydi.", ok: "O'chirish", danger: true })) return;
+                        await admin('passkey_delete', { id: k.full }); toast("O'chirildi"); paintFid();
+                    } })
+                ]));
+            });
+            if (!(j.keys || []).length) fidCard.appendChild(h('div', { class: 'sum', text: "Hali qurilma qo'shilmagan." }));
+            fidCard.appendChild(h('button', { class: 'btn', text: "🙂 Shu qurilmaning Face ID'sini qo'shish", onclick: async function () {
+                var r = await dialog({ title: "Face ID qo'shish", text: "Qurilmaga nom bering, so'ng yuzingizni skanerlang.", fields: [{ label: 'Nomi', value: /iPhone|iPad/.test(navigator.userAgent) ? 'iPhone' : /Android/.test(navigator.userAgent) ? 'Android' : 'Kompyuter' }], ok: 'Skanerlash' });
+                if (!r) return;
+                try {
+                    var o = await admin('passkey_reg_options');
+                    if (!o.success) { toast(o.error || 'Xato'); return; }
+                    var pk = o.options;
+                    pk.challenge = b64uToBuf(pk.challenge);
+                    pk.user.id = b64uToBuf(pk.user.id);
+                    (pk.excludeCredentials || []).forEach(function (c) { c.id = b64uToBuf(c.id); });
+                    var cred = await navigator.credentials.create({ publicKey: pk });
+                    var x = await admin('passkey_register', { cid: o.cid, credential: credToJSON(cred), name: r[0] });
+                    toast(x.success ? "✅ Face ID qo'shildi — endi kirish oynasida «Face ID bilan kirish» ni bosing" : (x.error || 'Xato'));
+                    paintFid();
+                } catch (e) {
+                    toast(e && e.name === 'InvalidStateError' ? "Bu qurilma allaqachon qo'shilgan" : e && e.name === 'NotAllowedError' ? 'Bekor qilindi' : 'Xato: ' + ((e && e.message) || e));
+                }
+            } }));
+        }
+        paintFid();
         // parol
         var oldP = h('input', { class: 'inp', type: 'password', autocomplete: 'current-password' });
         var newP = h('input', { class: 'inp', type: 'password', autocomplete: 'new-password' });
