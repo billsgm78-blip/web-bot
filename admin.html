@@ -864,14 +864,30 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         view.innerHTML = '';
         if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
         var c = j.config;
-        var sel = h('select', { class: 'inp' });
-        var known = AI_MODELS.some(function (m) { return m[0] === c.model; });
-        AI_MODELS.forEach(function (m) { var o = h('option', { value: m[0], text: m[1] }); if (m[0] === c.model) o.selected = true; sel.appendChild(o); });
-        var oc = h('option', { value: '__custom', text: '✏️ Boshqa model (OpenRouter ID)' }); if (!known) oc.selected = true; sel.appendChild(oc);
-        var custom = h('input', { class: 'inp mono', placeholder: 'masalan: anthropic/claude-3.5-haiku' }); custom.value = known ? '' : c.model;
-        var customWrap = h('div', { class: 'lb' }, ['Model ID', custom, h('small', { text: "Ro'yxat: openrouter.ai/models" })]);
-        customWrap.style.display = known ? 'none' : '';
-        sel.onchange = function () { customWrap.style.display = sel.value === '__custom' ? '' : 'none'; };
+        var models = (c.models || []).map(function (m) { return Object.assign({}, m); });
+        var mbox = h('div');
+        function paintModels() {
+            mbox.innerHTML = '';
+            models.forEach(function (m, i) {
+                var emo = h('input', { class: 'inp', value: m.emoji || '🤖', maxlength: '4', style: 'width:64px;text-align:center;font-size:20px' }); emo.oninput = function () { m.emoji = emo.value; };
+                var nm = h('input', { class: 'inp', value: m.name || '', placeholder: 'Nomi' }); nm.oninput = function () { m.name = nm.value; };
+                var id = h('input', { class: 'inp mono', value: m.id || '', placeholder: 'google/gemini-2.5-flash', style: 'font-size:13px' }); id.oninput = function () { m.id = id.value.trim(); };
+                var pr = h('input', { class: 'inp mono', value: m.price || 0, inputmode: 'numeric', style: 'width:120px' }); pr.oninput = function () { m.price = parseInt(pr.value.replace(/\D/g, ''), 10) || 0; tag.textContent = m.price ? money(m.price) + " so'm" : 'BEPUL'; tag.className = 'tag ' + (m.price ? 'pending' : 'done'); };
+                var ds = h('input', { class: 'inp', value: m.desc || '', placeholder: "Qisqa tavsif (saytda ko'rinadi)", style: 'font-size:13px' }); ds.oninput = function () { m.desc = ds.value; };
+                var tag = h('span', { class: 'tag ' + (m.price ? 'pending' : 'done'), text: m.price ? money(m.price) + " so'm" : 'BEPUL' });
+                var sw = h('div', { class: 'switch' + (m.on ? ' ok' : ''), role: 'switch', title: 'Saytda ko\'rinsin', onclick: function () { m.on = !m.on; sw.className = 'switch' + (m.on ? ' ok' : ''); } });
+                var df = h('button', { class: 'act' + (m.def ? '' : ' ghost'), text: m.def ? '⭐ Asosiy' : 'Asosiy qilish', onclick: function () { models.forEach(function (x) { x.def = false; }); m.def = true; m.on = true; paintModels(); } });
+                mbox.appendChild(h('div', { style: 'border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;display:grid;gap:8px;' + (m.on ? '' : 'opacity:.55') }, [
+                    h('div', { style: 'display:flex;gap:8px;align-items:center' }, [emo, nm, tag, sw]),
+                    id,
+                    h('div', { style: 'display:flex;gap:8px;align-items:center;flex-wrap:wrap' }, [h('span', { class: 'sum', text: "1 xabar narxi, so'm (0 = bepul):" }), pr, df,
+                        h('button', { class: 'sq', title: "O'chirish", text: '✖', style: 'margin-left:auto', onclick: function () { models.splice(i, 1); paintModels(); } })]),
+                    ds
+                ]));
+            });
+            mbox.appendChild(h('button', { class: 'act', text: "＋ Model qo'shish", onclick: function () { models.push({ id: '', name: '', emoji: '🤖', price: 100, on: true, def: false, desc: '' }); paintModels(); } }));
+        }
+        paintModels();
         var fb = c.fallback !== false;
         var fbSw = h('div', { class: 'switch' + (fb ? ' ok' : ''), role: 'switch', onclick: function () { fb = !fb; fbSw.className = 'switch' + (fb ? ' ok' : ''); } });
         var LEN = [[800, 'Qisqa'], [1500, "O'rtacha"], [3000, 'Uzun (standart)'], [6000, 'Juda uzun']];
@@ -886,13 +902,14 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         var prompt = h('textarea', { class: 'inp', rows: 6, placeholder: "Masalan: Sen Bilols AI yordamchisisan. Har doim xushmuomala bo'l. Javob oxirida foydalanuvchiga Stars xizmatimizni eslatib o't. Siyosat haqida gapirma." }); prompt.value = c.prompt || '';
         var cnt = h('small', { text: (c.prompt || '').length + ' / 3000' }); prompt.oninput = function () { cnt.textContent = prompt.value.length + ' / 3000'; };
         function collect() {
-            return { model: sel.value === '__custom' ? custom.value.trim() : sel.value, fallback: fb, maxTokens: +lenSel.value,
+            return { models: models, fallback: fb, maxTokens: +lenSel.value,
                      temperature: +temp.value, history: +hist.value || 12, prompt: prompt.value };
         }
         view.appendChild(h('div', { class: 'sum', style: 'margin-bottom:12px', text: "Bu sozlamalar saytdagi AI chatga darhol ta'sir qiladi. Qo'shimcha ko'rsatma, javob uzunligi va ijodkorlik Telegram botdagi AI'ga ham qo'llanadi." }));
-        view.appendChild(h('div', { class: 'h', text: '🧠 Model' }));
+        view.appendChild(h('div', { class: 'h', text: '🧠 Modellar va narxlar' }));
         view.appendChild(h('div', { class: 'card form' }, [
-            h('div', { class: 'lb' }, ['Asosiy model', sel]), customWrap,
+            h('div', { class: 'sum', style: 'line-height:1.5', text: "Foydalanuvchi saytda modelni o'zi tanlaydi (chat tepasidagi tugma). Narx 0 bo'lsa — bepul, kunlik limit va obuna bilan ishlaydi. Narx qo'yilsa — har bir xabar uchun shu summa balansdan yechiladi. ⭐ Asosiy — standart tanlangan model. Model ID'lar: openrouter.ai/models" }),
+            mbox,
             h('div', { style: 'display:flex;align-items:center;gap:12px' }, [h('div', { style: 'flex:1' }, [h('b', { text: 'Zaxira modellar' }), h('div', { class: 'sum', text: "Tanlangan model ishlamasa, avtomatik boshqasiga o'tadi (tavsiya etiladi)" })]), fbSw])
         ]));
         view.appendChild(h('div', { class: 'h', text: '📏 Javob' }));

@@ -15,14 +15,14 @@ const LOGIN_MSG = {
 };
 
 // Har bir xabardan oldin limitni tekshiradi. Bot serveri javob bermasa, chat to'xtab qolmasligi uchun ruxsat beriladi.
-async function checkQuota(phone, password) {
+async function checkQuota(phone, password, model) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 6000);
   try {
     const r = await fetch(`${RAILWAY_URL}/api/chat-quota`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, password }),
+      body: JSON.stringify({ phone, password, model }),
       signal: ctrl.signal
     });
     if (r.status === 403) return { allowed: false, needLogin: true };
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "API kaliti sozlanmagan." });
   }
 
-  const { history, lang, stream, phone, password, mode } = req.body || {};
+  const { history, lang, stream, phone, password, mode, model } = req.body || {};
   const wantStream = stream === true;
   if (!Array.isArray(history)) {
     return res.status(400).json({ error: "Noto'g'ri format." });
@@ -67,13 +67,18 @@ export default async function handler(req, res) {
   if (!phone || !password) {
     return res.status(401).json({ error: LOGIN_MSG[uiLang], needLogin: true });
   }
-  const quota = await checkQuota(String(phone), String(password));
+  const quota = await checkQuota(String(phone), String(password), typeof model === "string" ? model.slice(0, 80) : "");
   if (quota.needLogin) {
     return res.status(401).json({ error: LOGIN_MSG[uiLang], needLogin: true });
   }
   if (!quota.allowed && quota.maintenance) {
     return res.status(503).json({ error: "🛠 " + (quota.message || "Texnik ishlar olib borilmoqda."), maintenance: true });
   }
+  if (!quota.allowed && quota.insufficient) {
+    return res.status(402).json({ error: quota.message || "Balansda pul yetarli emas.", insufficient: true, price: quota.price, balance: quota.balance });
+  }
+  if (typeof quota.balance === "number") res.setHeader("X-Balance", String(quota.balance));
+  if (quota.charged) res.setHeader("X-Charged", String(quota.charged));
   if (!quota.allowed) {
     return res.status(429).json({ error: QUOTA_MSG[uiLang](quota.limit || ""), limitReached: true, limit: quota.limit, subPrice: quota.subPrice });
   }

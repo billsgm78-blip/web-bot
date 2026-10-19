@@ -2443,6 +2443,32 @@ body.theme-light #mode-chip .doc-meta small { color: #047857; }
 #mode-menu button.active { background: rgba(16, 185, 129, 0.14); }
 #mode-menu button small { display: block; font-size: 11px; color: #94a3b8; font-weight: 500; }
 #mode-menu button b { display: block; }
+/* AI model tanlash */
+.model-btn { display: inline-flex; align-items: center; gap: 4px; margin-top: 1px; padding: 2px 8px 2px 6px; border-radius: 999px; cursor: pointer;
+    border: 1px solid rgba(16,185,129,0.4); background: rgba(16,185,129,0.1); color: #6ee7b7; font: inherit; font-size: 10.5px; font-weight: 700; white-space: nowrap; max-width: 150px; }
+.model-btn span { overflow: hidden; text-overflow: ellipsis; }
+.model-btn i { font-style: normal; opacity: .8; }
+.model-btn.paid { border-color: rgba(245,158,11,0.5); background: rgba(245,158,11,0.12); color: #fcd34d; }
+#model-sheet { position: fixed; inset: 0; z-index: 95; display: none; }
+#model-sheet.open { display: block; }
+#model-sheet .ms-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.55); animation: fadeIn .2s ease both; }
+#model-sheet .ms-card { position: absolute; left: 0; right: 0; bottom: 0; max-height: 80vh; overflow-y: auto; background: #0d1222; border-top: 1px solid var(--border-glass);
+    border-radius: 26px 26px 0 0; padding: 18px 16px max(18px, env(safe-area-inset-bottom)); animation: msUp .3s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes msUp { from { transform: translateY(100%); } to { transform: none; } }
+#model-sheet h3 { font-size: 17px; color: #fff; margin: 4px 6px 4px; }
+#model-sheet .ms-sub { font-size: 12.5px; color: #94a3b8; margin: 0 6px 12px; }
+.ms-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 12px; margin-bottom: 8px; border-radius: 16px; cursor: pointer; text-align: left;
+    border: 1px solid var(--border-glass); background: rgba(255,255,255,0.03); color: #e2e8f0; font: inherit; }
+.ms-item.active { border-color: rgba(16,185,129,0.6); background: rgba(16,185,129,0.1); }
+.ms-item .ms-ico { font-size: 26px; width: 34px; text-align: center; }
+.ms-item .ms-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ms-item .ms-txt b { font-size: 15px; }
+.ms-item .ms-txt small { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+.ms-price { font-size: 12.5px; font-weight: 800; padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
+.ms-price.free { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+.ms-price.paid { background: rgba(245,158,11,0.15); color: #fcd34d; }
+body.theme-light #model-sheet .ms-card { background: #fff; }
+body.theme-light #model-sheet h3, body.theme-light .ms-item { color: #0f172a; }
 /* Foydalanuvchi ID */
 .uid-chip { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
     border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); color: #e2e8f0; font: inherit; font-size: 13px; }
@@ -2697,7 +2723,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 <div class="avatar" id="avatar-btn" title="Bosib ko'ring!"><span class="animated-emoji">⚡</span></div>
                 <div style="display: flex; flex-direction: column;">
                     <h3 style="font-size: 13px; font-weight: 700; white-space: nowrap;">Bilols AI</h3>
-                    <span style="font-size: 10px; color: var(--emerald-accent); font-weight: 600; white-space: nowrap;" id="lang-chat-active">● Faol</span>
+                    <span style="font-size: 10px; color: var(--emerald-accent); font-weight: 600; white-space: nowrap; display:none" id="lang-chat-active">● Faol</span>
+                    <button type="button" id="model-btn" class="model-btn" title="AI modelni tanlash"><span id="model-btn-text">⚡ Gemini Flash</span> <i>▾</i></button>
                 </div>
             </div>
 
@@ -4520,6 +4547,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 body: JSON.stringify({
                     history: buildRequestHistory(), lang: currentLang, stream: true,
                     mode: (window.BilolMode && window.BilolMode.get()) || "",
+                    model: (window.BilolModel && window.BilolModel.get()) || "",
                     phone: String(currentPhone || "").replace(/[^0-9]/g, ""),
                     password: localStorage.getItem("bilol_ai_password") || ""
                 }),
@@ -4529,6 +4557,13 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             const ctype = res.headers.get("content-type") || "";
             let reply = "";
             let ok = false;
+            const newBal = res.headers.get("X-Balance");
+            if (newBal !== null && !isNaN(Number(newBal))) {
+                lastKnownBalance = Number(newBal);
+                const nb = Number(newBal).toLocaleString();
+                if (headerBalance) headerBalance.innerText = nb;
+                if (modalBalance) modalBalance.innerText = nb;
+            }
             const quotaLeft = res.headers.get("X-Quota-Left");
             if (quotaLeft !== null && window.BilolUI) window.BilolUI.quotaLeft(Number(quotaLeft));
 
@@ -4570,7 +4605,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 ok = !!data.text;
                 reply = data.text || data.error || tr("Javob olib bo'lmadi.", "Could not get response.", "Не удалось получить ответ.");
                 hideTyping();
-                if (data.limitReached || data.needLogin || data.maintenance) {
+                if (data.insufficient) showNotification(data.error || tr("Balansda pul yetarli emas", "Not enough balance", "Недостаточно средств"), "error");
+                if (data.limitReached || data.needLogin || data.maintenance || data.insufficient) {
                     // Limit tugadi yoki qayta kirish kerak: savolni tarixdan olib tashlaymiz, keyin qayta yuborish mumkin
                     if (chatHistory.length && chatHistory[chatHistory.length - 1].role === "user") {
                         const last = chatHistory.pop();
@@ -6500,7 +6536,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
     try {
         var $ = function (id) { return document.getElementById(id); };
         var T = function (uz, en, ru) { return typeof tr === 'function' ? tr(uz, en, ru) : uz; };
-        var note = function (m) { if (typeof showNotification === 'function') showNotification(m); };
+        var note = function (m, t) { if (typeof showNotification === 'function') showNotification(m, t); };
         function creds() {
             var phone = (typeof currentPhone !== 'undefined' && currentPhone) || localStorage.getItem('bilol_ai_phone') || '';
             return { phone: String(phone).replace(/[^0-9]/g, ''), password: localStorage.getItem('bilol_ai_password') || '' };
@@ -6845,6 +6881,56 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         loadPid();
         if (ow) ow.addEventListener('click', loadPid);
         $('open-settings-btn').addEventListener('click', loadPid);
+
+        /* ================= 🧠 AI MODEL TANLASH ================= */
+        var models = [{ id: '', name: 'Gemini Flash', emoji: '⚡', price: 0, desc: '', def: true }];
+        var curModel = ''; try { curModel = localStorage.getItem('bilol_ai_model') || ''; } catch (e) {}
+        var sheet = document.createElement('div'); sheet.id = 'model-sheet';
+        sheet.innerHTML = '<div class="ms-bg"></div><div class="ms-card"><h3></h3><div class="ms-sub"></div><div class="ms-list"></div></div>';
+        document.body.appendChild(sheet);
+        sheet.querySelector('.ms-bg').onclick = function () { sheet.classList.remove('open'); };
+        function fmtSum(n) { return Number(n || 0).toLocaleString('ru-RU').replace(/\u00a0/g, ' '); }
+        function current() { return models.filter(function (m) { return m.id === curModel; })[0] || models.filter(function (m) { return m.def; })[0] || models[0]; }
+        function paintModelBtn() {
+            var m = current(), btn = $('model-btn');
+            $('model-btn-text').textContent = m.emoji + ' ' + m.name;
+            btn.classList.toggle('paid', m.price > 0);
+            btn.title = m.price > 0 ? fmtSum(m.price) + T(" so'm / xabar", ' UZS / message', ' сум / сообщение') : T('Bepul', 'Free', 'Бесплатно');
+        }
+        function paintSheet() {
+            sheet.querySelector('h3').textContent = T('🧠 AI modelni tanlang', '🧠 Choose AI model', '🧠 Выберите модель ИИ');
+            sheet.querySelector('.ms-sub').textContent = T("Bepul model kunlik limit bilan ishlaydi. Pullik modellarda har bir xabar uchun balansdan yechiladi.",
+                'The free model uses your daily limit. Paid models charge your balance per message.', 'Бесплатная модель — в рамках дневного лимита. Платные списывают с баланса за каждое сообщение.');
+            var list = sheet.querySelector('.ms-list'); list.innerHTML = '';
+            var cm = current();
+            models.forEach(function (m) {
+                var b = document.createElement('button'); b.type = 'button'; b.className = 'ms-item' + (m.id === cm.id ? ' active' : '');
+                b.innerHTML = '<span class="ms-ico">' + esc(m.emoji) + '</span><span class="ms-txt"><b>' + esc(m.name) + (m.id === cm.id ? ' ✓' : '') + '</b><small>' + esc(m.desc || '') + '</small></span>' +
+                    '<span class="ms-price ' + (m.price > 0 ? 'paid' : 'free') + '">' + (m.price > 0 ? fmtSum(m.price) + T(" so'm", ' UZS', ' сум') : T('Bepul', 'Free', 'Бесплатно')) + '</span>';
+                b.onclick = function () {
+                    curModel = m.id; try { localStorage.setItem('bilol_ai_model', m.id); } catch (e) {}
+                    paintModelBtn(); sheet.classList.remove('open');
+                    note(m.emoji + ' ' + m.name + ' — ' + (m.price > 0 ? fmtSum(m.price) + T(" so'm / xabar", ' UZS / msg', ' сум / сообщ.') : T('bepul', 'free', 'бесплатно')), m.price > 0 ? 'warning' : 'success');
+                };
+                list.appendChild(b);
+            });
+        }
+        $('model-btn').onclick = function (e) { e.stopPropagation(); paintSheet(); sheet.classList.add('open'); };
+        function applyModels(list) {
+            if (!Array.isArray(list) || !list.length) return;
+            models = list;
+            if (curModel && !models.some(function (m) { return m.id === curModel; })) curModel = '';
+            paintModelBtn();
+            if (sheet.classList.contains('open')) paintSheet();
+        }
+        // site-status har 15 soniyada keladi — undan modellar ro'yxatini olamiz
+        (function waitSite() {
+            var st = window.BilolSite && window.BilolSite.status && window.BilolSite.status();
+            if (st && st.models) applyModels(st.models);
+            setTimeout(waitSite, st && st.models ? 15000 : 1000);
+        })();
+        paintModelBtn();
+        window.BilolModel = { get: function () { return current().id || ''; } };
 
         window.BilolSupport = { open: open, refresh: peek };
     } catch (err) { console.warn('SUPPORT:', err); if (window.__reportError) window.__reportError('SUPPORT: ' + (err && err.message || err)); }
