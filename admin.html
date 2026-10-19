@@ -463,7 +463,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         token = null;
         try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
         $('app').style.display = 'none'; $('auth').style.display = '';
-        $('step-code').style.display = 'none'; $('step-login').style.display = '';
+        $('step-code').style.display = 'none'; $('step-login').style.display = ''; $('key-form').style.display = 'none';
         $('a-msg').className = 'msg' + (expired ? ' err' : ''); $('a-msg').textContent = expired ? 'Sessiya tugadi. Qaytadan kiring.' : '';
     }
     $('logout-top').onclick = function () { logout(false); };
