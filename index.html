@@ -6999,6 +6999,26 @@ html.in-app .drawer-app { display: none !important; }
 #app-promo .ap-x { width: 30px; height: 30px; border-radius: 10px; border: 0; background: rgba(148, 163, 184, .12); color: #cbd5e1; font-size: 18px; line-height: 1; cursor: pointer; flex-shrink: 0; }
 body.theme-light #app-promo { background: #fff; border-color: rgba(99, 102, 241, .35); }
 body.theme-light #app-promo .ap-t b { color: #0f172a; }
+
+/* ---------- Tor ekranlarda sarlavha sig'sin (tugmalar chetdan chiqmasin) ---------- */
+.chat-header { min-width: 0; }
+.chat-header-info { flex: 1 1 auto !important; min-width: 0 !important; }
+.chat-header-info > div { min-width: 0; }
+.model-btn { max-width: 100%; min-width: 0; }
+#model-btn-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+@media (max-width: 440px) {
+    .chat-header { padding-left: 8px !important; padding-right: 8px !important; gap: 6px !important; }
+    #avatar-btn { display: none !important; }
+    .header-actions { gap: 4px !important; }
+    .wallet-pill { padding: 5px 7px !important; }
+    .logout-btn { font-size: 0 !important; width: 32px; height: 32px; padding: 0 !important; display: inline-grid !important; place-items: center; }
+    .logout-btn::before { content: "⏻"; font-size: 15px; font-weight: 800; line-height: 1; }
+    .icon-btn#open-settings-btn { width: 32px; height: 32px; padding: 0 !important; }
+}
+@media (max-width: 370px) {
+    #fx-pill-cur { display: none !important; }
+    .model-btn { max-width: 104px; }
+}
 </style>
 <div id="app-promo" role="dialog" aria-label="Android ilova" hidden>
     <img src="/icons/icon-192.png" alt="">
@@ -7022,9 +7042,27 @@ body.theme-light #app-promo .ap-t b { color: #0f172a; }
         }
         document.getElementById('app-promo-x').addEventListener('click', function () { hide(3); });
         document.getElementById('app-promo-go').addEventListener('click', function () { hide(14); });
+        // Faqat bosh (kirish) ekranida ko'rinadi — chat, hamyon va oynalarni yopib qo'ymasin
+        function onLanding() {
+            var l = document.getElementById('landing-screen');
+            var a = document.getElementById('auth-modal');
+            var landingOn = l && l.offsetParent !== null && getComputedStyle(l).display !== 'none' && getComputedStyle(l).visibility !== 'hidden';
+            var authOn = a && a.offsetParent !== null && getComputedStyle(a).display !== 'none' && getComputedStyle(a).opacity !== '0';
+            return landingOn && !authOn;
+        }
+        var watch = null;
+        function softHide() {
+            el.classList.remove('show');
+            setTimeout(function () { if (!el.classList.contains('show')) el.hidden = true; }, 500);
+        }
         setTimeout(function () {
+            if (!onLanding()) return;
             el.hidden = false;
             requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add('show'); }); });
+            watch = setInterval(function () {
+                if (el.hidden) { clearInterval(watch); return; }
+                if (!onLanding()) { softHide(); clearInterval(watch); }
+            }, 700);
         }, 2500);
     } catch (e) {}
 })();
