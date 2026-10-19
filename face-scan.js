@@ -31,7 +31,7 @@
     css.textContent =
         '#fs-wrap{position:fixed;inset:0;z-index:2147483500;background:#000;display:none;color:#fff;font-family:Inter,system-ui,sans-serif;overflow:hidden}' +
         '#fs-wrap.open{display:block}' +
-        '#fs-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}' +
+        '#fs-video{position:absolute;left:0;top:var(--vt);width:100%;height:var(--vh);object-fit:contain;transform:scaleX(-1);background:#000}' +
         '#fs-dim{position:absolute;inset:0;background:rgba(5,7,12,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);' +
         '-webkit-mask:radial-gradient(circle at 50% var(--cy) , transparent var(--r), #000 calc(var(--r) + 1px));mask:radial-gradient(circle at 50% var(--cy), transparent var(--r), #000 calc(var(--r) + 1px))}' +
         '#fs-ring{position:absolute;left:50%;top:var(--cy);transform:translate(-50%,-50%)}' +
@@ -65,8 +65,15 @@
     }
     function layout() {
         var vw = window.innerWidth, vh = window.innerHeight;
-        var r = Math.round(Math.min(vw * 0.38, vh * 0.25));
-        var cy = Math.round(vh * 0.40);
+        // Oddiy kameradek: kadr to'liq ko'rinadi (kesilmaydi, kattalashmaydi)
+        var v = document.getElementById('fs-video');
+        var ar = (v && v.videoWidth) ? v.videoHeight / v.videoWidth : 4 / 3;
+        var boxH = Math.min(vh * 0.62, vw * ar);
+        var top = Math.max(70, Math.round(vh * 0.40 - boxH / 2));
+        wrap.style.setProperty('--vt', top + 'px');
+        wrap.style.setProperty('--vh', Math.round(boxH) + 'px');
+        var r = Math.round(Math.min(vw * 0.36, boxH * 0.36));
+        var cy = Math.round(top + boxH / 2);
         wrap.style.setProperty('--r', r + 'px');
         wrap.style.setProperty('--cy', cy + 'px');
         var size = r * 2 + 40, c = size / 2, R = r + 12, L = 2 * Math.PI * R;
@@ -132,18 +139,19 @@
 
             Promise.all([
                 loadLib(),
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 960 } }, audio: false })
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false })
             ]).then(function (r) {
                 if (stopped) { r[1].getTracks().forEach(function (t) { t.stop(); }); return; }
                 stream = r[1]; video.srcObject = stream;
-                return video.play().then(loop);
+                video.onloadedmetadata = layout;
+                return video.play().then(function () { layout(); return loop(); });
             }).catch(function (e) {
                 finish(new Error(e && e.name === 'NotAllowedError' ? 'Kameraga ruxsat berilmadi' : (e && e.message) || 'Kamera ochilmadi'));
             });
 
             timer = setTimeout(function () { finish(new Error('Vaqt tugadi — qaytadan urining')); }, 90000);
 
-            var f = null, step = 0, base = 0, hold = 0, yawL = false, yawR = false, descs = [];
+            var f = null, step = 0, base = 0, hold = 0, miss = 0, yawL = false, yawR = false, descs = [];
             var STEPS = [
                 ['Yuzingizni doira ichiga joylang', "To'g'riga qarang, yorug' joyda turing", ''],
                 ['Yaqinlashing', 'Telefonni yuzingizga yaqinroq olib keling', '⬆️'],
@@ -164,7 +172,7 @@
 
             async function capture(det) {
                 try {
-                    var full = await f.detectSingleFace(video, new f.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 })).withFaceLandmarks().withFaceDescriptor();
+                    var full = await f.detectSingleFace(video, new f.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.35 })).withFaceLandmarks().withFaceDescriptor();
                     if (full && full.descriptor) descs.push(Array.from(full.descriptor).map(function (x) { return Math.round(x * 100000) / 100000; }));
                 } catch (e) {}
             }
@@ -173,30 +181,31 @@
                 f = window.faceapi;
                 while (!stopped) {
                     var det = null;
-                    try { det = await f.detectSingleFace(video, new f.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })).withFaceLandmarks(); } catch (e) {}
+                    try { det = await f.detectSingleFace(video, new f.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.35 })).withFaceLandmarks(); } catch (e) {}
                     if (stopped) break;
                     var vw = video.videoWidth || 1, vh = video.videoHeight || 1;
-                    if (!det) { setProgress(step / 5, true); document.getElementById('fs-hint').textContent = '🙈 Yuz ko\'rinmayapti'; await sleep(120); continue; }
+                    if (!det) { miss++; if (miss > 4) { setProgress(step / 5, true); document.getElementById('fs-hint').textContent = '🙈 Yuz ko\'rinmayapti — yorug\'roq joyga o\'ting'; } await sleep(100); continue; }
+                    miss = 0;
                     var b = det.detection.box, size = b.width / vw, cx = (b.x + b.width / 2) / vw, cy = (b.y + b.height / 2) / vh;
                     var lm = det.landmarks.positions, nose = lm[30], l = lm[36], r = lm[45];
                     var yaw = (nose.x - l.x) / Math.max(1, (r.x - l.x)) - 0.5;
-                    var centered = Math.abs(cx - 0.5) < 0.17 && Math.abs(cy - 0.45) < 0.2;
+                    var centered = Math.abs(cx - 0.5) < 0.24 && Math.abs(cy - 0.5) < 0.26;
                     setProgress(step / 5, !centered && step !== 3);
                     if (step === 0) {
-                        if (centered && size > 0.18 && size < 0.7 && Math.abs(yaw) < 0.1) {
-                            if (++hold >= 4) { base = size; await capture(); if (mode === 'register') await capture(); nextStep(); }
-                        } else { hold = 0; document.getElementById('fs-hint').textContent = !centered ? 'Yuzingizni doiraning o\'rtasiga olib keling' : size <= 0.18 ? 'Yaqinroq keling' : size >= 0.7 ? 'Biroz uzoqlashing' : "To'g'riga qarang"; }
+                        if (centered && size > 0.12 && size < 0.8 && Math.abs(yaw) < 0.16) {
+                            if (++hold >= 3) { base = size; await capture(); if (mode === 'register') await capture(); nextStep(); }
+                        } else { hold = 0; document.getElementById('fs-hint').textContent = !centered ? 'Yuzingizni doiraning o\'rtasiga olib keling' : size <= 0.12 ? 'Yaqinroq keling' : size >= 0.8 ? 'Biroz uzoqlashing' : "To'g'riga qarang"; }
                     } else if (step === 1) {
-                        if (size > base * 1.22) { if (mode === 'register') await capture(); nextStep(); }
+                        if (size > base * 1.12) { if (mode === 'register') await capture(); nextStep(); }
                     } else if (step === 2) {
-                        if (size < base * 0.88) { await capture(); nextStep(); }
+                        if (size < base * 0.95) { await capture(); nextStep(); }
                     } else if (step === 3) {
-                        if (yaw < -0.13) yawL = true;
-                        if (yaw > 0.13) yawR = true;
+                        if (yaw < -0.09) yawL = true;
+                        if (yaw > 0.09) yawR = true;
                         document.getElementById('fs-arrow').textContent = yawL && !yawR ? '➡️' : yawR && !yawL ? '⬅️' : '↔️';
                         if (yawL && yawR) nextStep();
                     } else if (step === 4) {
-                        if (centered && Math.abs(yaw) < 0.08) { if (++hold >= 3) { await capture(); if (mode === 'register') await capture(); nextStep(); } } else hold = 0;
+                        if (centered && Math.abs(yaw) < 0.12) { if (++hold >= 2) { await capture(); if (mode === 'register') await capture(); nextStep(); } } else hold = 0;
                     }
                     await sleep(80);
                 }
