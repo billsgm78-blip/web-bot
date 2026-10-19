@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "uz.bilolsai.twa",
+      "sha256_cert_fingerprints": [
+        "8F:50:98:52:92:44:59:12:BF:72:79:CE:76:52:EE:3F:D1:89:AA:54:2A:F0:DE:24:A0:22:CB:67:A6:4C:90:A6"
+      ]
+    }
+  }
+]
