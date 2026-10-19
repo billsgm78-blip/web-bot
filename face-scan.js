@@ -151,7 +151,7 @@
 
             timer = setTimeout(function () { finish(new Error('Vaqt tugadi — qaytadan urining')); }, 90000);
 
-            var f = null, step = 0, base = 0, hold = 0, miss = 0, yawL = false, yawR = false, descs = [];
+            var f = null, step = 0, base = 0, hold = 0, miss = 0, lastYaw = 0, yawL = false, yawR = false, descs = [];
             var STEPS = [
                 ['Yuzingizni doira ichiga joylang', "To'g'riga qarang, yorug' joyda turing", ''],
                 ['Yaqinlashing', 'Telefonni yuzingizga yaqinroq olib keling', '⬆️'],
@@ -159,8 +159,10 @@
                 ['Boshingizni sekin chapga va o\'ngga burang', '3D skanerlash — ikki tomonga ham', '↔️'],
                 ["To'g'riga qarang", 'Oxirgi qadam', '']
             ];
+            var need = mode === 'register' ? 5 : 3;      // shuncha "yuz izi" yig'ilmaguncha tugamaydi
+            var stepStart = Date.now(), lastCap = 0, lastSeen = 0;
             function nextStep() {
-                step++; hold = 0; beep(true);
+                step++; hold = 0; stepStart = Date.now(); beep(true);
                 steps(5, step); setProgress(step / 5);
                 if (step >= STEPS.length) {
                     say('✅ Yuz skanerlandi', mode === 'register' ? 'Saqlanmoqda...' : 'Tekshirilmoqda...');
@@ -170,44 +172,73 @@
             }
             say.apply(null, STEPS[0]);
 
-            async function capture(det) {
-                try {
-                    var full = await f.detectSingleFace(video, new f.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.35 })).withFaceLandmarks().withFaceDescriptor();
-                    if (full && full.descriptor) descs.push(Array.from(full.descriptor).map(function (x) { return Math.round(x * 100000) / 100000; }));
-                } catch (e) {}
+            // Yuz izini olish: bir necha o'lchamda urinib ko'radi (yaqin/uzoqda ham ishlashi uchun)
+            async function capture() {
+                var sizes = [416, 320, 512];
+                for (var i = 0; i < sizes.length; i++) {
+                    try {
+                        var full = await f.detectSingleFace(video, new f.TinyFaceDetectorOptions({ inputSize: sizes[i], scoreThreshold: 0.3 })).withFaceLandmarks().withFaceDescriptor();
+                        if (full && full.descriptor) {
+                            descs.push(Array.from(full.descriptor).map(function (x) { return Math.round(x * 100000) / 100000; }));
+                            lastCap = Date.now();
+                            return true;
+                        }
+                    } catch (e) {}
+                }
+                return false;
             }
 
             async function loop() {
                 f = window.faceapi;
                 while (!stopped) {
                     var det = null;
-                    try { det = await f.detectSingleFace(video, new f.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.35 })).withFaceLandmarks(); } catch (e) {}
+                    try { det = await f.detectSingleFace(video, new f.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.3 })).withFaceLandmarks(); } catch (e) {}
                     if (stopped) break;
                     var vw = video.videoWidth || 1, vh = video.videoHeight || 1;
-                    if (!det) { miss++; if (miss > 4) { setProgress(step / 5, true); document.getElementById('fs-hint').textContent = '🙈 Yuz ko\'rinmayapti — yorug\'roq joyga o\'ting'; } await sleep(100); continue; }
-                    miss = 0;
+                    var hintEl = document.getElementById('fs-hint');
+                    if (!det) {
+                        miss++;
+                        if (miss > 6) { setProgress(step / 5, true); hintEl.textContent = "🙈 Yuz ko'rinmayapti — yorug'roq joyga o'ting"; }
+                        // boshni burish paytida yuz yo'qolishi tabiiy — o'sha qadamda ham hisoblaymiz
+                        if (step === 3 && miss > 3 && Date.now() - lastSeen < 1500) { if (lastYaw < 0) yawL = true; else yawR = true; }
+                        await sleep(90); continue;
+                    }
+                    miss = 0; lastSeen = Date.now();
                     var b = det.detection.box, size = b.width / vw, cx = (b.x + b.width / 2) / vw, cy = (b.y + b.height / 2) / vh;
                     var lm = det.landmarks.positions, nose = lm[30], l = lm[36], r = lm[45];
                     var yaw = (nose.x - l.x) / Math.max(1, (r.x - l.x)) - 0.5;
-                    var centered = Math.abs(cx - 0.5) < 0.24 && Math.abs(cy - 0.5) < 0.26;
+                    lastYaw = yaw;
+                    var centered = Math.abs(cx - 0.5) < 0.26 && Math.abs(cy - 0.5) < 0.28;
+                    var frontal = Math.abs(yaw) < 0.15;
                     setProgress(step / 5, !centered && step !== 3);
+                    // qo'shimcha: yuz to'g'ri turganda vaqti-vaqti bilan iz yig'amiz (kamida need ta bo'lsin)
+                    if (centered && frontal && step > 0 && step !== 3 && descs.length < need + 3 && Date.now() - lastCap > 700) await capture();
+                    var elapsed = Date.now() - stepStart;
                     if (step === 0) {
-                        if (centered && size > 0.12 && size < 0.8 && Math.abs(yaw) < 0.16) {
-                            if (++hold >= 3) { base = size; await capture(); if (mode === 'register') await capture(); nextStep(); }
-                        } else { hold = 0; document.getElementById('fs-hint').textContent = !centered ? 'Yuzingizni doiraning o\'rtasiga olib keling' : size <= 0.12 ? 'Yaqinroq keling' : size >= 0.8 ? 'Biroz uzoqlashing' : "To'g'riga qarang"; }
+                        if (centered && size > 0.1 && size < 0.85 && frontal) {
+                            if (++hold >= 3) { base = size; await capture(); nextStep(); }
+                        } else { hold = 0; hintEl.textContent = !centered ? "Yuzingizni doiraning o'rtasiga olib keling" : size <= 0.1 ? 'Yaqinroq keling' : size >= 0.85 ? 'Biroz uzoqlashing' : "To'g'riga qarang"; }
                     } else if (step === 1) {
-                        if (size > base * 1.12) { if (mode === 'register') await capture(); nextStep(); }
+                        if (size > base * 1.1 || elapsed > 9000) nextStep();
+                        else hintEl.textContent = 'Telefonni yuzingizga yaqinroq olib keling';
                     } else if (step === 2) {
-                        if (size < base * 0.95) { await capture(); nextStep(); }
+                        if (size < base * 0.97 || elapsed > 9000) nextStep();
+                        else hintEl.textContent = 'Endi telefonni biroz uzoqlashtiring';
                     } else if (step === 3) {
-                        if (yaw < -0.09) yawL = true;
-                        if (yaw > 0.09) yawR = true;
+                        if (yaw < -0.08) yawL = true;
+                        if (yaw > 0.08) yawR = true;
                         document.getElementById('fs-arrow').textContent = yawL && !yawR ? '➡️' : yawR && !yawL ? '⬅️' : '↔️';
-                        if (yawL && yawR) nextStep();
+                        hintEl.textContent = yawL && !yawR ? "Endi boshqa tomonga" : yawR && !yawL ? "Endi boshqa tomonga" : '3D skanerlash — ikki tomonga ham';
+                        if ((yawL && yawR) || elapsed > 12000) nextStep();
                     } else if (step === 4) {
-                        if (centered && Math.abs(yaw) < 0.12) { if (++hold >= 2) { await capture(); if (mode === 'register') await capture(); nextStep(); } } else hold = 0;
+                        if (centered && frontal) {
+                            if (++hold >= 2) {
+                                if (descs.length < need) { await capture(); hintEl.textContent = "Qimirlamang... (" + descs.length + "/" + need + ")"; }
+                                else nextStep();
+                            }
+                        } else { hold = 0; hintEl.textContent = "To'g'riga qarang, doira o'rtasida turing"; }
                     }
-                    await sleep(80);
+                    await sleep(70);
                 }
             }
         });
