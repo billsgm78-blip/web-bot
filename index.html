@@ -14,6 +14,39 @@
             if (app) document.documentElement.classList.add('in-app');
         } catch (e) {}
     })();
+    /* Chiroyli tasdiqlash oynasi (brauzerning "sahifa xabar qilmoqda" oynasi o'rniga) */
+    window.bConfirm = function (msg, o) {
+        o = o || {};
+        var lang = 'uz'; try { lang = localStorage.getItem('bilol_ai_lang') || 'uz'; } catch (e) {}
+        var L = { uz: ['Ha', 'Bekor qilish'], en: ['Yes', 'Cancel'], ru: ['Да', 'Отмена'] }[lang] || ['Ha', 'Bekor qilish'];
+        return new Promise(function (resolve) {
+            var w = document.createElement('div');
+            w.className = 'bc-wrap';
+            w.innerHTML = '<div class="bc-card" role="alertdialog" aria-modal="true"><div class="bc-ico"></div><p class="bc-msg"></p>' +
+                '<div class="bc-row"><button type="button" class="bc-no"></button><button type="button" class="bc-yes"></button></div></div>';
+            w.querySelector('.bc-ico').textContent = o.icon || (o.danger ? '⚠️' : '❔');
+            w.querySelector('.bc-msg').textContent = String(msg == null ? '' : msg);
+            w.querySelector('.bc-no').textContent = o.cancel || L[1];
+            var yes = w.querySelector('.bc-yes');
+            yes.textContent = o.ok || L[0];
+            if (o.danger) yes.classList.add('danger');
+            var done = false;
+            function close(v) {
+                if (done) return; done = true;
+                w.classList.remove('on');
+                document.removeEventListener('keydown', key, true);
+                setTimeout(function () { if (w.parentNode) w.parentNode.removeChild(w); }, 200);
+                resolve(v);
+            }
+            function key(e) { if (e.key === 'Escape') { e.preventDefault(); close(false); } else if (e.key === 'Enter') { e.preventDefault(); close(true); } }
+            w.addEventListener('click', function (e) { if (e.target === w) close(false); });
+            w.querySelector('.bc-no').onclick = function () { close(false); };
+            yes.onclick = function () { close(true); };
+            document.addEventListener('keydown', key, true);
+            document.body.appendChild(w);
+            requestAnimationFrame(function () { requestAnimationFrame(function () { w.classList.add('on'); yes.focus({ preventScroll: true }); }); });
+        });
+    };
     </script>
     <style>
     html.lite *, html.lite *::before, html.lite *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
@@ -39,6 +72,22 @@
     html.lite .ai-body.is-typing > :last-child::after, html.lite .ai-body.is-typing:not(:has(*))::after,
     html.lite [class*="spin"], html.lite [class*="loader"], html.lite [class*="typing"] { animation-iteration-count: infinite !important; }
     html.in-app body { -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; overscroll-behavior: none; }
+    .bc-wrap { position: fixed; inset: 0; z-index: 2147483600; display: flex; align-items: flex-end; justify-content: center; padding: 16px 14px calc(16px + env(safe-area-inset-bottom));
+        background: rgba(2, 4, 10, .62); opacity: 0; transition: opacity .18s ease; font-family: 'Outfit', 'Manrope', system-ui, sans-serif; }
+    .bc-wrap.on { opacity: 1; }
+    .bc-card { width: 100%; max-width: 420px; background: #0f1524; border: 1px solid rgba(148, 163, 184, .18); border-radius: 22px; padding: 20px 18px 16px;
+        box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .8); transform: translateY(24px); transition: transform .24s cubic-bezier(.2, .9, .3, 1.15); }
+    .bc-wrap.on .bc-card { transform: none; }
+    .bc-ico { font-size: 30px; line-height: 1; margin-bottom: 10px; }
+    .bc-msg { color: #e2e8f0; font-size: 16px; line-height: 1.45; font-weight: 600; white-space: pre-line; margin: 0 0 18px; }
+    .bc-row { display: flex; gap: 10px; }
+    .bc-row button { flex: 1; padding: 14px; border-radius: 14px; border: 0; font: 700 15px 'Outfit', sans-serif; cursor: pointer; }
+    .bc-no { background: rgba(148, 163, 184, .14); color: #cbd5e1; }
+    .bc-yes { background: linear-gradient(135deg, #10b981, #3b82f6 60%, #8b5cf6); color: #fff; }
+    .bc-yes.danger { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+    body.theme-light .bc-card { background: #fff; border-color: rgba(15, 23, 42, .1); }
+    body.theme-light .bc-msg { color: #0f172a; }
+    body.theme-light .bc-no { background: #f1f5f9; color: #334155; }
     html.in-app input, html.in-app textarea, html.in-app [contenteditable], html.in-app .msg-ai, html.in-app .msg-user { -webkit-user-select: text; user-select: text; }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -3966,7 +4015,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             return;
         }
         const confirmMsg = tr(`${itemName} xarid qilasizmi?\nHisobingizdan ${price.toLocaleString()} so'm yechiladi.`, `Do you want to buy ${itemName}?\n${price.toLocaleString()} UZS will be deducted.`, `Купить ${itemName}?\nС вашего счёта будет списано ${price.toLocaleString()} сум.`);
-        if (!confirm(confirmMsg)) return;
+        if (!(await bConfirm(confirmMsg, { icon: '🛒' }))) return;
 
         try {
             const cleanPhone = currentPhone.replace(/[^0-9]/g, "");
@@ -3994,17 +4043,17 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         }
     };
 
-    logoutBtn.onclick = () => {
-        if (confirm(tr("Hisobingizdan chiqishni tasdiqlaysizmi?", "Are you sure you want to log out?", "Вы уверены, что хотите выйти из аккаунта?"))) {
+    logoutBtn.onclick = async () => {
+        if (await bConfirm(tr("Hisobingizdan chiqishni tasdiqlaysizmi?", "Are you sure you want to log out?", "Вы уверены, что хотите выйти из аккаунта?"), { danger: true, icon: '👋', ok: tr("Chiqish", "Log out", "Выйти") })) {
             localStorage.clear();
             location.reload();
         }
     };
 
     if (clearChatBtn) {
-        clearChatBtn.onclick = () => {
+        clearChatBtn.onclick = async () => {
             const t = translations[currentLang];
-            if (confirm(tr("Chat tarixini to'liq tozalashni tasdiqlaysizmi? Barcha xabarlar o'chiriladi.", "Are you sure you want to clear chat history? All messages will be deleted.", "Вы уверены, что хотите полностью очистить историю чата? Все сообщения будут удалены."))) {
+            if (await bConfirm(tr("Chat tarixini to'liq tozalashni tasdiqlaysizmi? Barcha xabarlar o'chiriladi.", "Are you sure you want to clear chat history? All messages will be deleted.", "Вы уверены, что хотите полностью очистить историю чата? Все сообщения будут удалены."), { danger: true, icon: '🗑️' })) {
                 localStorage.removeItem("bilol_ai_history");
                 localStorage.removeItem(CHATS_KEY);
                 localStorage.removeItem(CUR_CHAT_KEY);
@@ -5543,7 +5592,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 it.onclick = function (ev) {
                     if (ev.target.closest('.ci-del')) {
                         ev.stopPropagation();
-                        if (confirm(T("Bu suhbat o'chirilsinmi?", 'Delete this chat?', 'Удалить этот чат?'))) window.BilolChats.remove(c.id);
+                        bConfirm(T("Bu suhbat o'chirilsinmi?", 'Delete this chat?', 'Удалить этот чат?'), { danger: true, icon: '🗑️' }).then(function (ok) { if (ok) window.BilolChats.remove(c.id); });
                         return;
                     }
                     if (window.BilolChats.isBusy()) return;
@@ -5943,8 +5992,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             var msg = T(money(rewards.subPrice) + " so'm evaziga " + rewards.subDays + " kunlik cheksiz obuna olasizmi?",
                 'Buy ' + rewards.subDays + ' days of unlimited chat for ' + money(rewards.subPrice) + ' UZS?',
                 'Оформить безлимит на ' + rewards.subDays + ' дней за ' + money(rewards.subPrice) + ' сум?');
-            if (!confirm(msg)) return;
             var btn = this;
+            if (!(await bConfirm(msg, { icon: '♾️' }))) return;
             btn.disabled = true;
             try {
                 var j = await api('/api/subscribe');
