@@ -2,6 +2,28 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
+    <script>
+    /* Yengil rejim: Android ilova va kuchsiz telefonlarda og'ir effektlar o'chadi (qotmasin) */
+    (function () {
+        try {
+            var ua = navigator.userAgent || '';
+            var app = /BilolsAIApp/.test(ua);
+            var android = /Android/i.test(ua);
+            var weak = (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+            if (app || (android && weak)) document.documentElement.classList.add('lite');
+            if (app) document.documentElement.classList.add('in-app');
+        } catch (e) {}
+    })();
+    </script>
+    <style>
+    html.lite *, html.lite *::before, html.lite *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+    html.lite .ambient-orb { filter: none !important; animation: none !important; mix-blend-mode: normal !important; opacity: .55 !important; }
+    html.lite .landing-logo-glow { filter: none !important; animation: none !important; opacity: .35 !important; }
+    html.lite #fx-canvas, html.lite .fx-star, html.lite .fx-cursor { display: none !important; }
+    html.lite .feature-card, html.lite .pack-card { transform: none !important; }
+    html.in-app body { -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; overscroll-behavior: none; }
+    html.in-app input, html.in-app textarea, html.in-app [contenteditable], html.in-app .msg-ai, html.in-app .msg-user { -webkit-user-select: text; user-select: text; }
+    </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Bilols AI — Intelligent Neural Assistant</title>
 
@@ -4762,6 +4784,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
         var fine = window.matchMedia && matchMedia('(pointer: fine)').matches;
 
+        if (document.documentElement.classList.contains('lite')) return;  // yengil rejim: effektlarsiz
         /* --- Zarrachalar tarmog'i (yulduzlar) --- */
         var cv = document.createElement('canvas');
         cv.id = 'fx-canvas';
