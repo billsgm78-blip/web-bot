@@ -220,6 +220,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
 .shop-hd { font-size: 11.5px; color: var(--muted); font-weight: 700; }
 @media (max-width: 600px) { .shop-row { grid-template-columns: 1fr 1fr; } .shop-row .nm { grid-column: 1 / -1; } }
 </style>
+<script src="/notify.js"></script>
 </head>
 <body>
 <div class="glow-bg"></div>
@@ -429,7 +430,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
     // ================= PANEL =================
     var TABS = [
         ['stats', '📊', 'Statistika'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'],
-        ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
+        ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
     ];
     var tab = 'stats';
     function buildNav() {
@@ -448,7 +449,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         tab = t; buildNav();
         $('page-title').textContent = TABS.filter(function (x) { return x[0] === t; })[0][2];
         var view = $('view'); view.innerHTML = '<div class="loading">⏳</div>';
-        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, settings: vSettings, log: vLog, security: vSecurity }[t];
+        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -730,6 +731,81 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             row.onclick = function () { dialog({ title: 'CardXabar xabari', text: x.text || '' }); };
             view.appendChild(row);
         });
+    }
+
+    // ---------- Bildirishnomalar (saytdagi toast'lar) ----------
+    var NT = [
+        ['success', '✅ Muvaffaqiyat', "Xarid qilindi, balans to'ldi, saqlandi…", "100 Stars muvaffaqiyatli olindi!"],
+        ['error', '❌ Xato', "Balansda pul yetarli emas, server xatosi…", "Balansda pul yetarli emas — yana 14 000 so'm kerak"],
+        ['warning', '⚠️ Ogohlantirish', "Limit tugadi, funksiya o'chirilgan…", "Bugungi bepul xabarlar tugadi"],
+        ['info', '💬 Ma\'lumot', "Admin javob yozdi, oddiy xabarlar…", "Admin javob yozdi — Yordam bo'limini oching"]
+    ];
+    var STICKERS = {
+        success: ['🎉', '✅', '🥳', '🔥', '💚', '⭐', '🚀', '👏'],
+        error: ['😕', '❌', '😢', '🚫', '💸', '😬', '⛔', '🙈'],
+        warning: ['⚠️', '⏳', '🔒', '🤔', '✋', '📢', '😮', '🟡'],
+        info: ['💬', 'ℹ️', '🔔', '📩', '👋', '✨', '📌', '🤖']
+    };
+    var SOUND_NAMES = { none: '🔇 Ovozsiz', chime: '🎵 Qo\'ng\'iroqcha', pop: '🫧 Pop', coin: '🪙 Tanga', beep: '📟 Bip-bip', error: '⛔ Xato ovozi', bell: '🔔 Jiringlash' };
+    async function vNotify(view) {
+        var j = await admin('notify_get');
+        view.innerHTML = '';
+        if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        var c = JSON.parse(JSON.stringify(j.config));
+        function preview(t, text) { if (!window.BilolNotify) return; window.BilolNotify.setConfig(c); window.BilolNotify.show(text, t); }
+        view.appendChild(h('div', { class: 'sum', style: 'margin-bottom:12px', text: "Saytdagi xabarnomalar vaziyatga qarab chiqadi: rangi, stikeri va ovozi turiga qarab. «Ko'rish» tugmasi shu yerning o'zida qanday chiqishini ko'rsatadi." }));
+        NT.forEach(function (n) {
+            var t = n[0], v = c[t];
+            var c1 = h('input', { type: 'color', value: v.c1, style: 'width:54px;height:44px;border:none;background:none;cursor:pointer' });
+            var c2 = h('input', { type: 'color', value: v.c2, style: 'width:54px;height:44px;border:none;background:none;cursor:pointer' });
+            var sw = h('div', { style: 'height:46px;border-radius:14px;flex:1;min-width:120px;display:flex;align-items:center;gap:10px;padding:0 14px;color:#fff;font-weight:800;font-size:14px;background:linear-gradient(135deg,' + v.c1 + ',' + v.c2 + ')' }, [h('span', { style: 'font-size:22px', text: v.emoji }), n[3]]);
+            function repaint() { sw.style.background = 'linear-gradient(135deg,' + v.c1 + ',' + v.c2 + ')'; sw.firstChild.textContent = v.emoji; }
+            c1.oninput = function () { v.c1 = c1.value; repaint(); };
+            c2.oninput = function () { v.c2 = c2.value; repaint(); };
+            var emo = h('input', { class: 'inp', value: v.emoji, maxlength: '8', style: 'width:80px;text-align:center;font-size:22px' });
+            emo.oninput = function () { v.emoji = emo.value.trim() || v.emoji; repaint(); };
+            var picks = h('div', { style: 'display:flex;flex-wrap:wrap;gap:6px' });
+            STICKERS[t].forEach(function (e) {
+                picks.appendChild(h('button', { class: 'sq', style: 'font-size:22px;width:44px;height:44px', text: e, onclick: function () { v.emoji = e; emo.value = e; repaint(); } }));
+            });
+            var snd = h('select', { class: 'inp', style: 'max-width:220px' });
+            (j.sounds || []).forEach(function (sname) { var o = h('option', { value: sname, text: SOUND_NAMES[sname] || sname }); if (sname === v.sound) o.selected = true; snd.appendChild(o); });
+            snd.onchange = function () { v.sound = snd.value; if (window.BilolNotify) window.BilolNotify.play(v.sound, true); };
+            view.appendChild(h('div', { class: 'h', text: n[1] }));
+            view.appendChild(h('div', { class: 'card form' }, [
+                h('div', { class: 'sum', text: n[2] }),
+                h('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap' }, [h('div', { class: 'sum', text: 'Rang:' }), c1, c2, sw]),
+                h('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap' }, [h('div', { class: 'sum', text: 'Stiker:' }), emo, picks]),
+                h('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap' }, [h('div', { class: 'sum', text: 'Ovoz:' }), snd,
+                    h('button', { class: 'act', text: '▶ Ko\'rish', onclick: function () { preview(t, n[3]); } })])
+            ]));
+        });
+        // umumiy
+        var dur = h('input', { type: 'range', min: '1.5', max: '8', step: '0.5', value: c.duration, style: 'width:100%' });
+        var durL = h('small', { text: c.duration + ' soniya' }); dur.oninput = function () { c.duration = +dur.value; durL.textContent = dur.value + ' soniya'; };
+        var pos = h('div', { class: 'seg' });
+        function paintPos() { pos.innerHTML = ''; [['top', '⬆️ Tepada'], ['bottom', '⬇️ Pastda']].forEach(function (x) { pos.appendChild(h('button', { class: c.position === x[0] ? 'active' : '', text: x[1], onclick: function () { c.position = x[0]; paintPos(); } })); }); }
+        paintPos();
+        function sw(key, label, sub) {
+            var el = h('div', { class: 'switch' + (c[key] ? ' ok' : ''), role: 'switch', onclick: function () { c[key] = !c[key]; el.className = 'switch' + (c[key] ? ' ok' : ''); } });
+            return h('div', { style: 'display:flex;align-items:center;gap:12px' }, [h('div', { style: 'flex:1' }, [h('b', { text: label }), h('div', { class: 'sum', text: sub })]), el]);
+        }
+        view.appendChild(h('div', { class: 'h', text: '⚙️ Umumiy' }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'lb' }, ["Ekranda turish vaqti", dur, durL]),
+            h('div', { class: 'lb' }, ['Joylashuvi', pos]),
+            sw('sounds', 'Ovozlar', "O'chirsangiz, hech bir xabarnoma ovoz chiqarmaydi"),
+            sw('shake', 'Xatoda silkinish', "Xato xabarnomasi silkinib chiqadi (telefonda titraydi)")
+        ]));
+        view.appendChild(h('div', { style: 'display:flex;gap:8px;margin-top:12px' }, [
+            h('button', { class: 'btn ghost', style: 'flex:1', text: '↺ Standart', onclick: async function () {
+                if (!await dialog({ title: 'Standart sozlamalar', text: "Ranglar, stikerlar va ovozlar boshlang'ich holatga qaytadi.", ok: 'Qaytarish' })) return;
+                var x = await admin('notify_set', { reset: true }); toast(x.success ? '✅ Qaytarildi' : (x.error || 'Xato')); vNotify(view);
+            } }),
+            h('button', { class: 'btn', style: 'flex:2', text: '💾 Saqlash', onclick: async function () {
+                var x = await admin('notify_set', { config: c }); toast(x.success ? '✅ Saqlandi — saytda 15 soniya ichida kuchga kiradi' : (x.error || 'Xato'));
+            } })
+        ]));
     }
 
     // ---------- AI sozlamalari ----------
@@ -1342,7 +1418,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         sub: ['♾️', 'Obuna'], password: ['🔑', "Foydalanuvchi paroli o'rnatildi"], message: ['✉️', 'Xabar yuborildi'], broadcast: ['📢', "E'lon"],
         order: ['🛒', 'Buyurtma'], ban: ['⛔', 'Bloklandi'], unban: ['✅', 'Blokdan chiqarildi'], promo_create: ['🎟️', 'Promo-kod yaratildi'],
         promo_delete: ['✖', "Promo-kod o'chirildi"], control: ['🚦', 'Boshqaruv'], announce: ['📣', "Saytdagi e'lon"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi'],
-        support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], ai: ['🤖', "AI sozlamalari o'zgartirildi"], shop: ['🏷', "Narxlar o'zgartirildi"]
+        support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], ai: ['🤖', "AI sozlamalari o'zgartirildi"], notify: ['🔔', 'Bildirishnomalar'], shop: ['🏷', "Narxlar o'zgartirildi"]
     };
     async function vLog(view) {
         var j = await admin('log');

@@ -2445,6 +2445,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 .pack-sale { position: absolute; top: 0; right: 0; font-size: 10.5px; font-weight: 800; color: #fff; background: #ef4444; padding: 3px 8px; border-radius: 0 14px 0 10px; }
 .pack-card.sale { padding-top: 22px; }
 </style>
+<script src="/notify.js"></script>
 </head>
 <body>
 <script id="error-reporter">
@@ -3766,7 +3767,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         } catch (e) {}
     }
 
-    function showNotification(text) {
+    function showNotification(text, type) {
+        if (window.BilolNotify) return window.BilolNotify.show(text, type);
         const notifyDiv = document.createElement("div");
         notifyDiv.className = "swipe-toast";
         notifyDiv.innerHTML = `<span class="animated-emoji">🎉</span><span>${text}</span>`;
@@ -3837,7 +3839,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             if (!isInitialLoad && lastKnownBalance !== null && currentBal > lastKnownBalance) {
                 const addedAmount = currentBal - lastKnownBalance;
                 playIncomeMusic();
-                showNotification(tr(`+${addedAmount.toLocaleString()} so'm tushdi!`, `+${addedAmount.toLocaleString()} UZS added!`, `+${addedAmount.toLocaleString()} сум зачислено!`));
+                showNotification(tr(`+${addedAmount.toLocaleString()} so'm tushdi!`, `+${addedAmount.toLocaleString()} UZS added!`, `+${addedAmount.toLocaleString()} сум зачислено!`), "success");
             }
 
             lastKnownBalance = currentBal;
@@ -3876,6 +3878,11 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
     window.buyItem = async function(itemName, price) {
         if (!currentPhone) return;
+        if (lastKnownBalance !== null && Number(lastKnownBalance) < Number(price)) {
+            const need = (Number(price) - Number(lastKnownBalance)).toLocaleString('ru-RU').replace(/\u00a0/g, ' ');
+            showNotification(tr(`Balansda pul yetarli emas — yana ${need} so'm kerak`, `Not enough balance — ${need} UZS more needed`, `Недостаточно средств — нужно ещё ${need} сум`), "error");
+            return;
+        }
         const confirmMsg = tr(`${itemName} xarid qilasizmi?\nHisobingizdan ${price.toLocaleString()} so'm yechiladi.`, `Do you want to buy ${itemName}?\n${price.toLocaleString()} UZS will be deducted.`, `Купить ${itemName}?\nС вашего счёта будет списано ${price.toLocaleString()} сум.`);
         if (!confirm(confirmMsg)) return;
 
@@ -3888,20 +3895,20 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             });
             const data = await res.json();
             if (res.status === 403) {
-                alert(tr("❌ Xarid uchun hisobdan chiqib, qayta kiring.", "❌ Please log out and log in again to buy.", "❌ Для покупки выйдите и войдите снова."));
+                showNotification(tr("Xarid uchun hisobdan chiqib, qayta kiring", "Please log out and log in again to buy", "Для покупки выйдите и войдите снова"), "warning");
                 return;
             }
             if (!res.ok || !data.success) {
-                alert(tr(`❌ Xatolik: ${data.error || "Balans yetarli emas"}`, `❌ Error: ${data.error || "Insufficient balance"}`, `❌ Ошибка: ${data.error || "Недостаточно средств"}`));
+                showNotification(data.error || tr("Balansda pul yetarli emas", "Not enough balance", "Недостаточно средств"), "error");
                 return;
             }
             const newBal = (data.balance || 0).toLocaleString();
             lastKnownBalance = Number(data.balance || 0);
             headerBalance.innerText = newBal;
             modalBalance.innerText = newBal;
-            showNotification(tr(`${itemName} muvaffaqiyatli olindi!`, `${itemName} purchased successfully!`, `${itemName} успешно приобретено!`));
+            showNotification(tr(`${itemName} muvaffaqiyatli olindi!`, `${itemName} purchased successfully!`, `${itemName} успешно приобретено!`), "success");
         } catch (e) {
-            alert(tr("⚠️ Server bilan bog'lanishda xatolik.", "⚠️ Server connection error.", "⚠️ Ошибка соединения с сервером."));
+            showNotification(tr("Server bilan bog'lanishda xatolik", "Server connection error", "Ошибка соединения с сервером"), "error");
         }
     };
 
@@ -4562,6 +4569,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                     bubble = createAIBubble();
                     finalizeAI(bubble, reply, false);
                     if (data.limitReached && window.BilolUI) window.BilolUI.limitCTA(bubble);
+                    if (data.limitReached) showNotification(data.error || tr("Bugungi bepul xabarlar tugadi", "Today's free messages are used up", "Бесплатные сообщения на сегодня закончились"), "warning");
                     return;
                 }
                 bubble = createAIBubble();
@@ -6368,6 +6376,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         function chatBlocked() { return off('chat') && !(window.BilolUI && window.BilolUI.isImageMode && window.BilolUI.isImageMode()); }
 
         function apply() {
+            if (st && st.notify && window.BilolNotify) window.BilolNotify.setConfig(st.notify);
             // to'liq blok
             if (st && st.lockAll) {
                 lock.querySelector('h1').textContent = st.lockTitle || T("Vaqtincha to'xtatildi", 'Temporarily unavailable', 'Временно недоступно');
