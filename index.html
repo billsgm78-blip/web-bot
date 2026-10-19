@@ -1524,7 +1524,7 @@ body::before {
 }
 .chat-header::after { bottom: -1px; }
 .input-bar { position: relative; }
-.input-bar::before { top: -1px; }
+.input-bar::before { top: -1px; display: none !important; }
 @keyframes fxLine { to { background-position: -200% 0; } }
 
 .avatar { animation: fxAvatarGlow 3s ease-in-out infinite alternate; }
@@ -7046,6 +7046,8 @@ html.in-app .drawer-app { display: none !important; }
     max-width: 460px; margin: 0 auto; display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; border-radius: 20px;
     background: #0f1524; border: 1px solid rgba(99, 102, 241, .45); box-shadow: 0 20px 50px -10px rgba(0, 0, 0, .7);
     transform: translateY(140%); transition: transform .45s cubic-bezier(.18, .89, .32, 1.15); font-family: 'Outfit', sans-serif; }
+#app-promo[hidden] { display: none !important; }
+#app-promo:not(.show) { transform: translateY(calc(100% + 80px)); pointer-events: none; }
 #app-promo.show { transform: none; }
 #app-promo img { width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0; }
 #app-promo .ap-t { flex: 1; min-width: 0; }
