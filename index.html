@@ -2398,6 +2398,16 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
 .sp-msg.admin::before { content: "🛠 Admin"; display: block; font-size: 11px; font-weight: 700; color: #a78bfa; margin-bottom: 2px; }
 .sp-msg.sending { opacity: 0.6; }
 .sp-tick { letter-spacing: -3px; margin-left: 2px; }
+.pass-forgot { margin-top: 14px; width: 100%; padding: 12px; border-radius: 14px; border: 1px dashed rgba(255,255,255,0.22); background: transparent;
+    color: #c4b5fd; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.pass-forgot:hover { background: rgba(139,92,246,0.08); }
+.sp-quick { display: flex; gap: 8px; overflow-x: auto; padding: 10px 12px 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.sp-quick::-webkit-scrollbar { display: none; }
+.sp-quick button { flex-shrink: 0; padding: 9px 14px; border-radius: 999px; border: 1px solid rgba(139,92,246,0.45); background: rgba(139,92,246,0.1);
+    color: #e2e8f0; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.sp-quick button:active { transform: scale(0.95); }
+body.theme-light .sp-quick button { color: #0f172a; background: #fff; }
+body.theme-light .pass-forgot { color: #6d28d9; border-color: rgba(15,23,42,0.2); }
 .sp-attach { width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; border: 1px solid var(--border-glass); background: rgba(255,255,255,0.05); font-size: 19px; cursor: pointer; }
 .sp-msg img { display: block; max-width: 100%; max-height: 300px; border-radius: 12px; margin: 2px 0 4px; cursor: zoom-in; background: rgba(0,0,0,0.2); }
 .sp-msg.has-img { padding: 6px 6px 5px; }
@@ -2649,6 +2659,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
             <button id="save-new-pass-btn" class="primary-btn">Saqlash</button>
             <div id="pass-status-box" style="margin-top: 12px; font-size: 13px;"></div>
+            <button type="button" class="pass-forgot" id="pass-forgot">🤔 <span id="lang-pass-forgot">Eski parolni unutdingizmi? Admin yordam beradi</span> ›</button>
         </div>
     </div>
 
@@ -2826,6 +2837,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             <div class="sp-who"><b id="sp-title">Bilols AI — Yordam</b><small id="sp-presence">…</small></div>
         </div>
         <div class="sp-list" id="sp-list"></div>
+        <div class="sp-quick" id="sp-quick"></div>
         <div class="sp-bar">
             <input type="file" id="sp-file" accept="image/*" style="display:none">
             <button type="button" class="sp-attach" id="sp-attach" title="Rasm yuborish">📎</button>
@@ -6625,16 +6637,36 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             if (view.classList.contains('open')) { liveLoop(); return; }
             pver = null; peekLoop();
         }
-        function open() {
+        function open(prefill) {
             var c = creds();
             if (!c.phone || !c.password) { note(T('Avval tizimga kiring', 'Please sign in first', 'Сначала войдите')); return; }
             var sm = $('settings-modal'); if (sm) sm.style.display = 'none';
             var dr = $('chats-drawer'); if (dr) dr.classList.remove('open');
             view.classList.add('open');
-            ver = null; render(); paintPresence(); schedule();
+            ver = null; render(); paintPresence(); paintQuick(); schedule();
+            if (typeof prefill === 'string' && prefill) { input.value = prefill; grow(); }
             setTimeout(function () { try { input.focus({ preventScroll: true }); } catch (e) {} }, 250);
         }
         function close() { view.classList.remove('open'); schedule(); }
+        // Tayyor shablonlar (bosilsa yozish maydoniga tushadi)
+        function quickList() {
+            var id = (typeof myPid !== 'undefined' && myPid) ? ' (ID: ' + myPid + ')' : '';
+            return [
+                [T('🔑 Parolni unutdim', '🔑 Forgot password', '🔑 Забыл пароль'), T("Salom! Parolimni unutib qo'ydim" + id + ". Yangi parol o'rnatib bera olasizmi?", 'Hi! I forgot my password' + id + '. Could you set a new one?', 'Здравствуйте! Я забыл пароль' + id + '. Можете установить новый?')],
+                [T("💳 To'lov tushmadi", '💳 Payment not received', '💳 Платёж не зачислен'), T("Salom! Kartaga pul o'tkazdim, lekin balansimga tushmadi" + id + ". Chekni yuboraman.", "Hi! I paid by card but it isn't on my balance" + id + ". I'll send the receipt.", 'Здравствуйте! Оплатил картой, но баланс не пополнился' + id + '. Отправлю чек.')],
+                [T('⭐ Stars kelmadi', "⭐ Stars didn't arrive", '⭐ Stars не пришли'), T("Salom! Stars sotib oldim, lekin hali kelmadi" + id + ".", "Hi! I bought Stars but haven't received them" + id + ".", 'Здравствуйте! Купил Stars, но ещё не получил' + id + '.')],
+                [T('🤖 AI ishlamayapti', "🤖 AI isn't working", '🤖 ИИ не работает'), T("Salom! AI javob bermayapti" + id + ".", "Hi! The AI isn't responding" + id + ".", 'Здравствуйте! ИИ не отвечает' + id + '.')],
+                [T('💡 Taklifim bor', '💡 I have an idea', '💡 Есть предложение'), T('Salom! Taklifim bor: ', 'Hi! I have a suggestion: ', 'Здравствуйте! У меня предложение: ')]
+            ];
+        }
+        function paintQuick() {
+            var box = $('sp-quick'); box.innerHTML = '';
+            quickList().forEach(function (q) {
+                var b = document.createElement('button'); b.type = 'button'; b.textContent = q[0];
+                b.onclick = function () { input.value = q[1]; grow(); try { input.focus(); input.setSelectionRange(input.value.length, input.value.length); } catch (e) {} };
+                box.appendChild(b);
+            });
+        }
         function zoom(src) {
             var z = $('sp-zoom');
             if (!z) { z = document.createElement('div'); z.id = 'sp-zoom'; z.innerHTML = '<img alt="">'; z.onclick = function () { z.classList.remove('open'); }; document.body.appendChild(z); }
@@ -6690,10 +6722,15 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         input.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 700) { e.preventDefault(); send(); } });
         $('sp-send').onclick = function () { send(); };
         $('sp-back').onclick = close;
-        $('support-entry').onclick = open;
+        $('support-entry').onclick = function () { open(); };
+        $('pass-forgot').onclick = function () {
+            if (typeof closePasswordModal === 'function') closePasswordModal();
+            var id = (typeof myPid !== 'undefined' && myPid) ? ' (ID: ' + myPid + ')' : '';
+            open(T("Salom! Eski parolimni unutib qo'ydim" + id + ". Yangi parol o'rnatib bera olasizmi?", 'Hi! I forgot my old password' + id + '. Could you set a new one?', 'Здравствуйте! Я забыл старый пароль' + id + '. Можете установить новый?'));
+        };
         $('open-settings-btn').addEventListener('click', function () { setTimeout(peek, 50); });
         $('open-chats-btn').addEventListener('click', function () { setTimeout(peek, 50); });
-        $('drawer-support').onclick = open;
+        $('drawer-support').onclick = function () { open(); };
         document.addEventListener('visibilitychange', function () { if (!document.hidden) { pver = null; view.classList.contains('open') ? liveLoop() : peekLoop(); } });
         setTimeout(schedule, 1500);
 
@@ -6778,6 +6815,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             $('lang-ds-title').textContent = T('Yordam — admin bilan chat', 'Support — chat with admin', 'Поддержка — чат с админом');
             $('sp-title').textContent = T('Bilols AI — Yordam', 'Bilols AI — Support', 'Bilols AI — Поддержка');
             input.placeholder = T('Xabaringizni yozing...', 'Type your message...', 'Напишите сообщение...');
+            $('lang-pass-forgot').textContent = T('Eski parolni unutdingizmi? Admin yordam beradi', 'Forgot your old password? Admin will help', 'Забыли старый пароль? Админ поможет');
+            if (view.classList.contains('open')) paintQuick();
             paintPresence(); paintMode(); paintShop(); if (view.classList.contains('open')) render();
         }
         if (typeof prevLang === 'function') window.setAppLanguage = function () { var r = prevLang.apply(this, arguments); applyLang(); return r; };
