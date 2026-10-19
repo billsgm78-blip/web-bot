@@ -227,7 +227,6 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
 @media (max-width: 600px) { .shop-row { grid-template-columns: 1fr 1fr; } .shop-row .nm { grid-column: 1 / -1; } }
 </style>
 <script src="/notify.js"></script>
-<script src="/face-scan.js"></script>
 </head>
 <body>
 <div class="glow-bg"></div>
@@ -244,7 +243,11 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             <button class="btn" id="a-submit">Davom etish</button>
         </form>
         <div class="or-line"><span>yoki</span></div>
-        <button type="button" class="btn faceid-btn" id="a-faceid"><span class="fid-ico">📷</span> Yuz bilan kirish (Face ID)</button>
+        <button type="button" class="btn faceid-btn" id="a-keybtn"><span class="fid-ico">🗝</span> Maxfiy kalit bilan kirish</button>
+        <form id="key-form" style="display:none;margin-top:12px" autocomplete="off">
+            <div class="field"><input id="a-key" placeholder="BLS-XXXX-XXXX-XXXX-XXXX" maxlength="30" autocapitalize="characters" spellcheck="false" style="font-family:ui-monospace,monospace;letter-spacing:1px;text-transform:uppercase"></div>
+            <button class="btn" id="a-keygo">🗝 Kirish</button>
+        </form>
         <div class="msg" id="a-msg"></div>
     </div>
 
@@ -379,37 +382,35 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         } catch (e2) { msg.className = 'msg err'; msg.textContent = "Server bilan bog'lanib bo'lmadi."; }
         btn.disabled = false;
     });
-    // ---------- Face ID (WebAuthn / passkey) ----------
-    function b64uToBuf(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; var bin = atob(s), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; }
-    function bufToB64u(b) { var u = new Uint8Array(b), s = ''; for (var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
-    function credToJSON(c) {
-        var r = c.response, out = { id: c.id, rawId: bufToB64u(c.rawId), type: c.type, clientExtensionResults: (c.getClientExtensionResults && c.getClientExtensionResults()) || {}, response: { clientDataJSON: bufToB64u(r.clientDataJSON) } };
-        if (r.attestationObject) { out.response.attestationObject = bufToB64u(r.attestationObject); if (r.getTransports) out.response.transports = r.getTransports(); }
-        if (r.authenticatorData) { out.response.authenticatorData = bufToB64u(r.authenticatorData); out.response.signature = bufToB64u(r.signature); if (r.userHandle) out.response.userHandle = bufToB64u(r.userHandle); }
-        if (c.authenticatorAttachment) out.authenticatorAttachment = c.authenticatorAttachment;
-        return out;
-    }
-    var faceSupported = !!(window.PublicKeyCredential && navigator.credentials);
-    if (!faceSupported) { $('a-faceid').style.display = 'none'; document.querySelector('.or-line').style.display = 'none'; }
-    var camSupported = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-    $('a-faceid').style.display = camSupported ? '' : 'none'; document.querySelector('.or-line').style.display = camSupported ? '' : 'none';
-    $('a-faceid').onclick = async function () {
-        var btn = this, msg = $('a-msg');
-        msg.className = 'msg'; msg.textContent = '';
-        btn.disabled = true;
-        try {
-            var st = await post('/api/admin-auth/face/status', {});
-            if (!st.enabled) { msg.className = 'msg err'; msg.textContent = "Yuz hali ro'yxatdan o'tmagan. Avval parol bilan kirib, 🛡 Xavfsizlik bo'limida qo'shing."; return; }
-            var descs = await FaceScan.run({ mode: 'login' });
-            msg.textContent = '⏳ Tekshirilmoqda...';
-            var j = await post('/api/admin-auth/face/login', { descriptors: descs });
-            if (j.success) { ticket = j.ticket; showCode(); }
-            else { msg.className = 'msg err'; msg.textContent = '❌ ' + (j.error || 'Yuz tanilmadi'); }
-        } catch (e) {
-            if (e && e.message !== 'cancel') { msg.className = 'msg err'; msg.textContent = (e && e.message) || 'Xato'; }
-        } finally { btn.disabled = false; }
+    // ---------- Maxfiy kalit (23 belgi) — parolsiz va kodsiz ----------
+    $('a-keybtn').onclick = function () {
+        var f = $('key-form'); f.style.display = f.style.display === 'none' ? '' : 'none';
+        if (f.style.display === '') setTimeout(function () { $('a-key').focus(); }, 50);
     };
-    if (camSupported && window.FaceScan) setTimeout(function () { post('/api/admin-auth/face/status', {}).then(function (st) { if (st.enabled) FaceScan.preload(); }); }, 800);
+    $('a-key').addEventListener('input', function () {
+        // avtomatik formatlash: BLS-XXXX-XXXX-XXXX-XXXX
+        var raw = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (raw.indexOf('BLS') !== 0) raw = raw.length <= 3 && 'BLS'.indexOf(raw) === 0 ? raw : 'BLS' + raw;
+        var body = raw.slice(3, 19), parts = ['BLS'];
+        for (var i = 0; i < body.length; i += 4) parts.push(body.slice(i, i + 4));
+        this.value = raw.length <= 3 ? raw : parts.join('-');
+    });
+    $('key-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var msg = $('a-msg'), btn = $('a-keygo'), key = $('a-key').value.trim();
+        if (key.replace(/[^A-Z0-9]/gi, '').length !== 19) { msg.className = 'msg err'; msg.textContent = "Kalit to'liq emas (23 belgi)."; return; }
+        btn.disabled = true; msg.className = 'msg'; msg.textContent = '⏳';
+        try {
+            var j = await post('/api/admin-auth/key', { key: key });
+            if (j.success) {
+                token = j.token;
+                try { localStorage.setItem(TOKEN_KEY, JSON.stringify({ t: token, exp: Date.now() + (j.expiresIn || 43200) * 1000 })); } catch (e2) {}
+                $('a-key').value = ''; msg.textContent = '';
+                enterApp();
+            } else { msg.className = 'msg err'; msg.textContent = j.error || 'Xato'; }
+        } catch (e3) { msg.className = 'msg err'; msg.textContent = "Server bilan bog'lanib bo'lmadi."; }
+        btn.disabled = false;
+    });
 
     var boxes = [];
     (function buildBoxes() {
@@ -1459,7 +1460,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         sub: ['♾️', 'Obuna'], password: ['🔑', "Foydalanuvchi paroli o'rnatildi"], message: ['✉️', 'Xabar yuborildi'], broadcast: ['📢', "E'lon"],
         order: ['🛒', 'Buyurtma'], ban: ['⛔', 'Bloklandi'], unban: ['✅', 'Blokdan chiqarildi'], promo_create: ['🎟️', 'Promo-kod yaratildi'],
         promo_delete: ['✖', "Promo-kod o'chirildi"], control: ['🚦', 'Boshqaruv'], announce: ['📣', "Saytdagi e'lon"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi'],
-        support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], ai: ['🤖', "AI sozlamalari o'zgartirildi"], notify: ['🔔', 'Bildirishnomalar'], login_faceid: ['🙂', 'Face ID bilan kirildi'], login_face: ['📷', 'Yuz bilan kirildi'], face_add: ['📷', "Yuz qo'shildi"], face_del: ['✖', "Yuz o'chirildi"], faceid_add: ['🙂', "Face ID qo'shildi"], faceid_del: ['✖', "Face ID o'chirildi"], shop: ['🏷', "Narxlar o'zgartirildi"]
+        support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], ai: ['🤖', "AI sozlamalari o'zgartirildi"], notify: ['🔔', 'Bildirishnomalar'], login_key: ['🗝', 'Maxfiy kalit bilan kirildi'], key_create: ['🗝', 'Maxfiy kalit yaratildi'], key_delete: ['✖', "Maxfiy kalit o'chirildi"], faceid_add: ['🙂', "Face ID qo'shildi"], faceid_del: ['✖', "Face ID o'chirildi"], shop: ['🏷', "Narxlar o'zgartirildi"]
     };
     async function vLog(view) {
         var j = await admin('log');
@@ -1477,38 +1478,40 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
     // ---------- Xavfsizlik ----------
     async function vSecurity(view) {
         view.innerHTML = '';
-        // Yuz bilan kirish (kamera)
-        view.appendChild(h('div', { class: 'h', text: '📷 Yuz bilan kirish (Face ID)' }));
-        var fidCard = h('div', { class: 'card form' });
-        view.appendChild(fidCard);
-        async function paintFid() {
-            fidCard.innerHTML = '';
-            fidCard.appendChild(h('div', { class: 'sum', style: 'line-height:1.55', text: "Kamera yuzingizni doira ichida skanerlaydi: yaqinlashing, uzoqlashing, boshingizni buring. Rasm saqlanmaydi — faqat yuzning raqamli izi. Yuzdan keyin ham Telegram'ga kod keladi (2-bosqich)." }));
-            if (!camSupported) { fidCard.appendChild(h('div', { class: 'sum', style: 'color:#fbbf24', text: '⚠️ Bu brauzerda kamera ishlamaydi.' })); return; }
-            var j = await admin('face_list');
-            (j.faces || []).forEach(function (fc) {
-                fidCard.appendChild(h('div', { class: 'row' }, [
-                    h('div', { class: 'r-ico', text: '🙂' }),
-                    h('div', { class: 'r-main' }, [h('b', { text: fc.name || 'Admin' }), h('small', { text: "Qo'shilgan: " + (fc.created ? fmtDate(fc.created) : '?') + ' · ' + fc.n + ' ta skan' })]),
-                    h('button', { class: 'sq', title: "O'chirish", text: '✖', onclick: async function () {
-                        if (!await dialog({ title: "Yuzni o'chirish", text: "Bu yuz bilan endi kirib bo'lmaydi.", ok: "O'chirish", danger: true })) return;
-                        await admin('face_delete', { i: fc.i }); toast("O'chirildi"); paintFid();
-                    } })
+        // Maxfiy kalit
+        view.appendChild(h('div', { class: 'h', text: '🗝 Maxfiy kalit (23 belgi)' }));
+        var keyCard = h('div', { class: 'card form' });
+        view.appendChild(keyCard);
+        async function paintKey() {
+            keyCard.innerHTML = '';
+            var j = await admin('key_status');
+            keyCard.appendChild(h('div', { class: 'sum', style: 'line-height:1.55', text: "Shu kalit bilan login, parol va Telegram kodisiz to'g'ridan-to'g'ri kirasiz. Kalit faqat yaratilganda bir marta ko'rsatiladi — xavfsiz joyga saqlang. Kalit bilan kirilganda botga xabar keladi." }));
+            keyCard.appendChild(h('div', { class: 'row', style: 'border:none' }, [
+                h('div', { class: 'r-ico', text: j.has ? '🗝' : '—' }),
+                h('div', { class: 'r-main' }, [h('b', { text: j.has ? 'Kalit faol' : "Kalit yo'q" }),
+                    h('small', { text: j.has ? ('Yaratilgan: ' + (j.created ? fmtDate(j.created) : '?') + ' · oxirgi kirish: ' + (j.last ? fmtDate(j.last) : "hali yo'q")) : "Yangi kalit yarating" })]),
+                j.has ? h('button', { class: 'act red', text: "O'chirish", onclick: async function () {
+                    if (!await dialog({ title: "Kalitni o'chirish", text: "Bu kalit bilan endi kirib bo'lmaydi.", ok: "O'chirish", danger: true })) return;
+                    await admin('key_delete'); toast("O'chirildi"); paintKey();
+                } }) : null
+            ]));
+            keyCard.appendChild(h('button', { class: 'btn', text: j.has ? '🔄 Yangi kalit yaratish (eskisi ishlamay qoladi)' : '🗝 Maxfiy kalit yaratish', onclick: async function () {
+                if (j.has && !await dialog({ title: 'Yangi kalit', text: "Eski kalit darhol ishlamay qoladi. Davom etasizmi?", ok: 'Yaratish' })) return;
+                var x = await admin('key_create');
+                if (!x.success) { toast(x.error || 'Xato'); return; }
+                var card = $('m-card'); card.innerHTML = '';
+                card.appendChild(h('h3', { text: '🗝 Maxfiy kalitingiz' }));
+                card.appendChild(h('p', { text: "Bu kalit faqat HOZIR ko'rsatiladi. Nusxalab, xavfsiz joyga saqlang (masalan, Telegram'dagi «Saqlangan xabarlar»ga emas — qog'ozga yoki parol menejeriga)." }));
+                var kb = h('div', { style: 'font-family:ui-monospace,monospace;font-size:22px;font-weight:800;letter-spacing:1px;text-align:center;padding:18px 12px;border-radius:14px;background:rgba(139,92,246,0.12);border:1px dashed rgba(139,92,246,0.6);margin-bottom:14px;user-select:all;word-break:break-all', text: x.key });
+                card.appendChild(kb);
+                card.appendChild(h('div', { class: 'm-btns' }, [
+                    h('button', { class: 'btn ghost', text: '📋 Nusxalash', onclick: function () { try { navigator.clipboard.writeText(x.key).then(function () { toast('✅ Nusxalandi'); }); } catch (e) { toast('Qo\'lda belgilab nusxalang'); } } }),
+                    h('button', { class: 'btn', text: 'Saqladim', onclick: function () { $('modal').classList.remove('open'); paintKey(); } })
                 ]));
-            });
-            if (!(j.faces || []).length) fidCard.appendChild(h('div', { class: 'sum', text: "Hali yuz qo'shilmagan." }));
-            fidCard.appendChild(h('button', { class: 'btn', text: '📷 Yuzimni skanerlash va qo\'shish', onclick: async function () {
-                var r = await dialog({ title: "Yuz qo'shish", text: "Yorug' joyda turing, ko'zoynak va niqobni yeching. Kamera ochiladi.", fields: [{ label: 'Nomi', value: 'Admin' }], ok: 'Kamerani ochish' });
-                if (!r) return;
-                try {
-                    var descs = await FaceScan.run({ mode: 'register' });
-                    var x = await admin('face_register', { descriptors: descs, name: r[0] });
-                    toast(x.success ? "✅ Yuz qo'shildi — endi kirish oynasida «Yuz bilan kirish» ni bosing" : (x.error || 'Xato'));
-                    paintFid();
-                } catch (e) { if (e && e.message !== 'cancel') toast((e && e.message) || 'Xato'); }
+                $('modal').classList.add('open');
             } }));
         }
-        paintFid();
+        paintKey();
         // parol
         var oldP = h('input', { class: 'inp', type: 'password', autocomplete: 'current-password' });
         var newP = h('input', { class: 'inp', type: 'password', autocomplete: 'new-password' });
