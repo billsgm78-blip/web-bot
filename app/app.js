@@ -57,6 +57,7 @@
     function applyI18n() {
         document.documentElement.lang = lang;
         document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T(e.getAttribute('data-t')); });
+        pvPaint();
         $('c-in').placeholder = L('Savolingizni yozing…', 'Напишите вопрос…', 'Ask anything…');
         $('sp-in').placeholder = L('Xabar yozing…', 'Напишите сообщение…', 'Write a message…');
         $('i-prompt').placeholder = L("Masalan: tog'lar orasida quyosh botishi, akvarel uslubida", 'Например: закат в горах, акварель', 'E.g. a sunset in the mountains, watercolor');
@@ -136,7 +137,45 @@
 
     /* ================= Tashqi havola, nusxa, ulashish ================= */
     var PRIVACY_URL = 'https://www.bilolsai.uz/maxfiylik';
-    function openPrivacy() { openExternal(PRIVACY_URL); }
+    var pv = { mode: 'view', read: false, loaded: false, ok: ls('ba_privacy_ok') === '1' };
+    function pvPaint() {
+        if (!pv) return;
+        var b = $('pv-ok');
+        if (pv.mode === 'view') { b.disabled = false; b.textContent = L('Yopish', 'Закрыть', 'Close'); }
+        else {
+            b.disabled = !pv.read;
+            b.textContent = pv.read ? L("✅ O'qib chiqdim, roziman", '✅ Прочитал(а) и согласен(на)', '✅ I have read and agree') : L("⬇️ Oxirigacha o'qing", '⬇️ Дочитайте до конца', '⬇️ Scroll to the end');
+        }
+        $('c-box').classList.toggle('on', pv.ok);
+        $('c-text').innerHTML = L("Men <a>Maxfiylik siyosati</a>ni o'qib chiqdim va roziman", 'Я прочитал(а) и принимаю <a>Политику конфиденциальности</a>', 'I have read and agree to the <a>Privacy policy</a>');
+    }
+    function pvScroll() {
+        var el = $('pv-body'), max = el.scrollHeight - el.clientHeight, p = max <= 4 ? 1 : el.scrollTop / max;
+        $('pv-bar').style.width = Math.min(100, Math.round(p * 100)) + '%';
+        if (pv.loaded && !pv.read && p > 0.97) { pv.read = true; pvPaint(); }
+    }
+    $('pv-body').addEventListener('scroll', pvScroll, { passive: true });
+    function openPrivacy(mode) {
+        pv.mode = mode || 'view';
+        $('privacy').classList.add('on'); pvPaint();
+        if (!pv.loaded) {
+            $('pv-body').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div><div class="skel-row"></div>';
+            fetch('privacy.html').then(function (r) { if (!r.ok) throw 0; return r.text(); }).then(function (h) {
+                var a = new DOMParser().parseFromString(h, 'text/html').querySelector('article');
+                $('pv-body').innerHTML = a ? a.innerHTML : ''; pv.loaded = true; $('pv-body').scrollTop = 0; pvScroll();
+            }).catch(function () {
+                $('pv-body').innerHTML = '<p>' + esc(L("Yuklab bo'lmadi. Internetni tekshiring.", 'Не удалось загрузить.', 'Could not load.')) + '</p>';
+            });
+        } else { $('pv-body').scrollTop = 0; pvScroll(); }
+    }
+    function closePrivacy() { $('privacy').classList.remove('on'); }
+    $('pv-back').onclick = closePrivacy;
+    $('pv-ok').onclick = function () {
+        if (pv.mode === 'consent') { if (!pv.read) return; pv.ok = true; ls('ba_privacy_ok', '1'); pvPaint(); authMsg(''); }
+        closePrivacy();
+    };
+    $('c-box').onclick = function () { if (pv.ok) { pv.ok = false; ls('ba_privacy_ok', '0'); pvPaint(); } else openPrivacy('consent'); };
+    $('c-text').onclick = function (e) { if (e.target.tagName === 'A') openPrivacy('consent'); };
     document.addEventListener('click', function (e) { var t = e.target.closest && e.target.closest('[data-privacy]'); if (t) { e.preventDefault(); openPrivacy(); } });
     function openExternal(url) {
         if (!url) return;
@@ -254,6 +293,7 @@
             auth.mode = b.getAttribute('data-mode');
             document.querySelectorAll('#auth-seg button').forEach(function (x) { x.classList.toggle('on', x === b); });
             $('f-name').hidden = auth.mode !== 'register';
+            $('f-consent').hidden = auth.mode !== 'register'; pvPaint();
             $('a-forgot').hidden = auth.mode !== 'login';
             $('a-pass').autocomplete = auth.mode === 'login' ? 'current-password' : 'new-password';
             resetOtp(); authMsg('');
@@ -273,6 +313,11 @@
         if (phone.length !== 12) { authMsg(L("Telefon raqamni to'liq kiriting", 'Введите номер полностью', 'Enter the full phone number'), 'err'); return; }
         if (!pass || pass.length < 4) { authMsg(L("Parol kamida 4 belgi bo'lsin", 'Пароль — минимум 4 символа', 'Password must be at least 4 characters'), 'err'); return; }
         if (auth.mode === 'register' && !name) { authMsg(L('Ismingizni yozing', 'Укажите имя', 'Enter your name'), 'err'); return; }
+        if (auth.mode === 'register' && !pv.ok) {
+            authMsg(L("Avval Maxfiylik siyosatini o'qib, rozilik bildiring", 'Сначала прочитайте и примите Политику конфиденциальности', 'Please read and accept the Privacy policy first'), 'err');
+            var cf = $('f-consent'); cf.classList.remove('shake'); void cf.offsetWidth; cf.classList.add('shake');
+            openPrivacy('consent'); return;
+        }
         var feat = auth.mode === 'register' ? feature('auth') : '';
         if (feat) { authMsg(feat, 'err'); return; }
         btn.disabled = true; auth.busy = true;
@@ -1270,6 +1315,7 @@
     });
     window.__back = function () {
         if (sheetClose) { closeSheet(false); return true; }
+        if ($('privacy').classList.contains('on')) { closePrivacy(); return true; }
         if (sp.open) { closeSupport(); return true; }
         if (state.inMain && state.tab !== 'chat') { switchTab('chat'); return true; }
         return false;

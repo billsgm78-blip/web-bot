@@ -2675,7 +2675,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                     <span id="lang-start-btn">Boshlash / Tizimga kirish</span>
                 </button>
                 <div class="landing-trust-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <span id="lang-privacy">🔒 Maxfiy siyosati kafolatlanadi</span>
+                    <a id="lang-privacy" href="/maxfiylik" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">🔒 Maxfiy siyosati kafolatlanadi</a>
                     <div style="display: flex; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 2px;">
                         <button id="lang-btn-uz" onclick="setAppLanguage('uz')" style="background: var(--violet-accent); border: none; color: #fff; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;">UZ</button>
                         <button id="lang-btn-ru" onclick="setAppLanguage('ru')" style="background: transparent; border: none; color: #94a3b8; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;">RU</button>
@@ -2754,6 +2754,10 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 </div>
             </div>
 
+            <div id="consent-wrap" class="consent-row" style="display:none">
+                <button type="button" id="consent-box" class="consent-box" aria-label="consent"></button>
+                <span id="consent-text">Men <a href="#" id="consent-open">Maxfiylik siyosati</a>ni o'qib chiqdim va roziman</span>
+            </div>
             <div data-st style="--i:5">
                 <button id="auth-action-btn" class="primary-btn">Tizimga kirish</button>
                 <button type="button" class="auth-forgot" id="auth-forgot">Parolni unutdingizmi?</button>
@@ -3059,6 +3063,14 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 </div>
                 <span class="set-arrow">›</span>
             </div>
+
+            <a class="settings-card clickable" href="/maxfiylik" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+                <div class="settings-info">
+                    <h4>🔒 <span class="lang-privacy">Maxfiylik siyosati</span></h4>
+                    <p class="lang-privacy-sub">Ma'lumotlaringiz qanday himoyalanadi</p>
+                </div>
+                <span class="set-arrow">›</span>
+            </a>
 
             <!-- ✨ YANGI SOZLAMALAR -->
             <div class="settings-card">
@@ -3881,11 +3893,13 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             document.getElementById("tab-register").classList.remove("active");
             nameFieldWrap.style.display = "none";
             authActionBtn.innerText = t.tabLogin;
+            { const cw = document.getElementById("consent-wrap"); if (cw) cw.style.display = "none"; }
         } else {
             document.getElementById("tab-register").classList.add("active");
             document.getElementById("tab-login").classList.remove("active");
             nameFieldWrap.style.display = "block";
             authActionBtn.innerText = t.tabRegister;
+            { const cw = document.getElementById("consent-wrap"); if (cw) cw.style.display = "flex"; }
         }
     };
 
@@ -4102,6 +4116,13 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         if (!phone || !password) {
             statusBox.style.color = "#f43f5e";
             statusBox.innerText = tr("Barcha maydonlarni to'ldiring!", "Fill in all fields!", "Заполните все поля!");
+            return;
+        }
+
+        if (activeAuthMode !== "login" && !window.__privacyOk) {
+            statusBox.style.color = "#f43f5e";
+            statusBox.innerText = tr("Avval Maxfiylik siyosatini o'qib, rozilik bildiring", "Please read and accept the Privacy policy first", "Сначала прочитайте и примите Политику конфиденциальности");
+            if (window.openPrivacyReader) window.openPrivacyReader();
             return;
         }
 
@@ -7163,6 +7184,80 @@ body.theme-light #app-promo .ap-t b { color: #0f172a; }
             }, 700);
         }, 2500);
     } catch (e) {}
+})();
+</script>
+
+<style id="privacy-style">
+.privacy-link { display: block; text-align: center; margin-top: 14px; padding: 6px; font-size: 12.5px; color: #94a3b8; text-decoration: none; opacity: .85; }
+.consent-row { display: flex; align-items: flex-start; gap: 10px; margin: 4px 2px 12px; text-align: left; font-size: 13.5px; line-height: 1.45; color: #cbd5e1; }
+.consent-row a { color: #a5b4fc; font-weight: 700; text-decoration: underline; }
+.consent-box { flex: 0 0 22px; width: 22px; height: 22px; margin-top: 1px; border-radius: 7px; border: 2px solid rgba(148,163,184,.55); background: transparent; cursor: pointer; display: grid; place-items: center; color: #fff; font-size: 14px; font-weight: 800; padding: 0; transition: all .18s ease; }
+.consent-box.on { background: linear-gradient(135deg,#10b981,#3b82f6); border-color: transparent; }
+.consent-box.on::after { content: '✓'; }
+.consent-row.shake { animation: cShake .4s; }
+@keyframes cShake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+#privacy-reader { position: fixed; inset: 0; z-index: 100000; display: none; align-items: flex-end; justify-content: center; background: rgba(2,6,15,.72); backdrop-filter: blur(6px); }
+#privacy-reader.open { display: flex; }
+#privacy-reader .pr-card { width: 100%; max-width: 640px; height: 88vh; height: 88dvh; background: #0d1220; border: 1px solid rgba(148,163,184,.18); border-radius: 22px 22px 0 0; display: flex; flex-direction: column; overflow: hidden; animation: prUp .28s cubic-bezier(.2,.8,.2,1); }
+@media (min-width: 700px) { #privacy-reader { align-items: center; } #privacy-reader .pr-card { border-radius: 22px; height: 82vh; } }
+@keyframes prUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.pr-head { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid rgba(148,163,184,.14); }
+.pr-head b { flex: 1; font-size: 17px; color: #fff; }
+.pr-head button { background: rgba(148,163,184,.12); border: 0; color: #cbd5e1; width: 34px; height: 34px; border-radius: 10px; font-size: 20px; cursor: pointer; }
+.pr-body { flex: 1; overflow-y: auto; padding: 4px 20px 24px; -webkit-overflow-scrolling: touch; }
+.pr-body h2 { font-size: 16.5px; color: #fff; margin: 22px 0 6px; } .pr-body h3 { font-size: 14.5px; color: #cbd5e1; margin: 14px 0 4px; }
+.pr-body p, .pr-body li { font-size: 14.5px; line-height: 1.6; color: #cbd5e1; } .pr-body ul { padding-left: 20px; } .pr-body .meta { color: #94a3b8; font-size: 13px; }
+.pr-foot { padding: 12px 18px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(148,163,184,.14); }
+.pr-bar { height: 3px; border-radius: 3px; background: rgba(148,163,184,.15); margin-bottom: 10px; overflow: hidden; } .pr-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg,#10b981,#3b82f6); transition: width .15s; }
+.pr-ok { width: 100%; padding: 15px; border: 0; border-radius: 14px; font: 800 15.5px/1 inherit; font-family: inherit; color: #fff; background: linear-gradient(135deg,#10b981,#3b82f6 60%,#8b5cf6); cursor: pointer; transition: opacity .2s; }
+.pr-ok:disabled { opacity: .45; cursor: not-allowed; }
+</style>
+<div id="privacy-reader" role="dialog" aria-modal="true">
+    <div class="pr-card">
+        <div class="pr-head"><b>🔒 <span class="lang-privacy">Maxfiylik siyosati</span></b><button type="button" id="pr-x" aria-label="close">×</button></div>
+        <div class="pr-body" id="pr-body"><p class="meta">Yuklanmoqda…</p></div>
+        <div class="pr-foot"><div class="pr-bar"><i id="pr-bar"></i></div><button type="button" class="pr-ok" id="pr-ok" disabled>⬇️ Oxirigacha o'qing</button></div>
+    </div>
+</div>
+<script>
+(function () {
+    var $ = function (id) { return document.getElementById(id); };
+    function lg() { try { return (typeof currentLang !== 'undefined' && currentLang) || 'uz'; } catch (e) { return 'uz'; } }
+    function T(uz, en, ru) { var l = lg(); return l === 'ru' ? ru : l === 'en' ? en : uz; }
+    var rd = $('privacy-reader'), body = $('pr-body'), ok = $('pr-ok'), bar = $('pr-bar'), loaded = false, read = false;
+    function paint() {
+        ok.disabled = !read;
+        ok.textContent = read ? T('✅ O\'qib chiqdim, roziman', '✅ I have read and agree', '✅ Прочитал(а) и согласен(на)') : T('⬇️ Oxirigacha o\'qing', '⬇️ Scroll to the end', '⬇️ Дочитайте до конца');
+        var c = $('consent-text');
+        if (c) c.innerHTML = T('Men <a href="#" id="consent-open">Maxfiylik siyosati</a>ni o\'qib chiqdim va roziman', 'I have read and agree to the <a href="#" id="consent-open">Privacy policy</a>', 'Я прочитал(а) и принимаю <a href="#" id="consent-open">Политику конфиденциальности</a>');
+        var co = $('consent-open'); if (co) co.onclick = function (e) { e.preventDefault(); open(); };
+    }
+    function onScroll() {
+        var max = body.scrollHeight - body.clientHeight;
+        var p = max <= 4 ? 1 : body.scrollTop / max;
+        bar.style.width = Math.min(100, Math.round(p * 100)) + '%';
+        if (p > 0.97 && loaded && !read) { read = true; paint(); }
+    }
+    body.addEventListener('scroll', onScroll, { passive: true });
+    function open() {
+        rd.classList.add('open'); paint();
+        if (!loaded) {
+            fetch('/maxfiylik.html', { cache: 'no-cache' }).then(function (r) { return r.text(); }).then(function (h) {
+                var a = new DOMParser().parseFromString(h, 'text/html').querySelector('article');
+                body.innerHTML = a ? a.innerHTML : h; loaded = true; body.scrollTop = 0; onScroll();
+            }).catch(function () { body.innerHTML = '<p>' + T("Yuklab bo'lmadi. Internetni tekshiring.", 'Could not load. Check your connection.', 'Не удалось загрузить.') + '</p>'; });
+        }
+    }
+    function close() { rd.classList.remove('open'); }
+    function setOk(v) { window.__privacyOk = v; var b = $('consent-box'); if (b) b.classList.toggle('on', v); }
+    window.openPrivacyReader = function () { var w = $('consent-wrap'); if (w) { w.classList.remove('shake'); void w.offsetWidth; w.classList.add('shake'); } open(); };
+    $('pr-x').onclick = close;
+    rd.addEventListener('click', function (e) { if (e.target === rd) close(); });
+    ok.onclick = function () { if (!read) return; setOk(true); close(); };
+    var cb = $('consent-box'); if (cb) cb.onclick = function () { if (window.__privacyOk) setOk(false); else open(); };
+    var prev = window.setAppLanguage;
+    if (typeof prev === 'function') window.setAppLanguage = function () { var r = prev.apply(this, arguments); paint(); return r; };
+    paint();
 })();
 </script>
 </body>
