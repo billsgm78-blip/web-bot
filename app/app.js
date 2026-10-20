@@ -1181,7 +1181,7 @@
             if (m.image) { var im = document.createElement('img'); im.className = 'sp-img'; im.src = RAIL + '/api/support/img/' + encodeURIComponent(m.image); im.onclick = function () { openSheet('<img style="width:100%;border-radius:16px" alt="">', function (s) { s.querySelector('img').src = im.src; }); }; b.appendChild(im); }
             if (m.text) { var tx = document.createElement('div'); tx.className = 'tx'; tx.textContent = m.text; b.appendChild(tx); }
             var meta = document.createElement('div'); meta.className = 'sp-meta';
-            meta.textContent = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + (m.sender === 'user' ? (m.read ? ' ✓✓' : ' ✓') : '');
+            meta.textContent = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + (m.sender === 'user' ? (m.pending ? ' 🕓' : m.read ? ' ✓✓' : ' ✓') : '');
             b.appendChild(meta); box.appendChild(b);
         });
         box.scrollTop = box.scrollHeight;
@@ -1189,7 +1189,11 @@
     async function supportLoad(waitVer) {
         var j = await api('/api/support/list', waitVer == null ? null : { ver: waitVer });
         if (!j.success) return false;
-        sp.ver = j.ver; sp.msgs = j.messages || []; presence(j.admin);
+        var srv = j.messages || [];
+        var pend = sp.msgs.filter(function (m) {
+            return m.pending && !srv.some(function (x) { return x.sender === 'user' && x.text === m.text && Math.abs(x.at - m.at) < 120; });
+        });
+        sp.ver = j.ver; sp.msgs = srv.concat(pend); presence(j.admin);
         sp.unread = 0; paintUnread();
         if (sp.open) renderSupport();
         return true;
@@ -1215,14 +1219,24 @@
     $('sp-send').onclick = async function () {
         var ta = $('sp-in'), text = ta.value.trim();
         if (!text && !sp.img) return;
-        var btn = this; btn.disabled = true;
+        var btn = this;
+        if (btn.disabled) return;
+        btn.disabled = true;
+        var img = sp.img;
+        // Darhol ko'rsatamiz (vaqtinchalik), server javobidan keyin almashtiramiz
+        var tmp = { id: 'tmp' + Date.now(), sender: 'user', text: text, at: Date.now() / 1000, read: false, pending: true };
+        sp.msgs.push(tmp); renderSupport();
+        ta.value = ''; autoGrow(ta); sp.img = null; $('sp-att').hidden = true;
+        function dropTmp() { var i = sp.msgs.indexOf(tmp); if (i >= 0) sp.msgs.splice(i, 1); }
         try {
-            var j = await api('/api/support/send', sp.img ? { text: text, image: sp.img } : { text: text });
-            if (!j.success) { toast(j.error || 'Error', 'err'); return; }
-            ta.value = ''; autoGrow(ta); sp.img = null; $('sp-att').hidden = true;
-            if (j.message) { sp.msgs.push(Object.assign({ read: false }, j.message)); renderSupport(); }
+            var j = await api('/api/support/send', img ? { text: text, image: img } : { text: text });
+            if (!j.success) { dropTmp(); renderSupport(); ta.value = text; autoGrow(ta); toast(j.error || 'Error', 'err'); return; }
+            dropTmp();
+            // Uzoq so'rov (long-poll) xabarni allaqachon olib kelgan bo'lishi mumkin — ikki marta qo'shmaymiz
+            if (j.message && !sp.msgs.some(function (m) { return m.id === j.message.id; })) sp.msgs.push(Object.assign({ read: false }, j.message));
+            renderSupport();
             presence(j.admin);
-        } catch (e) { netErr(); }
+        } catch (e) { dropTmp(); renderSupport(); ta.value = text; autoGrow(ta); netErr(); }
         finally { btn.disabled = false; }
     };
     function paintUnread() { $('tb-me').classList.toggle('dot', sp.unread > 0); }
