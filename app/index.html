@@ -79,9 +79,10 @@
                 <div class="msgs" id="c-msgs"></div>
                 <div class="composer">
                     <div class="att-prev" id="c-att" hidden><img id="c-att-img" alt=""><button id="c-att-x">×</button></div>
+                    <div class="doc-chip" id="c-doc" hidden><span class="dc-ico">📄</span><span class="dc-mid"><b id="c-doc-name"></b><small id="c-doc-info"></small></span><button id="c-doc-x">×</button></div>
                     <div class="comp-row">
                         <button class="icon-b round" id="c-pick" aria-label="photo">
-                            <svg viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M21 12.5l-8.4 8.4a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></svg>
                         </button>
                         <textarea id="c-in" rows="1"></textarea>
                         <button class="send" id="c-send" aria-label="send">
@@ -181,6 +182,7 @@
 <div id="toasts"></div>
 <input type="file" id="file-img" accept="image/*" hidden>
 <input type="file" id="file-cam" accept="image/*" capture="environment" hidden>
+<input type="file" id="file-doc" accept=".pdf,.docx,.txt,.md,.csv,.json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
 <script src="app.js"></script>
 </body>
 </html>

@@ -425,7 +425,7 @@
     var chat = { msgs: lsJSON('ba_chat', []), busy: false, img: null, mode: ls('ba_mode') || '', model: ls('ba_model') || '' };
     if (!MODES.some(function (m) { return m[0] === chat.mode; })) chat.mode = '';
     function saveChat() {
-        var keep = chat.msgs.slice(-60).map(function (m) { return { r: m.r, t: m.t, img: m.img || undefined }; });
+        var keep = chat.msgs.slice(-60).map(function (m) { return { r: m.r, t: m.t, img: m.img || undefined, doc: m.doc || undefined, send: m.send ? m.send.slice(0, 15000) : undefined }; });
         try { ls('ba_chat', JSON.stringify(keep)); } catch (e) { keep.forEach(function (m) { delete m.img; }); ls('ba_chat', JSON.stringify(keep)); }
     }
     function paintModes() {
@@ -508,6 +508,7 @@
         var b = document.createElement('div');
         b.className = 'bubble ' + (m.r === 'u' ? 'me' : 'ai') + (m.err ? ' err' : '');
         if (m.img) { var im = document.createElement('img'); im.className = 'att'; im.src = m.img; b.appendChild(im); }
+        if (m.doc) { var ft = document.createElement('div'); ft.className = 'file-tag'; ft.textContent = '📄 ' + m.doc; b.appendChild(ft); }
         var tx = document.createElement('div');
         tx.className = 'tx';
         if (m.r === 'u' || m.err) tx.textContent = m.t || ''; else tx.innerHTML = md(m.t);
@@ -578,15 +579,81 @@
     }
     function pickPhoto(target) {
         pickTarget = target;
-        openSheet('<div class="sh-title">' + esc(L('Rasm yuborish', 'Отправить фото', 'Send a photo')) + '</div><div class="menu">' +
+        var docs = target === 'chat';
+        openSheet('<div class="sh-title">' + esc(docs ? L('Fayl biriktirish', 'Прикрепить файл', 'Attach a file') : L('Rasm yuborish', 'Отправить фото', 'Send a photo')) + '</div><div class="menu">' +
             '<button data-k="cam"><span class="m-ico">📷</span>' + esc(L('Kamera', 'Камера', 'Camera')) + '</button>' +
-            '<button data-k="gal"><span class="m-ico">🖼</span>' + esc(L('Galereya', 'Галерея', 'Gallery')) + '</button></div>',
+            '<button data-k="gal"><span class="m-ico">🖼</span>' + esc(L('Galereya', 'Галерея', 'Gallery')) + '</button>' +
+            (docs ? '<button data-k="doc"><span class="m-ico">📄</span><span>' + esc(L('Hujjat', 'Документ', 'Document')) + '<br><small style="color:var(--muted);font-weight:500">PDF, Word, TXT</small></span></button>' : '') + '</div>',
             function (b) {
                 b.querySelectorAll('[data-k]').forEach(function (x) {
-                    x.onclick = function () { closeSheet(true); var inp = $(x.getAttribute('data-k') === 'cam' ? 'file-cam' : 'file-img'); inp.value = ''; inp.click(); };
+                    x.onclick = function () {
+                        var k = x.getAttribute('data-k');
+                        closeSheet(true);
+                        if (k === 'doc' && N && verLess(appVer(), '3.2.0')) {
+                            ask(L('Yangilash kerak', 'Нужно обновление', 'Update needed'), L("Hujjat yuborish uchun ilovaning yangi versiyasini o'rnating.", 'Чтобы отправлять документы, установите новую версию.', 'Install the new version to send documents.'), L('Yangilash', 'Обновить', 'Update'))
+                                .then(function (ok) { if (ok) openExternal((state.status && state.status.app && state.status.app.url) || 'https://bilolsai.uz/apkyuklash'); });
+                            return;
+                        }
+                        var inp = $(k === 'cam' ? 'file-cam' : k === 'doc' ? 'file-doc' : 'file-img'); inp.value = ''; inp.click();
+                    };
                 });
             });
     }
+
+    /* Hujjatlar: PDF, Word, matn — matni o'qib, savolga qo'shiladi */
+    var MAX_DOC = 40000;
+    function loadScript(src) {
+        return new Promise(function (res, rej) {
+            if (document.querySelector('script[src="' + src + '"]')) return res();
+            var sc = document.createElement('script'); sc.src = src; sc.onload = function () { res(); }; sc.onerror = rej;
+            document.head.appendChild(sc);
+        });
+    }
+    async function readPdf(buf) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+        var lib = window.pdfjsLib;
+        lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        var pdf = await lib.getDocument({ data: buf }).promise, out = [], total = 0;
+        for (var p = 1; p <= pdf.numPages && total < MAX_DOC; p++) {
+            var tc = await (await pdf.getPage(p)).getTextContent();
+            var t = tc.items.map(function (i) { return i.str; }).join(' ');
+            out.push(t); total += t.length;
+        }
+        return { text: out.join('\n\n'), pages: pdf.numPages };
+    }
+    async function readDocx(buf) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');
+        var r = await window.mammoth.extractRawText({ arrayBuffer: buf });
+        return { text: r.value || '' };
+    }
+    function clearDoc() { chat.doc = null; $('c-doc').hidden = true; $('c-doc').classList.remove('loading'); }
+    $('c-doc-x').onclick = clearDoc;
+    $('file-doc').onchange = async function (e) {
+        var f = e.target.files && e.target.files[0];
+        if (!f) return;
+        if (f.size > 15 * 1024 * 1024) { toast(L('Fayl juda katta (15 MB gacha)', 'Файл слишком большой (до 15 МБ)', 'File too large (max 15 MB)'), 'err'); return; }
+        var ext = (f.name.split('.').pop() || '').toLowerCase();
+        chat.doc = null;
+        $('c-doc-name').textContent = f.name; $('c-doc-info').textContent = L("O'qilmoqda", 'Чтение', 'Reading');
+        $('c-doc').classList.add('loading'); $('c-doc').hidden = false;
+        try {
+            var res;
+            if (ext === 'pdf') res = await readPdf(await f.arrayBuffer());
+            else if (ext === 'docx') res = await readDocx(await f.arrayBuffer());
+            else if (['txt', 'md', 'csv', 'json'].indexOf(ext) >= 0 || /^text\//.test(f.type)) res = { text: await f.text() };
+            else throw new Error('type');
+            var text = (res.text || '').replace(/\u0000/g, '').trim();
+            if (!text) { clearDoc(); toast(L("Fayldan matn topilmadi. Skanerlangan bo'lsa, rasm sifatida yuboring.", 'В файле нет текста. Если это скан — отправьте как фото.', 'No text found. If scanned, send it as a photo.'), 'warn', 4500); return; }
+            var cut = text.length > MAX_DOC;
+            if (cut) text = text.slice(0, MAX_DOC) + '\n[...]';
+            chat.doc = { name: f.name, text: text };
+            $('c-doc').classList.remove('loading');
+            $('c-doc-info').textContent = (res.pages ? res.pages + L(' sahifa · ', ' стр. · ', ' pages · ') : '') + (text.length >= 1000 ? Math.round(text.length / 1000) + 'k' : text.length) + L(' belgi', ' симв.', ' chars') + (cut ? L(' · qisqartirildi', ' · обрезано', ' · trimmed') : '');
+        } catch (err) {
+            clearDoc();
+            toast(err && err.message === 'type' ? L('Faqat PDF, Word (.docx) va matn fayllari', 'Только PDF, Word (.docx) и текст', 'Only PDF, Word (.docx) and text files') : L("Faylni o'qib bo'lmadi", 'Не удалось прочитать файл', 'Could not read the file'), 'err');
+        }
+    };
     function onPicked(e) {
         var f = e.target.files && e.target.files[0];
         if (!f) return;
@@ -609,7 +676,7 @@
             var parts = [];
             var isLast = i === recent.length - 1;
             if (isLast && m.r === 'u' && chat._sendImg) parts.push({ inline_data: { mime_type: 'image/jpeg', data: chat._sendImg.split(',')[1] } });
-            if (m.t) parts.push({ text: m.t });
+            if (m.send || m.t) parts.push({ text: m.send || m.t });
             else if (m.img) parts.push({ text: L('[Rasm]', '[Фото]', '[Image]') });
             return { role: m.r === 'u' ? 'user' : 'model', parts: parts };
         }).filter(function (h) { return h.parts.length; });
@@ -626,9 +693,17 @@
         if (chat.busy) return;
         var ta = $('c-in');
         var text = ta.value.trim();
-        if (!text && !chat.img) return;
+        if ($('c-doc').classList.contains('loading')) { toast(L("Fayl o'qilmoqda, biroz kuting", 'Файл читается, подождите', 'Reading the file, please wait')); return; }
+        if (!text && !chat.img && !chat.doc) return;
         var off = feature('chat'); if (off) { toast(off, 'warn'); return; }
         var m = { r: 'u', t: text };
+        if (chat.doc) {
+            var askT = text || L("Ushbu hujjatni qisqacha tahlil qilib, asosiy fikrlarini ayt.", 'Кратко проанализируй документ и перечисли главные мысли.', 'Briefly analyze this document and list its key points.');
+            m.doc = chat.doc.name;
+            m.send = '[' + L('Biriktirilgan fayl', 'Прикреплённый файл', 'Attached file') + ': ' + chat.doc.name + ']\n"""\n' + chat.doc.text + '\n"""\n\n' + askT;
+            if (!text) m.t = askT;
+            clearDoc();
+        }
         if (chat.img) { m.img = chat.img.thumb; chat._sendImg = chat.img.full; } else chat._sendImg = null;
         chat.msgs.push(m);
         chat.img = null; $('c-att').hidden = true;

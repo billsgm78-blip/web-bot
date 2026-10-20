@@ -294,3 +294,12 @@ body.kb .bnav { display: none; }
 
 .bal-chip.bump { animation: bump .6s cubic-bezier(.2, .9, .3, 1.4); }
 @keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.22); background: rgba(52, 211, 153, .25); } 100% { transform: scale(1); } }
+
+.doc-chip { display: flex; align-items: center; gap: 10px; margin: 0 4px 8px; padding: 10px 12px; border-radius: 14px; background: var(--s1); border: 1px solid var(--line); }
+.doc-chip .dc-ico { font-size: 22px; }
+.doc-chip .dc-mid { flex: 1; min-width: 0; }
+.doc-chip .dc-mid b { display: block; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-chip .dc-mid small { color: var(--muted); font-size: 12px; }
+.doc-chip.loading .dc-mid small::after { content: " ⏳"; }
+.doc-chip button { width: 26px; height: 26px; border-radius: 50%; background: var(--s3); font-size: 15px; line-height: 1; }
+.bubble .file-tag { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; background: rgba(0, 0, 0, .12); font-size: 13px; font-weight: 700; margin-bottom: 6px; }
