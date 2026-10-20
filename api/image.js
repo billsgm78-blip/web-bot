@@ -122,9 +122,10 @@ async function viaPollinations(prompt) {
 export default async function handler(req, res) {
   {
     const o = String(req.headers.origin || "");
-    const ok = /^https:\/\/((www\.)?bilolsai\.uz|web-bot(-[a-z0-9-]+)?\.vercel\.app|[a-z0-9-]+-billsgm78-blips-projects\.vercel\.app)$/.test(o) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
+    const ok = /^https:\/\/((www\.)?bilolsai\.uz|web-bot(-[a-z0-9-]+)?\.vercel\.app|[a-z0-9-]+-billsgm78-blips-projects\.vercel\.app|appassets\.androidplatform\.net)$/.test(o) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
     res.setHeader("Access-Control-Allow-Origin", ok ? o : "https://bilolsai.uz");
     res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Expose-Headers", "X-Balance, X-Quota-Left");
     if (o && !ok) { res.status(403).json({ error: "Ruxsat yo'q." }); return; }
   }
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");

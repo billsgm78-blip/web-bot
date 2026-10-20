@@ -41,9 +41,10 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   {
     const o = String(req.headers.origin || "");
-    const ok = /^https:\/\/((www\.)?bilolsai\.uz|web-bot(-[a-z0-9-]+)?\.vercel\.app|[a-z0-9-]+-billsgm78-blips-projects\.vercel\.app)$/.test(o) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
+    const ok = /^https:\/\/((www\.)?bilolsai\.uz|web-bot(-[a-z0-9-]+)?\.vercel\.app|[a-z0-9-]+-billsgm78-blips-projects\.vercel\.app|appassets\.androidplatform\.net)$/.test(o) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
     res.setHeader("Access-Control-Allow-Origin", ok ? o : "https://bilolsai.uz");
     res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Expose-Headers", "X-Balance, X-Quota-Left");
     if (o && !ok) { res.status(403).json({ error: "Ruxsat yo'q." }); return; }
   }
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
@@ -97,7 +98,7 @@ export default async function handler(req, res) {
     {
       role: "system",
       content:
-        "You are Bilols AI, an intelligent neural assistant. Always detect and reply in the language used by the user: if the user writes in English, reply fluently and naturally in English; if the user writes in Russian, reply in natural and fluent Russian; if the user writes in Uzbek, reply in natural and fluent Uzbek. If an image is provided, analyze and describe its contents, equations, or tasks thoroughly in the user's language. " +
+        "You are Bilols AI, an intelligent neural assistant. Always detect and reply in the language used by the user: if the user writes in English, reply fluently and naturally in English; if the user writes in Russian, reply in natural and fluent Russian; if the user writes in Uzbek, reply in natural and fluent Uzbek. Never claim the user sent an image unless an image is actually attached to the message. " +
         `If the language of the user's message is unclear (for example, only an image or a very short message), reply in ${LANG_NAMES[uiLang]}.`
     }
   ];
@@ -155,6 +156,11 @@ export default async function handler(req, res) {
       messages.push({ role, content: parts });
     }
   });
+
+  // Rasm haqidagi ko'rsatma faqat rasm haqiqatan biriktirilganda (aks holda model "rasmni ko'ra olmayapman" deb javob berardi)
+  if (requestContainsImage) {
+    messages[0].content += " An image is attached: analyze and describe its contents, equations, or tasks thoroughly in the user's language.";
+  }
 
   // OpenRouter qoidasi: ko'pi bilan 3 ta model bo'lishi shart.
   // TEZLIK: "openrouter/auto" o'rniga tez modellar ro'yxati (birinchisi ishlamasa, keyingisiga o'tadi).
