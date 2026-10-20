@@ -3892,6 +3892,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
     function playIncomeMusic() {
         if (!isSoundEnabled || !incomeAudio) return;
+        try { var nc = window.BilolNotify && window.BilolNotify.config(); if (nc && (nc.money === false || nc.sounds === false)) return; } catch (e) {}
         try {
             incomeAudio.currentTime = 0;
             incomeAudio.play().catch(() => {});

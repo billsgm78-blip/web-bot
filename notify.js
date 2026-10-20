@@ -6,7 +6,7 @@
         error: { c1: '#ef4444', c2: '#b91c1c', emoji: '😕', sound: 'error' },
         warning: { c1: '#f59e0b', c2: '#d97706', emoji: '⚠️', sound: 'beep' },
         info: { c1: '#3b82f6', c2: '#6366f1', emoji: '💬', sound: 'pop' },
-        duration: 3, position: 'top', shake: true, sounds: true
+        duration: 3, position: 'top', shake: true, sounds: true, money: true
     };
     var cfg = JSON.parse(JSON.stringify(DEF));
 
@@ -15,7 +15,7 @@
         ['success', 'error', 'warning', 'info'].forEach(function (t) {
             if (c[t] && typeof c[t] === 'object') for (var k in DEF[t]) if (c[t][k] != null && c[t][k] !== '') cfg[t][k] = c[t][k];
         });
-        ['duration', 'position', 'shake', 'sounds'].forEach(function (k) { if (c[k] != null) cfg[k] = c[k]; });
+        ['duration', 'position', 'shake', 'sounds', 'money'].forEach(function (k) { if (c[k] != null) cfg[k] = c[k]; });
     }
 
     // Matnga qarab turini aniqlash (uz / ru / en)

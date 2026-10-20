@@ -92,6 +92,8 @@
 
     /* ================= Bildirishnoma ================= */
     function toast(msg, type, ms) {
+        // Saytdagi kabi xabarnomalar (rang, stiker, ovoz — admin paneldan boshqariladi)
+        if (window.BilolNotify) { window.BilolNotify.show(msg, ({ ok: 'success', err: 'error', warn: 'warning' })[type] || 'info'); return; }
         var t = document.createElement('div');
         t.className = 'toast ' + (type || '');
         t.textContent = msg;
@@ -162,6 +164,7 @@
         try { state.status = await getJSON(RAIL + '/api/site-status'); } catch (e) { return state.status; }
         var st = state.status || {};
         state.models = st.models || [];
+        if (st.notify && window.BilolNotify) window.BilolNotify.setConfig(st.notify);
         var app = st.app || { lock: !!st.lockAll, lockTitle: st.lockTitle, lockMsg: st.lockMsg };
         state.appLocked = !!app.lock;
         // Ilova sayt blokidan alohida: admin paneldagi "Ilovani bloklash"
@@ -367,16 +370,19 @@
     var moneyAudio = null;
     try { moneyAudio = new Audio('money.mp3'); moneyAudio.preload = 'auto'; } catch (e) {}
     function playMoney() {
-        if (ls('ba_sound') === 'off' || !moneyAudio) return;
-        try { moneyAudio.currentTime = 0; moneyAudio.play().catch(function () {}); } catch (e) {}
+        if (ls('ba_sound') === 'off' || !moneyAudio) return false;
+        var nc = state.status && state.status.notify;
+        if (nc && (nc.money === false || nc.sounds === false)) return false;
+        try { moneyAudio.currentTime = 0; moneyAudio.play().catch(function () {}); return true; } catch (e) { return false; }
     }
     function setBalance(v) {
         if (v == null || isNaN(Number(v))) return;
         var nv = Number(v), prev = state.balance;
         state.balance = nv; paintBalance();
         if (prev != null && nv > prev) {   // pul tushdi
-            playMoney();
-            toast('💰 +' + money(nv - prev) + ' ' + T('sum') + L(' balansga tushdi!', ' зачислено!', ' added!'), 'ok', 3500);
+            var played = playMoney();
+            var mt = '💰 +' + money(nv - prev) + ' ' + T('sum') + L(' balansga tushdi!', ' зачислено!', ' added!');
+            if (window.BilolNotify) window.BilolNotify.show(mt, 'success', { silent: played }); else toast(mt, 'ok', 3500);
             if (navigator.vibrate) { try { navigator.vibrate([30, 40, 30]); } catch (e) {} }
             var b = $('tb-bal'); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump');
         }
@@ -1069,6 +1075,7 @@
                         else if (k === 'snd') {
                             var off = ls('ba_sound') !== 'off';
                             ls('ba_sound', off ? 'off' : 'on');
+                            ls('bilol_ai_sound', off ? 'false' : 'true');
                             $('m-snd').textContent = off ? L("O'chiq", 'Выкл', 'Off') : L('Yoqilgan', 'Вкл', 'On');
                             if (!off) playMoney();
                         }
