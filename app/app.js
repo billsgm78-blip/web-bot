@@ -162,6 +162,7 @@
     /* ================= Sayt holati (blok, e'lon, modellar) ================= */
     async function loadStatus() {
         try { state.status = await getJSON(RAIL + '/api/site-status'); } catch (e) { return state.status; }
+        try { ls('ba_status', JSON.stringify(state.status)); } catch (e) {}
         var st = state.status || {};
         state.models = st.models || [];
         if (st.notify && window.BilolNotify) window.BilolNotify.setConfig(st.notify);
@@ -364,14 +365,21 @@
     function switchTab(t) {
         state.tab = t;
         document.querySelectorAll('#bnav button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === t); });
-        document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x.id === 'tab-' + t); });
+        document.querySelectorAll('.tab').forEach(function (x) {
+            var on = x.id === 'tab-' + t;
+            if (on && !x.classList.contains('on')) { x.classList.remove('enter'); void x.offsetWidth; x.classList.add('enter'); }
+            x.classList.toggle('on', on);
+        });
         paintTitle();
         hideKeyboard();
         if (t === 'shop' && !state.shop) loadShop();
         if (t === 'wallet') loadHistory();
         if (t === 'image') paintGallery();
     }
-    document.querySelectorAll('#bnav button').forEach(function (b) { b.onclick = function () { switchTab(b.getAttribute('data-tab')); }; });
+    function haptic(ms) { if (navigator.vibrate) { try { navigator.vibrate(ms || 8); } catch (e) {} } }
+    document.querySelectorAll('#bnav button').forEach(function (b) {
+        b.onclick = function () { var t = b.getAttribute('data-tab'); if (t !== state.tab) haptic(); switchTab(t); };
+    });
     $('tb-bal').onclick = function () { switchTab('wallet'); };
 
     var moneyAudio = null;
@@ -894,7 +902,7 @@
         if (!st) return;
         st.innerHTML = ''; pr.innerHTML = '';
         if (state.shop) state.shop.forEach(function (it) { (it.kind === 'premium' ? pr : st).appendChild(prodCard(it)); });
-        else if (state.tab === 'shop') st.innerHTML = '<div class="h-empty" style="grid-column:1/-1">…</div>';
+        else st.innerHTML = '<div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div>';
         var r = state.rewards, sub = $('s-sub');
         if (!r) { sub.hidden = true; return; }
         sub.hidden = false;
@@ -947,6 +955,8 @@
     /* ================= HAMYON ================= */
     var KIND_ICO = { topup: '💳', purchase: '🛒', deduct: '➖' };
     async function loadHistory() {
+        var hb = $('w-hist');
+        if (hb && !hb.children.length) hb.innerHTML = '<div class="skel-row"></div><div class="skel-row"></div><div class="skel-row"></div>';
         try {
             var j = await api('/api/history');
             if (!j.success) return;
@@ -1290,13 +1300,28 @@
             state.appLocked = true;
             showLock(cl.lockTitle || L("Vaqtincha to'xtatildi", 'Временно приостановлено', 'Temporarily unavailable'), cl.lockMsg || '', '🛠', T('retry'), function () { loadStatus(); });
         }
+        // Tezlik: oxirgi saqlangan holat bilan darhol ochiladi, server javobi orqa fonda keladi
+        var cached = lsJSON('ba_status', null);
+        if (cached && !state.status) {
+            state.status = cached; state.models = cached.models || [];
+            if (cached.notify && window.BilolNotify) window.BilolNotify.setConfig(cached.notify);
+        }
+        var quick = !(cl && cl.lock) && state.phone && state.pass && cached;
+        if (quick) { enterMain(); setTimeout(function () { document.body.classList.add('ready'); }, 30); }
         state.starting = true;
         var st;
         try { st = await loadStatus(); } finally { state.starting = false; }
         ping();
+        if (quick) { paintModel(); return; }
         if (st && st.lockAll) { if (state.phone && state.pass) liveBalance(++liveId); return; }
         if (state.phone && state.pass) enterMain(); else show('auth');
+        setTimeout(function () { document.body.classList.add('ready'); }, 30);
     }
+    // Serverda yangi dizayn yuklandi (Android qobig'i xabar beradi)
+    window.__uiUpdated = function () {
+        if (!state.inMain && !$('lock').classList.contains('on')) { location.reload(); return; }   // kirish ekranida — darhol
+        toast(L('✨ Yangi versiya tayyor — tepadan pastga tortib yangilang', '✨ Обновление готово — потяните вниз', '✨ Update ready — pull down to refresh'));
+    };
     setInterval(function () { loadStatus(); }, 30000);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) loadStatus(); });
     start();

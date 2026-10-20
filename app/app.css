@@ -311,3 +311,29 @@ body.kb .bnav { display: none; }
 #ptr.anim { transition: transform .25s ease, opacity .25s ease; }
 #ptr.ready svg { color: var(--ok); }
 #ptr.spin svg { animation: spin .7s linear infinite; }
+
+/* ===== 3.3: silliqlik va tezlik ===== */
+html { -webkit-tap-highlight-color: transparent; }
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeSpeed; }
+.screen { transition: opacity .22s ease; }
+.tab { contain: layout paint; }
+.tab.enter { animation: tabIn .24s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes tabIn { from { opacity: 0; transform: translate3d(0, 10px, 0); } to { opacity: 1; transform: none; } }
+.scroll, .msgs { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scroll-behavior: smooth; }
+button, .w-act, .card, .pill, .chip { transition: transform .12s ease, opacity .12s ease, background-color .18s ease; }
+button:active, .w-act:active, .pill:active, .chip:active { transform: scale(.96); }
+.btn.big:active, .send:active { transform: scale(.97); }
+#bnav button svg { transition: transform .2s cubic-bezier(.3,1.6,.5,1); }
+#bnav button.on svg { transform: translateY(-2px) scale(1.08); }
+.splash-logo { animation: splashPop .6s cubic-bezier(.2,1.4,.4,1) both, splashGlow 2.4s ease-in-out .6s infinite; }
+@keyframes splashPop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes splashGlow { 50% { filter: drop-shadow(0 0 18px rgba(250, 204, 21, .45)); } }
+.sheet-card { will-change: transform; }
+.msgs > :last-child { animation: msgIn .22s ease-out both; }
+@keyframes msgIn { from { opacity: 0; transform: translate3d(0, 6px, 0); } to { opacity: 1; transform: none; } }
+.skel-row, .skel-card { border-radius: 14px; background: linear-gradient(90deg, rgba(255,255,255,.04) 25%, rgba(255,255,255,.1) 50%, rgba(255,255,255,.04) 75%);
+    background-size: 300% 100%; animation: skel 1.2s linear infinite; }
+.skel-row { height: 56px; margin-bottom: 10px; }
+.skel-card { height: 92px; }
+@keyframes skel { from { background-position: 100% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
