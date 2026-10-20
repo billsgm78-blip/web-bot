@@ -1855,7 +1855,16 @@ select.inp option { background: #12151c; color: var(--text); }
                         h('b', { text: u.name + ' · +' + String(u.phone).replace(/\D/g, '') }),
                         h('small', { text: (u.ver ? 'v' + u.ver + ' · ' : '') + 'oxirgi: ' + agoTxt(u.last) + ' · birinchi: ' + (u.first ? fmtDate(u.first) : '—') + (u.devices > 1 ? ' · ' + u.devices + ' ta qurilma' : '') })
                     ]),
-                    h('div', { class: 'r-amt' }, [money(u.balance), h('small', { text: u.push ? '🔔 push yoqilgan' : '🔕 push yo\'q' })])
+                    h('div', { class: 'r-amt' }, [money(u.balance), h('small', { text: u.push ? '🔔 push yoqilgan' : '🔕 push yo\'q' })]),
+                    u.push ? h('button', { class: 'act hot', style: 'padding:8px 12px;font-size:12.5px;margin-left:6px', text: '🔔 Sinov', onclick: async function (ev) {
+                        ev.stopPropagation();
+                        var b = ev.currentTarget; b.disabled = true; b.textContent = '⏳';
+                        var r = await admin('push_test', { target: u.phone });
+                        b.disabled = false; b.textContent = '🔔 Sinov';
+                        var lines = (r.results || []).map(function (x) { return (x.status === 200 ? '✅ ' : '❌ ') + x.token + ' — ' + (x.status === 200 ? 'yuborildi' : (x.error || x.status)) + (x.removed ? ' (eskirgan, o\'chirildi)' : ''); });
+                        dialog({ ok: 'Yopish', title: r.success ? '✅ Push yuborildi' : '❌ Push yuborilmadi', text:
+                            (r.error ? r.error + '\n\n' : '') + lines.join('\n') + (r.success ? "\n\nTelefonda bildirishnoma chiqishi kerak. Chiqmasa: telefon sozlamalarida Bilols AI bildirishnomalariga ruxsat berilganini va ilova «majburan to'xtatilmagan»ini tekshiring." : '') });
+                    } }) : null
                 ]));
             });
             box.appendChild(card);
