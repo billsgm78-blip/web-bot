@@ -263,13 +263,14 @@
     }
     $('a-go').onclick = async function () {
         var btn = this;
+        if (auth.busy) return;   // ikki marta bosilsa — ikkinchi so'rov yuborilmaydi
         var phone = normPhone($('a-phone').value), pass = $('a-pass').value.trim(), name = $('a-name').value.trim();
         if (phone.length !== 12) { authMsg(L("Telefon raqamni to'liq kiriting", 'Введите номер полностью', 'Enter the full phone number'), 'err'); return; }
         if (!pass || pass.length < 4) { authMsg(L("Parol kamida 4 belgi bo'lsin", 'Пароль — минимум 4 символа', 'Password must be at least 4 characters'), 'err'); return; }
         if (auth.mode === 'register' && !name) { authMsg(L('Ismingizni yozing', 'Укажите имя', 'Enter your name'), 'err'); return; }
         var feat = auth.mode === 'register' ? feature('auth') : '';
         if (feat) { authMsg(feat, 'err'); return; }
-        btn.disabled = true;
+        btn.disabled = true; auth.busy = true;
         try {
             if (!auth.waiting) {
                 authMsg(L('Yuborilmoqda…', 'Отправка…', 'Sending…'));
@@ -295,7 +296,12 @@
                 body: JSON.stringify({ phone: phone, password: pass, name: name, code: code, action: 'verify', lang: lang })
             });
             var d = {}; try { d = await r2.json(); } catch (e) {}
-            if (!r2.ok || !d.success) { authMsg(d.error || L("Kod noto'g'ri", 'Неверный код', 'Wrong code'), 'err'); return; }
+            if (!r2.ok || !d.success) {
+                var em = d.error || L("Kod noto'g'ri", 'Неверный код', 'Wrong code');
+                // kod eskirgan / topilmagan / urinishlar tugagan — yangi kod so'rash holatiga qaytamiz
+                if (/topilmadi|eskirgan|ko'p xato|so'rang/i.test(em)) { resetOtp(); em += ' 🔄'; }
+                authMsg(em, 'err'); return;
+            }
             state.phone = phone; state.pass = pass; state.name = d.name || name || '';
             ls('ba_phone', phone); ls('ba_pass', pass); ls('ba_name', state.name);
             if (d.balance != null) state.balance = Number(d.balance);
@@ -304,7 +310,7 @@
             toast(L('Xush kelibsiz! 👋', 'Добро пожаловать! 👋', 'Welcome! 👋'), 'ok');
         } catch (e) {
             authMsg(L("Server bilan aloqa yo'q. Internetni tekshiring.", 'Нет связи с сервером. Проверьте интернет.', 'No connection. Check your internet.'), 'err');
-        } finally { btn.disabled = false; }
+        } finally { btn.disabled = false; auth.busy = false; }
     };
     $('a-forgot').onclick = async function () {
         var phone = normPhone($('a-phone').value);
