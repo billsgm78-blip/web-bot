@@ -576,7 +576,7 @@ select.inp option { background: #fff; color: var(--text); }
 
     // ================= PANEL =================
     var TABS = [
-        ['stats', '📊', 'Statistika'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'],
+        ['stats', '📊', 'Statistika'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['aud', '📲', 'Ilova va bot'],
         ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
     ];
     var tab = 'stats';
@@ -596,7 +596,7 @@ select.inp option { background: #fff; color: var(--text); }
         tab = t; buildNav();
         $('page-title').textContent = TABS.filter(function (x) { return x[0] === t; })[0][2];
         var view = $('view'); view.innerHTML = '<div class="loading">⏳</div>';
-        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity }[t];
+        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity, aud: vAud }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -1633,6 +1633,7 @@ select.inp option { background: #fff; color: var(--text); }
 
     // ---------- Jurnal ----------
     var LOG = {
+        bot_check: ['🔍', 'Bot bloklari tekshirildi'],
         login: ['🔓', 'Panelga kirildi'], login_failed: ['⚠️', "Noto'g'ri parol bilan urinish"], settings: ['⚙️', 'Sozlamalar'], balance: ['💰', "Balans o'zgartirildi"],
         sub: ['♾️', 'Obuna'], password: ['🔑', "Foydalanuvchi paroli o'rnatildi"], message: ['✉️', 'Xabar yuborildi'], broadcast: ['📢', "E'lon"],
         order: ['🛒', 'Buyurtma'], ban: ['⛔', 'Bloklandi'], unban: ['✅', 'Blokdan chiqarildi'], promo_create: ['🎟️', 'Promo-kod yaratildi'],
@@ -1650,6 +1651,95 @@ select.inp option { background: #fff; color: var(--text); }
                 h('div', { class: 'r-main' }, [h('b', { text: m[1] + (x.detail ? ' · ' + x.detail : '') }), h('small', { text: fmtDate(x.at) + (x.ip ? ' · IP ' + x.ip : '') })])
             ]));
         });
+    }
+
+    // ---------- Ilova va bot auditoriyasi ----------
+    var audTab = 'app';
+    function agoTxt(sec) {
+        if (!sec) return '—';
+        var m = Math.round((Date.now() / 1000 - sec) / 60);
+        if (m < 2) return 'hozir';
+        if (m < 60) return m + ' daq. oldin';
+        if (m < 1440) return Math.round(m / 60) + ' soat oldin';
+        return Math.round(m / 1440) + ' kun oldin';
+    }
+    async function vAud(view) {
+        view.innerHTML = '';
+        var seg = h('div', { class: 'seg', style: 'margin-bottom:14px' });
+        [['app', '📱 Ilovadan foydalanuvchilar'], ['blocked', '🚫 Botni bloklaganlar']].forEach(function (x) {
+            seg.appendChild(h('button', { class: audTab === x[0] ? 'active' : '', text: x[1], onclick: function () { audTab = x[0]; vAud(view); } }));
+        });
+        view.appendChild(seg);
+        var box = h('div', {}, [h('div', { class: 'loading', text: '⏳' })]);
+        view.appendChild(box);
+        if (audTab === 'app') {
+            var j = await admin('app_users');
+            box.innerHTML = '';
+            var pushN = (j.items || []).filter(function (x) { return x.push; }).length;
+            var week = (j.items || []).filter(function (x) { return x.last > Date.now() / 1000 - 7 * 86400; }).length;
+            box.appendChild(h('div', { class: 'grid kpis' }, [
+                kpi("Ilovaga kirganlar", money(j.total || 0), true), kpi('7 kunda faol', week),
+                kpi('Bildirishnoma yoqilgan', pushN), kpi('Kirmagan qurilmalar', j.anon || 0)
+            ]));
+            box.appendChild(h('div', { class: 'sum', text: "Ilovani o'rnatib, akkauntiga kirgan foydalanuvchilar (oxirgi faollik bo'yicha). Bosilsa — profili ochiladi." }));
+            if (!(j.items || []).length) { box.appendChild(h('div', { class: 'empty', text: "Hozircha hech kim yo'q. Foydalanuvchilar ilovaga kirgach shu yerda ko'rinadi." })); return; }
+            var card = h('div', { class: 'card', style: 'padding:6px 12px' });
+            j.items.forEach(function (u) {
+                card.appendChild(h('div', { class: 'row click', onclick: function () { tab = 'users'; buildNav(); $('page-title').textContent = 'Foydalanuvchilar'; vUser(view, u.phone); } }, [
+                    h('div', { class: 'r-ico', text: u.push ? '📳' : '📱' }),
+                    h('div', { class: 'r-main' }, [
+                        h('b', { text: u.name + ' · +' + String(u.phone).replace(/\D/g, '') }),
+                        h('small', { text: (u.ver ? 'v' + u.ver + ' · ' : '') + 'oxirgi: ' + agoTxt(u.last) + ' · birinchi: ' + (u.first ? fmtDate(u.first) : '—') + (u.devices > 1 ? ' · ' + u.devices + ' ta qurilma' : '') })
+                    ]),
+                    h('div', { class: 'r-amt' }, [money(u.balance), h('small', { text: u.push ? '🔔 push yoqilgan' : '🔕 push yo\'q' })])
+                ]));
+            });
+            box.appendChild(card);
+        } else {
+            var b = await admin('bot_blocked');
+            function paint(b) {
+                box.innerHTML = '';
+                var c = b.check || {};
+                box.appendChild(h('div', { class: 'grid kpis' }, [
+                    kpi('Botni bloklaganlar', money(b.total || 0), true),
+                    kpi('Oxirgi tekshiruv', c.finished ? agoTxt(c.finished) : (c.running ? 'hozir…' : '—'))
+                ]));
+                var btn = h('button', { class: 'act', text: c.running ? '⏳ Tekshirilmoqda… ' + (c.done || 0) + '/' + (c.total || 0) : '🔍 Hammasini tekshirish' });
+                btn.disabled = !!c.running;
+                btn.onclick = async function () {
+                    btn.disabled = true; btn.textContent = '⏳ Boshlandi…';
+                    var r = await admin('bot_check'); paint(r); poll();
+                };
+                box.appendChild(h('div', { class: 'actions' }, [btn]));
+                box.appendChild(h('div', { class: 'sum', text: "Tekshiruv foydalanuvchiga xabar yubormaydi — faqat bot unga yoza oladimi, shuni sinaydi. Kim botga qaytib yozsa, ro'yxatdan o'zi chiqadi. E'lon tarqatilganda ham bloklaganlar avtomatik qo'shiladi." }));
+                if (!(b.items || []).length) { box.appendChild(h('div', { class: 'empty', text: c.finished ? "Hech kim botni bloklamagan 🎉" : "Ro'yxat bo'sh. «Hammasini tekshirish» ni bosing." })); return; }
+                var card = h('div', { class: 'card', style: 'padding:6px 12px' });
+                b.items.forEach(function (u) {
+                    card.appendChild(h('div', { class: 'row' + (u.phone ? ' click' : ''), onclick: function () { if (!u.phone) return; tab = 'users'; buildNav(); $('page-title').textContent = 'Foydalanuvchilar'; vUser(view, u.phone); } }, [
+                        h('div', { class: 'r-ico out', text: '🚫' }),
+                        h('div', { class: 'r-main' }, [
+                            h('b', { text: u.name + (u.phone ? ' · +' + String(u.phone).replace(/\D/g, '') : '') }),
+                            h('small', { text: 'Telegram ID ' + u.chat_id + ' · aniqlandi: ' + fmtDate(u.at) })
+                        ]),
+                        h('div', { class: 'r-amt' }, [money(u.balance), h('small', { text: "so'm" })])
+                    ]));
+                });
+                box.appendChild(card);
+            }
+            var polling = false;
+            async function poll() {
+                if (polling) return; polling = true;
+                while (tab === 'aud' && audTab === 'blocked') {
+                    await new Promise(function (r) { setTimeout(r, 1500); });
+                    if (tab !== 'aud' || audTab !== 'blocked') break;
+                    var r = await admin('bot_blocked'); paint(r);
+                    if (!(r.check || {}).running) break;
+                }
+                polling = false;
+            }
+            paint(b);
+            if ((b.check || {}).running) poll();
+        }
     }
 
     // ---------- Xavfsizlik ----------

