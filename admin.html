@@ -325,6 +325,7 @@ select.inp option { background: #fff; color: var(--text); }
 .pv-phone, .pv-phone b, .pv-lock b { color: #eef1f8; }
 .pv-chat .bar { color: #eef1f8; border-bottom-color: rgba(255,255,255,.08); }
 
+.preview { background: #f8fafc; color: var(--text); border: 1px solid var(--line); }
 /* silliq o'tishlar */
 .main > * { animation: fadeUp .28s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -1666,12 +1667,52 @@ select.inp option { background: #fff; color: var(--text); }
     async function vAud(view) {
         view.innerHTML = '';
         var seg = h('div', { class: 'seg', style: 'margin-bottom:14px' });
-        [['app', '📱 Ilovadan foydalanuvchilar'], ['blocked', '🚫 Botni bloklaganlar']].forEach(function (x) {
+        [['app', '📱 Ilovadan foydalanuvchilar'], ['blocked', '🚫 Botni bloklaganlar'], ['privacy', '🔒 Maxfiylik avtojavob']].forEach(function (x) {
             seg.appendChild(h('button', { class: audTab === x[0] ? 'active' : '', text: x[1], onclick: function () { audTab = x[0]; vAud(view); } }));
         });
         view.appendChild(seg);
         var box = h('div', {}, [h('div', { class: 'loading', text: '⏳' })]);
         view.appendChild(box);
+        if (audTab === 'privacy') {
+            var c = await admin('privacy_reply');
+            box.innerHTML = '';
+            if (!c.connected) box.appendChild(h('div', { class: 'alert', text: "⚠️ Telegram akkauntingiz ulanmagan. «Karta (avto to'lov)» bo'limida akkauntni ulang — avtojavob shu akkaunt orqali ishlaydi." }));
+            var on = h('div', { class: 'switch' + (c.on ? ' ok' : ''), role: 'switch' });
+            on.onclick = function () { on.classList.toggle('ok'); };
+            box.appendChild(h('div', { class: 'card', style: 'margin-bottom:12px' }, [h('div', { class: 'set-line' }, [
+                h('div', {}, [h('b', { text: '🔒 Maxfiylik siyosati avtojavobi' }), h('small', { text: (c.account ? 'Akkaunt: ' + c.account + ' · ' : '') + "Kimdir shaxsiy chatda ma'lumotlari, parol, xavfsizlik haqida yozsa — maxfiylik siyosati qisqacha va havolasi bilan javob beriladi. Bir odamga 12 soatda bir marta." })]), on
+            ])]));
+            var scope = c.scope || 'contacts';
+            var sg = h('div', { class: 'seg' });
+            [['contacts', '👥 Faqat kontaktlarim'], ['all', '🌍 Hamma yozganlar']].forEach(function (x) {
+                var bt = h('button', { class: scope === x[0] ? 'active' : '', text: x[1] });
+                bt.onclick = function () { scope = x[0]; sg.querySelectorAll('button').forEach(function (e) { e.classList.remove('active'); }); bt.classList.add('active'); };
+                sg.appendChild(bt);
+            });
+            var words = h('textarea', { class: 'inp', style: 'min-height:110px', placeholder: c.defaultWords });
+            words.value = c.words || '';
+            var form = h('div', { class: 'card form' }, [
+                h('div', { class: 'lb' }, ['Kimga javob beriladi', sg]),
+                h('label', { class: 'lb' }, ["Kalit so'zlar (vergul bilan). Bo'sh qolsa — standart ro'yxat (oqish yozuv) ishlatiladi:", words]),
+                h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+                    await admin('privacy_reply', { save: true, on: on.classList.contains('ok'), scope: scope, words: words.value });
+                    toast('✅ Saqlandi'); vAud(view);
+                } })
+            ]);
+            box.appendChild(form);
+            box.appendChild(h('div', { class: 'h', text: "Javob matni (ruscha yozganlarga — ruscha)" }));
+            box.appendChild(h('div', { class: 'preview', text: String(c.preview || '').replace(/<[^>]+>/g, '') }));
+            box.appendChild(h('div', { class: 'h', text: 'Oxirgi avtojavoblar · jami ' + (c.count || 0) }));
+            if (!(c.recent || []).length) box.appendChild(h('div', { class: 'empty', text: "Hali hech kimga javob berilmagan" }));
+            else {
+                var rc = h('div', { class: 'card', style: 'padding:6px 12px' });
+                c.recent.forEach(function (r) {
+                    rc.appendChild(h('div', { class: 'row' }, [h('div', { class: 'r-ico', text: '🔒' }), h('div', { class: 'r-main' }, [h('b', { text: r.name }), h('small', { text: '«' + r.text + '» · ' + fmtDate(r.at) })])]));
+                });
+                box.appendChild(rc);
+            }
+            return;
+        }
         if (audTab === 'app') {
             var j = await admin('app_users');
             box.innerHTML = '';
