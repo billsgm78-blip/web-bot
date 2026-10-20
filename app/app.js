@@ -448,9 +448,11 @@
         if (!t) return;
         var key = state.phone + '|' + t + '|' + (pushOn() ? 1 : 0);
         if (!force && ls('ba_push_reg') === key) return;
+        if (pushSync.busy === key) return;            // bir vaqtda ikki marta yubormaslik
+        pushSync.busy = key;
         api('/api/push/register', { token: t, platform: 'android', enabled: pushOn() }).then(function (j) {
             if (j && j.success) ls('ba_push_reg', key);
-        }).catch(function () {});
+        }).catch(function () {}).then(function () { pushSync.busy = null; });
     }
     function pushUnregister() {
         if (!pushSupported()) return;
