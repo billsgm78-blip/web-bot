@@ -1689,13 +1689,21 @@ select.inp option { background: #fff; color: var(--text); }
                 bt.onclick = function () { scope = x[0]; sg.querySelectorAll('button').forEach(function (e) { e.classList.remove('active'); }); bt.classList.add('active'); };
                 sg.appendChild(bt);
             });
+            var cd = String(c.cooldown || 30);
+            var cg = h('div', { class: 'seg' });
+            [['30', '🔁 Har safar'], ['3600', '⏱ Soatiga 1 marta'], ['43200', '🕛 12 soatda 1 marta']].forEach(function (x) {
+                var bt = h('button', { class: cd === x[0] ? 'active' : '', text: x[1] });
+                bt.onclick = function () { cd = x[0]; cg.querySelectorAll('button').forEach(function (e) { e.classList.remove('active'); }); bt.classList.add('active'); };
+                cg.appendChild(bt);
+            });
             var words = h('textarea', { class: 'inp', style: 'min-height:110px', placeholder: c.defaultWords });
             words.value = c.words || '';
             var form = h('div', { class: 'card form' }, [
                 h('div', { class: 'lb' }, ['Kimga javob beriladi', sg]),
+                h('div', { class: 'lb' }, ['Bir odam qayta-qayta so\'rasa', cg, h('small', { text: "«Har safar» — har savolga javob (bir odamga 30 soniyada ko'pi bilan bir marta, ketma-ket yozib yuborishdan himoya)." })]),
                 h('label', { class: 'lb' }, ["Kalit so'zlar (vergul bilan). Bo'sh qolsa — standart ro'yxat (oqish yozuv) ishlatiladi:", words]),
                 h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
-                    await admin('privacy_reply', { save: true, on: on.classList.contains('ok'), scope: scope, words: words.value });
+                    await admin('privacy_reply', { save: true, on: on.classList.contains('ok'), scope: scope, cooldown: cd, words: words.value });
                     toast('✅ Saqlandi'); vAud(view);
                 } })
             ]);
@@ -1712,7 +1720,15 @@ select.inp option { background: #fff; color: var(--text); }
                         var r = await admin('privacy_test', { text: tIn.value });
                         tRes.textContent = r.match ? '✅ Javob beriladi — kalit so\'z topildi' : "❌ Javob berilmaydi — kalit so'z yo'q (ro'yxatga qo'shing)";
                     } }),
-                    h('button', { class: 'act', text: "📩 «Saqlangan xabarlar»ga sinov yuborish", onclick: async function () {
+                    h('button', { class: 'act', style: 'border-color:#c7d2fe;background:#eef2ff;color:#4338ca', text: '🤖 Virtual sinov (bot begona odam bo\'lib yozadi)', onclick: async function (ev) {
+                        var b = ev.currentTarget; b.disabled = true; tRes.textContent = '⏳ Bot akkauntingizga yozyapti…';
+                        var r = await admin('privacy_test', { virtual: true, text: tIn.value.trim() });
+                        b.disabled = false;
+                        if (!r.success) { tRes.textContent = '❌ ' + (r.error || 'Xato'); return; }
+                        tRes.textContent = r.replied ? "✅ Ishladi! Akkauntingiz xabarni qabul qildi va javob tayyorladi. Telegram → «Saqlangan xabarlar»da natijani ko'ring." : "⚠️ Xabar keldi, lekin javob berilmadi — bu gapda kalit so'z yo'q.";
+                        setTimeout(function () { vAud(view); }, 2500);
+                    } }),
+                    h('button', { class: 'act', text: "📩 «Saqlangan xabarlar»ga namuna", onclick: async function () {
                         var r = await admin('privacy_test', { send: true });
                         tRes.textContent = r.sent ? "✅ Yuborildi — Telegram'da «Saqlangan xabarlar» (Saved Messages)ni oching" : '❌ ' + (r.error || 'Yuborilmadi');
                     } })
