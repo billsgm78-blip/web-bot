@@ -303,3 +303,11 @@ body.kb .bnav { display: none; }
 .doc-chip.loading .dc-mid small::after { content: " ⏳"; }
 .doc-chip button { width: 26px; height: 26px; border-radius: 50%; background: var(--s3); font-size: 15px; line-height: 1; }
 .bubble .file-tag { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; background: rgba(0, 0, 0, .12); font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+
+/* Tepadan tortib yangilash */
+#ptr { position: fixed; left: 50%; top: calc(6px + env(safe-area-inset-top)); width: 42px; height: 42px; margin-left: -21px; border-radius: 50%; z-index: 60;
+    background: var(--s2); border: 1px solid var(--line); color: var(--acc); display: grid; place-items: center; box-shadow: 0 8px 22px rgba(0, 0, 0, .5);
+    transform: translateY(-70px); opacity: 0; pointer-events: none; }
+#ptr.anim { transition: transform .25s ease, opacity .25s ease; }
+#ptr.ready svg { color: var(--ok); }
+#ptr.spin svg { animation: spin .7s linear infinite; }

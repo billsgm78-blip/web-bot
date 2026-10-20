@@ -1232,6 +1232,39 @@
     };
     window.addEventListener('keydown', function (e) { if (e.key === 'Escape') window.__back(); });
 
+    /* ================= Tepadan pastga tortib yangilash ================= */
+    (function () {
+        var ptr = $('ptr'), startY = 0, dy = 0, active = false, el = null;
+        var LIMIT = 70;
+        function scroller(t) { return t.closest && t.closest('.scroll, .msgs, #auth'); }
+        document.addEventListener('touchstart', function (e) {
+            if (sheetClose || e.touches.length !== 1) return;
+            el = scroller(e.target);
+            if (!el || el.scrollTop > 0) { active = false; return; }
+            startY = e.touches[0].clientY; dy = 0; active = true;
+            ptr.classList.remove('anim');
+        }, { passive: true });
+        document.addEventListener('touchmove', function (e) {
+            if (!active) return;
+            dy = e.touches[0].clientY - startY;
+            if (dy <= 0 || el.scrollTop > 0) { ptr.style.opacity = 0; ptr.style.transform = 'translateY(-70px)'; return; }
+            var d = Math.min(dy * 0.5, 110);
+            ptr.style.opacity = Math.min(1, d / LIMIT);
+            ptr.style.transform = 'translateY(' + (d - 50) + 'px) rotate(' + (d * 3) + 'deg)';
+            ptr.classList.toggle('ready', d >= LIMIT);
+        }, { passive: true });
+        document.addEventListener('touchend', function () {
+            if (!active) return;
+            active = false;
+            ptr.classList.add('anim');
+            if (dy * 0.5 >= LIMIT) {
+                ptr.style.transform = 'translateY(30px)'; ptr.style.opacity = 1; ptr.classList.add('spin');
+                if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) {} }
+                setTimeout(function () { location.reload(); }, 350);   // yangi dizayn va ma'lumotlar bilan qayta yuklanadi
+            } else { ptr.style.transform = 'translateY(-70px)'; ptr.style.opacity = 0; ptr.classList.remove('ready'); }
+        });
+    })();
+
     /* ================= Ishga tushirish ================= */
     async function start() {
         applyI18n();
