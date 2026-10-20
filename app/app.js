@@ -480,14 +480,58 @@
     });
     $('tb-bal').onclick = function () { switchTab('wallet'); };
 
-    var moneyAudio = null;
-    try { moneyAudio = new Audio('money.mp3'); moneyAudio.preload = 'auto'; } catch (e) {}
-    function playMoney() {
-        if (ls('ba_sound') === 'off' || !moneyAudio) return false;
-        var nc = state.status && state.status.notify;
-        if (nc && (nc.money === false || nc.sounds === false)) return false;
-        try { moneyAudio.currentTime = 0; moneyAudio.play().catch(function () {}); return true; } catch (e) { return false; }
+    /* Pul tushgandagi musiqa (saytdagi bilan bir xil fayl).
+       Android WebView'da <audio> ba'zan jim qoladi — shuning uchun Web Audio: fayl oldindan xotiraga
+       yuklanadi (decode) va darhol chalinadi. Ishlamasa — oddiy <audio> zaxira sifatida. */
+    var AC = window.AudioContext || window.webkitAudioContext;
+    var mctx = null, mbuf = null, mload = null, moneyAudio = null;
+    function moneyCtx() { if (!mctx && AC) { try { mctx = new AC(); } catch (e) { mctx = null; } } return mctx; }
+    function moneyBuf() {
+        if (mbuf) return Promise.resolve(mbuf);
+        if (mload) return mload;
+        var c = moneyCtx();
+        if (!c) return Promise.reject(new Error('no-audio'));
+        mload = fetch('money.mp3').then(function (r) { if (!r.ok) throw new Error('http'); return r.arrayBuffer(); })
+            .then(function (ab) { return new Promise(function (res, rej) { var pr = c.decodeAudioData(ab, res, rej); if (pr && pr.then) pr.then(res, rej); }); })
+            .then(function (b) { mbuf = b; return b; })
+            .catch(function (e) { mload = null; throw e; });
+        return mload;
     }
+    function soundAllowed() {
+        if (ls('ba_sound') === 'off') return false;
+        var nc = state.status && state.status.notify;
+        return !(nc && (nc.money === false || nc.sounds === false));
+    }
+    function playMoneyFallback() {
+        try {
+            if (!moneyAudio) { moneyAudio = new Audio('money.mp3'); moneyAudio.preload = 'auto'; }
+            moneyAudio.currentTime = 0; var pr = moneyAudio.play(); if (pr && pr.catch) pr.catch(function () {});
+        } catch (e) {}
+    }
+    function playMoney() {
+        if (!soundAllowed()) return false;
+        var c = moneyCtx();
+        if (!c) { playMoneyFallback(); return true; }
+        moneyBuf().then(function (b) {
+            if (c.state === 'suspended') { try { c.resume(); } catch (e) {} }
+            var src = c.createBufferSource(), g = c.createGain();
+            src.buffer = b; g.gain.value = 0.95;
+            src.connect(g); g.connect(c.destination);
+            src.start(0);
+        }).catch(playMoneyFallback);
+        return true;
+    }
+    // Birinchi teginishda ovoz tizimini "uyg'otamiz" va musiqani oldindan yuklaymiz
+    (function () {
+        function unlock() {
+            var c = moneyCtx();
+            if (c && c.state === 'suspended') { try { c.resume(); } catch (e) {} }
+            if (window.BilolNotify) { try { window.BilolNotify.play('none', true); } catch (e) {} }
+            moneyBuf().catch(function () {});
+        }
+        ['pointerdown', 'touchstart', 'keydown'].forEach(function (ev) { document.addEventListener(ev, unlock, { passive: true }); });
+        setTimeout(function () { moneyBuf().catch(function () {}); }, 1200);
+    })();
     function setBalance(v) {
         if (v == null || isNaN(Number(v))) return;
         var nv = Number(v), prev = state.balance;
