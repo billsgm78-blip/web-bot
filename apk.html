@@ -110,6 +110,9 @@ html.in-app .inapp { display: block; }
         document.querySelectorAll('.steps-card').forEach(function (e) { e.hidden = !on; });
     }
     var t = setTimeout(function () { show(false); }, 8000);
+    dl.addEventListener('click', function () {
+        try { fetch('https://ai2-production-7d7e.up.railway.app/api/apk/hit', { method: 'POST', keepalive: true, body: '{}' }); } catch (e) {}
+    });
     fetch(API, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
         clearTimeout(t);
         var a = j && j.apk; show(!!(a && a.on), a && a.msg);

@@ -162,18 +162,62 @@
         try { state.status = await getJSON(RAIL + '/api/site-status'); } catch (e) { return state.status; }
         var st = state.status || {};
         state.models = st.models || [];
-        if (st.lockAll) {
-            $('lock-title').textContent = st.lockTitle || L("Vaqtincha to'xtatildi", 'Временно приостановлено', 'Temporarily unavailable');
-            $('lock-msg').textContent = st.lockMsg || L("Texnik ishlar olib borilmoqda. Tez orada qaytamiz!", 'Идут технические работы. Скоро вернёмся!', 'Maintenance in progress. Back soon!');
-            show('lock');
+        var app = st.app || { lock: !!st.lockAll, lockTitle: st.lockTitle, lockMsg: st.lockMsg };
+        // Ilova sayt blokidan alohida: admin paneldagi "Ilovani bloklash"
+        if (app.lock) {
+            showLock(app.lockTitle || L("Vaqtincha to'xtatildi", 'Временно приостановлено', 'Temporarily unavailable'),
+                app.lockMsg || L("Texnik ishlar olib borilmoqda. Tez orada qaytamiz!", 'Идут технические работы. Скоро вернёмся!', 'Maintenance in progress. Back soon!'),
+                '🛠', T('retry'), function () { loadStatus(); });
+            st.lockAll = true;
             return st;
+        }
+        st.lockAll = false;
+        // Yangi versiya chiqqan bo'lsa
+        if (N && app.latest && verLess(appVer(), app.latest)) {
+            if (app.force) {
+                showLock(L('Yangilash kerak', 'Нужно обновление', 'Update required'), (app.updateMsg || '') + '\n\n' + L('Sizda: v', 'У вас: v', 'You have: v') + appVer() + ' → v' + app.latest,
+                    '⬆️', L('Yangilash', 'Обновить', 'Update'), function () { openExternal(app.url); });
+                st.lockAll = true;
+                return st;
+            }
+            if (ls('ba_upd_seen') !== app.latest && !state.updAsked) {
+                state.updAsked = true;
+                setTimeout(function () {
+                    ask('⬆️ ' + L('Yangi versiya ', 'Новая версия ', 'New version ') + 'v' + app.latest, app.updateMsg || '', L('Yangilash', 'Обновить', 'Update'))
+                        .then(function (ok) { ls('ba_upd_seen', app.latest); if (ok) openExternal(app.url); });
+                }, 1500);
+            }
         }
         if ($('lock').classList.contains('on')) start();
         paintAnn();
         if (state.inMain) paintModel();
         return st;
     }
-    $('lock-retry').onclick = function () { loadStatus(); };
+    var lockAction = function () { loadStatus(); };
+    $('lock-retry').onclick = function () { lockAction(); };
+    function showLock(title, msg, ico, btn, action) {
+        $('lock-title').textContent = title;
+        $('lock-msg').textContent = msg;
+        document.querySelector('#lock .big-ico').textContent = ico || '🛠';
+        $('lock-retry').textContent = btn || T('retry');
+        lockAction = action || function () { loadStatus(); };
+        closeSheet(false); closeSupport();
+        show('lock');
+    }
+    function appVer() { try { return (N && N.version && N.version()) || VERSION; } catch (e) { return VERSION; } }
+    function verLess(a, b) {
+        var x = String(a || '0').split('.').map(Number), y = String(b || '0').split('.').map(Number);
+        for (var i = 0; i < Math.max(x.length, y.length); i++) { var d = (x[i] || 0) - (y[i] || 0); if (d) return d < 0; }
+        return false;
+    }
+    function ping() {
+        var day = new Date().toDateString();
+        if (ls('ba_ping') === day) return;
+        var dev = ls('ba_dev');
+        if (!dev) { dev = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); ls('ba_dev', dev); }
+        fetch(RAIL + '/api/app/ping', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device: dev, ver: appVer() }) })
+            .then(function (r) { if (r.ok) ls('ba_ping', day); }).catch(function () {});
+    }
     function paintAnn() {
         var a = state.status && state.status.announcement;
         var box = $('ann');
@@ -310,6 +354,7 @@
         document.querySelectorAll('#bnav button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === t); });
         document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x.id === 'tab-' + t); });
         paintTitle();
+        hideKeyboard();
         if (t === 'shop' && !state.shop) loadShop();
         if (t === 'wallet') loadHistory();
         if (t === 'image') paintGallery();
@@ -1046,6 +1091,13 @@
     }
 
     /* ================= Klaviatura va "Orqaga" tugmasi ================= */
+    function hideKeyboard() { var a = document.activeElement; if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')) a.blur(); }
+    // Yozish maydonidan tashqariga bosilsa — klaviatura yopiladi
+    document.addEventListener('touchstart', function (e) {
+        var t = e.target;
+        if (t.closest && t.closest('input, textarea, .send, #c-pick, #sp-pick, .comp-row, .sh-input, .field')) return;
+        hideKeyboard();
+    }, { passive: true });
     var maxH = window.innerHeight;
     window.addEventListener('resize', function () {
         maxH = Math.max(maxH, window.innerHeight);
@@ -1066,6 +1118,7 @@
         paintLangRow($('auth-lang'));
         paintModes();
         var st = await loadStatus();
+        ping();
         if (st && st.lockAll) return;
         if (state.phone && state.pass) enterMain(); else show('auth');
     }

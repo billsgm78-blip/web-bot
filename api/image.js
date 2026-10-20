@@ -4,10 +4,10 @@ export const maxDuration = 60;
 const RAILWAY_URL = (process.env.RAILWAY_URL || "https://ai2-production-7d7e.up.railway.app").replace(/\/$/, "");
 const IMAGE_MODELS = ["google/gemini-2.5-flash-image", "google/gemini-2.5-flash-image-preview"];
 
-async function railway(path, body) {
+async function railway(path, body, client) {
   const r = await fetch(`${RAILWAY_URL}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "X-Bilols-Client": client || "web" },
     body: JSON.stringify(body)
   });
   const j = await r.json().catch(() => ({}));
@@ -140,7 +140,7 @@ export default async function handler(req, res) {
   if (!text) return res.status(400).json({ error: "Rasm tavsifini yozing." });
 
   // Pul yechiladi va tavsif botning Google Gemini kaliti bilan inglizchaga o'giriladi
-  const charge = await railway("/api/image-charge", { phone, password, prompt: text });
+  const charge = await railway("/api/image-charge", { phone, password, prompt: text }, /appassets\.androidplatform\.net/.test(String(req.headers.origin || "")) ? "app" : "web");
   if (charge._status === 403) return res.status(401).json({ error: "Iltimos, hisobdan chiqib qayta kiring.", needLogin: true });
   if (charge.blocked) return res.status(503).json({ error: charge.message || "Bu funksiya vaqtincha o'chirilgan.", blocked: true });
   if (!charge.success) return res.status(402).json({ error: charge.error || "Mablag' yetarli emas", noMoney: true, price: charge.price, balance: charge.balance });

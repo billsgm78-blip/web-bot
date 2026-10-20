@@ -1063,28 +1063,56 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         ]));
 
         // ===== 1b. Android ilova (APK) =====
-        var apk = st.apk || { on: false, msg: '' };
-        var apkSw = h('div', { class: 'switch' + (apk.on ? ' ok' : ''), role: 'switch' });
-        var apkMsg = h('textarea', { class: 'inp', maxlength: 300, style: 'min-height:80px', placeholder: "Android ilovada texnik ishlar olib borilmoqda. Tez orada yangi versiya chiqadi!" });
-        apkMsg.value = apk.msg || '';
-        var apkState = h('small', { text: apk.on ? "Yuklab olish ochiq — /apkyuklash da tugma ko'rinadi" : "🛠 Texnik ishlar — yuklab olish yopiq" });
-        apkSw.onclick = function () {
-            apkSw.classList.toggle('ok');
-            apkState.textContent = apkSw.classList.contains('ok') ? '✅ Ochiladi (saqlang)' : '🛠 Texnik ishlar (saqlang)';
-        };
-        view.appendChild(h('div', { class: 'h', text: '📱 Android ilova (APK)' }));
-        view.appendChild(h('div', { class: 'form', style: 'max-width:640px' }, [
-            h('div', { class: 'lock-hero' + (apk.on ? '' : ' on') }, [
-                h('div', { class: 'big', text: apk.on ? '📲' : '🛠' }),
-                h('div', { class: 'grow' }, [h('b', { text: 'APK yuklab olish' }), apkState]),
-                apkSw
+        var apk = st.apk || { on: false, msg: '' }, app = st.app || {}, ast = j.appStats || {};
+        view.appendChild(h('div', { class: 'h', text: '📱 Android ilova' }));
+        view.appendChild(h('div', { class: 'grid kpis' }, [
+            kpi('APK yuklab olishlar', money(ast.downloads || 0), true), kpi("Ilova o'rnatilgan qurilmalar", money(ast.devices || 0), true),
+            kpi('Bugun faol', ast.today || 0), kpi('7 kunda faol', ast.week || 0)
+        ]));
+        if ((ast.versions || []).length) view.appendChild(h('div', { class: 'sum', style: 'margin:-4px 0 12px', text: 'Versiyalar: ' + ast.versions.map(function (v) { return 'v' + v.ver + ' — ' + v.n; }).join(' · ') }));
+
+        function sw(on, cls) { var e = h('div', { class: 'switch' + (on ? ' ' + (cls || 'ok') : ''), role: 'switch' }); e.onclick = function () { e.classList.toggle(cls || 'ok'); }; return e; }
+        // a) APK yuklab olish
+        var apkSw = sw(apk.on);
+        var apkMsg = h('textarea', { class: 'inp', maxlength: 300, style: 'min-height:70px', placeholder: "Android ilovada texnik ishlar olib borilmoqda. Tez orada yangi versiya chiqadi!" }); apkMsg.value = apk.msg || '';
+        // b) Ilovani bloklash (saytdan alohida)
+        var lkSw = sw(app.lock, 'on');
+        var lkTitle = h('input', { class: 'inp', maxlength: 80, placeholder: "Vaqtincha to'xtatildi" }); lkTitle.value = app.lockTitle || '';
+        var lkMsg = h('textarea', { class: 'inp', maxlength: 500, style: 'min-height:70px', placeholder: 'Ilovada texnik ishlar olib borilmoqda. Tez orada qaytamiz 🙏' }); lkMsg.value = app.lockMsg || '';
+        // c) Yangilanish
+        var upVer = h('input', { class: 'inp', maxlength: 16, placeholder: 'Masalan: 3.2.0' }); upVer.value = app.latest || '';
+        var upForce = sw(app.force, 'on');
+        var upMsg = h('textarea', { class: 'inp', maxlength: 300, style: 'min-height:70px', placeholder: "Ilovaning yangi versiyasi chiqdi. Yangilab oling — tezroq va qulayroq!" }); upMsg.value = app.updateMsg || '';
+        async function saveApp(payload, okText) {
+            var x = await admin('apk_set', payload);
+            if (x.success) { toast(okText); vControl(view); } else toast(x.error || 'Xato');
+        }
+        view.appendChild(h('div', { class: 'feat-grid', style: 'grid-template-columns:repeat(auto-fit,minmax(260px,1fr))' }, [
+            h('div', { class: 'form' }, [
+                h('div', { class: 'lock-hero' + (apk.on ? '' : ' on') }, [h('div', { class: 'big', text: apk.on ? '📲' : '🛠' }),
+                    h('div', { class: 'grow' }, [h('b', { text: 'APK yuklab olish' }), h('small', { text: apk.on ? "Ochiq — /apkyuklash da tugma bor" : 'Yopiq — texnik ishlar' })]), apkSw]),
+                h('label', { class: 'lb' }, ['Yopiq paytdagi matn', apkMsg]),
+                h('button', { class: 'btn', text: '💾 Saqlash', onclick: function () { var on = apkSw.classList.contains('ok'); saveApp({ on: on, msg: apkMsg.value }, on ? '📲 Yuklab olish ochildi' : '🛠 Yuklab olish yopildi'); } })
             ]),
-            h('label', { class: 'lb' }, ["Texnik ishlar paytidagi matn (/apkyuklash sahifasida chiqadi)", apkMsg]),
-            h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
-                var on = apkSw.classList.contains('ok');
-                var x = await admin('apk_set', { on: on, msg: apkMsg.value });
-                if (x.success) { toast(on ? '📲 APK yuklash ochildi' : '🛠 APK: texnik ishlar'); vControl(view); } else toast(x.error || 'Xato');
-            } })
+            h('div', { class: 'form' }, [
+                h('div', { class: 'lock-hero' + (app.lock ? ' on' : '') }, [h('div', { class: 'big', text: app.lock ? '⛔' : '🟢' }),
+                    h('div', { class: 'grow' }, [h('b', { text: 'Ilovani bloklash' }), h('small', { text: app.lock ? 'Ilova BLOKLANGAN' : "Ilova ishlayapti (sayt blokiga bog'liq emas)" })]), lkSw]),
+                h('label', { class: 'lb' }, ['Sarlavha', lkTitle]),
+                h('label', { class: 'lb' }, ['Sababi', lkMsg]),
+                h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+                    var on = lkSw.classList.contains('on');
+                    if (on && !app.lock && !await dialog({ title: 'Ilovani bloklash', text: "Android ilovadagi barcha foydalanuvchilar uchun ilova to'xtaydi (sayt ishlayveradi). Davom etasizmi?", ok: 'Bloklash', danger: true })) return;
+                    saveApp({ appLock: on, appLockTitle: lkTitle.value, appLockMsg: lkMsg.value }, on ? '⛔ Ilova bloklandi' : '🟢 Ilova ochiq');
+                } })
+            ]),
+            h('div', { class: 'form' }, [
+                h('div', { class: 'lock-hero' }, [h('div', { class: 'big', text: '⬆️' }),
+                    h('div', { class: 'grow' }, [h('b', { text: 'Yangilanish' }), h('small', { text: app.latest ? "So'nggi versiya: v" + app.latest + (app.force ? ' · majburiy' : '') : "Hali belgilanmagan" })])]),
+                h('label', { class: 'lb' }, ["So'nggi versiya (undan eski ilovalarda «Yangilash» chiqadi)", upVer]),
+                h('div', { class: 'lock-hero', style: 'padding:10px 12px' }, [h('div', { class: 'grow' }, [h('b', { text: 'Majburiy yangilash' }), h('small', { text: 'Yoqilsa, eski versiyada ilova yangilamaguncha ochilmaydi' })]), upForce]),
+                h('label', { class: 'lb' }, ['Xabar matni', upMsg]),
+                h('button', { class: 'btn', text: '💾 Saqlash', onclick: function () { saveApp({ latest: upVer.value, force: upForce.classList.contains('on'), updateMsg: upMsg.value }, '⬆️ Yangilanish sozlandi'); } })
+            ])
         ]));
 
         // ===== 2. Alohida funksiyalar =====
