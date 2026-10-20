@@ -389,6 +389,7 @@
         toast(L("Parol o'zgargan yoki sessiya tugagan. Qaytadan kiring.", 'Пароль изменён или сессия истекла. Войдите снова.', 'Password changed or session expired. Please log in again.'), 'warn', 4500);
     }
     function logout(silent) {
+        pushUnregister();
         ['ba_phone', 'ba_pass', 'ba_name', 'ba_chat'].forEach(function (k) { ls(k, null); });
         state.phone = state.pass = state.name = ''; state.balance = null; state.rewards = null; state.inMain = false; liveId++;
         closeSupport(); closeSheet(false);
@@ -410,7 +411,54 @@
         loadHistory();
         peekSupport();
         liveBalance(++liveId);
+        pushStart();
     }
+
+    /* ================= Push-bildirishnomalar (ilova yopiq bo'lsa ham) ================= */
+    function pushSupported() { return !!(N && N.pushToken && N.pushReady && (function () { try { return N.pushReady(); } catch (e) { return false; } })()); }
+    function pushOn() { return ls('ba_push') !== 'off'; }
+    function pushSync(force) {
+        if (!pushSupported() || !state.phone || !state.pass) return;
+        var t = ''; try { t = N.pushToken() || ''; } catch (e) {}
+        if (!t) return;
+        var key = state.phone + '|' + t + '|' + (pushOn() ? 1 : 0);
+        if (!force && ls('ba_push_reg') === key) return;
+        api('/api/push/register', { token: t, platform: 'android', enabled: pushOn() }).then(function (j) {
+            if (j && j.success) ls('ba_push_reg', key);
+        }).catch(function () {});
+    }
+    function pushUnregister() {
+        if (!pushSupported()) return;
+        var t = ''; try { t = N.pushToken() || ''; } catch (e) {}
+        ls('ba_push_reg', null);
+        if (t) try { fetch(RAIL + '/api/push/unregister', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: t }), keepalive: true }); } catch (e) {}
+    }
+    function pushStart() {
+        if (!pushSupported()) return;
+        if (!ls('ba_notify_asked')) { ls('ba_notify_asked', '1'); setTimeout(function () { try { N.askNotify(); } catch (e) {} }, 1200); }
+        pushSync();
+        setTimeout(function () { window.__checkOpen(); }, 300);
+    }
+    window.__pushToken = function () { pushSync(); };
+    // Bildirishnoma bosib ochilganda — kerakli bo'limga
+    window.__checkOpen = function () {
+        if (!state.inMain || !N || !N.takeOpen) return;
+        var k = ''; try { k = N.takeOpen() || ''; } catch (e) {}
+        if (k === 'support') { closeSheet(false); openSupport(); }
+        else if (k === 'money' || k === 'order') { closeSheet(false); if (sp.open) closeSupport(); switchTab('wallet'); loadHistory(); }
+    };
+    // Ilova ochiq paytida kelgan push — ichida ko'rsatamiz
+    window.__push = function (kind, title, body) {
+        if (!state.inMain) return;
+        if (kind === 'money') return;                  // jonli balans o'zi ko'rsatadi (musiqa bilan)
+        try { if (N && N.vibrate) N.vibrate(120); } catch (e) {}
+        if (kind === 'support') {
+            if (sp.open) return;                       // chat ochiq — xabar o'zi chiqadi
+            sp.unread = (sp.unread || 0) + 1; paintUnread();
+        }
+        if (kind === 'order') loadHistory();
+        toast(title + (body ? ' — ' + body : ''), 'ok', 4200);
+    };
     function switchTab(t) {
         state.tab = t;
         document.querySelectorAll('#bnav button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === t); });
@@ -1122,6 +1170,7 @@
         openSheet('<div class="me-head"><div class="me-ava"></div><div><b></b><small></small></div></div><div class="menu">' +
             '<button data-k="sup"><span class="m-ico">💬</span>' + esc(L('Yordam — admin bilan chat', 'Поддержка — чат с админом', 'Support — chat with admin')) + '<span class="m-badge" id="m-unread" hidden></span></button>' +
             '<button data-k="lang"><span class="m-ico">🌍</span>' + esc(L('Til', 'Язык', 'Language')) + '<span class="m-r">' + ({ uz: "O'zbekcha", ru: 'Русский', en: 'English' })[lang] + '</span></button>' +
+            (pushSupported() ? '<button data-k="push"><span class="m-ico">📳</span>' + esc(L('Bildirishnomalar', 'Уведомления', 'Notifications')) + '<span class="m-r" id="m-push"></span></button>' : '') +
             '<button data-k="snd"><span class="m-ico">🔔</span>' + esc(L("Pul tushganda ovoz", 'Звук при зачислении', 'Sound on top-up')) + '<span class="m-r" id="m-snd">' + (ls('ba_sound') === 'off' ? L("O'chiq", 'Выкл', 'Off') : L('Yoqilgan', 'Вкл', 'On')) + '</span></button>' +
             '<button data-k="pass"><span class="m-ico">🔑</span>' + esc(L("Parolni o'zgartirish", 'Сменить пароль', 'Change password')) + '</button>' +
             '<button data-k="bot"><span class="m-ico">✈️</span>' + esc(L('Telegram botni ochish', 'Открыть Telegram-бот', 'Open Telegram bot')) + '</button>' +
@@ -1134,6 +1183,12 @@
                 b.querySelector('.me-head b').textContent = state.name || 'Bilols AI';
                 b.querySelector('.me-head small').textContent = '+' + state.phone + (r.publicId ? ' · 🆔 ' + r.publicId : '');
                 if (sp.unread) { var u = b.querySelector('#m-unread'); u.textContent = sp.unread; u.hidden = false; }
+                function paintPush() {
+                    var e = b.querySelector('#m-push'); if (!e) return;
+                    var allowed = false; try { allowed = N.notifyAllowed(); } catch (er) {}
+                    e.textContent = !allowed ? L('Ruxsat yo\'q', 'Нет доступа', 'Not allowed') : pushOn() ? L('Yoqilgan', 'Вкл', 'On') : L("O'chiq", 'Выкл', 'Off');
+                }
+                paintPush();
                 b.querySelectorAll('[data-k]').forEach(function (x) {
                     x.onclick = function () {
                         var k = x.getAttribute('data-k');
@@ -1145,6 +1200,17 @@
                             ls('bilol_ai_sound', off ? 'false' : 'true');
                             $('m-snd').textContent = off ? L("O'chiq", 'Выкл', 'Off') : L('Yoqilgan', 'Вкл', 'On');
                             if (!off) playMoney();
+                        }
+                        else if (k === 'push') {
+                            var allowed = false; try { allowed = N.notifyAllowed(); } catch (er) {}
+                            if (!allowed) {
+                                try { if (ls('ba_notify_denied')) N.openNotifySettings(); else { ls('ba_notify_denied', '1'); N.askNotify(); } } catch (er) {}
+                                setTimeout(paintPush, 1500);
+                            } else {
+                                ls('ba_push', pushOn() ? 'off' : 'on'); pushSync(true); paintPush();
+                                if (pushOn()) { try { N.vibrate(150); } catch (er) {} }
+                                toast(pushOn() ? L('📳 Bildirishnomalar yoqildi', '📳 Уведомления включены', '📳 Notifications on') : L("🔕 Bildirishnomalar o'chirildi", '🔕 Уведомления выключены', '🔕 Notifications off'));
+                            }
                         }
                         else if (k === 'pass') { passSheet(); }
                         else if (k === 'bot') { closeSheet(true); openExternal((r.botRefUrl || '').split('?')[0] || 'https://t.me/'); }

@@ -1175,6 +1175,7 @@ select.inp option { background: #fff; color: var(--text); }
             kpi('APK yuklab olishlar', money(ast.downloads || 0), true), kpi("Ilova o'rnatilgan qurilmalar", money(ast.devices || 0), true),
             kpi('Bugun faol', ast.today || 0), kpi('7 kunda faol', ast.week || 0)
         ]));
+        if (ast.push) view.appendChild(h('div', { class: 'sum', style: 'margin:-4px 0 6px', text: '🔔 Push bildirishnoma: ' + (ast.push.configured ? '✅ ulangan' : "⚠️ Firebase kaliti qo'yilmagan") + ' · yoqilgan qurilmalar: ' + (ast.push.devices || 0) }));
         if ((ast.versions || []).length) view.appendChild(h('div', { class: 'sum', style: 'margin:-4px 0 12px', text: 'Versiyalar: ' + ast.versions.map(function (v) { return 'v' + v.ver + ' — ' + v.n; }).join(' · ') }));
 
         function sw(on, cls) { var e = h('div', { class: 'switch' + (on ? ' ' + (cls || 'ok') : ''), role: 'switch' }); e.onclick = function () { e.classList.toggle(cls || 'ok'); }; return e; }
