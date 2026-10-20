@@ -79,6 +79,10 @@ html.in-app .inapp { display: block; }
 .maint a { color: #93c5fd; }
 .auto-note { text-align: center; color: #a7f3d0; font-size: 14px; font-weight: 600; margin: -6px 0 12px; }
 .maint-load { text-align: center; color: var(--muted); font-size: 14px; padding: 18px; }
+.hash { margin: 12px 0; padding: 12px; border-radius: 14px; background: rgba(148, 163, 184, .06); border: 1px solid var(--line); cursor: pointer; }
+.hash small { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+.hash code { display: block; font: 600 12.5px/1.5 ui-monospace, Menlo, monospace; color: #a7f3d0; word-break: break-all; }
+.hash.ok small::after { content: ' — nusxa olindi ✓'; color: #a7f3d0; }
 [hidden] { display: none !important; }
 </style>
 <script>if (/BilolsAIApp/.test(navigator.userAgent)) document.documentElement.classList.add('in-app');</script>
@@ -103,7 +107,8 @@ html.in-app .inapp { display: block; }
             <li><b>"Yuklab olish"</b> tugmasini bosing va fayl yuklanishini kuting.</li>
             <li>Yuklangan <b>Bilols-AI.apk</b> faylini oching.</li>
             <li>Telefon "Noma'lum manba" deb so'rasa, <b>Sozlamalar → Ruxsat berish</b> ni bosing.</li>
-            <li><b>O'rnatish</b> ni bosing. Tayyor! Ilova bosh ekranda paydo bo'ladi.</li>
+            <li><b>O'rnatish</b> ni bosing.</li>
+            <li>Agar <b>Play Protect</b> ogohlantirsa — <b>"Batafsil"</b> → <b>"Baribir o'rnatish"</b> ni bosing. Bu Google Play'dan tashqari ilovalar uchun oddiy ogohlantirish. Tayyor! Ilova bosh ekranda paydo bo'ladi.</li>
         </ol>
     </section>
 
@@ -117,6 +122,14 @@ html.in-app .inapp { display: block; }
             <div><i>🛠</i>Admin bilan chat</div>
             <div><i>🌍</i>3 til: UZ / RU / EN</div>
         </div>
+    </section>
+
+    <section class="card">
+        <h2>🛡 Xavfsizlik</h2>
+        <p class="note">Ilova faqat internet ruxsatini so'raydi — SMS, kontaktlar, kamera yoki joylashuvga kirmaydi. Fayl asl ekanini quyidagi hash orqali tekshirishingiz mumkin:</p>
+        <div class="hash"><small>APK SHA-256 (v3.3.0)</small><code id="h-apk">fdb4edcc6955fc1f9fc590ef3e17b7a9e4a2677e1833af64b82c62fde2068c19</code></div>
+        <div class="hash"><small>Imzo sertifikati SHA-256</small><code id="h-cert">8F:50:98:52:92:44:59:12:BF:72:79:CE:76:52:EE:3F:D1:89:AA:54:2A:F0:DE:24:A0:22:CB:67:A6:4C:90:A6</code></div>
+        <p class="note">Imzo egasi: <b>CN=Bilols AI, O=Bilols AI, L=Xorazm, C=UZ</b> · Paket: <b>uz.bilolsai.twa</b></p>
     </section>
 
     <section class="card">
@@ -147,6 +160,11 @@ html.in-app .inapp { display: block; }
         dl.parentNode.insertBefore(note, dl);
         setTimeout(function () { note.textContent = "✅ Yuklab olish boshlandi. Tugagach, faylni ochib o'rnating."; dl.click(); }, 2000);
     }
+    document.querySelectorAll('.hash').forEach(function (h) {
+        h.addEventListener('click', function () {
+            try { navigator.clipboard.writeText(h.querySelector('code').textContent); h.classList.add('ok'); setTimeout(function () { h.classList.remove('ok'); }, 1500); } catch (e) {}
+        });
+    });
     dl.addEventListener('click', function () {
         try { fetch('https://ai2-production-7d7e.up.railway.app/api/apk/hit', { method: 'POST', keepalive: true, body: '{}' }); } catch (e) {}
     });
