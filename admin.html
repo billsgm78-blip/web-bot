@@ -1037,7 +1037,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         var lockMsg = h('textarea', { class: 'inp', placeholder: DEFL.lock, maxlength: 500, style: 'min-height:100px' }); lockMsg.value = st.lockMsg || '';
         var hero = h('div', { class: 'lock-hero' + (lockOn ? ' on' : '') }, [
             h('div', { class: 'big', text: lockOn ? '⛔' : '🟢' }),
-            h('div', { class: 'grow' }, [h('b', { text: 'Butun saytni bloklash' }), h('small', { text: lockOn ? "Sayt hozir BLOKLANGAN — hamma blok oynasini ko'ryapti" : 'Sayt ishlayapti' })]),
+            h('div', { class: 'grow' }, [h('b', { text: 'Butun saytni bloklash' }), h('small', { text: lockOn ? "Sayt va ilova BLOKLANGAN — hamma blok oynasini ko'ryapti" : 'Sayt va ilova ishlayapti' })]),
             lockSw
         ]);
         var pvLock = h('div', { class: 'pv-lock' }, [h('div', { class: 'i', text: '🛠' }), h('b'), h('p')]);
@@ -1055,7 +1055,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
                 h('label', { class: 'lb' }, ['Sababi (foydalanuvchilar shu matnni ko\'radi)', lockMsg]),
                 h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
                     var on = lockSw.classList.contains('on');
-                    if (on && !lockOn && !await dialog({ title: 'Saytni bloklash', text: "Barcha foydalanuvchilar uchun sayt to'xtaydi (admin panel ishlayveradi). Davom etasizmi?", ok: 'Bloklash', danger: true })) return;
+                    if (on && !lockOn && !await dialog({ title: 'Saytni bloklash', text: "Barcha foydalanuvchilar uchun sayt va Android ilova to'xtaydi (admin panel ishlayveradi). Davom etasizmi?", ok: 'Bloklash', danger: true })) return;
                     var x = await admin('control_set', { lockAll: on, lockTitle: lockTitle.value, lockMsg: lockMsg.value });
                     if (x.success) { toast(on ? '⛔ Sayt bloklandi' : '🟢 Sayt ochiq'); vControl(view); } else toast(x.error || 'Xato');
                 } })
@@ -1077,7 +1077,7 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
         var apkSw = sw(apk.on);
         var apkMsg = h('textarea', { class: 'inp', maxlength: 300, style: 'min-height:70px', placeholder: "Android ilovada texnik ishlar olib borilmoqda. Tez orada yangi versiya chiqadi!" }); apkMsg.value = apk.msg || '';
         // b) Ilovani bloklash (saytdan alohida)
-        var lkSw = sw(app.lock, 'on');
+        var lkSw = sw(app.lockOwn, 'on');
         var lkTitle = h('input', { class: 'inp', maxlength: 80, placeholder: "Vaqtincha to'xtatildi" }); lkTitle.value = app.lockTitle || '';
         var lkMsg = h('textarea', { class: 'inp', maxlength: 500, style: 'min-height:70px', placeholder: 'Ilovada texnik ishlar olib borilmoqda. Tez orada qaytamiz 🙏' }); lkMsg.value = app.lockMsg || '';
         // c) Yangilanish
@@ -1097,12 +1097,12 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
             ]),
             h('div', { class: 'form' }, [
                 h('div', { class: 'lock-hero' + (app.lock ? ' on' : '') }, [h('div', { class: 'big', text: app.lock ? '⛔' : '🟢' }),
-                    h('div', { class: 'grow' }, [h('b', { text: 'Ilovani bloklash' }), h('small', { text: app.lock ? 'Ilova BLOKLANGAN' : "Ilova ishlayapti (sayt blokiga bog'liq emas)" })]), lkSw]),
+                    h('div', { class: 'grow' }, [h('b', { text: 'Ilovani bloklash' }), h('small', { text: app.lockOwn ? 'Ilova BLOKLANGAN' : (app.lock ? 'Ilova sayt bloki bilan birga bloklangan' : "Faqat ilovani bloklaydi. Sayt bloklansa, ilova ham bloklanadi") })]), lkSw]),
                 h('label', { class: 'lb' }, ['Sarlavha', lkTitle]),
                 h('label', { class: 'lb' }, ['Sababi', lkMsg]),
                 h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
                     var on = lkSw.classList.contains('on');
-                    if (on && !app.lock && !await dialog({ title: 'Ilovani bloklash', text: "Android ilovadagi barcha foydalanuvchilar uchun ilova to'xtaydi (sayt ishlayveradi). Davom etasizmi?", ok: 'Bloklash', danger: true })) return;
+                    if (on && !app.lockOwn && !await dialog({ title: 'Ilovani bloklash', text: "Android ilovadagi barcha foydalanuvchilar uchun ilova to'xtaydi (sayt ishlayveradi). Davom etasizmi?", ok: 'Bloklash', danger: true })) return;
                     saveApp({ appLock: on, appLockTitle: lkTitle.value, appLockMsg: lkMsg.value }, on ? '⛔ Ilova bloklandi' : '🟢 Ilova ochiq');
                 } })
             ]),

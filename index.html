@@ -6609,10 +6609,18 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             try {
                 var r = await fetch(RAILWAY_URL + '/api/site-status', { cache: 'no-store' });
                 var j = await r.json();
-                if (j && j.success) { st = j; apply(); }
+                if (j && j.success) {
+                    st = j; apply();
+                    try { localStorage.setItem('bilol_site_lock', JSON.stringify({ lockAll: !!j.lockAll, lockTitle: j.lockTitle || '', lockMsg: j.lockMsg || '' })); } catch (e) {}
+                }
             } catch (e) {}
             var lb = lock.querySelector('button'); if (lb && lb.textContent === '⏳') lb.textContent = T('🔄 Qayta tekshirish', '🔄 Check again', '🔄 Проверить снова');
         }
+        // Sahifa qayta ochilganda blok oynasi darhol chiqadi (server javobini kutmasdan), keyin tekshiriladi
+        try {
+            var cached = JSON.parse(localStorage.getItem('bilol_site_lock') || 'null');
+            if (cached && cached.lockAll) { st = cached; apply(); }
+        } catch (e) {}
         load();
         setInterval(function () { if (!document.hidden) load(); }, 15000);
         document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });

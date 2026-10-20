@@ -166,6 +166,7 @@
         state.models = st.models || [];
         if (st.notify && window.BilolNotify) window.BilolNotify.setConfig(st.notify);
         var app = st.app || { lock: !!st.lockAll, lockTitle: st.lockTitle, lockMsg: st.lockMsg };
+        try { ls('ba_lock', JSON.stringify({ lock: !!app.lock, lockTitle: app.lockTitle || '', lockMsg: app.lockMsg || '' })); } catch (e) {}
         state.appLocked = !!app.lock;
         // Ilova sayt blokidan alohida: admin paneldagi "Ilovani bloklash"
         if (app.lock) {
@@ -192,7 +193,7 @@
                 }, 1500);
             }
         }
-        if ($('lock').classList.contains('on')) start();
+        if ($('lock').classList.contains('on') && !state.starting) start();
         paintAnn();
         if (state.inMain) paintModel();
         return st;
@@ -1277,7 +1278,15 @@
         applyI18n();
         paintLangRow($('auth-lang'));
         paintModes();
-        var st = await loadStatus();
+        // Oldin bloklangan bo'lsa — blok oynasi darhol (server javobini kutmasdan)
+        var cl = lsJSON('ba_lock', null);
+        if (cl && cl.lock && !$('lock').classList.contains('on')) {
+            state.appLocked = true;
+            showLock(cl.lockTitle || L("Vaqtincha to'xtatildi", 'Временно приостановлено', 'Temporarily unavailable'), cl.lockMsg || '', '🛠', T('retry'), function () { loadStatus(); });
+        }
+        state.starting = true;
+        var st;
+        try { st = await loadStatus(); } finally { state.starting = false; }
         ping();
         if (st && st.lockAll) { if (state.phone && state.pass) liveBalance(++liveId); return; }
         if (state.phone && state.pass) enterMain(); else show('auth');
