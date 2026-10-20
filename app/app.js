@@ -305,7 +305,7 @@
         if (d.m === 'register') { var rb = document.querySelector('#auth-seg [data-mode="register"]'); if (rb) rb.onclick(); }
         $('a-phone').value = d.p || ''; $('a-pass').value = d.s || ''; $('a-name').value = d.n || '';
         if (d.w) {
-            auth.waiting = true; auth.sentAt = d.t;
+            auth.waiting = true; auth.sentAt = d.t; auth.sentPhone = normPhone(d.p || '');
             $('f-code').hidden = false; $('a-code').value = d.c || ''; paintAuthBtn();
             authMsg(L('Kod Telegram botingizga yuborilgan 🤖 Kodni kiriting.', 'Код отправлен в ваш Telegram-бот 🤖 Введите его.', 'The code was sent to your Telegram bot 🤖 Enter it.'), 'ok');
         }
@@ -323,7 +323,12 @@
             resetOtp(); authMsg('');
         };
     });
-    $('a-phone').addEventListener('input', resetOtp);
+    // Faqat raqam HAQIQATAN boshqa raqamga o'zgarsa kod bosqichi bekor bo'ladi.
+    // (Android avtomatik to'ldirish/klaviatura kod maydoniga bosilganda raqam maydoniga xuddi shu raqamni
+    //  qayta yozadi — ilgari bu kod bosqichini o'chirib, "Tasdiqlash" yana "Kod olish"ga aylanardi.)
+    $('a-phone').addEventListener('input', function () {
+        if (auth.waiting && normPhone($('a-phone').value) !== auth.sentPhone) resetOtp();
+    });
     $('a-eye').onclick = function () { var p = $('a-pass'); p.type = p.type === 'password' ? 'text' : 'password'; };
     function needBot(url) {
         authMsg(L("Avval Telegram botimizga kiring va «Start» bosing, keyin qaytib kod oling.", 'Сначала откройте наш Telegram-бот и нажмите «Start», затем вернитесь за кодом.', 'Open our Telegram bot and press "Start" first, then come back for the code.'), 'err');
@@ -355,7 +360,7 @@
                 var j = {}; try { j = await r.json(); } catch (e) {}
                 if (j.needBot) { needBot(j.botUrl); return; }
                 if (!r.ok || !j.success) { authMsg(j.error || L("Kod yuborib bo'lmadi", 'Не удалось отправить код', 'Could not send the code'), 'err'); return; }
-                auth.waiting = true; auth.sentAt = Date.now();
+                auth.waiting = true; auth.sentAt = Date.now(); auth.sentPhone = phone;
                 $('f-code').hidden = false;
                 paintAuthBtn(); saveDraft();
                 authMsg(L('Kod Telegram botingizga yuborildi 🤖', 'Код отправлен в ваш Telegram-бот 🤖', 'Code sent to your Telegram bot 🤖'), 'ok');

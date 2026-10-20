@@ -42,13 +42,13 @@
             </div>
             <label class="field" id="f-name" hidden><span data-t="name"></span><input id="a-name" autocomplete="name" maxlength="40"></label>
             <label class="field"><span data-t="phone"></span>
-                <div class="phone-in"><em>+998</em><input id="a-phone" type="tel" inputmode="numeric" placeholder="90 123 45 67" maxlength="14"></div>
+                <div class="phone-in"><em>+998</em><input id="a-phone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="90 123 45 67" maxlength="14"></div>
             </label>
             <label class="field"><span data-t="password"></span>
                 <div class="pass-in"><input id="a-pass" type="password" autocomplete="current-password" maxlength="64"><button type="button" id="a-eye" aria-label="show">👁</button></div>
             </label>
             <label class="field" id="f-code" hidden><span data-t="codeLabel"></span>
-                <input id="a-code" inputmode="numeric" maxlength="6" placeholder="••••••" class="code-in">
+                <input id="a-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" class="code-in">
             </label>
             <div class="consent" id="f-consent" hidden>
                 <button type="button" class="c-box" id="c-box" aria-label="consent"></button>

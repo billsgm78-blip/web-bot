@@ -4155,6 +4155,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 }
 
                 isWaitingForOtp = true;
+                otpSentDigits = phone.slice(-9);
                 if (codeFieldWrap) codeFieldWrap.style.display = "block";
                 statusBox.style.color = "#10b981";
                 statusBox.innerText = tr("Telegram botingizga tasdiqlash kodi yuborildi! 🤖", "Confirmation code sent to your Telegram bot! 🤖", "Код подтверждения отправлен в ваш Telegram-бот! 🤖");
@@ -4228,7 +4229,12 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
     };
 
     // Telefon raqami o'zgartirilsa, oldingi kod endi yaroqsiz: kod kutish holati bekor qilinadi
-    phoneInput.addEventListener("input", resetOtpState);
+    // (Faqat raqam HAQIQATAN o'zgarsa — telefon avtomatik to'ldirishi xuddi shu raqamni qayta yozsa, bekor qilinmaydi)
+    let otpSentDigits = "";
+    phoneInput.addEventListener("input", function () {
+        const dg = phoneInput.value.replace(/\D/g, "").slice(-9);
+        if (isWaitingForOtp && dg !== otpSentDigits) resetOtpState();
+    });
 
     // Rasmni kichraytirish: eng katta tomoni 1280px, JPEG sifati 82% (so'rov hajmi kichik bo'lishi uchun)
     function shrinkImage(dataUrl, cb) {
