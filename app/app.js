@@ -329,7 +329,7 @@
     }
     function logout(silent) {
         ['ba_phone', 'ba_pass', 'ba_name', 'ba_chat'].forEach(function (k) { ls(k, null); });
-        state.phone = state.pass = state.name = ''; state.balance = null; state.rewards = null; state.inMain = false;
+        state.phone = state.pass = state.name = ''; state.balance = null; state.rewards = null; state.inMain = false; liveId++;
         closeSupport(); closeSheet(false);
         show('auth');
         if (!silent) toast(L('Hisobdan chiqdingiz', 'Вы вышли из аккаунта', 'Logged out'));
@@ -348,6 +348,7 @@
         loadRewards();
         loadHistory();
         peekSupport();
+        liveBalance(++liveId);
     }
     function switchTab(t) {
         state.tab = t;
@@ -362,7 +363,36 @@
     document.querySelectorAll('#bnav button').forEach(function (b) { b.onclick = function () { switchTab(b.getAttribute('data-tab')); }; });
     $('tb-bal').onclick = function () { switchTab('wallet'); };
 
-    function setBalance(v) { if (v == null || isNaN(Number(v))) return; state.balance = Number(v); paintBalance(); }
+    var moneyAudio = null;
+    try { moneyAudio = new Audio('money.mp3'); moneyAudio.preload = 'auto'; } catch (e) {}
+    function playMoney() {
+        if (ls('ba_sound') === 'off' || !moneyAudio) return;
+        try { moneyAudio.currentTime = 0; moneyAudio.play().catch(function () {}); } catch (e) {}
+    }
+    function setBalance(v) {
+        if (v == null || isNaN(Number(v))) return;
+        var nv = Number(v), prev = state.balance;
+        state.balance = nv; paintBalance();
+        if (prev != null && nv > prev) {   // pul tushdi
+            playMoney();
+            toast('💰 +' + money(nv - prev) + ' ' + T('sum') + L(' balansga tushdi!', ' зачислено!', ' added!'), 'ok', 3500);
+            if (navigator.vibrate) { try { navigator.vibrate([30, 40, 30]); } catch (e) {} }
+            var b = $('tb-bal'); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump');
+        }
+    }
+    // Jonli balans: server o'zgarish bo'lishi bilan javob beradi
+    var liveId = 0;
+    async function liveBalance(id) {
+        while (state.inMain && liveId === id) {
+            if (document.hidden || state.balance == null) { await sleep(1500); continue; }
+            try {
+                var j = await api('/api/balance/wait', { bal: state.balance });
+                if (liveId !== id) return;
+                if (j.success) { if (Number(j.balance) !== Number(state.balance)) { setBalance(j.balance); loadHistory(); } }
+                else await sleep(5000);
+            } catch (e) { await sleep(4000); }
+        }
+    }
     function paintBalance() {
         var v = state.balance == null ? '—' : money(state.balance);
         $('tb-bal-v').textContent = v;
@@ -937,6 +967,7 @@
         openSheet('<div class="me-head"><div class="me-ava"></div><div><b></b><small></small></div></div><div class="menu">' +
             '<button data-k="sup"><span class="m-ico">💬</span>' + esc(L('Yordam — admin bilan chat', 'Поддержка — чат с админом', 'Support — chat with admin')) + '<span class="m-badge" id="m-unread" hidden></span></button>' +
             '<button data-k="lang"><span class="m-ico">🌍</span>' + esc(L('Til', 'Язык', 'Language')) + '<span class="m-r">' + ({ uz: "O'zbekcha", ru: 'Русский', en: 'English' })[lang] + '</span></button>' +
+            '<button data-k="snd"><span class="m-ico">🔔</span>' + esc(L("Pul tushganda ovoz", 'Звук при зачислении', 'Sound on top-up')) + '<span class="m-r" id="m-snd">' + (ls('ba_sound') === 'off' ? L("O'chiq", 'Выкл', 'Off') : L('Yoqilgan', 'Вкл', 'On')) + '</span></button>' +
             '<button data-k="pass"><span class="m-ico">🔑</span>' + esc(L("Parolni o'zgartirish", 'Сменить пароль', 'Change password')) + '</button>' +
             '<button data-k="bot"><span class="m-ico">✈️</span>' + esc(L('Telegram botni ochish', 'Открыть Telegram-бот', 'Open Telegram bot')) + '</button>' +
             '<button data-k="site"><span class="m-ico">🌐</span>bilolsai.uz</button>' +
@@ -952,6 +983,12 @@
                         var k = x.getAttribute('data-k');
                         if (k === 'sup') { closeSheet(true); openSupport(); }
                         else if (k === 'lang') { langSheet(); }
+                        else if (k === 'snd') {
+                            var off = ls('ba_sound') !== 'off';
+                            ls('ba_sound', off ? 'off' : 'on');
+                            $('m-snd').textContent = off ? L("O'chiq", 'Выкл', 'Off') : L('Yoqilgan', 'Вкл', 'On');
+                            if (!off) playMoney();
+                        }
                         else if (k === 'pass') { passSheet(); }
                         else if (k === 'bot') { closeSheet(true); openExternal((r.botRefUrl || '').split('?')[0] || 'https://t.me/'); }
                         else if (k === 'site') { closeSheet(true); openExternal('https://bilolsai.uz'); }

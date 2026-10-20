@@ -291,3 +291,6 @@ body.kb .bnav { display: none; }
 .toast.warn { background: #3d3010; color: #ffe7a6; }
 .toast.out { opacity: 0; transform: translateY(-10px); transition: all .25s; }
 @keyframes tIn { from { opacity: 0; transform: translateY(-12px); } }
+
+.bal-chip.bump { animation: bump .6s cubic-bezier(.2, .9, .3, 1.4); }
+@keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.22); background: rgba(52, 211, 153, .25); } 100% { transform: scale(1); } }
