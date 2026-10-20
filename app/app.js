@@ -163,6 +163,7 @@
         var st = state.status || {};
         state.models = st.models || [];
         var app = st.app || { lock: !!st.lockAll, lockTitle: st.lockTitle, lockMsg: st.lockMsg };
+        state.appLocked = !!app.lock;
         // Ilova sayt blokidan alohida: admin paneldagi "Ilovani bloklash"
         if (app.lock) {
             showLock(app.lockTitle || L("Vaqtincha to'xtatildi", 'Временно приостановлено', 'Temporarily unavailable'),
@@ -383,13 +384,20 @@
     // Jonli balans: server o'zgarish bo'lishi bilan javob beradi
     var liveId = 0;
     async function liveBalance(id) {
-        while (state.inMain && liveId === id) {
-            if (document.hidden || state.balance == null) { await sleep(1500); continue; }
+        while (state.phone && liveId === id) {
+            if (document.hidden) { await sleep(1500); continue; }
+            if (state.balance == null) { await loadHistory(); if (state.balance == null) { await sleep(3000); continue; } }
             try {
-                var j = await api('/api/balance/wait', { bal: state.balance });
+                // text/plain — brauzer qo'shimcha (OPTIONS) so'rov yubormaydi, javob tezroq
+                var r = await fetch(RAIL + '/api/balance/wait', { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ phone: state.phone, password: state.pass, bal: state.balance, kind: 'app', lk: !!state.appLocked }) });
+                var j = {}; try { j = await r.json(); } catch (e) {}
                 if (liveId !== id) return;
-                if (j.success) { if (Number(j.balance) !== Number(state.balance)) { setBalance(j.balance); loadHistory(); } }
-                else await sleep(5000);
+                if (r.status === 403) { sessionExpired(); return; }
+                if (j.success) {
+                    if (Number(j.balance) !== Number(state.balance)) { setBalance(j.balance); loadHistory(); }
+                    if (!!j.lock !== !!state.appLocked) { await loadStatus(); if (!!j.lock !== !!state.appLocked) await sleep(3000); }   // admin ilovani blokladi/ochdi — darhol
+                } else await sleep(5000);
             } catch (e) { await sleep(4000); }
         }
     }
@@ -1156,9 +1164,10 @@
         paintModes();
         var st = await loadStatus();
         ping();
-        if (st && st.lockAll) return;
+        if (st && st.lockAll) { if (state.phone && state.pass) liveBalance(++liveId); return; }
         if (state.phone && state.pass) enterMain(); else show('auth');
     }
-    setInterval(function () { loadStatus(); }, 60000);
+    setInterval(function () { loadStatus(); }, 30000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) loadStatus(); });
     start();
 })();

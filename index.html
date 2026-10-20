@@ -3990,12 +3990,15 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             const pass = localStorage.getItem("bilol_ai_password") || "";
             if (!currentPhone || !pass || document.hidden || lastKnownBalance === null) { await new Promise(r => setTimeout(r, 2000)); continue; }
             try {
+                const st = window.BilolSite && window.BilolSite.status();
+                const knownLock = !!(st && st.lockAll);
                 const r = await fetch(`${RAILWAY_URL}/api/balance/wait`, {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ phone: currentPhone.replace(/[^0-9]/g, ""), password: pass, bal: lastKnownBalance })
+                    method: "POST", headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify({ phone: currentPhone.replace(/[^0-9]/g, ""), password: pass, bal: lastKnownBalance, kind: "web", lk: knownLock })
                 });
                 const j = await r.json().catch(() => ({}));
                 if (j.success && Number(j.balance) !== Number(lastKnownBalance)) await refreshBalance();
+                if (j.success && !!j.lock !== knownLock && window.BilolSite) { await window.BilolSite.reload(); await new Promise(res => setTimeout(res, 1000)); }
                 else if (!j.success) await new Promise(res => setTimeout(res, 5000));
             } catch (e) { await new Promise(res => setTimeout(res, 4000)); }
         }
