@@ -1725,7 +1725,7 @@ select.inp option { background: #fff; color: var(--text); }
                         var r = await admin('privacy_test', { virtual: true, text: tIn.value.trim() });
                         b.disabled = false;
                         if (!r.success) { tRes.textContent = '❌ ' + (r.error || 'Xato'); return; }
-                        tRes.textContent = r.replied ? "✅ Ishladi! Akkauntingiz xabarni qabul qildi va javob tayyorladi. Telegram → «Saqlangan xabarlar»da natijani ko'ring." : "⚠️ Xabar keldi, lekin javob berilmadi — bu gapda kalit so'z yo'q.";
+                        tRes.textContent = r.replied ? "✅ Ishladi! Telegram'da Bilols bot bilan chatni oching: bot savol yozgan, akkauntingiz esa unga maxfiylik siyosati bilan javob bergan — begona odamga ham xuddi shunday javob ketadi." : "⚠️ Xabar keldi, lekin javob berilmadi — bu gapda kalit so'z yo'q.";
                         setTimeout(function () { vAud(view); }, 2500);
                     } }),
                     h('button', { class: 'act', text: "📩 «Saqlangan xabarlar»ga namuna", onclick: async function () {
