@@ -2460,6 +2460,8 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
 .hdr-menu-btn.has-unread .sp-dot-badge { display: block; }
 .drawer-support { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 11px 12px; border-radius: 14px; cursor: pointer; text-align: left;
     background: rgba(16, 185, 129, 0.10); border: 1px solid rgba(16, 185, 129, 0.35); color: #e2e8f0; font: inherit; }
+.privacy-link { display: block; text-align: center; margin-top: 14px; padding: 6px; font-size: 12.5px; color: #94a3b8; text-decoration: none; opacity: .85; }
+.privacy-link:hover { color: #e2e8f0; text-decoration: underline; }
 .drawer-support:hover { background: rgba(16, 185, 129, 0.16); }
 .drawer-support .ds-ico { font-size: 20px; }
 .drawer-support .ds-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -2757,6 +2759,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 <button type="button" class="auth-forgot" id="auth-forgot">Parolni unutdingizmi?</button>
             </div>
             <div id="status-box" style="margin-top: 12px; font-size: 13px;"></div>
+            <a class="privacy-link" href="/maxfiylik" target="_blank" rel="noopener">🔒 <span class="lang-privacy">Maxfiylik siyosati</span></a>
         </div>
     </div>
 
@@ -2917,6 +2920,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                     <span class="ds-ico">📱</span>
                     <span class="ds-text"><b>Android ilova</b><small id="drawer-app-sub">Tez orada — texnik ishlar</small></span>
                 </a>
+                <a class="privacy-link" href="/maxfiylik" target="_blank" rel="noopener">🔒 <span class="lang-privacy">Maxfiylik siyosati</span></a>
             </aside>
         </div>
     </div>
@@ -6974,6 +6978,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             $('sp-title').textContent = T('Bilols AI — Yordam', 'Bilols AI — Support', 'Bilols AI — Поддержка');
             input.placeholder = T('Xabaringizni yozing...', 'Type your message...', 'Напишите сообщение...');
             $('lang-pass-forgot').textContent = T('Eski parolni unutdingizmi? Admin yordam beradi', 'Forgot your old password? Admin will help', 'Забыли старый пароль? Админ поможет');
+            document.querySelectorAll('.lang-privacy').forEach(function (e) { e.textContent = T('Maxfiylik siyosati', 'Privacy policy', 'Политика конфиденциальности'); });
             if (view.classList.contains('open')) paintQuick();
             paintPresence(); paintMode(); paintShop(); if (view.classList.contains('open')) render();
         }

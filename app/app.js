@@ -21,6 +21,7 @@
     function L(uz, ru, en) { return lang === 'ru' ? (ru || uz) : lang === 'en' ? (en || uz) : uz; }
     var D = {
         retry: ["Qayta urinish", "Повторить", "Try again"],
+        privacy: ["Maxfiylik siyosati", "Политика конфиденциальности", "Privacy policy"],
         authSub: ["Shaxsiy AI yordamchingiz", "Ваш личный AI-помощник", "Your personal AI assistant"],
         login: ["Kirish", "Вход", "Log in"],
         register: ["Ro'yxatdan o'tish", "Регистрация", "Sign up"],
@@ -134,6 +135,9 @@
     }
 
     /* ================= Tashqi havola, nusxa, ulashish ================= */
+    var PRIVACY_URL = 'https://www.bilolsai.uz/maxfiylik';
+    function openPrivacy() { openExternal(PRIVACY_URL); }
+    document.addEventListener('click', function (e) { var t = e.target.closest && e.target.closest('[data-privacy]'); if (t) { e.preventDefault(); openPrivacy(); } });
     function openExternal(url) {
         if (!url) return;
         if (N && N.openExternal) N.openExternal(url); else window.open(url, '_blank');
@@ -1077,6 +1081,7 @@
             '<button data-k="pass"><span class="m-ico">🔑</span>' + esc(L("Parolni o'zgartirish", 'Сменить пароль', 'Change password')) + '</button>' +
             '<button data-k="bot"><span class="m-ico">✈️</span>' + esc(L('Telegram botni ochish', 'Открыть Telegram-бот', 'Open Telegram bot')) + '</button>' +
             '<button data-k="site"><span class="m-ico">🌐</span>bilolsai.uz</button>' +
+            '<button data-k="priv"><span class="m-ico">🔒</span>' + esc(L('Maxfiylik siyosati', 'Политика конфиденциальности', 'Privacy policy')) + '</button>' +
             '<button data-k="out" class="red"><span class="m-ico">⏻</span>' + esc(L('Chiqish', 'Выйти', 'Log out')) + '</button></div>' +
             '<p class="sh-sub" style="text-align:center;margin-top:8px">Bilols AI · v' + VERSION + '</p>',
             function (b) {
@@ -1099,6 +1104,7 @@
                         else if (k === 'pass') { passSheet(); }
                         else if (k === 'bot') { closeSheet(true); openExternal((r.botRefUrl || '').split('?')[0] || 'https://t.me/'); }
                         else if (k === 'site') { closeSheet(true); openExternal('https://bilolsai.uz'); }
+                        else if (k === 'priv') { closeSheet(true); openPrivacy(); }
                         else if (k === 'out') { ask(L('Chiqish', 'Выход', 'Log out'), L('Hisobingizdan chiqasizmi?', 'Выйти из аккаунта?', 'Log out of your account?'), L('Chiqish', 'Выйти', 'Log out'), true).then(function (ok) { if (ok) logout(); }); }
                     };
                 });
