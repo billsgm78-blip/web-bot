@@ -1700,6 +1700,25 @@ select.inp option { background: #fff; color: var(--text); }
                 } })
             ]);
             box.appendChild(form);
+            // Sinov
+            var tIn = h('input', { class: 'inp', placeholder: "Masalan: ma'lumotlarim xavfsizmi?" });
+            var tRes = h('div', { class: 'sum', style: 'margin:0' });
+            box.appendChild(h('div', { class: 'h', text: '🧪 Sinab ko\'rish' }));
+            box.appendChild(h('div', { class: 'card form' }, [
+                h('label', { class: 'lb' }, ["Gap yozing — avtojavob ishlaydimi, tekshiradi:", tIn]),
+                h('div', { class: 'actions', style: 'margin:0' }, [
+                    h('button', { class: 'act', text: '🔎 Tekshirish', onclick: async function () {
+                        if (!tIn.value.trim()) { tIn.focus(); return; }
+                        var r = await admin('privacy_test', { text: tIn.value });
+                        tRes.textContent = r.match ? '✅ Javob beriladi — kalit so\'z topildi' : "❌ Javob berilmaydi — kalit so'z yo'q (ro'yxatga qo'shing)";
+                    } }),
+                    h('button', { class: 'act', text: "📩 «Saqlangan xabarlar»ga sinov yuborish", onclick: async function () {
+                        var r = await admin('privacy_test', { send: true });
+                        tRes.textContent = r.sent ? "✅ Yuborildi — Telegram'da «Saqlangan xabarlar» (Saved Messages)ni oching" : '❌ ' + (r.error || 'Yuborilmadi');
+                    } })
+                ]),
+                tRes
+            ]));
             box.appendChild(h('div', { class: 'h', text: "Javob matni (ruscha yozganlarga — ruscha)" }));
             box.appendChild(h('div', { class: 'preview', text: String(c.preview || '').replace(/<[^>]+>/g, '') }));
             box.appendChild(h('div', { class: 'h', text: 'Oxirgi avtojavoblar · jami ' + (c.count || 0) }));
