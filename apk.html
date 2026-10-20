@@ -3,8 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bilols AI — Android ilovasini yuklab olish</title>
-<meta name="description" content="Bilols AI Android ilovasi: AI chat, rasm yaratish, hamyon va yordam — bitta ilovada.">
+<title>Bilols AI — Android ilovasini yuklab olish (APK, bepul)</title>
+<meta name="description" content="Bilols AI Android ilovasini bepul yuklab oling: o'zbek tilida AI chat, rasm yaratish, PDF va hujjat tahlili, Telegram Stars va Premium, hamyon. APK — tez va xavfsiz.">
+<meta name="keywords" content="Bilols AI, Bilols AI apk, Bilols AI yuklab olish, o'zbekcha AI, sun'iy intellekt ilova, AI chat uzbek, Telegram Stars sotib olish">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.bilolsai.uz/apkyuklash">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.bilolsai.uz/apkyuklash">
+<meta property="og:title" content="Bilols AI — Android ilovasi (bepul)">
+<meta property="og:description" content="O'zbek tilida AI chat, rasm yaratish, hujjat tahlili, Stars va Premium — bitta ilovada. Bepul yuklab oling.">
+<meta property="og:image" content="https://www.bilolsai.uz/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Bilols AI",
+  "operatingSystem": "Android 7.0+",
+  "applicationCategory": "UtilitiesApplication",
+  "inLanguage": ["uz", "ru", "en"],
+  "description": "O'zbek tilida AI chat, rasm yaratish, PDF va hujjat tahlili, Telegram Stars va Premium, hamyon.",
+  "url": "https://www.bilolsai.uz/apkyuklash",
+  "downloadUrl": "https://www.bilolsai.uz/download/bilols-ai.apk",
+  "image": "https://www.bilolsai.uz/icons/icon-512.png",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "UZS" }
+}
+</script>
 <meta name="theme-color" content="#03060d">
 <link rel="icon" href="/icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,6 +77,7 @@ html.in-app .inapp { display: block; }
 .maint p { margin: 0 0 10px; color: #e2e8f0; font-size: 15px; line-height: 1.5; }
 .maint small { color: var(--muted); font-size: 13px; }
 .maint a { color: #93c5fd; }
+.auto-note { text-align: center; color: #a7f3d0; font-size: 14px; font-weight: 600; margin: -6px 0 12px; }
 .maint-load { text-align: center; color: var(--muted); font-size: 14px; padding: 18px; }
 [hidden] { display: none !important; }
 </style>
@@ -110,12 +135,25 @@ html.in-app .inapp { display: block; }
         document.querySelectorAll('.steps-card').forEach(function (e) { e.hidden = !on; });
     }
     var t = setTimeout(function () { show(false); }, 8000);
+    // Google'dan yoki ilova "Yangilash" tugmasidan kelgan Android foydalanuvchida yuklash o'zi boshlanadi
+    function autoStart(on) {
+        var ua = navigator.userAgent || '';
+        if (!on || !/Android/i.test(ua) || /BilolsAIApp/.test(ua)) return;
+        if (/[?&]auto=0\b/.test(location.search)) return;
+        try { if (sessionStorage.getItem('bl_auto_dl')) return; sessionStorage.setItem('bl_auto_dl', '1'); } catch (e) {}
+        var note = document.createElement('div');
+        note.className = 'auto-note';
+        note.textContent = "⬇️ Yuklab olish 2 soniyada o'zi boshlanadi…";
+        dl.parentNode.insertBefore(note, dl);
+        setTimeout(function () { note.textContent = "✅ Yuklab olish boshlandi. Tugagach, faylni ochib o'rnating."; dl.click(); }, 2000);
+    }
     dl.addEventListener('click', function () {
         try { fetch('https://ai2-production-7d7e.up.railway.app/api/apk/hit', { method: 'POST', keepalive: true, body: '{}' }); } catch (e) {}
     });
     fetch(API, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
         clearTimeout(t);
         var a = j && j.apk; show(!!(a && a.on), a && a.msg);
+        autoStart(!!(a && a.on));
     }).catch(function () { clearTimeout(t); show(false); });
 })();
 </script>
