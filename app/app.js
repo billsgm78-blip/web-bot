@@ -287,7 +287,31 @@
     }
     function authMsg(t, cls) { var m = $('a-msg'); m.textContent = t || ''; m.className = 'auth-msg ' + (cls || ''); }
     function paintAuthBtn() { $('a-go').textContent = auth.waiting ? T('verify') : T('getCode'); }
-    function resetOtp() { auth.waiting = false; $('f-code').hidden = true; $('a-code').value = ''; paintAuthBtn(); }
+    function resetOtp() { auth.waiting = false; $('f-code').hidden = true; $('a-code').value = ''; paintAuthBtn(); saveDraft(); }
+    /* Kirish jarayoni 5 daqiqa saqlanadi: kodni ko'rish uchun Telegram'ga o'tib qaytganda Android sahifani
+       qayta yuklasa ham, raqam va "kod kutilmoqda" holati yo'qolmaydi — kod kiritish joyidan davom etadi. */
+    var DRAFT_TTL = 5 * 60 * 1000;
+    function saveDraft() {
+        try {
+            if (state.inMain) { ls('ba_auth_draft', null); return; }
+            ls('ba_auth_draft', JSON.stringify({ m: auth.mode, w: auth.waiting, t: auth.waiting ? (auth.sentAt || Date.now()) : Date.now(),
+                p: $('a-phone').value, s: $('a-pass').value, n: $('a-name').value, c: $('a-code').value }));
+        } catch (e) {}
+    }
+    function clearDraft() { ls('ba_auth_draft', null); }
+    function restoreDraft() {
+        var d = lsJSON('ba_auth_draft', null);
+        if (!d || !d.t || Date.now() - d.t > DRAFT_TTL) { clearDraft(); return; }
+        if (d.m === 'register') { var rb = document.querySelector('#auth-seg [data-mode="register"]'); if (rb) rb.onclick(); }
+        $('a-phone').value = d.p || ''; $('a-pass').value = d.s || ''; $('a-name').value = d.n || '';
+        if (d.w) {
+            auth.waiting = true; auth.sentAt = d.t;
+            $('f-code').hidden = false; $('a-code').value = d.c || ''; paintAuthBtn();
+            authMsg(L('Kod Telegram botingizga yuborilgan 🤖 Kodni kiriting.', 'Код отправлен в ваш Telegram-бот 🤖 Введите его.', 'The code was sent to your Telegram bot 🤖 Enter it.'), 'ok');
+        }
+        saveDraft();
+    }
+    ['a-phone', 'a-pass', 'a-name', 'a-code'].forEach(function (id) { $(id).addEventListener('input', function () { saveDraft(); }); });
     document.querySelectorAll('#auth-seg button').forEach(function (b) {
         b.onclick = function () {
             auth.mode = b.getAttribute('data-mode');
@@ -331,9 +355,9 @@
                 var j = {}; try { j = await r.json(); } catch (e) {}
                 if (j.needBot) { needBot(j.botUrl); return; }
                 if (!r.ok || !j.success) { authMsg(j.error || L("Kod yuborib bo'lmadi", 'Не удалось отправить код', 'Could not send the code'), 'err'); return; }
-                auth.waiting = true;
+                auth.waiting = true; auth.sentAt = Date.now();
                 $('f-code').hidden = false;
-                paintAuthBtn();
+                paintAuthBtn(); saveDraft();
                 authMsg(L('Kod Telegram botingizga yuborildi 🤖', 'Код отправлен в ваш Telegram-бот 🤖', 'Code sent to your Telegram bot 🤖'), 'ok');
                 setTimeout(function () { $('a-code').focus(); }, 100);
                 return;
@@ -355,7 +379,7 @@
             state.phone = phone; state.pass = pass; state.name = d.name || name || '';
             ls('ba_phone', phone); ls('ba_pass', pass); ls('ba_name', state.name);
             if (d.balance != null) state.balance = Number(d.balance);
-            resetOtp(); authMsg('');
+            resetOtp(); authMsg(''); clearDraft();
             enterMain();
             toast(L('Xush kelibsiz! 👋', 'Добро пожаловать! 👋', 'Welcome! 👋'), 'ok');
         } catch (e) {
@@ -1491,12 +1515,16 @@
         ping();
         if (quick) { paintModel(); return; }
         if (st && st.lockAll) { if (state.phone && state.pass) liveBalance(++liveId); return; }
-        if (state.phone && state.pass) enterMain(); else show('auth');
+        if (state.phone && state.pass) enterMain(); else { show('auth'); restoreDraft(); }
         setTimeout(function () { document.body.classList.add('ready'); }, 30);
     }
     // Serverda yangi dizayn yuklandi (Android qobig'i xabar beradi)
     window.__uiUpdated = function () {
-        if (!state.inMain && !$('lock').classList.contains('on')) { location.reload(); return; }   // kirish ekranida — darhol
+        // Kirish ekranida foydalanuvchi hali hech narsa yozmagan bo'lsa — darhol; yozayotgan bo'lsa — keyingi ochilishda
+        if (!state.inMain && !$('lock').classList.contains('on')) {
+            if (!auth.waiting && !auth.busy && !$('a-phone').value && !$('a-pass').value) location.reload();
+            return;
+        }
         toast(L('✨ Yangi versiya tayyor — tepadan pastga tortib yangilang', '✨ Обновление готово — потяните вниз', '✨ Update ready — pull down to refresh'));
     };
     setInterval(function () { loadStatus(); }, 30000);
