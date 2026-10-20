@@ -3442,25 +3442,25 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         const t = translations[lang];
 
         // Matnlarni almashtirish
-        document.getElementById("lang-chip-text").innerText = t.chip;
-        document.getElementById("lang-main-title").innerText = t.mainTitle;
-        document.getElementById("lang-main-sub").innerText = t.mainSub;
-        document.getElementById("lang-feat1-title").innerText = t.feat1Title;
-        document.getElementById("lang-feat1-tag").innerText = t.feat1Tag;
-        document.getElementById("lang-feat1-desc").innerText = t.feat1Desc;
-        document.getElementById("lang-feat2-title").innerText = t.feat2Title;
-        document.getElementById("lang-feat2-tag").innerText = t.feat2Tag;
-        document.getElementById("lang-feat2-desc").innerText = t.feat2Desc;
-        document.getElementById("lang-feat3-title").innerText = t.feat3Title;
-        document.getElementById("lang-feat3-tag").innerText = t.feat3Tag;
-        document.getElementById("lang-feat3-desc").innerText = t.feat3Desc;
-        document.getElementById("lang-start-btn").innerText = t.startBtn;
-        document.getElementById("lang-privacy").innerText = t.privacy;
-        document.getElementById("lang-modal-badge").innerText = t.modalBadge;
-        document.getElementById("lang-modal-try-btn").innerText = t.modalTry;
-        document.getElementById("lang-auth-welcome").innerText = t.authWelcome;
-        document.getElementById("tab-login").innerText = t.tabLogin;
-        document.getElementById("tab-register").innerText = t.tabRegister;
+        { const _el = document.getElementById("lang-chip-text"); if (_el) _el.innerText = t.chip; }
+        { const _el = document.getElementById("lang-main-title"); if (_el) _el.innerText = t.mainTitle; }
+        { const _el = document.getElementById("lang-main-sub"); if (_el) _el.innerText = t.mainSub; }
+        { const _el = document.getElementById("lang-feat1-title"); if (_el) _el.innerText = t.feat1Title; }
+        { const _el = document.getElementById("lang-feat1-tag"); if (_el) _el.innerText = t.feat1Tag; }
+        { const _el = document.getElementById("lang-feat1-desc"); if (_el) _el.innerText = t.feat1Desc; }
+        { const _el = document.getElementById("lang-feat2-title"); if (_el) _el.innerText = t.feat2Title; }
+        { const _el = document.getElementById("lang-feat2-tag"); if (_el) _el.innerText = t.feat2Tag; }
+        { const _el = document.getElementById("lang-feat2-desc"); if (_el) _el.innerText = t.feat2Desc; }
+        { const _el = document.getElementById("lang-feat3-title"); if (_el) _el.innerText = t.feat3Title; }
+        { const _el = document.getElementById("lang-feat3-tag"); if (_el) _el.innerText = t.feat3Tag; }
+        { const _el = document.getElementById("lang-feat3-desc"); if (_el) _el.innerText = t.feat3Desc; }
+        { const _el = document.getElementById("lang-start-btn"); if (_el) _el.innerText = t.startBtn; }
+        { const _el = document.getElementById("lang-privacy"); if (_el) _el.innerText = t.privacy; }
+        { const _el = document.getElementById("lang-modal-badge"); if (_el) _el.innerText = t.modalBadge; }
+        { const _el = document.getElementById("lang-modal-try-btn"); if (_el) _el.innerText = t.modalTry; }
+        { const _el = document.getElementById("lang-auth-welcome"); if (_el) _el.innerText = t.authWelcome; }
+        { const _el = document.getElementById("tab-login"); if (_el) _el.innerText = t.tabLogin; }
+        { const _el = document.getElementById("tab-register"); if (_el) _el.innerText = t.tabRegister; }
         document.getElementById("name-input").placeholder = t.namePlace;
         document.getElementById("phone-input").placeholder = t.phonePlace;
         document.getElementById("pass-input").placeholder = t.passPlace;
@@ -3472,33 +3472,33 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             authActionBtn.innerText = isWaitingForOtp ? t.btnVerify : t.tabRegister;
         }
 
-        document.getElementById("lang-pass-title").innerText = t.passTitle;
-        document.getElementById("lang-pass-sub").innerText = t.passSub;
+        { const _el = document.getElementById("lang-pass-title"); if (_el) _el.innerText = t.passTitle; }
+        { const _el = document.getElementById("lang-pass-sub"); if (_el) _el.innerText = t.passSub; }
         document.getElementById("old-pass-input").placeholder = t.oldPass;
         document.getElementById("new-pass-input").placeholder = t.newPass;
-        document.getElementById("save-new-pass-btn").innerText = t.savePass;
-        document.getElementById("lang-chat-active").innerText = t.chatActive;
+        { const _el = document.getElementById("save-new-pass-btn"); if (_el) _el.innerText = t.savePass; }
+        { const _el = document.getElementById("lang-chat-active"); if (_el) _el.innerText = t.chatActive; }
         logoutBtn.innerText = t.logout;
-        document.getElementById("lang-img-attached").innerText = t.imgAttached;
+        { const _el = document.getElementById("lang-img-attached"); if (_el) _el.innerText = t.imgAttached; }
         chatInput.placeholder = t.chatPlaceholder;
-        document.getElementById("lang-set-title").innerText = t.setTitle;
-        document.getElementById("lang-set-sound-title").innerText = t.setSoundTitle;
-        document.getElementById("lang-set-sound-sub").innerText = t.setSoundSub;
-        document.getElementById("lang-set-anim-title").innerText = t.setAnimTitle;
-        document.getElementById("lang-set-anim-sub").innerText = t.setAnimSub;
-        document.getElementById("lang-set-lang-title").innerText = t.setLangTitle;
-        document.getElementById("lang-set-lang-sub").innerText = t.setLangSub;
-        document.getElementById("lang-set-font-title").innerText = t.setFontTitle;
-        document.getElementById("lang-set-font-sub").innerText = t.setFontSub;
-        document.getElementById("font-normal-btn").innerText = t.fontNormal;
-        document.getElementById("font-large-btn").innerText = t.fontLarge;
-        document.getElementById("lang-set-profile").innerHTML = `${t.setProfile} <span style="font-size:11px; color:var(--violet-accent); font-weight:700;">${t.setProfilePass}</span>`;
-        document.getElementById("lang-clear-chat").innerText = t.clearChat;
-        document.getElementById("lang-wallet-title").innerText = t.walletTitle;
-        document.getElementById("lang-wallet-cur").innerText = t.walletCur;
-        document.getElementById("lang-wallet-curr").innerText = t.walletCurr;
-        document.getElementById("lang-prem-3").innerText = t.prem3;
-        document.getElementById("lang-prem-6").innerText = t.prem6;
+        { const _el = document.getElementById("lang-set-title"); if (_el) _el.innerText = t.setTitle; }
+        { const _el = document.getElementById("lang-set-sound-title"); if (_el) _el.innerText = t.setSoundTitle; }
+        { const _el = document.getElementById("lang-set-sound-sub"); if (_el) _el.innerText = t.setSoundSub; }
+        { const _el = document.getElementById("lang-set-anim-title"); if (_el) _el.innerText = t.setAnimTitle; }
+        { const _el = document.getElementById("lang-set-anim-sub"); if (_el) _el.innerText = t.setAnimSub; }
+        { const _el = document.getElementById("lang-set-lang-title"); if (_el) _el.innerText = t.setLangTitle; }
+        { const _el = document.getElementById("lang-set-lang-sub"); if (_el) _el.innerText = t.setLangSub; }
+        { const _el = document.getElementById("lang-set-font-title"); if (_el) _el.innerText = t.setFontTitle; }
+        { const _el = document.getElementById("lang-set-font-sub"); if (_el) _el.innerText = t.setFontSub; }
+        { const _el = document.getElementById("font-normal-btn"); if (_el) _el.innerText = t.fontNormal; }
+        { const _el = document.getElementById("font-large-btn"); if (_el) _el.innerText = t.fontLarge; }
+        { const _el = document.getElementById("lang-set-profile"); if (_el) _el.innerHTML = `${t.setProfile} <span style="font-size:11px; color:var(--violet-accent); font-weight:700;">${t.setProfilePass}</span>`; }
+        { const _el = document.getElementById("lang-clear-chat"); if (_el) _el.innerText = t.clearChat; }
+        { const _el = document.getElementById("lang-wallet-title"); if (_el) _el.innerText = t.walletTitle; }
+        { const _el = document.getElementById("lang-wallet-cur"); if (_el) _el.innerText = t.walletCur; }
+        { const _el = document.getElementById("lang-wallet-curr"); if (_el) _el.innerText = t.walletCurr; }
+        { const _el = document.getElementById("lang-prem-3"); if (_el) _el.innerText = t.prem3; }
+        { const _el = document.getElementById("lang-prem-6"); if (_el) _el.innerText = t.prem6; }
     };
 
     window.openAuthModal = function() {
@@ -3592,7 +3592,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
     window.openPasswordModal = function() {
         document.getElementById("old-pass-input").value = "";
         document.getElementById("new-pass-input").value = "";
-        document.getElementById("pass-status-box").innerText = "";
+        { const _el = document.getElementById("pass-status-box"); if (_el) _el.innerText = ""; }
         passwordModal.classList.add("active");
         passwordModal.style.display = "flex";
     };
