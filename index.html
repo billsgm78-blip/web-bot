@@ -1912,6 +1912,9 @@ body.fx-no-particles .fx-spark, body.fx-no-particles .fx-coin { display: none !i
     background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glass); color: #cbd5e1;
     transition: background 0.2s, transform 0.15s;
 }
+#open-settings-btn { color: #e2e8f0; display: inline-grid !important; place-items: center; }
+#open-settings-btn .gear-ico { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .4s ease; }
+#open-settings-btn:active .gear-ico { transform: rotate(90deg); }
 .hdr-menu-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 .hdr-menu-btn:active { transform: scale(0.9); }
 
@@ -2865,7 +2868,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 <div class="wallet-pill" id="open-wallet-btn" title="Hamyonni ko'rish">
                     <span><span class="animated-emoji">👛</span> <span id="header-balance">0</span> <span id="fx-pill-cur">so'm</span></span>
                 </div>
-                <button class="icon-btn" id="open-settings-btn" title="Sozlamalar">⚙️</button>
+                <button class="icon-btn" id="open-settings-btn" title="Sozlamalar" aria-label="Sozlamalar"><svg class="gear-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
                 <button class="logout-btn" id="logout-btn">Chiqish</button>
             </div>
         </header>
