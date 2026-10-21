@@ -645,7 +645,8 @@
         if (!ms.length) { loadStatus().then(function () { if ((state.models || []).length) $('c-model').click(); }); return; }
         var cur = curModel().id;
         openSheet('<div class="sh-title">' + esc(L('AI model', 'AI-модель', 'AI model')) + '</div><p class="sh-sub">' +
-            esc(L("Bepul model — kunlik limit bilan. Pullik modellarda har bir xabar balansdan yechiladi.", 'Бесплатная — с дневным лимитом. В платных каждое сообщение списывается с баланса.', 'Free model has a daily limit. Paid models charge per message.')) + '</p><div class="sh-list" id="ml"></div>',
+            esc(hasSub() ? L("⭐ Obunangiz faol — barcha agentlar cheksiz ochiq.", '⭐ Подписка активна — все агенты без лимита.', '⭐ Subscription active — all agents unlocked.')
+                : L("Bepul agent — kunlik limit bilan. ⭐ belgili kuchli agentlar — obuna bilan, cheksiz.", 'Бесплатный агент — с дневным лимитом. ⭐ Мощные агенты — по подписке, без лимита.', 'The free agent has a daily limit. ⭐ Pro agents come with a subscription, unlimited.')) + '</p><div class="sh-list" id="ml"></div>',
             function (b) {
                 var list = b.querySelector('#ml');
                 ms.forEach(function (m) {
@@ -656,8 +657,11 @@
                     o.querySelector('b').textContent = m.name;
                     o.querySelector('small').textContent = m.desc || '';
                     var tag = o.querySelector('.o-tag');
-                    if (m.price > 0) { tag.textContent = money(m.price) + ' ' + T('sum'); tag.classList.add('paid'); } else tag.textContent = L('Bepul', 'Бесплатно', 'Free');
-                    o.onclick = function () { chat.model = m.id; ls('ba_model', m.id); paintModel(); closeSheet(true); };
+                    if (isPro(m)) { tag.textContent = hasSub() ? '⭐ ✓' : L('⭐ Obuna', '⭐ Подписка', '⭐ Pro'); tag.classList.add('paid'); } else tag.textContent = L('Bepul', 'Бесплатно', 'Free');
+                    o.onclick = function () {
+                        chat.model = m.id; ls('ba_model', m.id); paintModel(); closeSheet(true);
+                        if (isPro(m) && !hasSub()) toast((m.emoji || '⭐') + ' ' + m.name + ' — ' + L("faqat obunachilar uchun", 'только для подписчиков', 'subscribers only'), 'warn', 3500);
+                    };
                     list.appendChild(o);
                 });
             });
@@ -875,12 +879,15 @@
             return { role: m.r === 'u' ? 'user' : 'model', parts: parts };
         }).filter(function (h) { return h.parts.length; });
     }
+    function isPro(m) { return !!(m && (m.sub || m.price > 0)); }
+    function hasSub() { var r = state.rewards; return !!(r && r.subUntil && r.subUntil * 1000 > Date.now()); }
     function chatCTA(b, kind) {
         var btn = document.createElement('button');
         btn.className = 'btn primary b-cta';
         if (kind === 'money') { btn.textContent = '💳 ' + L("Hisobni to'ldirish", 'Пополнить баланс', 'Top up balance'); btn.onclick = function () { switchTab('wallet'); openTopup(); }; }
         else if (kind === 'limit') { btn.textContent = '♾️ ' + L('Cheksiz obuna', 'Безлимит', 'Unlimited plan'); btn.onclick = function () { switchTab('shop'); }; }
-        else if (kind === 'free') { btn.textContent = '⚡ ' + L("Bepul modelga o'tish", 'Перейти на бесплатную', 'Switch to free model'); btn.onclick = function () { var f = (state.models || []).filter(function (m) { return !m.price; })[0]; if (f) { chat.model = f.id; ls('ba_model', f.id); paintModel(); toast(f.name, 'ok'); } }; }
+        else if (kind === 'sub') { btn.textContent = '⭐ ' + L('Obuna olish — barcha agentlar', 'Подписка — все агенты', 'Subscribe — all agents'); btn.onclick = function () { switchTab('shop'); }; }
+        else if (kind === 'free') { btn.className = 'btn ghost b-cta'; btn.textContent = '⚡ ' + L("Bepul agentga o'tish", 'Перейти на бесплатного агента', 'Switch to the free agent'); btn.onclick = function () { var f = (state.models || []).filter(function (m) { return !isPro(m); })[0]; if (f) { chat.model = f.id; ls('ba_model', f.id); paintModel(); toast(f.name, 'ok'); } }; }
         b.appendChild(btn);
     }
     async function sendChat() {
@@ -939,6 +946,7 @@
                     if (j.needLogin) { sessionExpired(); return; }
                     var eb = bubble({ r: 'a', t: '⚠️ ' + (j.error || L("Javob olib bo'lmadi", 'Не удалось получить ответ', 'Could not get a reply')), err: true });
                     if (j.insufficient) { chatCTA(eb, 'money'); chatCTA(eb, 'free'); setBalance(j.balance); }
+                    if (j.needSub) { chatCTA(eb, 'sub'); chatCTA(eb, 'free'); }
                     if (j.limitReached) chatCTA(eb, 'limit');
                     renderChat(); box.appendChild(eb); scrollChat(true); saveChat();
                     return;
@@ -1081,10 +1089,10 @@
         sub.hidden = false;
         var active = r.subUntil && r.subUntil * 1000 > Date.now();
         sub.innerHTML = '<b></b><p></p><button class="btn primary"></button>';
-        sub.querySelector('b').textContent = '♾️ ' + L('Cheksiz chat', 'Безлимитный чат', 'Unlimited chat');
+        sub.querySelector('b').textContent = '⭐ ' + L('Obuna — barcha AI agentlar', 'Подписка — все AI-агенты', 'Subscription — all AI agents');
         sub.querySelector('p').textContent = active
-            ? L('Faol: ', 'Активно до: ', 'Active until: ') + new Date(r.subUntil * 1000).toLocaleDateString()
-            : L('Bepul modelda kunlik limit: ', 'Дневной лимит бесплатной модели: ', 'Free model daily limit: ') + (r.freeLimit || '—') + L(' ta xabar. Obuna bilan — cheksiz.', ' сообщений. С подпиской — без лимита.', ' messages. Unlimited with a plan.');
+            ? L('Faol: ', 'Активно до: ', 'Active until: ') + new Date(r.subUntil * 1000).toLocaleDateString() + L(' · barcha agentlar ochiq', ' · все агенты открыты', ' · all agents unlocked')
+            : L("GPT-4o, Gemini 2.5, DeepSeek va boshqa kuchli agentlar + cheksiz xabar. Bepul agentda kunlik limit: ", 'GPT-4o, Gemini 2.5, DeepSeek и другие мощные агенты + безлимит. Лимит бесплатного агента: ', 'GPT-4o, Gemini 2.5, DeepSeek and other pro agents + unlimited messages. Free agent daily limit: ') + (r.freeLimit || '—') + L(' ta xabar.', ' сообщ.', ' messages.');
         var sb = sub.querySelector('.btn');
         sb.textContent = (active ? L('Uzaytirish', 'Продлить', 'Extend') : L('Olish', 'Оформить', 'Get')) + ' · ' + money(r.subPrice) + ' ' + T('sum') + ' / ' + r.subDays + L(' kun', ' дн.', ' days');
         sb.onclick = subscribe;
@@ -1116,7 +1124,7 @@
         var r = state.rewards; if (!r) return;
         var off = feature('sub'); if (off) { toast(off, 'warn'); return; }
         if (notEnough(r.subPrice)) return;
-        if (!await ask(L('Cheksiz chat', 'Безлимитный чат', 'Unlimited chat'), money(r.subPrice) + ' ' + T('sum') + ' / ' + r.subDays + L(' kun', ' дн.', ' days'), L('Olish', 'Оформить', 'Get'))) return;
+        if (!await ask('⭐ ' + L('Obuna — barcha agentlar', 'Подписка — все агенты', 'Subscription — all agents'), money(r.subPrice) + ' ' + T('sum') + ' / ' + r.subDays + L(' kun · barcha AI agentlar va cheksiz xabar', ' дн. · все AI-агенты и безлимит', ' days · all AI agents and unlimited messages'), L('Olish', 'Оформить', 'Get'))) return;
         try {
             var j = await api('/api/subscribe');
             if (!j.success) { toast(j.error || 'Error', 'err'); return; }

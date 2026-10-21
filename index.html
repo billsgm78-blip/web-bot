@@ -2329,14 +2329,23 @@ body.theme-light #reset-modal .styled-input { background: #f1f5f9; color: #0f172
 /* ---------- iPhone: pastdagi chiziq (home indicator) ostida qolmasin ---------- */
 .input-bar { padding-bottom: max(10px, env(safe-area-inset-bottom)) !important; }
 #wallet-modal, #settings-modal, #admin-panel, #wallet-sub { padding-bottom: max(22px, env(safe-area-inset-bottom)) !important; }
-#chats-drawer .drawer-panel { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+#chats-drawer .drawer-panel { padding-bottom: calc(18px + env(safe-area-inset-bottom)); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+#chats-drawer .chat-list { min-height: 90px; flex: 1 1 auto; }
+#chats-drawer .privacy-link { flex: 0 0 auto; padding-bottom: 10px; }
+/* Safari scroll-konteynerda pastki padding'ni e'tiborsiz qoldiradi — oxirgi element kesilmasin */
+#settings-modal::after, #wallet-modal::after { content: ""; display: block; flex: 0 0 auto; height: calc(28px + env(safe-area-inset-bottom)); }
 #topup-sheet .topup-card { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
 
 
 /* ---------- iPhone ilovasi: butun ekran va soat ostidagi joy ----------
    O'rnatilgan ilovada iPhone ba'zan sahifani soat ostidan boshlaydi va balandlikni kam hisoblaydi.
    Sahifa ekranning to'rt chetiga mahkamlanadi, tepada esa soat uchun joy qoldiriladi. */
-html, body { height: calc(100svh + env(safe-area-inset-top)) !important; }
+/* Safari brauzerida (viewport-fit=cover) safe-area-top 0 emas — balandlikka qo'shilsa pastki qism ekrandan chiqib ketardi.
+   Shuning uchun bu qo'shimcha faqat o'rnatilgan ilova (standalone) rejimida. */
+html, body { height: 100dvh !important; }
+@media (display-mode: standalone) {
+    html, body { height: calc(100svh + env(safe-area-inset-top)) !important; }
+}
 @media (max-width: 460px) {
     .container { height: 100% !important; }
 }
@@ -3223,7 +3232,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 </div>
                 <div class="wx-card" id="wx-sub">
                     <div class="wx-ico">♾️</div>
-                    <div class="wx-text"><b id="wx-sub-title">Cheksiz obuna</b><small id="wx-sub-sub"></small></div>
+                    <div class="wx-text"><b id="wx-sub-title">⭐ Obuna — barcha agentlar</b><small id="wx-sub-sub"></small></div>
                     <button type="button" class="wx-btn" id="wx-sub-btn">Olish</button>
                 </div>
                 <div class="wx-card" id="wx-bonus">
@@ -4791,7 +4800,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 reply = data.text || data.error || tr("Javob olib bo'lmadi.", "Could not get response.", "Не удалось получить ответ.");
                 hideTyping();
                 if (data.insufficient) showNotification(data.error || tr("Balansda pul yetarli emas", "Not enough balance", "Недостаточно средств"), "error");
-                if (data.limitReached || data.needLogin || data.maintenance || data.insufficient) {
+                if (data.needSub) showNotification(data.error || tr("Bu agent faqat obunachilar uchun", "This agent is for subscribers only", "Этот агент только для подписчиков"), "warning");
+                if (data.limitReached || data.needLogin || data.maintenance || data.insufficient || data.needSub) {
                     // Limit tugadi yoki qayta kirish kerak: savolni tarixdan olib tashlaymiz, keyin qayta yuborish mumkin
                     if (chatHistory.length && chatHistory[chatHistory.length - 1].role === "user") {
                         const last = chatHistory.pop();
@@ -4802,6 +4812,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                     bubble = createAIBubble();
                     finalizeAI(bubble, reply, false);
                     if (data.limitReached && window.BilolUI) window.BilolUI.limitCTA(bubble);
+                    if (data.needSub && window.BilolUI && window.BilolUI.subCTA) window.BilolUI.subCTA(bubble);
                     if (data.limitReached) showNotification(data.error || tr("Bugungi bepul xabarlar tugadi", "Today's free messages are used up", "Бесплатные сообщения на сегодня закончились"), "warning");
                     return;
                 }
@@ -6036,7 +6047,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             set('lang-reset-title', '🔐 Parolni tiklash', '🔐 Reset password', '🔐 Восстановить пароль');
             set('lang-reset-sub', "Telegram bot orqali yangi parol o'rnatish", 'Set a new password via the Telegram bot', 'Новый пароль через Telegram-бота');
             set('gen-title', 'Rasm yaratish rejimi', 'Image generation mode', 'Режим создания изображений');
-            set('wx-sub-title', 'Cheksiz obuna', 'Unlimited subscription', 'Безлимитная подписка');
+            set('wx-sub-title', '⭐ Obuna — barcha agentlar', '⭐ Subscription — all agents', '⭐ Подписка — все агенты');
             set('wx-topup-title', "Hisobni to'ldirish", 'Top up balance', 'Пополнить счёт');
             set('wx-topup-btn', "To'ldirish", 'Top up', 'Пополнить');
             set('lang-install-title', "📲 Ilovani o'rnatish", '📲 Install the app', '📲 Установить приложение');
@@ -6067,24 +6078,23 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         function paintSub() {
             var card = $('wx-sub');
             if (!rewards) return;
-            if (!rewards.freeLimit) { card.style.display = 'none'; return; }
-            card.style.display = '';
+            card.style.display = '';   // obuna endi kuchli agentlarni ham ochadi — doim ko'rinadi
             var btn = $('wx-sub-btn');
             if (subActive()) {
                 $('wx-sub-sub').textContent = T('Faol: ', 'Active until ', 'Активна до ') + fmtDay(rewards.subUntil) + T(' gacha', '', '');
                 btn.textContent = T('Uzaytirish', 'Extend', 'Продлить');
             } else {
-                $('wx-sub-sub').textContent = T('Bugun: ', 'Today: ', 'Сегодня: ') + (rewards.usedToday || 0) + '/' + rewards.freeLimit +
-                    T(' bepul · ', ' free · ', ' бесплатно · ') + money(rewards.subPrice) + ' ' + sum() + T('/oy', '/mo', '/мес');
+                $('wx-sub-sub').textContent = T('Barcha AI agentlar + cheksiz xabar · ', 'All AI agents + unlimited · ', 'Все AI-агенты + безлимит · ') +
+                    money(rewards.subPrice) + ' ' + sum() + T('/oy', '/mo', '/мес');
                 btn.textContent = T('Olish', 'Get', 'Оформить');
             }
             btn.disabled = false;
         }
         $('wx-sub-btn').onclick = async function () {
             if (!rewards) return;
-            var msg = T(money(rewards.subPrice) + " so'm evaziga " + rewards.subDays + " kunlik cheksiz obuna olasizmi?",
-                'Buy ' + rewards.subDays + ' days of unlimited chat for ' + money(rewards.subPrice) + ' UZS?',
-                'Оформить безлимит на ' + rewards.subDays + ' дней за ' + money(rewards.subPrice) + ' сум?');
+            var msg = T(money(rewards.subPrice) + " so'm evaziga " + rewards.subDays + " kunlik obuna olasizmi?\nBarcha AI agentlar (GPT-4o, Gemini 2.5, DeepSeek…) va cheksiz xabar.",
+                'Buy a ' + rewards.subDays + '-day subscription for ' + money(rewards.subPrice) + ' UZS?\nAll AI agents (GPT-4o, Gemini 2.5, DeepSeek…) and unlimited messages.',
+                'Оформить подписку на ' + rewards.subDays + ' дней за ' + money(rewards.subPrice) + ' сум?\nВсе AI-агенты (GPT-4o, Gemini 2.5, DeepSeek…) и безлимит.');
             var btn = this;
             if (!(await bConfirm(msg, { icon: '♾️' }))) return;
             btn.disabled = true;
@@ -6112,6 +6122,16 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             b.textContent = T('♾️ Cheksiz obuna olish', '♾️ Get unlimited', '♾️ Оформить безлимит');
             b.onclick = openWallet;
             bubble.appendChild(b);
+        }
+        // Kuchli agent obunasiz tanlanganda: "Obuna olish" + "Bepul agentga o'tish"
+        function subCTA(bubble) {
+            var b = document.createElement('button'); b.type = 'button'; b.className = 'wx-btn limit-cta';
+            b.textContent = T('⭐ Obuna olish — barcha agentlar', '⭐ Subscribe — all agents', '⭐ Оформить подписку — все агенты');
+            b.onclick = openWallet; bubble.appendChild(b);
+            var f = document.createElement('button'); f.type = 'button'; f.className = 'wx-btn limit-cta'; f.style.background = 'rgba(255,255,255,.08)';
+            f.textContent = T("⚡ Bepul agentga o'tish", '⚡ Switch to the free agent', '⚡ Перейти на бесплатного агента');
+            f.onclick = function () { if (window.BilolModels) window.BilolModels.useFree(); f.disabled = true; };
+            bubble.appendChild(f);
         }
         var lastQuotaNote = null;
         function quotaLeft(n) {
@@ -6548,6 +6568,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             copyText: copyText, speak: speak, takeDoc: takeDoc,
             isImageMode: function () { return imageMode; }, generateImage: generateImage, genBubble: genBubble,
             limitCTA: limitCTA, quotaLeft: quotaLeft, shareAnswer: shareAnswer,
+            subActive: function () { return !!subActive(); }, subCTA: subCTA,
             showSuggestions: showSuggestions, hideSuggestions: hideSuggestions,
             chatsChanged: function () { if (drawer.classList.contains('open')) renderChatList(); }
         };
@@ -7086,26 +7107,36 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         sheet.querySelector('.ms-bg').onclick = function () { sheet.classList.remove('open'); };
         function fmtSum(n) { return Number(n || 0).toLocaleString('ru-RU').replace(/\u00a0/g, ' '); }
         function current() { return models.filter(function (m) { return m.id === curModel; })[0] || models.filter(function (m) { return m.def; })[0] || models[0]; }
+        function isPro(m) { return !!(m && (m.sub || m.price > 0)); }
+        function hasSub() { return !!(window.BilolUI && window.BilolUI.subActive && window.BilolUI.subActive()); }
         function paintModelBtn() {
             var m = current(), btn = $('model-btn');
             $('model-btn-text').textContent = m.emoji + ' ' + m.name;
-            btn.classList.toggle('paid', m.price > 0);
-            btn.title = m.price > 0 ? fmtSum(m.price) + T(" so'm / xabar", ' UZS / message', ' сум / сообщение') : T('Bepul', 'Free', 'Бесплатно');
+            btn.classList.toggle('paid', isPro(m));
+            btn.title = isPro(m) ? T('Obuna bilan', 'With subscription', 'По подписке') : T('Bepul', 'Free', 'Бесплатно');
         }
+        window.BilolModels = { useFree: function () {
+            var f = models.filter(function (m) { return !isPro(m); })[0]; if (!f) return;
+            curModel = f.id; try { localStorage.setItem('bilol_ai_model', f.id); } catch (e) {}
+            paintModelBtn(); note(f.emoji + ' ' + f.name + ' — ' + T('bepul', 'free', 'бесплатно'), 'success');
+        } };
         function paintSheet() {
             sheet.querySelector('h3').textContent = T('🧠 AI modelni tanlang', '🧠 Choose AI model', '🧠 Выберите модель ИИ');
-            sheet.querySelector('.ms-sub').textContent = T("Bepul model kunlik limit bilan ishlaydi. Pullik modellarda har bir xabar uchun balansdan yechiladi.",
-                'The free model uses your daily limit. Paid models charge your balance per message.', 'Бесплатная модель — в рамках дневного лимита. Платные списывают с баланса за каждое сообщение.');
+            sheet.querySelector('.ms-sub').textContent = hasSub()
+                ? T("⭐ Obunangiz faol — barcha agentlar cheksiz ochiq.", '⭐ Your subscription is active — all agents unlocked.', '⭐ Подписка активна — все агенты доступны без лимита.')
+                : T("Bepul agent kunlik limit bilan ishlaydi. ⭐ belgili kuchli agentlar — obuna bilan (cheksiz xabar).",
+                    'The free agent uses a daily limit. ⭐ Pro agents come with a subscription (unlimited messages).', 'Бесплатный агент — с дневным лимитом. ⭐ Мощные агенты — по подписке (без лимита).');
             var list = sheet.querySelector('.ms-list'); list.innerHTML = '';
             var cm = current();
             models.forEach(function (m) {
                 var b = document.createElement('button'); b.type = 'button'; b.className = 'ms-item' + (m.id === cm.id ? ' active' : '');
                 b.innerHTML = '<span class="ms-ico">' + esc(m.emoji) + '</span><span class="ms-txt"><b>' + esc(m.name) + (m.id === cm.id ? ' ✓' : '') + '</b><small>' + esc(m.desc || '') + '</small></span>' +
-                    '<span class="ms-price ' + (m.price > 0 ? 'paid' : 'free') + '">' + (m.price > 0 ? fmtSum(m.price) + T(" so'm", ' UZS', ' сум') : T('Bepul', 'Free', 'Бесплатно')) + '</span>';
+                    '<span class="ms-price ' + (isPro(m) ? 'paid' : 'free') + '">' + (isPro(m) ? (hasSub() ? '⭐ ✓' : T('⭐ Obuna', '⭐ Pro', '⭐ Подписка')) : T('Bepul', 'Free', 'Бесплатно')) + '</span>';
                 b.onclick = function () {
                     curModel = m.id; try { localStorage.setItem('bilol_ai_model', m.id); } catch (e) {}
                     paintModelBtn(); sheet.classList.remove('open');
-                    note(m.emoji + ' ' + m.name + ' — ' + (m.price > 0 ? fmtSum(m.price) + T(" so'm / xabar", ' UZS / msg', ' сум / сообщ.') : T('bepul', 'free', 'бесплатно')), m.price > 0 ? 'warning' : 'success');
+                    if (isPro(m) && !hasSub()) note(m.emoji + ' ' + m.name + ' — ' + T("faqat obunachilar uchun. Obuna oling yoki bepul agentni tanlang.", 'subscribers only. Subscribe or pick the free agent.', 'только для подписчиков. Оформите подписку или выберите бесплатного агента.'), 'warning');
+                    else note(m.emoji + ' ' + m.name + ' — ' + (isPro(m) ? T('obuna bilan, cheksiz', 'unlimited with subscription', 'безлимит по подписке') : T('bepul', 'free', 'бесплатно')), 'success');
                 };
                 list.appendChild(b);
             });

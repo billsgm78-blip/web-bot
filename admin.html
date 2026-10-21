@@ -1033,20 +1033,28 @@ select.inp option { background: #12151c; color: var(--text); }
                 var emo = h('input', { class: 'inp', value: m.emoji || '🤖', maxlength: '4', style: 'width:64px;text-align:center;font-size:20px' }); emo.oninput = function () { m.emoji = emo.value; };
                 var nm = h('input', { class: 'inp', value: m.name || '', placeholder: 'Nomi' }); nm.oninput = function () { m.name = nm.value; };
                 var id = h('input', { class: 'inp mono', value: m.id || '', placeholder: 'google/gemini-2.5-flash', style: 'font-size:13px' }); id.oninput = function () { m.id = id.value.trim(); };
-                var pr = h('input', { class: 'inp mono', value: m.price || 0, inputmode: 'numeric', style: 'width:120px' }); pr.oninput = function () { m.price = parseInt(pr.value.replace(/\D/g, ''), 10) || 0; tag.textContent = m.price ? money(m.price) + " so'm" : 'BEPUL'; tag.className = 'tag ' + (m.price ? 'pending' : 'done'); };
+                if (m.sub === undefined) m.sub = (m.price || 0) > 0;   // eski sozlama: narxi bor -> obuna
+                m.price = 0;
+                function paintTag() { tag.textContent = m.sub ? '⭐ OBUNA' : 'BEPUL'; tag.className = 'tag ' + (m.sub ? 'pending' : 'done'); }
+                var pr = h('div', { class: 'seg' });
+                [[false, '🆓 Bepul (hamma uchun)'], [true, '⭐ Faqat obunachilar']].forEach(function (x) {
+                    var bt = h('button', { class: m.sub === x[0] ? 'active' : '', text: x[1] });
+                    bt.onclick = function () { m.sub = x[0]; pr.querySelectorAll('button').forEach(function (e) { e.classList.remove('active'); }); bt.classList.add('active'); paintTag(); };
+                    pr.appendChild(bt);
+                });
                 var ds = h('input', { class: 'inp', value: m.desc || '', placeholder: "Qisqa tavsif (saytda ko'rinadi)", style: 'font-size:13px' }); ds.oninput = function () { m.desc = ds.value; };
-                var tag = h('span', { class: 'tag ' + (m.price ? 'pending' : 'done'), text: m.price ? money(m.price) + " so'm" : 'BEPUL' });
+                var tag = h('span', { class: 'tag ' + (m.sub ? 'pending' : 'done'), text: m.sub ? '⭐ OBUNA' : 'BEPUL' });
                 var sw = h('div', { class: 'switch' + (m.on ? ' ok' : ''), role: 'switch', title: 'Saytda ko\'rinsin', onclick: function () { m.on = !m.on; sw.className = 'switch' + (m.on ? ' ok' : ''); } });
                 var df = h('button', { class: 'act' + (m.def ? '' : ' ghost'), text: m.def ? '⭐ Asosiy' : 'Asosiy qilish', onclick: function () { models.forEach(function (x) { x.def = false; }); m.def = true; m.on = true; paintModels(); } });
                 mbox.appendChild(h('div', { style: 'border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;display:grid;gap:8px;' + (m.on ? '' : 'opacity:.55') }, [
                     h('div', { style: 'display:flex;gap:8px;align-items:center' }, [emo, nm, tag, sw]),
                     id,
-                    h('div', { style: 'display:flex;gap:8px;align-items:center;flex-wrap:wrap' }, [h('span', { class: 'sum', text: "1 xabar narxi, so'm (0 = bepul):" }), pr, df,
+                    h('div', { style: 'display:flex;gap:8px;align-items:center;flex-wrap:wrap' }, [h('span', { class: 'sum', text: 'Kimlar uchun:' }), pr, df,
                         h('button', { class: 'sq', title: "O'chirish", text: '✖', style: 'margin-left:auto', onclick: function () { models.splice(i, 1); paintModels(); } })]),
                     ds
                 ]));
             });
-            mbox.appendChild(h('button', { class: 'act', text: "＋ Model qo'shish", onclick: function () { models.push({ id: '', name: '', emoji: '🤖', price: 100, on: true, def: false, desc: '' }); paintModels(); } }));
+            mbox.appendChild(h('button', { class: 'act', text: "＋ Model qo'shish", onclick: function () { models.push({ id: '', name: '', emoji: '🤖', price: 0, sub: true, on: true, def: false, desc: '' }); paintModels(); } }));
         }
         paintModels();
         var fb = c.fallback !== false;
@@ -1069,7 +1077,7 @@ select.inp option { background: #12151c; color: var(--text); }
         view.appendChild(h('div', { class: 'sum', style: 'margin-bottom:12px', text: "Bu sozlamalar saytdagi AI chatga darhol ta'sir qiladi. Qo'shimcha ko'rsatma, javob uzunligi va ijodkorlik Telegram botdagi AI'ga ham qo'llanadi." }));
         view.appendChild(h('div', { class: 'h', text: '🧠 Modellar va narxlar' }));
         view.appendChild(h('div', { class: 'card form' }, [
-            h('div', { class: 'sum', style: 'line-height:1.5', text: "Foydalanuvchi saytda modelni o'zi tanlaydi (chat tepasidagi tugma). Narx 0 bo'lsa — bepul, kunlik limit va obuna bilan ishlaydi. Narx qo'yilsa — har bir xabar uchun shu summa balansdan yechiladi. ⭐ Asosiy — standart tanlangan model. Model ID'lar: openrouter.ai/models" }),
+            h('div', { class: 'sum', style: 'line-height:1.5', text: "Foydalanuvchi saytda modelni o'zi tanlaydi (chat tepasidagi tugma). 🆓 Bepul agent — hamma uchun, kunlik limit bilan (kamida bittasi yoqilgan bo'lishi shart). ⭐ Obuna — faqat obunasi bor foydalanuvchilar ishlata oladi, cheksiz; har xabar uchun pul yechilmaydi. ⭐ Asosiy — standart tanlangan model. Model ID'lar: openrouter.ai/models" }),
             mbox,
             h('div', { style: 'display:flex;align-items:center;gap:12px' }, [h('div', { style: 'flex:1' }, [h('b', { text: 'Zaxira modellar' }), h('div', { class: 'sum', text: "Tanlangan model ishlamasa, avtomatik boshqasiga o'tadi (tavsiya etiladi)" })]), fbSw])
         ]));

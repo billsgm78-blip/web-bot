@@ -81,6 +81,11 @@ export default async function handler(req, res) {
   if (!quota.allowed && quota.maintenance) {
     return res.status(503).json({ error: "🛠 " + (quota.message || "Texnik ishlar olib borilmoqda."), maintenance: true });
   }
+  if (!quota.allowed && quota.needSub) {
+    // Kuchli agent — faqat obunachilar uchun
+    return res.status(402).json({ error: quota.message || "Bu agent faqat obunachilar uchun.", needSub: true, modelName: quota.modelName,
+      subPrice: quota.subPrice, subDays: quota.subDays, balance: quota.balance });
+  }
   if (!quota.allowed && quota.insufficient) {
     return res.status(402).json({ error: quota.message || "Balansda pul yetarli emas.", insufficient: true, price: quota.price, balance: quota.balance });
   }
