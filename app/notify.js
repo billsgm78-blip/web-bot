@@ -75,7 +75,7 @@
     var css = document.createElement('style');
     css.textContent =
         '.bn-toast{position:fixed;left:50%;z-index:2147483600;display:flex;align-items:center;gap:12px;width:max-content;max-width:min(92vw,460px);box-sizing:border-box;padding:12px 20px 12px 14px;' +
-        'border-radius:22px;color:#fff;font:700 14px/1.35 Outfit,Inter,system-ui,sans-serif;box-shadow:0 18px 44px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.3);' +
+        'border-radius:22px;color:#fff;font:700 14px/1.35 Twemoji,Outfit,Inter,system-ui,sans-serif;box-shadow:0 18px 44px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.3);' +
         'touch-action:none;user-select:none;cursor:grab;overflow:hidden;transition:transform .25s cubic-bezier(.175,.885,.32,1.275),opacity .25s ease}' +
         '.bn-toast.top{top:calc(18px + env(safe-area-inset-top));animation:bnIn .38s cubic-bezier(.18,.89,.32,1.28) both}' +
         '.bn-toast.bottom{bottom:calc(96px + env(safe-area-inset-bottom));animation:bnInB .38s cubic-bezier(.18,.89,.32,1.28) both}' +

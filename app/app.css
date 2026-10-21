@@ -1,5 +1,5 @@
-@font-face { font-family: 'Outfit'; src: url(fonts/outfit-500.woff2) format('woff2'); font-weight: 400 600; font-display: swap; }
-@font-face { font-family: 'Outfit'; src: url(fonts/outfit-800.woff2) format('woff2'); font-weight: 700 900; font-display: swap; }
+@font-face { font-family: 'Twemoji', 'Outfit'; src: url(fonts/outfit-500.woff2) format('woff2'); font-weight: 400 600; font-display: swap; }
+@font-face { font-family: 'Twemoji', 'Outfit'; src: url(fonts/outfit-800.woff2) format('woff2'); font-weight: 700 900; font-display: swap; }
 
 :root {
     --bg: #0c0c0e;
@@ -19,7 +19,7 @@
     --nav-h: 64px;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: 'Outfit', system-ui, sans-serif; font-size: 15px;
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: 'Twemoji', 'Outfit', system-ui, sans-serif; font-size: 15px;
     overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
 input, textarea, .bubble .tx { -webkit-user-select: text; user-select: text; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }

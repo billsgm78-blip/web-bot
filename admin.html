@@ -8,6 +8,8 @@
 <title>Bilols AI — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="/fonts/twemoji.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/emoji.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -16,12 +18,12 @@
     --violet: #8b5cf6; --blue: #3b82f6; --teal: #14d8b8; --green: #10b981; --red: #f43f5e; --amber: #f59e0b;
     --grad: linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Twemoji', 'Outfit', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
 html, body { background: var(--bg); color: var(--text); min-height: 100%; }
 body { min-height: 100svh; }
 button { font-family: inherit; cursor: pointer; }
 input, textarea, select { font-family: inherit; color: var(--text); }
-.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+.mono { font-family: 'Twemoji', 'JetBrains Mono', ui-monospace, monospace; }
 .glow-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0;
     background: radial-gradient(60% 40% at 15% 0%, rgba(139,92,246,0.16), transparent 70%), radial-gradient(50% 40% at 100% 100%, rgba(20,216,184,0.10), transparent 70%); }
 
@@ -48,7 +50,7 @@ input, textarea, select { font-family: inherit; color: var(--text); }
 .msg { min-height: 20px; margin-top: 12px; font-size: 13.5px; text-align: center; line-height: 1.45; }
 .msg.err { color: #fb7185; } .msg.ok { color: #34d399; }
 .code-boxes { display: flex; gap: 8px; justify-content: space-between; margin-bottom: 12px; }
-.code-boxes input { width: 100%; min-width: 0; height: 58px; text-align: center; font-size: 24px; font-weight: 700; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--line2); outline: none; font-family: 'JetBrains Mono', monospace; }
+.code-boxes input { width: 100%; min-width: 0; height: 58px; text-align: center; font-size: 24px; font-weight: 700; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--line2); outline: none; font-family: 'Twemoji', 'JetBrains Mono', monospace; }
 .code-boxes input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(20,216,184,0.2); }
 .link { background: none; border: none; color: #a5b4fc; font-size: 13.5px; font-weight: 600; margin-top: 12px; width: 100%; }
 
@@ -75,7 +77,7 @@ input, textarea, select { font-family: inherit; color: var(--text); }
 .grid { display: grid; gap: 12px; }
 .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 14px; }
 .kpi { padding: 16px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
-.kpi b { display: block; font-size: 24px; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.5px; }
+.kpi b { display: block; font-size: 24px; font-family: 'Twemoji', 'JetBrains Mono', monospace; letter-spacing: -0.5px; }
 .kpi small { color: var(--muted); font-size: 12.5px; }
 .kpi.accent { background: linear-gradient(140deg, rgba(139,92,246,0.18), rgba(59,130,246,0.06)); border-color: rgba(139,92,246,0.3); }
 .h { font-size: 14px; font-weight: 700; color: #cfd5e6; margin: 18px 0 10px; display: flex; align-items: center; justify-content: space-between; }
@@ -93,7 +95,7 @@ input, textarea, select { font-family: inherit; color: var(--text); }
 .r-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .r-main b { font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .r-main small { color: var(--dim); font-size: 12px; margin-top: 2px; }
-.r-amt { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; white-space: nowrap; }
+.r-amt { text-align: right; font-family: 'Twemoji', 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; white-space: nowrap; }
 .r-amt.in { color: #34d399; } .r-amt.out { color: #fb7185; }
 .r-amt small { display: block; font-size: 11px; color: var(--dim); font-weight: 500; }
 .tag { align-self: flex-start; margin-top: 4px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; }
@@ -236,10 +238,10 @@ textarea.inp { height: auto; min-height: 150px; padding: 14px 16px; resize: vert
     --ease: cubic-bezier(.2,.8,.2,1);
     --spring: cubic-bezier(.34,1.56,.64,1);
 }
-* { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+* { font-family: 'Twemoji', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; }
 html, body { background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
-h1, h2, h3, .top h2, .auth-card h1, .user-head b, .m-card h3, .h { font-family: 'Space Grotesk', 'Inter', sans-serif !important; letter-spacing: -.02em; }
-.mono, .code-boxes input { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+h1, h2, h3, .top h2, .auth-card h1, .user-head b, .m-card h3, .h { font-family: 'Twemoji', 'Space Grotesk', 'Inter', sans-serif !important; letter-spacing: -.02em; }
+.mono, .code-boxes input { font-family: 'Twemoji', 'JetBrains Mono', ui-monospace, monospace; }
 ::selection { background: rgba(124,92,255,.4); }
 
 /* Fon: sekin suzuvchi "aurora" (faqat transform — GPU, qotmaydi) */
@@ -277,7 +279,7 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-in
 
 /* ---------- Yon menyu ---------- */
 .side { background: rgba(10,12,16,.82); border-right: 1px solid var(--line); padding-left: 14px; padding-right: 14px; }
-.side .brand b { color: #fff; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; }
+.side .brand b { color: #fff; font-family: 'Twemoji', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; }
 .side .brand small { color: var(--muted); }
 .nav { position: relative; color: var(--muted); border-radius: 12px; font-weight: 600; transition: color .2s, background .25s var(--ease), transform .18s var(--spring); }
 .nav .ico { transition: transform .35s var(--spring); }
@@ -313,7 +315,7 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-in
 .kpi::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 0%), rgba(124,92,255,.16), transparent 40%); opacity: 0; transition: opacity .3s; pointer-events: none; }
 .kpi:hover { transform: translateY(-3px); border-color: rgba(124,92,255,.35); box-shadow: 0 20px 40px -24px rgba(124,92,255,.6); }
 .kpi:hover::after { opacity: 1; }
-.kpi b { color: #fff; font-size: 28px; font-family: 'Space Grotesk', 'Inter', sans-serif !important; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.kpi b { color: #fff; font-size: 28px; font-family: 'Twemoji', 'Space Grotesk', 'Inter', sans-serif !important; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .kpi small { color: var(--muted); font-weight: 500; }
 .kpi.accent { background: linear-gradient(135deg, rgba(34,211,238,.16), rgba(124,92,255,.24) 55%, rgba(232,121,249,.16)); border-color: rgba(124,92,255,.35); }
 .kpi.accent b { background: linear-gradient(90deg, #fff, #c4b5fd); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -400,7 +402,7 @@ select.inp option { background: #12151c; color: var(--text); }
         <div class="or-line"><span>yoki</span></div>
         <button type="button" class="btn faceid-btn" id="a-keybtn"><span class="fid-ico">🗝</span> Maxfiy kalit bilan kirish</button>
         <form id="key-form" style="display:none;margin-top:12px" autocomplete="off">
-            <div class="field"><input id="a-key" placeholder="BLS-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" maxlength="50" autocapitalize="characters" spellcheck="false" style="font-family:ui-monospace,monospace;letter-spacing:0;font-size:13px;text-transform:uppercase"></div>
+            <div class="field"><input id="a-key" placeholder="BLS-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" maxlength="50" autocapitalize="characters" spellcheck="false" style="font-family:'Twemoji', ui-monospace,monospace;letter-spacing:0;font-size:13px;text-transform:uppercase"></div>
             <button class="btn" id="a-keygo">🗝 Kirish</button>
         </form>
         <div class="msg" id="a-msg"></div>
@@ -1942,7 +1944,7 @@ select.inp option { background: #12151c; color: var(--text); }
                 var card = $('m-card'); card.innerHTML = '';
                 card.appendChild(h('h3', { text: '🗝 Maxfiy kalitingiz' }));
                 card.appendChild(h('p', { text: "Bu kalit faqat HOZIR ko'rsatiladi. Nusxalab, xavfsiz joyga saqlang (masalan, Telegram'dagi «Saqlangan xabarlar»ga emas — qog'ozga yoki parol menejeriga)." }));
-                var kb = h('div', { style: 'font-family:ui-monospace,monospace;font-size:17px;font-weight:800;letter-spacing:0.5px;line-height:1.5;text-align:center;padding:18px 12px;border-radius:14px;background:rgba(139,92,246,0.12);border:1px dashed rgba(139,92,246,0.6);margin-bottom:14px;user-select:all;word-break:break-all', text: x.key });
+                var kb = h('div', { style: 'font-family:Twemoji, ui-monospace,monospace;font-size:17px;font-weight:800;letter-spacing:0.5px;line-height:1.5;text-align:center;padding:18px 12px;border-radius:14px;background:rgba(139,92,246,0.12);border:1px dashed rgba(139,92,246,0.6);margin-bottom:14px;user-select:all;word-break:break-all', text: x.key });
                 card.appendChild(kb);
                 card.appendChild(h('div', { class: 'm-btns' }, [
                     h('button', { class: 'btn ghost', text: '📋 Nusxalash', onclick: function () { try { navigator.clipboard.writeText(x.key).then(function () { toast('✅ Nusxalandi'); }); } catch (e) { toast('Qo\'lda belgilab nusxalang'); } } }),

@@ -48,7 +48,9 @@
         });
     };
     </script>
-    <style>
+    <link rel="preload" href="/fonts/twemoji.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/emoji.css">
+<style>
     html.lite *, html.lite *::before, html.lite *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
     html.lite .ambient-orb { filter: none !important; animation: none !important; mix-blend-mode: normal !important; opacity: .55 !important; }
     html.lite .landing-logo-glow { filter: none !important; animation: none !important; opacity: .35 !important; }
@@ -73,7 +75,7 @@
     html.lite [class*="spin"], html.lite [class*="loader"], html.lite [class*="typing"] { animation-iteration-count: infinite !important; }
     html.in-app body { -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; overscroll-behavior: none; }
     .bc-wrap { position: fixed; inset: 0; z-index: 2147483600; display: flex; align-items: flex-end; justify-content: center; padding: 16px 14px calc(16px + env(safe-area-inset-bottom));
-        background: rgba(2, 4, 10, .62); opacity: 0; transition: opacity .18s ease; font-family: 'Outfit', 'Manrope', system-ui, sans-serif; }
+        background: rgba(2, 4, 10, .62); opacity: 0; transition: opacity .18s ease; font-family: 'Twemoji', 'Outfit', 'Manrope', system-ui, sans-serif; }
     .bc-wrap.on { opacity: 1; }
     .bc-card { width: 100%; max-width: 420px; background: #0f1524; border: 1px solid rgba(148, 163, 184, .18); border-radius: 22px; padding: 20px 18px 16px;
         box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .8); transform: translateY(24px); transition: transform .24s cubic-bezier(.2, .9, .3, 1.15); }
@@ -81,7 +83,7 @@
     .bc-ico { font-size: 30px; line-height: 1; margin-bottom: 10px; }
     .bc-msg { color: #e2e8f0; font-size: 16px; line-height: 1.45; font-weight: 600; white-space: pre-line; margin: 0 0 18px; }
     .bc-row { display: flex; gap: 10px; }
-    .bc-row button { flex: 1; padding: 14px; border-radius: 14px; border: 0; font: 700 15px 'Outfit', sans-serif; cursor: pointer; }
+    .bc-row button { flex: 1; padding: 14px; border-radius: 14px; border: 0; font: 700 15px 'Twemoji','Outfit', sans-serif; cursor: pointer; }
     .bc-no { background: rgba(148, 163, 184, .14); color: #cbd5e1; }
     .bc-yes { background: linear-gradient(135deg, #10b981, #3b82f6 60%, #8b5cf6); color: #fff; }
     .bc-yes.danger { background: linear-gradient(135deg, #f43f5e, #e11d48); }
@@ -149,7 +151,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Outfit', 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Twemoji', 'Outfit', 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
             outline: none !important;
         }
@@ -839,7 +841,7 @@
             font-size: 11.5px;
             font-weight: 700;
             color: var(--amber-accent);
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Twemoji', 'JetBrains Mono', monospace;
             white-space: nowrap;
         }
 
@@ -1280,7 +1282,7 @@
             100% { transform: scale(1.02); }
         }
         .balance-title { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
-        .balance-num { font-size: 30px; font-weight: 800; color: #fbbf24; font-family: 'JetBrains Mono', monospace; }
+        .balance-num { font-size: 30px; font-weight: 800; color: #fbbf24; font-family: 'Twemoji', 'JetBrains Mono', monospace; }
         .balance-currency { font-size: 16px; font-weight: 700; color: #fbbf24; }
 
         .pack-scroll-area { flex: 1; overflow-y: auto; }
@@ -1302,7 +1304,7 @@
         }
         .pack-card:active { transform: scale(0.94); }
         .pack-val { font-size: 14.5px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-        .pack-price { font-size: 13.5px; color: var(--emerald-accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .pack-price { font-size: 13.5px; color: var(--emerald-accent); font-weight: 700; font-family: 'Twemoji', 'JetBrains Mono', monospace; }
 
         #camera-modal {
             position: absolute;
@@ -1870,7 +1872,7 @@ body.fx-no-particles .fx-spark, body.fx-no-particles .fx-coin { display: none !i
 #auth-modal .auth-field-code .styled-input:focus { border-color: var(--emerald-accent); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
 #auth-modal .auth-field-code:focus-within .auth-field-icon { color: var(--emerald-accent); }
 #auth-modal #code-input:not(:placeholder-shown) {
-    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 18px; font-weight: 700; letter-spacing: 0.4em;
+    font-family: 'Twemoji', 'JetBrains Mono', ui-monospace, monospace; font-size: 18px; font-weight: 700; letter-spacing: 0.4em;
 }
 
 /* Asosiy tugma */
@@ -1964,7 +1966,7 @@ body.fx-no-particles .fx-spark, body.fx-no-particles .fx-coin { display: none !i
 .msg-ai .ai-body { white-space: normal; }
 .md-prose { white-space: pre-wrap; }
 .md-inline {
-    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.88em;
+    font-family: 'Twemoji', 'JetBrains Mono', ui-monospace, monospace; font-size: 0.88em;
     padding: 1px 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.08);
 }
 .code-block {
@@ -1974,7 +1976,7 @@ body.fx-no-particles .fx-spark, body.fx-no-particles .fx-coin { display: none !i
 .code-head {
     display: flex; align-items: center; justify-content: space-between;
     padding: 6px 8px 6px 12px; background: rgba(255, 255, 255, 0.05);
-    font-size: 11.5px; color: #94a3b8; font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px; color: #94a3b8; font-family: 'Twemoji', 'JetBrains Mono', monospace;
 }
 .code-copy {
     border: none; background: rgba(255, 255, 255, 0.07); color: #cbd5e1; cursor: pointer;
@@ -1983,7 +1985,7 @@ body.fx-no-particles .fx-spark, body.fx-no-particles .fx-coin { display: none !i
 .code-copy:hover { background: rgba(255, 255, 255, 0.13); color: #fff; }
 .code-block pre { margin: 0; overflow-x: auto; }
 .code-block pre code {
-    display: block; padding: 12px; font-family: 'JetBrains Mono', ui-monospace, monospace;
+    display: block; padding: 12px; font-family: 'Twemoji', 'JetBrains Mono', ui-monospace, monospace;
     font-size: 12.5px; line-height: 1.55; white-space: pre; background: transparent !important; color: #e2e8f0;
 }
 .ai-body.is-typing > :last-child::after,
@@ -2110,7 +2112,7 @@ body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
 .hist-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .hist-main b { font-size: 14px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hist-main small { font-size: 11.5px; color: #64748b; margin-top: 2px; }
-.hist-amt { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; }
+.hist-amt { text-align: right; font-family: 'Twemoji', 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; }
 .hist-amt.in { color: var(--emerald-accent); }
 .hist-amt.out { color: #f87171; }
 .hist-amt small { display: block; font-size: 11px; color: #64748b; font-weight: 500; margin-top: 2px; }
@@ -2128,10 +2130,10 @@ body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
     display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 12px; border-radius: 14px;
     background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-glass); margin-bottom: 10px;
 }
-.ref-link-box code { flex: 1; min-width: 0; font-size: 12.5px; color: #e2e8f0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'JetBrains Mono', monospace; }
+.ref-link-box code { flex: 1; min-width: 0; font-size: 12.5px; color: #e2e8f0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'Twemoji', 'JetBrains Mono', monospace; }
 .ref-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
 .ref-stat { padding: 14px; border-radius: 16px; background: var(--surface-card); border: 1px solid var(--border-glass); text-align: center; }
-.ref-stat b { display: block; font-size: 20px; color: #fbbf24; font-family: 'JetBrains Mono', monospace; }
+.ref-stat b { display: block; font-size: 20px; color: #fbbf24; font-family: 'Twemoji', 'JetBrains Mono', monospace; }
 .ref-stat small { font-size: 12px; color: #94a3b8; }
 .ref-share { width: 100%; margin-top: 4px; padding: 13px; }
 
@@ -2196,7 +2198,7 @@ body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
 .topup-chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .topup-chips button {
     padding: 10px 4px; border-radius: 12px; border: 1px solid var(--border-glass); background: rgba(255, 255, 255, 0.04);
-    color: #e2e8f0; font-weight: 700; font-size: 13px; cursor: pointer; font-family: 'JetBrains Mono', monospace;
+    color: #e2e8f0; font-weight: 700; font-size: 13px; cursor: pointer; font-family: 'Twemoji', 'JetBrains Mono', monospace;
 }
 .topup-input {
     width: 100%; height: 48px; padding: 0 14px; border-radius: 14px; font-size: 16px;
@@ -2226,7 +2228,7 @@ body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
 .adm-body { flex: 1; overflow-y: auto; }
 .adm-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
 .adm-kpi { padding: 14px; border-radius: 16px; background: var(--surface-card); border: 1px solid var(--border-glass); }
-.adm-kpi b { display: block; font-size: 20px; color: #f8fafc; font-family: 'JetBrains Mono', monospace; }
+.adm-kpi b { display: block; font-size: 20px; color: #f8fafc; font-family: 'Twemoji', 'JetBrains Mono', monospace; }
 .adm-kpi small { font-size: 11.5px; color: #94a3b8; }
 .adm-h { font-size: 13px; font-weight: 700; color: #cbd5e1; margin: 4px 0 8px; }
 .adm-chart-wrap { padding: 12px; border-radius: 16px; background: var(--surface-card); border: 1px solid var(--border-glass); }
@@ -2234,7 +2236,7 @@ body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
 .adm-grid { stroke: rgba(255, 255, 255, 0.07); stroke-width: 1; }
 .adm-bar-a { fill: #8b5cf6; background: #8b5cf6; }
 .adm-bar-b { fill: #10b981; background: #10b981; }
-.adm-axis { fill: #64748b; font-size: 9px; text-anchor: middle; font-family: 'JetBrains Mono', monospace; }
+.adm-axis { fill: #64748b; font-size: 9px; text-anchor: middle; font-family: 'Twemoji', 'JetBrains Mono', monospace; }
 .adm-axis-l { text-anchor: start; }
 .adm-legend { display: flex; gap: 14px; margin-top: 6px; font-size: 12px; color: #94a3b8; }
 .adm-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
@@ -2350,9 +2352,9 @@ html, body { height: calc(100svh + env(safe-area-inset-top)) !important; }
 .wx-promo-input {
     flex: 1; min-width: 0; height: 40px; padding: 0 12px; border-radius: 12px; font-size: 15px; letter-spacing: 1px;
     background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glass); color: #f8fafc; text-transform: uppercase;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Twemoji', 'JetBrains Mono', monospace;
 }
-.wx-promo-input::placeholder { text-transform: none; letter-spacing: 0; font-family: 'Outfit', sans-serif; color: #64748b; }
+.wx-promo-input::placeholder { text-transform: none; letter-spacing: 0; font-family: 'Twemoji', 'Outfit', sans-serif; color: #64748b; }
 body.theme-light .wx-promo-input { background: #f1f5f9; color: #0f172a; border-color: rgba(15, 23, 42, 0.12); }
 
 
@@ -2562,9 +2564,9 @@ body.theme-light #model-sheet h3, body.theme-light .ms-item { color: #0f172a; }
 /* Foydalanuvchi ID */
 .uid-chip { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
     border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); color: #e2e8f0; font: inherit; font-size: 13px; }
-.uid-chip b { font-family: 'JetBrains Mono', monospace; color: #fbbf24; letter-spacing: 0.5px; }
+.uid-chip b { font-family: 'Twemoji', 'JetBrains Mono', monospace; color: #fbbf24; letter-spacing: 0.5px; }
 .uid-line { margin-top: 3px; font-size: 12.5px; color: #94a3b8; }
-.uid-line b { font-family: 'JetBrains Mono', monospace; color: #fbbf24; }
+.uid-line b { font-family: 'Twemoji', 'JetBrains Mono', monospace; color: #fbbf24; }
 body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); background: #fff; }
 /* Eski narx (chizilgan) */
 .pack-old { font-size: 11.5px; color: #94a3b8; text-decoration: line-through; margin-right: 6px; font-weight: 600; }
@@ -7145,7 +7147,7 @@ html.in-app .drawer-app { display: none !important; }
 #app-promo { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 2147483000;
     max-width: 460px; margin: 0 auto; display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; border-radius: 20px;
     background: #0f1524; border: 1px solid rgba(99, 102, 241, .45); box-shadow: 0 20px 50px -10px rgba(0, 0, 0, .7);
-    transform: translateY(140%); transition: transform .45s cubic-bezier(.18, .89, .32, 1.15); font-family: 'Outfit', sans-serif; }
+    transform: translateY(140%); transition: transform .45s cubic-bezier(.18, .89, .32, 1.15); font-family: 'Twemoji', 'Outfit', sans-serif; }
 #app-promo[hidden] { display: none !important; }
 #app-promo:not(.show) { transform: translateY(calc(100% + 80px)); pointer-events: none; }
 #app-promo.show { transform: none; }
@@ -7153,7 +7155,7 @@ html.in-app .drawer-app { display: none !important; }
 #app-promo .ap-t { flex: 1; min-width: 0; }
 #app-promo .ap-t b { display: block; color: #f8fafc; font-size: 15px; }
 #app-promo .ap-t small { color: #94a3b8; font-size: 12.5px; }
-#app-promo .ap-go { padding: 11px 16px; border-radius: 14px; border: 0; color: #fff; font: 800 14px 'Outfit', sans-serif; text-decoration: none; white-space: nowrap;
+#app-promo .ap-go { padding: 11px 16px; border-radius: 14px; border: 0; color: #fff; font: 800 14px 'Twemoji','Outfit', sans-serif; text-decoration: none; white-space: nowrap;
     background: linear-gradient(135deg, #10b981, #3b82f6 55%, #8b5cf6); }
 #app-promo .ap-x { width: 30px; height: 30px; border-radius: 10px; border: 0; background: rgba(148, 163, 184, .12); color: #cbd5e1; font-size: 18px; line-height: 1; cursor: pointer; flex-shrink: 0; }
 body.theme-light #app-promo { background: #fff; border-color: rgba(99, 102, 241, .35); }
