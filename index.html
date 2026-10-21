@@ -2572,6 +2572,33 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 .pack-card.sale { padding-top: 22px; }
 </style>
 <script src="/notify.js"></script>
+<script>
+/* Sessiya eskirgan (parol boshqa joyda o'zgartirilgan) — fon so'rovlarini to'xtatib, qayta kirishni so'raymiz.
+   Aks holda eski parol bilan har 5 soniyada so'rov ketib, server buni "xato parol" deb sanaydi. */
+(function () {
+    var of = window.fetch, fired = false;
+    if (!of) return;
+    window.fetch = function (input, init) {
+        return of.apply(this, arguments).then(function (res) {
+            try {
+                var u = typeof input === 'string' ? input : (input && input.url) || '';
+                if (!fired && res.status === 403 && /railway\.app\/api\//.test(u) && !/\/api\/(login|register|admin|reset)/.test(u)
+                    && localStorage.getItem('bilol_ai_phone') && localStorage.getItem('bilol_ai_password')) {
+                    res.clone().json().then(function (j) {
+                        if (fired || !j || !/Qaytadan kiring/i.test(j.error || '')) return;
+                        fired = true;
+                        var ph = localStorage.getItem('bilol_ai_phone') || '';
+                        ['bilol_ai_password', 'bilol_ai_phone', 'bilol_ai_name'].forEach(function (k) { localStorage.removeItem(k); });
+                        try { sessionStorage.setItem('bl_sess_expired', ph || '1'); } catch (e) {}
+                        location.reload();
+                    }).catch(function () {});
+                }
+            } catch (e) {}
+            return res;
+        });
+    };
+})();
+</script>
 </head>
 <body>
 <script id="error-reporter">
@@ -4030,6 +4057,18 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         const savedName = localStorage.getItem("bilol_ai_name");
         const savedHistory = localStorage.getItem("bilol_ai_history");
 
+        // Sessiya eskirgan bo'lsa — kirish oynasi raqam bilan ochiladi
+        let expiredPhone = null;
+        try { expiredPhone = sessionStorage.getItem('bl_sess_expired'); sessionStorage.removeItem('bl_sess_expired'); } catch (e) {}
+        if (expiredPhone && !savedPhone) {
+            setTimeout(function () {
+                if (typeof openAuthModal === 'function') openAuthModal();
+                const pi = document.getElementById('phone-input');
+                if (pi && expiredPhone !== '1') pi.value = '+' + expiredPhone.replace(/\D/g, '');
+                const sb = document.getElementById('status-box');
+                if (sb) { sb.style.color = '#f59e0b'; sb.innerText = tr("Parolingiz o'zgargan yoki sessiya eskirgan. Iltimos, qayta kiring.", "Your password changed or the session expired. Please log in again.", "Пароль изменён или сессия устарела. Пожалуйста, войдите снова."); }
+            }, 400);
+        }
         if (savedPhone) {
             currentPhone = savedPhone;
             currentName = savedName || "";
