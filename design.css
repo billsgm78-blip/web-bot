@@ -1,0 +1,234 @@
+/* =====================================================================
+   Bilols AI — DIZAYNLAR (design.js qaysi birini yoqishini tanlaydi)
+   html[data-design="current"] — hech narsa o'zgarmaydi (avvalgi dizayn)
+   html[data-design="cosmic"]  — 🌌 Kosmik
+   html[data-design="smooth"]  — ⚡ Silliq (eng yengil)
+   Faqat ko'rinish: mantiqiy kod (JS/API) ga tegmaydi.
+   Yorug' rejim (body.theme-light) yoqilsa, foydalanuvchi tanlovi ustun turadi.
+   ===================================================================== */
+
+/* ============================== 🌌 KOSMIK ============================== */
+html[data-design="cosmic"] body:not(.theme-light) {
+    --bg-deep: #02030a;
+    --surface-glass: rgba(9, 13, 32, 0.7);
+    --surface-card: rgba(140, 170, 255, 0.05);
+    --border-glass: rgba(140, 170, 255, 0.16);
+    --border-glow: rgba(56, 189, 248, 0.45);
+    --violet-accent: #818cf8;
+    --violet-glow: rgba(129, 140, 248, 0.6);
+    --cyan-accent: #22d3ee;
+    --user-grad: linear-gradient(135deg, #2563eb 0%, #6d28d9 55%, #c026d3 100%);
+    --accent-grad: linear-gradient(135deg, #22d3ee 0%, #6366f1 55%, #a855f7 100%);
+    --btn-glow: 0 10px 30px -6px rgba(56, 189, 248, 0.5);
+    --text-secondary: #9fb0d4;
+    background: #02030a !important;
+}
+html[data-design="cosmic"] { background: #02030a; }
+
+/* Tumanlik + pastdan chiqib turgan sayyora nuri (statik — telefonni qiynamaydi) */
+html[data-design="cosmic"] body:not(.theme-light)::before {
+    background:
+        radial-gradient(ellipse 160% 60% at 50% 122%, #070b22 56%, rgba(56, 189, 248, 0.5) 58.2%, rgba(99, 102, 241, 0.22) 61%, transparent 70%),
+        radial-gradient(ellipse at 18% 12%, rgba(79, 70, 229, 0.34), transparent 46%),
+        radial-gradient(ellipse at 88% 28%, rgba(192, 38, 211, 0.16), transparent 42%),
+        radial-gradient(ellipse at 62% 64%, rgba(14, 165, 233, 0.13), transparent 46%),
+        radial-gradient(ellipse at 8% 70%, rgba(37, 99, 235, 0.12), transparent 40%) !important;
+    background-size: 100% 100% !important;
+    animation: none !important;
+    filter: none !important;
+}
+
+/* Yulduzlar: CSS chizadi (rasm yuklanmaydi), sekin suzadi va miltillaydi — faqat GPU ishlaydi */
+html[data-design="cosmic"] body:not(.theme-light)::after {
+    content: "";
+    position: fixed; left: 0; right: 0; top: -600px; bottom: 0;
+    z-index: 0; pointer-events: none;
+    background-image:
+        radial-gradient(circle at 12px 18px, #fff 0 0.7px, transparent 1.4px),
+        radial-gradient(circle at 63px 96px, rgba(255, 255, 255, 0.7) 0 0.7px, transparent 1.4px),
+        radial-gradient(circle at 118px 41px, rgba(186, 230, 253, 0.8) 0 0.7px, transparent 1.4px),
+        radial-gradient(circle at 41px 133px, #fff 0 1.0px, transparent 1.7px),
+        radial-gradient(circle at 152px 57px, rgba(196, 181, 253, 0.85) 0 0.9px, transparent 1.6px),
+        radial-gradient(circle at 117px 176px, rgba(255, 255, 255, 0.75) 0 0.7px, transparent 1.4px),
+        radial-gradient(circle at 233px 91px, #fff 0 1.25px, transparent 1.9px),
+        radial-gradient(circle at 71px 247px, rgba(165, 243, 252, 0.95) 0 1.1px, transparent 1.8px),
+        radial-gradient(circle at 187px 211px, rgba(255, 255, 255, 0.9) 0 1.4px, transparent 2.1px);
+    background-size: 137px 150px, 137px 150px, 137px 150px, 211px 200px, 211px 200px, 211px 200px, 283px 300px, 283px 300px, 283px 300px;
+    will-change: transform, opacity;
+    animation: dsStarDrift 220s linear infinite, dsTwinkle 5s ease-in-out infinite alternate;
+}
+@keyframes dsStarDrift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 600px, 0); } }
+@keyframes dsTwinkle { from { opacity: 0.55; } to { opacity: 1; } }
+/* Sozlamalarda animatsiya o'chirilsa — yulduzlar ham to'xtaydi */
+html[data-design="cosmic"] body:has(#orb-1.disabled)::after,
+html.lite[data-design="cosmic"] body::after { animation: none !important; opacity: 0.85; }
+
+/* Eski neon sharlar o'rniga tumanlik bor (ular og'ir: blur + blend) */
+html[data-design="cosmic"] .ambient-orb { display: none !important; }
+html[data-design="cosmic"] #fx-canvas { opacity: 0.55; }
+
+html[data-design="cosmic"] body:not(.theme-light) .container { background: rgba(2, 4, 14, 0.32); }
+@media (min-width: 461px) {
+    html[data-design="cosmic"] body:not(.theme-light) .container {
+        border-color: rgba(125, 211, 252, 0.18);
+        box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(99, 102, 241, 0.08), 0 0 80px -30px rgba(56, 189, 248, 0.35);
+    }
+}
+
+/* --- Kirish sahifasi --- */
+html[data-design="cosmic"] body:not(.theme-light) .landing-title {
+    background: linear-gradient(90deg, #ffffff, #bae6fd, #a5b4fc, #f0abfc, #ffffff) !important;
+    background-size: 300% 100% !important;
+    -webkit-background-clip: text !important; background-clip: text !important;
+    filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.35));
+}
+html[data-design="cosmic"] body:not(.theme-light) .landing-chip {
+    background: rgba(56, 189, 248, 0.08); border-color: rgba(125, 211, 252, 0.35); color: #bae6fd;
+    box-shadow: 0 4px 22px -6px rgba(56, 189, 248, 0.4); animation: none;
+}
+html[data-design="cosmic"] body:not(.theme-light) .landing-logo-glow { background: conic-gradient(from 200deg, #22d3ee, #6366f1, #c026d3, #22d3ee); }
+html[data-design="cosmic"] body:not(.theme-light) .landing-logo {
+    background: radial-gradient(circle at 30% 25%, #1e2a5a, #0a0f2a 70%);
+    border-color: rgba(186, 230, 253, 0.35);
+    box-shadow: 0 20px 45px -8px rgba(0, 0, 0, 0.8), 0 0 30px -6px rgba(56, 189, 248, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.25);
+}
+html[data-design="cosmic"] body:not(.theme-light) .landing-subtitle { color: #a8b6d8; }
+html[data-design="cosmic"] body:not(.theme-light) .feature-card,
+html[data-design="cosmic"] body:not(.theme-light) .suggest-card,
+html[data-design="cosmic"] body:not(.theme-light) .settings-card {
+    background: linear-gradient(160deg, rgba(20, 28, 64, 0.62), rgba(8, 11, 30, 0.62));
+    border-color: rgba(140, 170, 255, 0.15);
+    box-shadow: 0 8px 26px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+html[data-design="cosmic"] body:not(.theme-light) .feature-card:hover,
+html[data-design="cosmic"] body:not(.theme-light) .suggest-card:hover { border-color: rgba(56, 189, 248, 0.45); }
+html[data-design="cosmic"] body:not(.theme-light) .landing-btn-enhanced,
+html[data-design="cosmic"] body:not(.theme-light) .primary-btn,
+html[data-design="cosmic"] body:not(.theme-light) #auth-action-btn {
+    background: linear-gradient(120deg, #0ea5e9 0%, #6366f1 50%, #a855f7 100%) !important;
+    background-size: 200% 200% !important;
+    box-shadow: 0 14px 36px -8px rgba(56, 189, 248, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+/* --- Kirish oynasi va modallar --- */
+html[data-design="cosmic"] body:not(.theme-light) .auth-card,
+html[data-design="cosmic"] body:not(.theme-light) .feature-modal-card,
+html[data-design="cosmic"] body:not(.theme-light) .bc-card {
+    background: linear-gradient(170deg, #0d1436 0%, #060a1d 60%) !important;
+    border-color: rgba(140, 170, 255, 0.2) !important;
+    box-shadow: 0 30px 80px -10px rgba(0, 0, 0, 0.9), 0 0 60px -25px rgba(56, 189, 248, 0.5) !important;
+}
+html[data-design="cosmic"] body:not(.theme-light) #settings-modal { background: rgba(3, 5, 16, 0.95); }
+
+/* --- Chat --- */
+html[data-design="cosmic"] body:not(.theme-light) .chat-header,
+html[data-design="cosmic"] body:not(.theme-light) .input-bar {
+    background: rgba(4, 7, 22, 0.82) !important;
+    border-color: rgba(140, 170, 255, 0.14) !important;
+}
+html[data-design="cosmic"] body:not(.theme-light) .msg-ai {
+    background: linear-gradient(165deg, rgba(18, 26, 60, 0.78), rgba(8, 11, 30, 0.78));
+    border-color: rgba(140, 170, 255, 0.16);
+    box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+html[data-design="cosmic"] body:not(.theme-light) .msg-user { box-shadow: 0 8px 24px -6px rgba(99, 102, 241, 0.55); }
+html[data-design="cosmic"] body:not(.theme-light) .input-bar input[type="text"] {
+    background: rgba(140, 170, 255, 0.06) !important;
+    border-color: rgba(140, 170, 255, 0.18) !important;
+}
+html[data-design="cosmic"] body:not(.theme-light) .input-bar input[type="text"]:focus {
+    border-color: rgba(56, 189, 248, 0.55) !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.14) !important;
+}
+html[data-design="cosmic"] body:not(.theme-light) .send-btn { box-shadow: 0 6px 18px -4px rgba(56, 189, 248, 0.6); }
+html[data-design="cosmic"] body:not(.theme-light) .media-btn,
+html[data-design="cosmic"] body:not(.theme-light) .icon-btn { background: rgba(140, 170, 255, 0.07); border-color: rgba(140, 170, 255, 0.16); }
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-design="cosmic"] body::after { animation: none !important; }
+}
+
+/* ============================== ⚡ SILLIQ ============================== */
+/* Maqsad: eng past telefonda ham qotmasin. Fon effektlari yo'q, shaffof "shisha" yo'q,
+   og'ir soyalar yo'q — faqat toza, to'q rangli sirtlar. */
+html[data-design="smooth"] body:not(.theme-light) {
+    --bg-deep: #0b0e14;
+    --surface-glass: #131823;
+    --surface-card: #161c28;
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --border-glow: rgba(99, 102, 241, 0.5);
+    --user-grad: linear-gradient(135deg, #4f46e5, #6366f1);
+    --accent-grad: linear-gradient(135deg, #4f46e5, #6366f1);
+    --btn-glow: none;
+    background: #0b0e14 !important;
+}
+html[data-design="smooth"] { background: #0b0e14; }
+html[data-design="smooth"] body::before,
+html[data-design="smooth"] .ambient-orb,
+html[data-design="smooth"] #fx-canvas,
+html[data-design="smooth"] .fx-star,
+html[data-design="smooth"] .fx-cursor,
+html[data-design="smooth"] .fx-spark,
+html[data-design="smooth"] .landing-logo-glow { display: none !important; }
+html[data-design="smooth"] *, html[data-design="smooth"] *::before, html[data-design="smooth"] *::after {
+    -webkit-backdrop-filter: none !important; backdrop-filter: none !important; text-shadow: none !important;
+}
+html[data-design="smooth"] body:not(.theme-light) .container { background: #0b0e14; }
+@media (min-width: 461px) {
+    html[data-design="smooth"] body:not(.theme-light) .container { box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); border-color: rgba(255, 255, 255, 0.08); }
+}
+html[data-design="smooth"] body:not(.theme-light) .landing-title {
+    background: linear-gradient(135deg, #ffffff, #c7d2fe) !important;
+    -webkit-background-clip: text !important; background-clip: text !important;
+    animation: none !important; filter: none !important;
+}
+html[data-design="smooth"] body:not(.theme-light) .landing-chip { background: #161c28; border-color: rgba(255, 255, 255, 0.1); color: #c7d2fe; box-shadow: none; animation: none; }
+html[data-design="smooth"] body:not(.theme-light) .landing-logo { background: #161c28; border-color: rgba(255, 255, 255, 0.12); box-shadow: none; }
+html[data-design="smooth"] .landing-logo-wrapper, html[data-design="smooth"] .landing-logo { animation: none !important; }
+html[data-design="smooth"] body:not(.theme-light) .feature-card,
+html[data-design="smooth"] body:not(.theme-light) .suggest-card,
+html[data-design="smooth"] body:not(.theme-light) .settings-card {
+    background: #131823; border-color: rgba(255, 255, 255, 0.07); box-shadow: none;
+}
+html[data-design="smooth"] .feature-card::before, html[data-design="smooth"] .feature-card::after { animation: none !important; }
+html[data-design="smooth"] body:not(.theme-light) .landing-btn-enhanced,
+html[data-design="smooth"] body:not(.theme-light) .primary-btn,
+html[data-design="smooth"] body:not(.theme-light) #auth-action-btn {
+    background: #4f46e5 !important; box-shadow: none !important; animation: none !important;
+}
+html[data-design="smooth"] .landing-btn-enhanced::after, html[data-design="smooth"] .landing-btn-enhanced::before { display: none !important; }
+html[data-design="smooth"] body:not(.theme-light) .auth-card,
+html[data-design="smooth"] body:not(.theme-light) .feature-modal-card,
+html[data-design="smooth"] body:not(.theme-light) .bc-card {
+    background: #131823 !important; border-color: rgba(255, 255, 255, 0.08) !important; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
+}
+html[data-design="smooth"] .auth-card::before, html[data-design="smooth"] .feature-modal-card::before { display: none !important; }
+html[data-design="smooth"] body:not(.theme-light) #settings-modal { background: #0b0e14; }
+html[data-design="smooth"] body:not(.theme-light) .chat-header,
+html[data-design="smooth"] body:not(.theme-light) .input-bar { background: #0f131c !important; border-color: rgba(255, 255, 255, 0.07) !important; }
+html[data-design="smooth"] .chat-header::after, html[data-design="smooth"] .input-bar::before { display: none !important; }
+html[data-design="smooth"] body:not(.theme-light) .msg-ai { background: #161c28; border-color: rgba(255, 255, 255, 0.07); box-shadow: none; }
+html[data-design="smooth"] body:not(.theme-light) .msg-user { box-shadow: none; }
+html[data-design="smooth"] .msg-ai { animation: aiSmoothIn 0.18s ease-out forwards !important; }
+html[data-design="smooth"] .send-btn { animation: none !important; box-shadow: none !important; }
+html[data-design="smooth"] body:not(.theme-light) .input-bar input[type="text"] { background: #161c28 !important; box-shadow: none !important; }
+html[data-design="smooth"] .wallet-pill, html[data-design="smooth"] .balance-badge, html[data-design="smooth"] .avatar { box-shadow: none !important; }
+
+/* ===================== Qo'shimcha sahifalar (APK, Maxfiylik) ===================== */
+html[data-design="cosmic"][data-page="sub"] {
+    background:
+        radial-gradient(ellipse at 18% 0%, rgba(79, 70, 229, 0.32), transparent 48%),
+        radial-gradient(ellipse at 90% 40%, rgba(192, 38, 211, 0.12), transparent 42%),
+        radial-gradient(ellipse at 50% 100%, rgba(14, 165, 233, 0.16), transparent 50%),
+        #02030a !important;
+    background-attachment: fixed !important;
+}
+html[data-design="cosmic"][data-page="sub"] body {
+    background: transparent !important;
+    --card: rgba(12, 17, 42, 0.78);
+    --line: rgba(140, 170, 255, 0.16);
+}
+html[data-design="cosmic"][data-page="sub"] body::after { z-index: -1; }
+html[data-design="cosmic"][data-page="sub"] .wrap { position: relative; z-index: 1; }
+html[data-design="smooth"][data-page="sub"] body { background: #0b0e14 !important; --card: #131823; --line: rgba(255, 255, 255, 0.08); }
+html[data-design="smooth"][data-page="sub"] .logo { box-shadow: none !important; }

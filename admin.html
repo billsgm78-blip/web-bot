@@ -382,6 +382,19 @@ select.inp option { background: #12151c; color: var(--text); }
 ::-webkit-scrollbar-thumb:hover { background: rgba(124,92,255,.5); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 @media (max-width: 860px) { .glow-bg::before, .glow-bg::after { animation-duration: 40s; } body::after { display: none; } }
+.ds-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .ds-grid { grid-template-columns: 1fr; } }
+.ds-card { display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
+.ds-card.on { border-color: rgba(56, 189, 248, .6); box-shadow: 0 0 0 1px rgba(56, 189, 248, .25), 0 14px 34px -16px rgba(56, 189, 248, .6); }
+.ds-shot { width: 100%; aspect-ratio: 300 / 420; object-fit: cover; object-position: top; border-radius: 12px; border: 1px solid var(--line); background: #000; display: block; }
+@media (max-width: 760px) { .ds-shot { aspect-ratio: 300 / 300; } }
+.ds-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ds-top b { font-size: 16px; }
+.ds-badge { font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: rgba(56, 189, 248, .15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, .35); }
+.ds-badge.me { background: rgba(245, 158, 11, .14); color: #fcd34d; border-color: rgba(245, 158, 11, .35); }
+.ds-btns { display: flex; gap: 8px; }
+.ds-btns .btn { height: 42px; font-size: 13.5px; }
+.ds-code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; padding: 10px 12px; border-radius: 12px; background: rgba(0, 0, 0, .35); border: 1px solid var(--line); color: #e2e8f0; overflow-x: auto; white-space: nowrap; }
 </style>
 <script src="/notify.js"></script>
 </head>
@@ -629,7 +642,7 @@ select.inp option { background: #12151c; color: var(--text); }
     // ================= PANEL =================
     var TABS = [
         ['stats', '📊', 'Statistika'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['aud', '📲', 'Ilova va bot'],
-        ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
+        ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['design', '🎨', 'Dizayn'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
     ];
     var tab = 'stats';
     function buildNav() {
@@ -651,7 +664,7 @@ select.inp option { background: #12151c; color: var(--text); }
         // Kirish animatsiyasi faqat sahifa ochilganda (keyingi avto-yangilanishlarda qayta o'ynamaydi)
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
-        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity, aud: vAud }[t];
+        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, design: vDesign, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity, aud: vAud }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -1009,6 +1022,63 @@ select.inp option { background: #12151c; color: var(--text); }
                 var x = await admin('notify_set', { config: c }); toast(x.success ? '✅ Saqlandi — saytda 15 soniya ichida kuchga kiradi' : (x.error || 'Xato'));
             } })
         ]));
+    }
+
+    // ---------- Dizayn (sayt ko'rinishi) ----------
+    var DESIGNS = [
+        { id: 'cosmic', emoji: '🌌', name: 'Kosmik', desc: "Yulduzlar, tumanlik va pastda sayyora nuri. Zamonaviy va chiroyli; effektlar yengil (faqat GPU), kuchsiz telefonda o'zi soddalashadi." },
+        { id: 'current', emoji: '✨', name: 'Hozirgi', desc: "Avvalgi neon dizayn: rangli nur sharlari, zarrachalar tarmog'i, jonli animatsiyalar. Hech narsa o'zgarmagan." },
+        { id: 'smooth', emoji: '⚡', name: 'Silliq', desc: "Eng yengil: fon effektlari, shaffof oyna va og'ir soyalar yo'q. Eski va arzon telefonlarda ham qotmaydi." }
+    ];
+    var DS_KEY = 'bilols_design_preview';
+    async function vDesign(view) {
+        var active = 'current';
+        try {
+            var t = await fetch('/design.js', { cache: 'no-store' }).then(function (r) { return r.text(); });
+            var m = t.match(/var\s+ACTIVE\s*=\s*'([a-z]+)'/); if (m) active = m[1];
+        } catch (e) {}
+        var mine = null; try { mine = localStorage.getItem(DS_KEY); } catch (e) {}
+        function nameOf(id) { var d = DESIGNS.filter(function (x) { return x.id === id; })[0]; return d ? d.emoji + ' ' + d.name : id; }
+        view.innerHTML = '';
+        view.appendChild(h('div', { class: 'card', style: 'display:flex;align-items:center;gap:12px;flex-wrap:wrap' }, [
+            h('div', { style: 'flex:1;min-width:200px' }, [
+                h('div', { class: 'sum', style: 'margin:0', text: 'Hozir saytda hamma ko‘radigan dizayn' }),
+                h('b', { style: 'font-size:20px', text: nameOf(active) })
+            ]),
+            mine ? h('span', { class: 'ds-badge me', text: '📱 Sizning qurilmangizda: ' + nameOf(mine) }) : null
+        ]));
+        view.appendChild(h('div', { class: 'h', text: '3 ta dizayn' }));
+        var grid = h('div', { class: 'ds-grid' });
+        DESIGNS.forEach(function (d) {
+            var top = h('div', { class: 'ds-top' }, [h('b', { text: d.emoji + ' ' + d.name })]);
+            if (d.id === active) top.appendChild(h('span', { class: 'ds-badge', text: '✓ Saytda faol' }));
+            if (d.id === mine) top.appendChild(h('span', { class: 'ds-badge me', text: '📱 Qurilmangizda' }));
+            grid.appendChild(h('div', { class: 'ds-card' + (d.id === active ? ' on' : '') }, [
+                h('img', { class: 'ds-shot', src: '/icons/design/' + d.id + '.jpg', alt: d.name, loading: 'lazy' }),
+                top,
+                h('div', { class: 'sum', style: 'margin:0;line-height:1.5', text: d.desc }),
+                h('div', { class: 'ds-btns' }, [
+                    h('button', { class: 'btn ghost', text: '👁 Ko‘rish', onclick: function () { window.open('/?design=' + d.id, '_blank'); } }),
+                    h('button', { class: 'btn', text: d.id === mine ? '✓ Yoqilgan' : '📱 Menda yoqish', onclick: function () {
+                        try { localStorage.setItem(DS_KEY, d.id); } catch (e) {}
+                        toast('✅ ' + d.name + ' — faqat shu qurilmada yoqildi'); vDesign(view);
+                    } })
+                ])
+            ]));
+        });
+        view.appendChild(grid);
+        if (mine) view.appendChild(h('button', { class: 'btn ghost', style: 'margin-top:12px', text: '↩ Qurilmamda saytdagi dizaynga qaytish', onclick: function () {
+            try { localStorage.removeItem(DS_KEY); } catch (e) {}
+            toast('✅ Qurilmangizda ham saytdagi dizayn'); vDesign(view);
+        } }));
+        view.appendChild(h('div', { class: 'h', text: '🌍 Hamma foydalanuvchi uchun almashtirish' }));
+        var line = "var ACTIVE = '" + active + "';";
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'sum', style: 'margin:0;line-height:1.55', text: "Saytdagi dizayn GitHub'dagi web-bot repozitoriysining design.js faylida turadi. O‘sha fayldagi bitta qatorni o‘zgartiring: cosmic, current yoki smooth. Vercel 1–2 daqiqada yangilaydi." }),
+            h('div', { class: 'ds-code', text: line }),
+            h('a', { class: 'btn ghost', style: 'display:grid;place-items:center;text-decoration:none', href: 'https://github.com/billsgm78-blip/web-bot/edit/main/design.js', target: '_blank', rel: 'noopener', text: '✏️ GitHub’da design.js ni ochish' })
+        ]));
+        view.appendChild(h('div', { class: 'sum', style: 'margin-top:12px', text: "«Menda yoqish» faqat shu brauzerda ishlaydi — foydalanuvchilarga ta'sir qilmaydi. Yorug‘ rejimni yoqqan foydalanuvchilarda dizayn yorug‘ rejimga moslashadi." }));
     }
 
     // ---------- AI sozlamalari ----------
