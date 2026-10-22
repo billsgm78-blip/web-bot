@@ -48,8 +48,8 @@
         });
     };
     </script>
-<script src="/design.js?v=5"></script>
-<link rel="stylesheet" href="/design.css?v=5">
+<script src="/design.js?v=6"></script>
+<link rel="stylesheet" href="/design.css?v=6">
     <link rel="preload" href="/fonts/twemoji.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/emoji.css">
 <style>
@@ -5169,6 +5169,9 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 root.setProperty('--accent-grad', t.grad);
                 root.setProperty('--btn-glow', t.btn);
             }
+            // dizayn (design.css) ranglari ham shu tanlovga o'tadi
+            if (name === 'violet') document.documentElement.removeAttribute('data-accent');
+            else document.documentElement.setAttribute('data-accent', name);
             swatches.forEach(function (s) { s.classList.toggle('active', s.getAttribute('data-theme') === name); });
             if (save) put(KEY.theme, name);
         }
@@ -5287,6 +5290,25 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 osc.stop(t + 0.12);
             } catch (e) {}
         }
+        // iPhone / Telegram: ovoz faqat touchend yoki click ichida "ochiladi" — birinchi teginishda ochib qo'yamiz
+        function unlockAudio() {
+            try {
+                var AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return;
+                if (!audioCtx) audioCtx = new AC();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                var src = audioCtx.createBufferSource();
+                src.buffer = audioCtx.createBuffer(1, 1, 22050);
+                src.connect(audioCtx.destination);
+                src.start(0);
+                if (audioCtx.state === 'running') {
+                    document.removeEventListener('touchend', unlockAudio, true);
+                    document.removeEventListener('click', unlockAudio, true);
+                }
+            } catch (e) {}
+        }
+        document.addEventListener('touchend', unlockAudio, true);
+        document.addEventListener('click', unlockAudio, true);
         document.addEventListener('pointerdown', function (e) {
             if (e.button && e.button !== 0) return;
             var el = e.target && e.target.closest ? e.target.closest(CLICK_SEL) : null;

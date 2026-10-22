@@ -27,6 +27,28 @@ html[data-design="neon"] {
     --ds-title: linear-gradient(90deg, #ffffff, #7df9ff, #ffffff, #ff8ae8, #ffffff);
     --ds-glow: rgba(255, 43, 214, 0.55); --ds-on: #ffffff; --ds-text: #f4f0ff; --ds-muted: #b3a8d1; --ds-soft: rgba(0, 240, 255, 0.1);
 }
+/* -------- Sozlamalar → "Rang mavzusi": foydalanuvchi tanlovi dizayn ranglaridan ustun -------- */
+html[data-design][data-accent="emerald"] {
+    --ds-a: #2dd4bf; --ds-b: #10b981; --ds-c: #84cc16; --ds-btn: #10b981;
+    --ds-grad: linear-gradient(120deg, #06b6d4 0%, #10b981 50%, #84cc16 100%);
+    --ds-user: linear-gradient(135deg, #059669 0%, #10b981 50%, #06b6d4 100%);
+    --ds-title: linear-gradient(90deg, #ffffff, #99f6e4, #ffffff, #bef264, #ffffff);
+    --ds-glow: rgba(16, 185, 129, 0.55); --ds-line2: rgba(45, 212, 191, 0.5); --ds-soft: rgba(16, 185, 129, 0.12);
+}
+html[data-design][data-accent="rose"] {
+    --ds-a: #fb7185; --ds-b: #f43f5e; --ds-c: #fb923c; --ds-btn: #f43f5e;
+    --ds-grad: linear-gradient(120deg, #f43f5e 0%, #ec4899 50%, #fb923c 100%);
+    --ds-user: linear-gradient(135deg, #e11d48 0%, #f43f5e 50%, #fb923c 100%);
+    --ds-title: linear-gradient(90deg, #ffffff, #fecdd3, #ffffff, #fed7aa, #ffffff);
+    --ds-glow: rgba(244, 63, 94, 0.55); --ds-line2: rgba(251, 113, 133, 0.5); --ds-soft: rgba(244, 63, 94, 0.12);
+}
+html[data-design][data-accent="gold"] {
+    --ds-a: #fbbf24; --ds-b: #f59e0b; --ds-c: #ef4444; --ds-btn: #f59e0b;
+    --ds-grad: linear-gradient(120deg, #f59e0b 0%, #f97316 50%, #ef4444 100%);
+    --ds-user: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #ef4444 100%);
+    --ds-title: linear-gradient(90deg, #ffffff, #fde68a, #ffffff, #fdba74, #ffffff);
+    --ds-glow: rgba(245, 158, 11, 0.55); --ds-line2: rgba(251, 191, 36, 0.5); --ds-soft: rgba(245, 158, 11, 0.12);
+}
 html[data-design]:not([data-design="premium"]) body:not(.theme-light) {
     --bg-deep: var(--ds-bg); --border-glass: var(--ds-line); --border-glow: var(--ds-line2);
     --violet-accent: var(--ds-btn); --violet-glow: var(--ds-glow); --cyan-accent: var(--ds-a);
@@ -59,6 +81,8 @@ html[data-design] #ds-bg i, html[data-design] #ds-bg b { position: absolute; dis
 html.lite[data-design] #ds-bg *, html.lite[data-design] #ds-bg { animation-iteration-count: infinite !important; }
 body:has(#orb-1.disabled) #ds-bg * { animation-play-state: paused !important; }
 @media (prefers-reduced-motion: reduce) { html[data-design] #ds-bg * { animation: none !important; } }
+/* Sozlamalar → "Yulduzli zarrachalar" o'chirilsa: neon yomg'ir / uchar yulduzlar / yulduz qatlamlari yashirinadi */
+body.fx-no-particles #ds-bg b, html[data-design="cosmic"] body.fx-no-particles #ds-bg .l1, html[data-design="cosmic"] body.fx-no-particles #ds-bg .l2 { display: none !important; }
 
 /* ===== 🌌 KOSMIK: yulduzlar suzadi, miltillaydi, uchar yulduzlar, sayyora nuri ===== */
 html[data-design="cosmic"] #ds-bg .l1, html[data-design="cosmic"] #ds-bg .l2 {
@@ -119,7 +143,7 @@ html[data-design="cosmic"] #ds-bg b:nth-child(n+8) { display: none; }
 /* l1 — chiziqli neon quyosh (ufqda nafas oladi) */
 html[data-design="neon"] #ds-bg .l1 {
     left: 50%; top: 74%; width: 70vmin; height: 70vmin; margin: -35vmin 0 0 -35vmin; border-radius: 50%;
-    background: linear-gradient(180deg, #fff36b 0%, #ff9a3d 32%, #ff2bd6 68%, #8b5cf6 100%);
+    background: linear-gradient(180deg, #fff36b 0%, #ff9a3d 32%, var(--ds-b) 68%, var(--ds-c) 100%);
     -webkit-mask-image: linear-gradient(180deg, #000 0 26%, transparent 26% 28.5%, #000 28.5% 34%, transparent 34% 37%, #000 37% 41.5%, transparent 41.5% 45%, #000 45% 47.5%, transparent 47.5%);
             mask-image: linear-gradient(180deg, #000 0 26%, transparent 26% 28.5%, #000 28.5% 34%, transparent 34% 37%, #000 37% 41.5%, transparent 41.5% 45%, #000 45% 47.5%, transparent 47.5%);
     opacity: .5; animation: dsNeonSun 6s ease-in-out infinite alternate;
@@ -127,16 +151,16 @@ html[data-design="neon"] #ds-bg .l1 {
 /* l3 — quyosh atrofidagi nur va ufq chizig'i */
 html[data-design="neon"] #ds-bg .l3 {
     left: -10%; right: -10%; top: 74%; height: 2px; margin-top: -1px;
-    background: linear-gradient(90deg, transparent, #00f0ff 20%, #ff2bd6 50%, #00f0ff 80%, transparent);
-    box-shadow: 0 0 18px 4px rgba(255, 43, 214, .55), 0 0 60px 20px rgba(139, 92, 246, .25);
+    background: linear-gradient(90deg, transparent, var(--ds-a) 20%, var(--ds-b) 50%, var(--ds-a) 80%, transparent);
+    box-shadow: 0 0 18px 4px color-mix(in srgb, var(--ds-b) 55%, transparent), 0 0 60px 20px rgba(139, 92, 246, .25);
     animation: dsPulse 2.6s ease-in-out infinite alternate;
 }
 /* l2 — perspektivali neon to'r: faqat transform bilan oldinga yuguradi */
 html[data-design="neon"] #ds-bg .l2 {
     left: -80%; right: -80%; top: 74%; height: 120vh; transform-origin: 50% 0;
     background-image:
-        linear-gradient(rgba(255, 43, 214, .75) 2px, transparent 2px),
-        linear-gradient(90deg, rgba(0, 240, 255, .6) 2px, transparent 2px);
+        linear-gradient(color-mix(in srgb, var(--ds-b) 75%, transparent) 2px, transparent 2px),
+        linear-gradient(90deg, color-mix(in srgb, var(--ds-a) 60%, transparent) 2px, transparent 2px);
     background-size: 44px 44px;
     -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 100%);
             mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 100%);
@@ -260,12 +284,12 @@ html[data-design] body:not(.theme-light) .model-btn { border-color: var(--ds-lin
 /* ⚡ Neon: o'tkir burchaklar, neon chegaralar va yorug'lik */
 html[data-design="neon"] body:not(.theme-light) .feature-card,
 html[data-design="neon"] body:not(.theme-light) .suggest-card {
-    border-radius: 14px; border-color: rgba(0, 240, 255, .28);
-    box-shadow: 0 0 0 1px rgba(255, 43, 214, .08) inset, 0 0 22px -8px rgba(0, 240, 255, .45), 0 10px 26px -14px rgba(0, 0, 0, .8);
+    border-radius: 14px; border-color: color-mix(in srgb, var(--ds-a) 28%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--ds-b) 8%, transparent) inset, 0 0 22px -8px color-mix(in srgb, var(--ds-a) 45%, transparent), 0 10px 26px -14px rgba(0, 0, 0, .8);
 }
 html[data-design="neon"] body:not(.theme-light) .feature-card:hover,
 html[data-design="neon"] body:not(.theme-light) .suggest-card:hover {
-    border-color: var(--ds-b); box-shadow: 0 0 26px -6px var(--ds-glow), 0 0 0 1px rgba(255, 43, 214, .25) inset;
+    border-color: var(--ds-b); box-shadow: 0 0 26px -6px var(--ds-glow), 0 0 0 1px color-mix(in srgb, var(--ds-b) 25%, transparent) inset;
 }
 html[data-design="neon"] .feature-card.card-violet::before { box-shadow: 0 0 12px var(--ds-a); }
 html[data-design="neon"] .feature-card.card-emerald::before { box-shadow: 0 0 12px var(--ds-b); }
@@ -275,17 +299,17 @@ html[data-design="neon"] body:not(.theme-light) .landing-title {
 }
 html[data-design="neon"] body:not(.theme-light) .landing-chip {
     border-radius: 8px; text-transform: uppercase; letter-spacing: .8px; font-size: 10.5px;
-    box-shadow: 0 0 16px -4px rgba(0, 240, 255, .6), 0 0 0 1px rgba(0, 240, 255, .25) inset;
+    box-shadow: 0 0 16px -4px color-mix(in srgb, var(--ds-a) 60%, transparent), 0 0 0 1px color-mix(in srgb, var(--ds-a) 25%, transparent) inset;
 }
 html[data-design="neon"] body:not(.theme-light) .landing-btn-enhanced {
     border-radius: 14px; text-transform: uppercase; letter-spacing: 1px; background-size: 100% 100% !important;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, .25) inset, 0 0 26px -2px rgba(255, 43, 214, .6), 0 0 50px -10px rgba(0, 240, 255, .6) !important;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .25) inset, 0 0 26px -2px color-mix(in srgb, var(--ds-b) 60%, transparent), 0 0 50px -10px color-mix(in srgb, var(--ds-a) 60%, transparent) !important;
     animation: dsNeonBtn 2.4s ease-in-out infinite alternate !important;
 }
-html[data-design="neon"] body:not(.theme-light) .landing-logo { border-radius: 22px; box-shadow: 0 0 30px -4px rgba(255, 43, 214, .55), 0 0 0 1px rgba(0, 240, 255, .4) inset; }
+html[data-design="neon"] body:not(.theme-light) .landing-logo { border-radius: 22px; box-shadow: 0 0 30px -4px color-mix(in srgb, var(--ds-b) 55%, transparent), 0 0 0 1px color-mix(in srgb, var(--ds-a) 40%, transparent) inset; }
 html[data-design="neon"] body:not(.theme-light) .msg-ai { border-left: 2px solid var(--ds-a); }
 html[data-design="neon"] body:not(.theme-light) .msg-user { box-shadow: 0 0 22px -6px var(--ds-glow); }
-html[data-design="neon"] body:not(.theme-light) .input-bar input[type="text"]:focus { box-shadow: 0 0 0 2px rgba(0, 240, 255, .25), 0 0 18px -4px rgba(0, 240, 255, .6) !important; }
+html[data-design="neon"] body:not(.theme-light) .input-bar input[type="text"]:focus { box-shadow: 0 0 0 2px color-mix(in srgb, var(--ds-a) 25%, transparent), 0 0 18px -4px color-mix(in srgb, var(--ds-a) 60%, transparent) !important; }
 /* tugma faqat opacity bilan "yonadi"; sarlavha vaqti-vaqti bilan neon lampadek miltillaydi */
 @keyframes dsNeonBtn { from { opacity: .92; } to { opacity: 1; } }
 @keyframes dsNeonFlick { 0%, 100% { opacity: 1; } 91% { opacity: .55; } 92% { opacity: 1; } 94% { opacity: .7; } 95% { opacity: 1; } }
@@ -298,74 +322,73 @@ html[data-design="neon"] body:not(.theme-light) .input-bar input[type="text"]:fo
 html[data-design="neon"] body:has(#chat-screen.active) #ds-bg .l1 { opacity: .16 !important; animation: none; }
 html[data-design="neon"] body:has(#chat-screen.active) #ds-bg .l2 { opacity: .22; }
 html[data-design="neon"] body:has(#chat-screen.active) #ds-bg .l3 { opacity: .35; animation: none; }
-html[data-design="neon"] body:has(#chat-screen.active) #ds-bg b { opacity: 0 !important; animation: none; }
 
 /* chat sarlavhasi va pastki panel: neon chiziq bilan ajraladi */
-html[data-design="neon"] body:not(.theme-light) .chat-header { box-shadow: 0 1px 0 rgba(0, 240, 255, .25), 0 10px 30px -18px rgba(255, 43, 214, .6) !important; }
-html[data-design="neon"] body:not(.theme-light) .input-bar { box-shadow: 0 -1px 0 rgba(255, 43, 214, .25), 0 -10px 30px -18px rgba(0, 240, 255, .5) !important; }
-html[data-design="neon"] body:not(.theme-light) .wallet-pill { border-color: rgba(0, 240, 255, .45); background: rgba(0, 240, 255, .07); box-shadow: 0 0 12px -4px rgba(0, 240, 255, .6); }
-html[data-design="neon"] body:not(.theme-light) .msg-ai { border-radius: 4px 16px 16px 16px; box-shadow: 0 0 18px -10px rgba(0, 240, 255, .55); }
+html[data-design="neon"] body:not(.theme-light) .chat-header { box-shadow: 0 1px 0 color-mix(in srgb, var(--ds-a) 25%, transparent), 0 10px 30px -18px color-mix(in srgb, var(--ds-b) 60%, transparent) !important; }
+html[data-design="neon"] body:not(.theme-light) .input-bar { box-shadow: 0 -1px 0 color-mix(in srgb, var(--ds-b) 25%, transparent), 0 -10px 30px -18px color-mix(in srgb, var(--ds-a) 50%, transparent) !important; }
+html[data-design="neon"] body:not(.theme-light) .wallet-pill { border-color: color-mix(in srgb, var(--ds-a) 45%, transparent); background: color-mix(in srgb, var(--ds-a) 7%, transparent); box-shadow: 0 0 12px -4px color-mix(in srgb, var(--ds-a) 60%, transparent); }
+html[data-design="neon"] body:not(.theme-light) .msg-ai { border-radius: 4px 16px 16px 16px; box-shadow: 0 0 18px -10px color-mix(in srgb, var(--ds-a) 55%, transparent); }
 html[data-design="neon"] body:not(.theme-light) .msg-user { border-radius: 16px 4px 16px 16px; }
-html[data-design="neon"] body:not(.theme-light) .msg-ai pre, html[data-design="neon"] body:not(.theme-light) .msg-ai code { border-color: rgba(0, 240, 255, .2) !important; }
-html[data-design="neon"] body:not(.theme-light) .msg-ai pre { background: rgba(3, 1, 10, .85) !important; box-shadow: inset 0 0 0 1px rgba(255, 43, 214, .15); }
+html[data-design="neon"] body:not(.theme-light) .msg-ai pre, html[data-design="neon"] body:not(.theme-light) .msg-ai code { border-color: color-mix(in srgb, var(--ds-a) 20%, transparent) !important; }
+html[data-design="neon"] body:not(.theme-light) .msg-ai pre { background: rgba(3, 1, 10, .85) !important; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ds-b) 15%, transparent); }
 html[data-design="neon"] body:not(.theme-light) .send-btn { box-shadow: 0 0 18px -2px var(--ds-glow) !important; }
 
 /* oyna fonlari: oddiy qora o'rniga neon qorong'ilik */
 html[data-design="neon"] body:not(.theme-light) #settings-modal, html[data-design="neon"] body:not(.theme-light) #wallet-modal, html[data-design="neon"] body:not(.theme-light) #wallet-sub, html[data-design="neon"] body:not(.theme-light) #support-view, html[data-design="neon"] body:not(.theme-light) #camera-modal {
     background: radial-gradient(120% 60% at 50% 0%, rgba(139, 92, 246, .16), transparent 60%),
-                radial-gradient(90% 50% at 50% 100%, rgba(255, 43, 214, .1), transparent 60%), #07030f !important;
+                radial-gradient(90% 50% at 50% 100%, color-mix(in srgb, var(--ds-b) 10%, transparent), transparent 60%), #07030f !important;
 }
 html[data-design="neon"] body:not(.theme-light) .modal-header h2, html[data-design="neon"] body:not(.theme-light) #wallet-sub h2 {
     background: var(--ds-title); -webkit-background-clip: text; background-clip: text; color: transparent;
     text-shadow: none; letter-spacing: .3px;
 }
 html[data-design="neon"] body:not(.theme-light) .modal-close, html[data-design="neon"] body:not(.theme-light) .drawer-close {
-    border-radius: 12px; border-color: rgba(0, 240, 255, .35); background: rgba(0, 240, 255, .06); color: var(--ds-a);
-    box-shadow: 0 0 12px -4px rgba(0, 240, 255, .6);
+    border-radius: 12px; border-color: color-mix(in srgb, var(--ds-a) 35%, transparent); background: color-mix(in srgb, var(--ds-a) 6%, transparent); color: var(--ds-a);
+    box-shadow: 0 0 12px -4px color-mix(in srgb, var(--ds-a) 60%, transparent);
 }
-html[data-design="neon"] body:not(.theme-light) .settings-card { border-radius: 14px; border-color: rgba(0, 240, 255, .16); box-shadow: inset 2px 0 0 rgba(255, 43, 214, .55), 0 8px 22px -14px rgba(0, 0, 0, .8); }
-html[data-design="neon"] body:not(.theme-light) .section-label { color: var(--ds-a); text-shadow: 0 0 10px rgba(0, 240, 255, .5); letter-spacing: 1.2px; }
+html[data-design="neon"] body:not(.theme-light) .settings-card { border-radius: 14px; border-color: color-mix(in srgb, var(--ds-a) 16%, transparent); box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ds-b) 55%, transparent), 0 8px 22px -14px rgba(0, 0, 0, .8); }
+html[data-design="neon"] body:not(.theme-light) .section-label { color: var(--ds-a); text-shadow: 0 0 10px color-mix(in srgb, var(--ds-a) 50%, transparent); letter-spacing: 1.2px; }
 
 /* hamyon */
 html[data-design="neon"] body:not(.theme-light) .balance-badge {
-    background: linear-gradient(160deg, rgba(36, 12, 64, .95), rgba(8, 3, 18, .98)); border-color: rgba(255, 43, 214, .5);
-    border-radius: 18px; box-shadow: 0 0 30px -10px var(--ds-glow), inset 0 0 0 1px rgba(0, 240, 255, .12); animation: none;
+    background: linear-gradient(160deg, rgba(36, 12, 64, .95), rgba(8, 3, 18, .98)); border-color: color-mix(in srgb, var(--ds-b) 50%, transparent);
+    border-radius: 18px; box-shadow: 0 0 30px -10px var(--ds-glow), inset 0 0 0 1px color-mix(in srgb, var(--ds-a) 12%, transparent); animation: none;
 }
-html[data-design="neon"] body:not(.theme-light) .balance-num, html[data-design="neon"] body:not(.theme-light) .balance-currency { color: #7df9ff; text-shadow: 0 0 16px rgba(0, 240, 255, .7); }
+html[data-design="neon"] body:not(.theme-light) .balance-num, html[data-design="neon"] body:not(.theme-light) .balance-currency { color: color-mix(in srgb, var(--ds-a) 55%, #fff); text-shadow: 0 0 16px color-mix(in srgb, var(--ds-a) 70%, transparent); }
 html[data-design="neon"] body:not(.theme-light) .pack-card, html[data-design="neon"] body:not(.theme-light) .wx-card {
-    background: var(--ds-s1); border-color: rgba(0, 240, 255, .2); border-radius: 14px;
-    box-shadow: 0 0 18px -10px rgba(0, 240, 255, .5);
+    background: var(--ds-s1); border-color: color-mix(in srgb, var(--ds-a) 20%, transparent); border-radius: 14px;
+    box-shadow: 0 0 18px -10px color-mix(in srgb, var(--ds-a) 50%, transparent);
 }
-html[data-design="neon"] body:not(.theme-light) .pack-card:hover, html[data-design="neon"] body:not(.theme-light) .wx-small:hover { border-color: var(--ds-b); background: rgba(255, 43, 214, .08); box-shadow: 0 0 22px -8px var(--ds-glow); }
-html[data-design="neon"] body:not(.theme-light) .pack-price { color: #ff8ae8; text-shadow: 0 0 10px rgba(255, 43, 214, .5); }
+html[data-design="neon"] body:not(.theme-light) .pack-card:hover, html[data-design="neon"] body:not(.theme-light) .wx-small:hover { border-color: var(--ds-b); background: color-mix(in srgb, var(--ds-b) 8%, transparent); box-shadow: 0 0 22px -8px var(--ds-glow); }
+html[data-design="neon"] body:not(.theme-light) .pack-price { color: color-mix(in srgb, var(--ds-b) 55%, #fff); text-shadow: 0 0 10px color-mix(in srgb, var(--ds-b) 50%, transparent); }
 html[data-design="neon"] body:not(.theme-light) .wx-btn { background: var(--ds-grad); box-shadow: 0 0 16px -4px var(--ds-glow); }
 
 /* suhbatlar ro'yxati (chap panel) */
 html[data-design="neon"] body:not(.theme-light) #chats-drawer .drawer-panel {
-    background: linear-gradient(180deg, #12062a 0%, #07030f 100%); border-right: 1px solid rgba(255, 43, 214, .35);
-    box-shadow: 1px 0 0 rgba(0, 240, 255, .15), 24px 0 60px -10px rgba(255, 43, 214, .25);
+    background: linear-gradient(180deg, #12062a 0%, #07030f 100%); border-right: 1px solid color-mix(in srgb, var(--ds-b) 35%, transparent);
+    box-shadow: 1px 0 0 color-mix(in srgb, var(--ds-a) 15%, transparent), 24px 0 60px -10px color-mix(in srgb, var(--ds-b) 25%, transparent);
 }
 html[data-design="neon"] body:not(.theme-light) #chats-drawer .drawer-backdrop { background: rgba(4, 1, 12, .7); }
 html[data-design="neon"] body:not(.theme-light) .drawer-head b { background: var(--ds-title); -webkit-background-clip: text; background-clip: text; color: transparent; }
 html[data-design="neon"] body:not(.theme-light) .new-chat-btn { background: var(--ds-grad); border-radius: 12px; box-shadow: 0 0 22px -6px var(--ds-glow); text-transform: uppercase; letter-spacing: .6px; font-weight: 700; }
-html[data-design="neon"] body:not(.theme-light) .chat-item:hover { background: rgba(0, 240, 255, .06); }
-html[data-design="neon"] body:not(.theme-light) .chat-item.active { background: rgba(255, 43, 214, .1); border-color: rgba(255, 43, 214, .4); box-shadow: inset 2px 0 0 var(--ds-b); }
+html[data-design="neon"] body:not(.theme-light) .chat-item:hover { background: color-mix(in srgb, var(--ds-a) 6%, transparent); }
+html[data-design="neon"] body:not(.theme-light) .chat-item.active { background: color-mix(in srgb, var(--ds-b) 10%, transparent); border-color: color-mix(in srgb, var(--ds-b) 40%, transparent); box-shadow: inset 2px 0 0 var(--ds-b); }
 
 /* yordam (admin bilan chat) */
-html[data-design="neon"] body:not(.theme-light) .sp-head, html[data-design="neon"] body:not(.theme-light) .sp-bar { border-color: rgba(0, 240, 255, .2); }
+html[data-design="neon"] body:not(.theme-light) .sp-head, html[data-design="neon"] body:not(.theme-light) .sp-bar { border-color: color-mix(in srgb, var(--ds-a) 20%, transparent); }
 html[data-design="neon"] body:not(.theme-light) .sp-ava, html[data-design="neon"] body:not(.theme-light) .auth-logo-mini { background: var(--ds-grad); box-shadow: 0 0 16px -4px var(--ds-glow); }
 html[data-design="neon"] body:not(.theme-light) .sp-ava i { box-shadow: 0 0 0 3px #07030f; }
 html[data-design="neon"] body:not(.theme-light) .sp-msg.me { background: var(--ds-user); box-shadow: 0 0 16px -6px var(--ds-glow); }
-html[data-design="neon"] body:not(.theme-light) .sp-msg.admin { background: var(--ds-s1); border-color: rgba(0, 240, 255, .25); }
+html[data-design="neon"] body:not(.theme-light) .sp-msg.admin { background: var(--ds-s1); border-color: color-mix(in srgb, var(--ds-a) 25%, transparent); }
 html[data-design="neon"] body:not(.theme-light) .sp-msg.admin::before { color: var(--ds-a); }
-html[data-design="neon"] body:not(.theme-light) .sp-quick button { border-color: rgba(0, 240, 255, .4); background: rgba(0, 240, 255, .07); }
+html[data-design="neon"] body:not(.theme-light) .sp-quick button { border-color: color-mix(in srgb, var(--ds-a) 40%, transparent); background: color-mix(in srgb, var(--ds-a) 7%, transparent); }
 html[data-design="neon"] body:not(.theme-light) .sp-bar textarea, html[data-design="neon"] body:not(.theme-light) .sp-attach { background: var(--ds-s2); border-color: var(--ds-line); }
-html[data-design="neon"] body:not(.theme-light) .sp-bar textarea:focus { border-color: var(--ds-a); box-shadow: 0 0 14px -4px rgba(0, 240, 255, .6); }
+html[data-design="neon"] body:not(.theme-light) .sp-bar textarea:focus { border-color: var(--ds-a); box-shadow: 0 0 14px -4px color-mix(in srgb, var(--ds-a) 60%, transparent); }
 
 /* pastdan chiquvchi oynalar (to'ldirish, ulashish, e'lon) */
 html[data-design="neon"] body:not(.theme-light) .topup-card, html[data-design="neon"] body:not(.theme-light) .share-card, html[data-design="neon"] body:not(.theme-light) .ann-pop-card, html[data-design="neon"] body:not(.theme-light) .lock-card {
-    background: var(--ds-modal) !important; border-color: rgba(255, 43, 214, .35) !important;
-    box-shadow: 0 -10px 50px -12px rgba(255, 43, 214, .35), inset 0 1px 0 rgba(0, 240, 255, .25) !important;
+    background: var(--ds-modal) !important; border-color: color-mix(in srgb, var(--ds-b) 35%, transparent) !important;
+    box-shadow: 0 -10px 50px -12px color-mix(in srgb, var(--ds-b) 35%, transparent), inset 0 1px 0 color-mix(in srgb, var(--ds-a) 25%, transparent) !important;
 }
 html[data-design="neon"] body:not(.theme-light) #topup-sheet, html[data-design="neon"] body:not(.theme-light) #share-view { background: rgba(4, 1, 12, .78); }
 
