@@ -667,8 +667,11 @@
             });
     };
     $('c-new').onclick = async function () {
+        // AI javob yozayotganda yangi suhbat ochilsa, eski javob yangi suhbatga tushib qolardi
+        if (chat.busy) { toast(L('AI javob yozmoqda — biroz kuting', 'AI отвечает — подождите', 'AI is replying — please wait')); return; }
         if (!chat.msgs.length) return;
         if (await ask(L('Yangi suhbat', 'Новый чат', 'New chat'), L("Joriy suhbat o'chiriladi.", 'Текущий чат будет удалён.', 'The current chat will be cleared.'), L('Boshlash', 'Начать', 'Start'))) {
+            if (chat.busy) return;
             chat.msgs = []; saveChat(); renderChat();
         }
     };
