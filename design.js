@@ -1,6 +1,6 @@
 /* =====================================================================
    Bilols AI — SAYT DIZAYNI
-   3 ta dizayn: 🌌 Kosmik · ✨ Modern · ◐ Premium (och, nafis)
+   3 ta dizayn: 🌌 Kosmik · ⚡ Neon · ◐ Premium (och, nafis)
    Admin panel → 🎨 Dizayn → bitta tugma: hamma foydalanuvchida avtomat almashadi
    (tanlov /api/design orqali saqlanadi). Bu fayl faqat ko'rinishni o'zgartiradi.
    ===================================================================== */
@@ -8,10 +8,10 @@
     var DEFAULT = 'cosmic';
     var LIST = {
         cosmic:  { name: 'Kosmik',  emoji: '🌌' },
-        modern:  { name: 'Modern',  emoji: '✨' },
+        neon:    { name: 'Neon',    emoji: '⚡' },
         premium: { name: 'Premium', emoji: '◐' }
     };
-    var OLD = { current: 'modern', smooth: 'modern', classic: 'premium' };   // eski nomlar
+    var OLD = { current: 'neon', smooth: 'neon', modern: 'neon', classic: 'premium' };   // eski nomlar
     var CACHE = 'bilols_design_live';
     var root = document.documentElement;
 
