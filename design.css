@@ -293,6 +293,82 @@ html[data-design="neon"] body:not(.theme-light) .input-bar input[type="text"]:fo
     html[data-design="neon"] body .landing-title, html[data-design="neon"] body .landing-btn-enhanced { animation: none !important; }
 }
 
+/* ---------- ⚡ Neon: CHAT va BOSHQA OYNALAR ---------- */
+/* chat ochiq bo'lsa quyosh va to'r xiralashadi — xabarlar o'qilishiga xalaqit bermaydi */
+html[data-design="neon"] body:has(#chat-screen.active) #ds-bg .l1 { opacity: .16 !important; animation: none; }
+html[data-design="neon"] body:has(#chat-screen.active) #ds-bg .l2 { opacity: .22; }
+html[data-design="neon"] body:has(#chat-screen.active) #ds-bg .l3 { opacity: .35; animation: none; }
+html[data-design="neon"] body:has(#chat-screen.active) #ds-bg b { opacity: 0 !important; animation: none; }
+
+/* chat sarlavhasi va pastki panel: neon chiziq bilan ajraladi */
+html[data-design="neon"] body:not(.theme-light) .chat-header { box-shadow: 0 1px 0 rgba(0, 240, 255, .25), 0 10px 30px -18px rgba(255, 43, 214, .6) !important; }
+html[data-design="neon"] body:not(.theme-light) .input-bar { box-shadow: 0 -1px 0 rgba(255, 43, 214, .25), 0 -10px 30px -18px rgba(0, 240, 255, .5) !important; }
+html[data-design="neon"] body:not(.theme-light) .wallet-pill { border-color: rgba(0, 240, 255, .45); background: rgba(0, 240, 255, .07); box-shadow: 0 0 12px -4px rgba(0, 240, 255, .6); }
+html[data-design="neon"] body:not(.theme-light) .msg-ai { border-radius: 4px 16px 16px 16px; box-shadow: 0 0 18px -10px rgba(0, 240, 255, .55); }
+html[data-design="neon"] body:not(.theme-light) .msg-user { border-radius: 16px 4px 16px 16px; }
+html[data-design="neon"] body:not(.theme-light) .msg-ai pre, html[data-design="neon"] body:not(.theme-light) .msg-ai code { border-color: rgba(0, 240, 255, .2) !important; }
+html[data-design="neon"] body:not(.theme-light) .msg-ai pre { background: rgba(3, 1, 10, .85) !important; box-shadow: inset 0 0 0 1px rgba(255, 43, 214, .15); }
+html[data-design="neon"] body:not(.theme-light) .send-btn { box-shadow: 0 0 18px -2px var(--ds-glow) !important; }
+
+/* oyna fonlari: oddiy qora o'rniga neon qorong'ilik */
+html[data-design="neon"] body:not(.theme-light) #settings-modal, html[data-design="neon"] body:not(.theme-light) #wallet-modal, html[data-design="neon"] body:not(.theme-light) #wallet-sub, html[data-design="neon"] body:not(.theme-light) #support-view, html[data-design="neon"] body:not(.theme-light) #camera-modal {
+    background: radial-gradient(120% 60% at 50% 0%, rgba(139, 92, 246, .16), transparent 60%),
+                radial-gradient(90% 50% at 50% 100%, rgba(255, 43, 214, .1), transparent 60%), #07030f !important;
+}
+html[data-design="neon"] body:not(.theme-light) .modal-header h2, html[data-design="neon"] body:not(.theme-light) #wallet-sub h2 {
+    background: var(--ds-title); -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: none; letter-spacing: .3px;
+}
+html[data-design="neon"] body:not(.theme-light) .modal-close, html[data-design="neon"] body:not(.theme-light) .drawer-close {
+    border-radius: 12px; border-color: rgba(0, 240, 255, .35); background: rgba(0, 240, 255, .06); color: var(--ds-a);
+    box-shadow: 0 0 12px -4px rgba(0, 240, 255, .6);
+}
+html[data-design="neon"] body:not(.theme-light) .settings-card { border-radius: 14px; border-color: rgba(0, 240, 255, .16); box-shadow: inset 2px 0 0 rgba(255, 43, 214, .55), 0 8px 22px -14px rgba(0, 0, 0, .8); }
+html[data-design="neon"] body:not(.theme-light) .section-label { color: var(--ds-a); text-shadow: 0 0 10px rgba(0, 240, 255, .5); letter-spacing: 1.2px; }
+
+/* hamyon */
+html[data-design="neon"] body:not(.theme-light) .balance-badge {
+    background: linear-gradient(160deg, rgba(36, 12, 64, .95), rgba(8, 3, 18, .98)); border-color: rgba(255, 43, 214, .5);
+    border-radius: 18px; box-shadow: 0 0 30px -10px var(--ds-glow), inset 0 0 0 1px rgba(0, 240, 255, .12); animation: none;
+}
+html[data-design="neon"] body:not(.theme-light) .balance-num, html[data-design="neon"] body:not(.theme-light) .balance-currency { color: #7df9ff; text-shadow: 0 0 16px rgba(0, 240, 255, .7); }
+html[data-design="neon"] body:not(.theme-light) .pack-card, html[data-design="neon"] body:not(.theme-light) .wx-card {
+    background: var(--ds-s1); border-color: rgba(0, 240, 255, .2); border-radius: 14px;
+    box-shadow: 0 0 18px -10px rgba(0, 240, 255, .5);
+}
+html[data-design="neon"] body:not(.theme-light) .pack-card:hover, html[data-design="neon"] body:not(.theme-light) .wx-small:hover { border-color: var(--ds-b); background: rgba(255, 43, 214, .08); box-shadow: 0 0 22px -8px var(--ds-glow); }
+html[data-design="neon"] body:not(.theme-light) .pack-price { color: #ff8ae8; text-shadow: 0 0 10px rgba(255, 43, 214, .5); }
+html[data-design="neon"] body:not(.theme-light) .wx-btn { background: var(--ds-grad); box-shadow: 0 0 16px -4px var(--ds-glow); }
+
+/* suhbatlar ro'yxati (chap panel) */
+html[data-design="neon"] body:not(.theme-light) #chats-drawer .drawer-panel {
+    background: linear-gradient(180deg, #12062a 0%, #07030f 100%); border-right: 1px solid rgba(255, 43, 214, .35);
+    box-shadow: 1px 0 0 rgba(0, 240, 255, .15), 24px 0 60px -10px rgba(255, 43, 214, .25);
+}
+html[data-design="neon"] body:not(.theme-light) #chats-drawer .drawer-backdrop { background: rgba(4, 1, 12, .7); }
+html[data-design="neon"] body:not(.theme-light) .drawer-head b { background: var(--ds-title); -webkit-background-clip: text; background-clip: text; color: transparent; }
+html[data-design="neon"] body:not(.theme-light) .new-chat-btn { background: var(--ds-grad); border-radius: 12px; box-shadow: 0 0 22px -6px var(--ds-glow); text-transform: uppercase; letter-spacing: .6px; font-weight: 700; }
+html[data-design="neon"] body:not(.theme-light) .chat-item:hover { background: rgba(0, 240, 255, .06); }
+html[data-design="neon"] body:not(.theme-light) .chat-item.active { background: rgba(255, 43, 214, .1); border-color: rgba(255, 43, 214, .4); box-shadow: inset 2px 0 0 var(--ds-b); }
+
+/* yordam (admin bilan chat) */
+html[data-design="neon"] body:not(.theme-light) .sp-head, html[data-design="neon"] body:not(.theme-light) .sp-bar { border-color: rgba(0, 240, 255, .2); }
+html[data-design="neon"] body:not(.theme-light) .sp-ava, html[data-design="neon"] body:not(.theme-light) .auth-logo-mini { background: var(--ds-grad); box-shadow: 0 0 16px -4px var(--ds-glow); }
+html[data-design="neon"] body:not(.theme-light) .sp-ava i { box-shadow: 0 0 0 3px #07030f; }
+html[data-design="neon"] body:not(.theme-light) .sp-msg.me { background: var(--ds-user); box-shadow: 0 0 16px -6px var(--ds-glow); }
+html[data-design="neon"] body:not(.theme-light) .sp-msg.admin { background: var(--ds-s1); border-color: rgba(0, 240, 255, .25); }
+html[data-design="neon"] body:not(.theme-light) .sp-msg.admin::before { color: var(--ds-a); }
+html[data-design="neon"] body:not(.theme-light) .sp-quick button { border-color: rgba(0, 240, 255, .4); background: rgba(0, 240, 255, .07); }
+html[data-design="neon"] body:not(.theme-light) .sp-bar textarea, html[data-design="neon"] body:not(.theme-light) .sp-attach { background: var(--ds-s2); border-color: var(--ds-line); }
+html[data-design="neon"] body:not(.theme-light) .sp-bar textarea:focus { border-color: var(--ds-a); box-shadow: 0 0 14px -4px rgba(0, 240, 255, .6); }
+
+/* pastdan chiquvchi oynalar (to'ldirish, ulashish, e'lon) */
+html[data-design="neon"] body:not(.theme-light) .topup-card, html[data-design="neon"] body:not(.theme-light) .share-card, html[data-design="neon"] body:not(.theme-light) .ann-pop-card, html[data-design="neon"] body:not(.theme-light) .lock-card {
+    background: var(--ds-modal) !important; border-color: rgba(255, 43, 214, .35) !important;
+    box-shadow: 0 -10px 50px -12px rgba(255, 43, 214, .35), inset 0 1px 0 rgba(0, 240, 255, .25) !important;
+}
+html[data-design="neon"] body:not(.theme-light) #topup-sheet, html[data-design="neon"] body:not(.theme-light) #share-view { background: rgba(4, 1, 12, .78); }
+
 /* ===================== Qo'shimcha sahifalar (APK, Maxfiylik) ===================== */
 html[data-design][data-page="sub"] body {
     background: transparent !important;
