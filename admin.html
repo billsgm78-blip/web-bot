@@ -391,10 +391,6 @@ select.inp option { background: #12151c; color: var(--text); }
 .ds-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ds-top b { font-size: 16px; }
 .ds-badge { font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: rgba(56, 189, 248, .15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, .35); }
-.ds-badge.me { background: rgba(245, 158, 11, .14); color: #fcd34d; border-color: rgba(245, 158, 11, .35); }
-.ds-btns { display: flex; gap: 8px; }
-.ds-btns .btn { height: 42px; font-size: 13.5px; }
-.ds-code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; padding: 10px 12px; border-radius: 12px; background: rgba(0, 0, 0, .35); border: 1px solid var(--line); color: #e2e8f0; overflow-x: auto; white-space: nowrap; }
 </style>
 <script src="/notify.js"></script>
 </head>
@@ -1026,59 +1022,56 @@ select.inp option { background: #12151c; color: var(--text); }
 
     // ---------- Dizayn (sayt ko'rinishi) ----------
     var DESIGNS = [
-        { id: 'cosmic', emoji: '🌌', name: 'Kosmik', desc: "Yulduzlar, tumanlik va pastda sayyora nuri. Zamonaviy va chiroyli; effektlar yengil (faqat GPU), kuchsiz telefonda o'zi soddalashadi." },
-        { id: 'current', emoji: '✨', name: 'Hozirgi', desc: "Avvalgi neon dizayn: rangli nur sharlari, zarrachalar tarmog'i, jonli animatsiyalar. Hech narsa o'zgarmagan." },
-        { id: 'smooth', emoji: '⚡', name: 'Silliq', desc: "Eng yengil: fon effektlari, shaffof oyna va og'ir soyalar yo'q. Eski va arzon telefonlarda ham qotmaydi." }
+        { id: 'cosmic', emoji: '🌌', name: 'Kosmik', desc: "Yulduzlar suzadi va miltillaydi, uchar yulduzlar, sayyora nuri. Ko'k-binafsha." },
+        { id: 'modern', emoji: '✨', name: 'Modern', desc: "Suzuvchi rangli dog'lar, ko'tariluvchi pufakchalar. To'q sariq-pushti." },
+        { id: 'classic', emoji: '🏛', name: 'Klassik', desc: "Aylanuvchi oltin nur, uchuvchi tilla zarralar, nafis harflar. Oltin-qora." }
     ];
-    var DS_KEY = 'bilols_design_preview';
     async function vDesign(view) {
-        var active = 'current';
+        var active = 'cosmic';
         try {
-            var t = await fetch('/design.js', { cache: 'no-store' }).then(function (r) { return r.text(); });
-            var m = t.match(/var\s+ACTIVE\s*=\s*'([a-z]+)'/); if (m) active = m[1];
+            var r = await fetch('/api/design', { cache: 'no-store' }).then(function (x) { return x.json(); });
+            if (r && r.design) active = r.design;
         } catch (e) {}
-        var mine = null; try { mine = localStorage.getItem(DS_KEY); } catch (e) {}
-        function nameOf(id) { var d = DESIGNS.filter(function (x) { return x.id === id; })[0]; return d ? d.emoji + ' ' + d.name : id; }
+        var picked = active;
         view.innerHTML = '';
-        view.appendChild(h('div', { class: 'card', style: 'display:flex;align-items:center;gap:12px;flex-wrap:wrap' }, [
-            h('div', { style: 'flex:1;min-width:200px' }, [
-                h('div', { class: 'sum', style: 'margin:0', text: 'Hozir saytda hamma ko‘radigan dizayn' }),
-                h('b', { style: 'font-size:20px', text: nameOf(active) })
-            ]),
-            mine ? h('span', { class: 'ds-badge me', text: '📱 Sizning qurilmangizda: ' + nameOf(mine) }) : null
-        ]));
-        view.appendChild(h('div', { class: 'h', text: '3 ta dizayn' }));
         var grid = h('div', { class: 'ds-grid' });
+        var cards = {};
+        function mark() {
+            DESIGNS.forEach(function (d) { cards[d.id].className = 'ds-card' + (d.id === picked ? ' on' : ''); });
+            btn.textContent = picked === active ? '✓ Hozir saytda shu dizayn' : '🔄 Hamma uchun almashtirish';
+            btn.disabled = picked === active;
+            btn.style.opacity = picked === active ? '.6' : '1';
+        }
         DESIGNS.forEach(function (d) {
             var top = h('div', { class: 'ds-top' }, [h('b', { text: d.emoji + ' ' + d.name })]);
-            if (d.id === active) top.appendChild(h('span', { class: 'ds-badge', text: '✓ Saytda faol' }));
-            if (d.id === mine) top.appendChild(h('span', { class: 'ds-badge me', text: '📱 Qurilmangizda' }));
-            grid.appendChild(h('div', { class: 'ds-card' + (d.id === active ? ' on' : '') }, [
-                h('img', { class: 'ds-shot', src: '/icons/design/' + d.id + '.jpg', alt: d.name, loading: 'lazy' }),
+            if (d.id === active) top.appendChild(h('span', { class: 'ds-badge', text: '✓ Saytda' }));
+            cards[d.id] = h('div', { class: 'ds-card', role: 'button', style: 'cursor:pointer', onclick: function () { picked = d.id; mark(); } }, [
+                h('img', { class: 'ds-shot', src: '/icons/design/' + d.id + '.jpg?v=2', alt: d.name, loading: 'lazy' }),
                 top,
-                h('div', { class: 'sum', style: 'margin:0;line-height:1.5', text: d.desc }),
-                h('div', { class: 'ds-btns' }, [
-                    h('button', { class: 'btn ghost', text: '👁 Ko‘rish', onclick: function () { window.open('/?design=' + d.id, '_blank'); } }),
-                    h('button', { class: 'btn', text: d.id === mine ? '✓ Yoqilgan' : '📱 Menda yoqish', onclick: function () {
-                        try { localStorage.setItem(DS_KEY, d.id); } catch (e) {}
-                        toast('✅ ' + d.name + ' — faqat shu qurilmada yoqildi'); vDesign(view);
-                    } })
-                ])
-            ]));
+                h('div', { class: 'sum', style: 'margin:0;line-height:1.5', text: d.desc })
+            ]);
+            grid.appendChild(cards[d.id]);
         });
+        var btn = h('button', { class: 'btn', style: 'margin-top:14px;height:56px;font-size:16px;position:sticky;bottom:calc(12px + env(safe-area-inset-bottom));z-index:5', onclick: async function () {
+            if (picked === active) return;
+            btn.disabled = true; btn.textContent = '⏳ Saqlanmoqda...';
+            var res = null;
+            try {
+                var rr = await fetch('/api/design', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token || '' }, body: JSON.stringify({ design: picked }) });
+                res = await rr.json().catch(function () { return {}; });
+                if (rr.status === 401) { logout(true); return; }
+            } catch (e) { res = { error: 'Internet xatosi' }; }
+            if (res && res.success) {
+                try { localStorage.setItem('bilols_design_live', picked); } catch (e) {}
+                var nm = DESIGNS.filter(function (x) { return x.id === picked; })[0];
+                toast('✅ ' + nm.emoji + ' ' + nm.name + ' — hamma foydalanuvchida yoqildi');
+                vDesign(view);
+            } else { toast('❌ ' + ((res && res.error) || 'Xato')); mark(); }
+        } });
+        view.appendChild(h('div', { class: 'sum', style: 'margin:0 2px 12px', text: "Dizaynni tanlang va pastdagi tugmani bosing — saytdagi hamma foydalanuvchida avtomat almashadi." }));
         view.appendChild(grid);
-        if (mine) view.appendChild(h('button', { class: 'btn ghost', style: 'margin-top:12px', text: '↩ Qurilmamda saytdagi dizaynga qaytish', onclick: function () {
-            try { localStorage.removeItem(DS_KEY); } catch (e) {}
-            toast('✅ Qurilmangizda ham saytdagi dizayn'); vDesign(view);
-        } }));
-        view.appendChild(h('div', { class: 'h', text: '🌍 Hamma foydalanuvchi uchun almashtirish' }));
-        var line = "var ACTIVE = '" + active + "';";
-        view.appendChild(h('div', { class: 'card form' }, [
-            h('div', { class: 'sum', style: 'margin:0;line-height:1.55', text: "Saytdagi dizayn GitHub'dagi web-bot repozitoriysining design.js faylida turadi. O‘sha fayldagi bitta qatorni o‘zgartiring: cosmic, current yoki smooth. Vercel 1–2 daqiqada yangilaydi." }),
-            h('div', { class: 'ds-code', text: line }),
-            h('a', { class: 'btn ghost', style: 'display:grid;place-items:center;text-decoration:none', href: 'https://github.com/billsgm78-blip/web-bot/edit/main/design.js', target: '_blank', rel: 'noopener', text: '✏️ GitHub’da design.js ni ochish' })
-        ]));
-        view.appendChild(h('div', { class: 'sum', style: 'margin-top:12px', text: "«Menda yoqish» faqat shu brauzerda ishlaydi — foydalanuvchilarga ta'sir qilmaydi. Yorug‘ rejimni yoqqan foydalanuvchilarda dizayn yorug‘ rejimga moslashadi." }));
+        view.appendChild(btn);
+        mark();
     }
 
     // ---------- AI sozlamalari ----------
