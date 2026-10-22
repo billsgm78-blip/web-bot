@@ -176,21 +176,15 @@ export default async function handler(req, res) {
   }
 
   // OpenRouter qoidasi: ko'pi bilan 3 ta model bo'lishi shart.
-  // TEZLIK: "openrouter/auto" o'rniga tez modellar ro'yxati (birinchisi ishlamasa, keyingisiga o'tadi).
-  const FAST_MODELS = [
-    "google/gemini-2.0-flash-001",
-    "google/gemini-2.5-flash",
-    "openai/gpt-4o-mini"
-  ];
-  const VISION_MODELS = [
-    "google/gemini-2.5-flash",
-    "google/gemini-2.0-flash-001",
-    "openai/gpt-4o-mini"
-  ];
-  let modelList = requestContainsImage ? VISION_MODELS : FAST_MODELS;
-  if (typeof ai.model === "string" && /^[\w.-]+\/[\w.:-]+$/.test(ai.model)) {
-    // tanlangan model birinchi; "zaxira" yoqilgan bo'lsa, ishlamasa keyingilariga o'tadi
-    modelList = ai.fallback === false ? [ai.model] : [ai.model, ...modelList.filter(m => m !== ai.model)].slice(0, 3);
+  // Zaxira modellar faqat bot serveri ruxsat berganlaridan olinadi (ai.fallbacks): obunasiz foydalanuvchi uchun —
+  // faqat bepul agentlar. Ilgari bu yerda qattiq yozilgan ro'yxat bor edi (Gemini 2.5, GPT-4o mini) va bepul
+  // agent ishlamay qolganda obunasiz foydalanuvchi ham obunali agentlarga o'tib ketardi.
+  const FREE_MODEL = "google/gemini-2.0-flash-001";
+  const validModel = (m) => typeof m === "string" && /^[\w.-]+\/[\w.:-]+$/.test(m);
+  let modelList = [FREE_MODEL];   // bot serveri javob bermasa — faqat bepul model
+  if (validModel(ai.model)) {
+    const extra = Array.isArray(ai.fallbacks) ? ai.fallbacks.filter(m => validModel(m) && m !== ai.model) : [];
+    modelList = ai.fallback === false ? [ai.model] : [ai.model, ...extra].slice(0, 3);
   }
 
   const requestBody = {
