@@ -4,7 +4,8 @@
 // Tanlov Vercel Blob'da saqlanadi (BLOB_READ_WRITE_TOKEN — Vercel o'zi qo'shadi).
 
 const RAILWAY_URL = (process.env.RAILWAY_URL || "https://ai2-production-7d7e.up.railway.app").replace(/\/$/, "");
-const DESIGNS = ["cosmic", "modern", "classic"];
+const DESIGNS = ["cosmic", "modern", "premium"];
+const OLD = { classic: "premium", current: "modern", smooth: "modern" };
 const DEFAULT = "cosmic";
 const FILE = "design.json";
 
@@ -22,7 +23,8 @@ async function readDesign() {
     const r = await fetch(`https://${auth.storeId}.public.blob.vercel-storage.com/${FILE}?t=${Date.now()}`, { cache: "no-store" });
     if (!r.ok) return { design: DEFAULT, stored: true };
     const j = await r.json();
-    return { design: DESIGNS.includes(j.design) ? j.design : DEFAULT, stored: true, at: j.at || null };
+    const d = OLD[j.design] || j.design;
+    return { design: DESIGNS.includes(d) ? d : DEFAULT, stored: true, at: j.at || null };
   } catch (e) {
     return { design: DEFAULT, stored: true };
   }

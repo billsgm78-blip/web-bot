@@ -1024,7 +1024,7 @@ select.inp option { background: #12151c; color: var(--text); }
     var DESIGNS = [
         { id: 'cosmic', emoji: '🌌', name: 'Kosmik', desc: "Yulduzlar suzadi va miltillaydi, uchar yulduzlar, sayyora nuri. Ko'k-binafsha." },
         { id: 'modern', emoji: '✨', name: 'Modern', desc: "Suzuvchi rangli dog'lar, ko'tariluvchi pufakchalar. To'q sariq-pushti." },
-        { id: 'classic', emoji: '🏛', name: 'Klassik', desc: "Aylanuvchi oltin nur, uchuvchi tilla zarralar, nafis harflar. Oltin-qora." }
+        { id: 'premium', emoji: '◐', name: 'Premium', desc: "Och, nafis uslub: fil suyagi fon, katta chiroyli sarlavha, toza ikonlar, nozik animatsiyalar." }
     ];
     async function vDesign(view) {
         var active = 'cosmic';
@@ -1046,7 +1046,7 @@ select.inp option { background: #12151c; color: var(--text); }
             var top = h('div', { class: 'ds-top' }, [h('b', { text: d.emoji + ' ' + d.name })]);
             if (d.id === active) top.appendChild(h('span', { class: 'ds-badge', text: '✓ Saytda' }));
             cards[d.id] = h('div', { class: 'ds-card', role: 'button', style: 'cursor:pointer', onclick: function () { picked = d.id; mark(); } }, [
-                h('img', { class: 'ds-shot', src: '/icons/design/' + d.id + '.jpg?v=2', alt: d.name, loading: 'lazy' }),
+                h('img', { class: 'ds-shot', src: '/icons/design/' + d.id + '.jpg?v=3', alt: d.name, loading: 'lazy' }),
                 top,
                 h('div', { class: 'sum', style: 'margin:0;line-height:1.5', text: d.desc })
             ]);
