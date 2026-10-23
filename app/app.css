@@ -359,3 +359,137 @@ button:active, .w-act:active, .pill:active, .chip:active { transform: scale(.96)
 .pv-bar { height: 3px; border-radius: 3px; background: var(--s2); margin-bottom: 10px; overflow: hidden; }
 .pv-bar i { display: block; height: 100%; width: 0; background: var(--acc); transition: width .15s; }
 #pv-ok:disabled { opacity: .45; }
+
+/* =====================================================================
+   v3.5 DIZAYN — toza, zamonaviy: to'q ko'k-qora fon, binafsha→ko'k aksent,
+   yumshoq kartalar, shisha pastki menyu. Sariq faqat logo va balans tangasida.
+   ===================================================================== */
+:root {
+    --bg: #0a0b10;
+    --s1: #13151d;
+    --s2: #1b1e29;
+    --s3: #282c3b;
+    --line: rgba(255, 255, 255, .07);
+    --line2: rgba(255, 255, 255, .12);
+    --text: #eef0f6;
+    --muted: #8d93a6;
+    --acc: #8b7bff;
+    --acc-2: #4f8bff;
+    --ink: #ffffff;
+    --grad: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #4f8bff 100%);
+    --acc-soft: rgba(124, 108, 255, .14);
+    --acc-line: rgba(139, 123, 255, .45);
+    --gold: #fbbf24;
+    --r: 20px;
+}
+html, body { background: var(--bg); }
+#app::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(120% 55% at 50% -10%, rgba(99, 102, 241, .16), transparent 60%),
+                radial-gradient(80% 40% at 100% 100%, rgba(79, 139, 255, .07), transparent 60%); }
+.screen { background: transparent; z-index: 1; }
+.screen.over, #privacy, #support { background: var(--bg); }
+
+/* tugmalar */
+.btn.primary { background: var(--grad); color: #fff; box-shadow: 0 10px 26px -12px rgba(99, 102, 241, .9); }
+.btn.ghost { background: var(--s2); border: 1px solid var(--line); }
+.link { color: #a99dff; }
+.icon-b { background: var(--s2); border: 1px solid var(--line); }
+.spinner { border-top-color: var(--acc); }
+@keyframes splashGlow { 50% { filter: drop-shadow(0 0 22px rgba(139, 92, 246, .55)); } }
+
+/* kirish */
+.auth-top h1 { font-size: 30px; }
+.auth-logo { box-shadow: 0 18px 40px -14px rgba(99, 102, 241, .8); }
+.auth-card { background: rgba(19, 21, 29, .85); border-color: var(--line2); border-radius: 26px; padding: 18px;
+    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .9); }
+.seg { background: var(--bg); border: 1px solid var(--line); }
+.seg button.on { background: var(--s2); color: var(--text); box-shadow: 0 1px 0 rgba(255, 255, 255, .05) inset, 0 4px 12px -6px rgba(0, 0, 0, .8); }
+.field input, .phone-in, .pass-in { background: var(--s2); border-color: var(--line); }
+.field input:focus, .phone-in:focus-within, .pass-in:focus-within, .sh-input:focus, .area:focus { border-color: var(--acc-line); box-shadow: 0 0 0 4px rgba(124, 108, 255, .12); }
+.lang-row button { background: var(--s1); border: 1px solid var(--line); }
+.lang-row button.on { background: var(--grad); color: #fff; border-color: transparent; }
+.c-box { color: #fff; }
+.c-box.on { background: var(--acc); border-color: var(--acc); }
+.consent a { color: #a99dff; }
+
+/* tepa panel */
+.topbar { padding-top: calc(12px + env(safe-area-inset-top)); }
+.tb-left h1 { font-size: 23px; display: flex; align-items: center; gap: 9px; }
+.tb-left h1::before { content: ""; width: 30px; height: 30px; flex: 0 0 30px; margin: 0; border-radius: 9px; vertical-align: 0;
+    background: url(logo.png) center / cover; box-shadow: 0 6px 16px -6px rgba(99, 102, 241, .9); }
+.bal-chip { background: var(--s1); border-color: var(--line2); padding: 8px 13px; }
+.bal-chip .coin { color: var(--gold); text-shadow: 0 0 10px rgba(251, 191, 36, .6); }
+.avatar-btn { background: var(--grad); color: #fff; border-radius: 50%; box-shadow: 0 8px 20px -8px rgba(99, 102, 241, .9); }
+.ann { background: var(--acc-soft); color: #d9d4ff; border: 1px solid rgba(139, 123, 255, .2); }
+
+/* pastki menyu — shisha */
+.bnav { background: rgba(19, 21, 29, .82); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+    border-color: var(--line2); border-radius: 24px; box-shadow: 0 18px 40px -10px rgba(0, 0, 0, .8); }
+.bnav button.on { color: #fff; background: var(--grad); box-shadow: 0 8px 20px -10px rgba(99, 102, 241, 1); }
+
+/* chat */
+.pill { background: var(--acc-soft); color: #c6bfff; border-color: var(--acc-line); }
+.modes button { background: var(--s1); border-color: var(--line); }
+.modes button.on { background: #fff; color: #0a0b10; border-color: #fff; }
+.bubble { border-radius: 22px; }
+.bubble.me { background: var(--grad); color: #fff; font-weight: 500; box-shadow: 0 10px 24px -14px rgba(99, 102, 241, 1); border-bottom-right-radius: 7px; }
+.bubble.ai { background: var(--s1); border-color: var(--line); border-bottom-left-radius: 7px; }
+.bubble.ai .tx pre { background: #07080c; border: 1px solid var(--line); }
+.bubble.ai .tx code { background: rgba(139, 123, 255, .12); color: #d4ceff; }
+.bubble.ai .tx pre code { color: #e6e8f0; }
+.bubble.err { background: rgba(248, 113, 113, .1); border: 1px solid rgba(248, 113, 113, .25); color: #ffd1d1; }
+.caret::after { color: var(--acc); }
+.empty-chat .ec-ico { width: 64px; height: 64px; margin: 0 auto 12px; border-radius: 20px; display: grid; place-items: center; font-size: 30px;
+    background: var(--grad); box-shadow: 0 16px 36px -14px rgba(99, 102, 241, 1); }
+.empty-chat b { font-size: 21px; }
+.sugg button { background: var(--s1); border-color: var(--line); border-radius: 18px; padding: 13px; }
+.sugg button em { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: var(--s2); margin-bottom: 8px; font-size: 16px; }
+.comp-row { background: var(--s1); border-color: var(--line2); border-radius: 28px; box-shadow: 0 10px 30px -18px rgba(0, 0, 0, .9); }
+.comp-row .icon-b { background: var(--s2); color: #a99dff; border: 0; }
+.send { background: var(--grad); color: #fff; box-shadow: 0 8px 18px -8px rgba(99, 102, 241, 1); }
+.typing { background: var(--s1); border: 1px solid var(--line); }
+.typing i { background: var(--acc); }
+
+/* rasm */
+.img-hero { background: linear-gradient(135deg, rgba(139, 92, 246, .2), rgba(79, 139, 255, .06)); border-color: rgba(139, 123, 255, .3); }
+.ih-ico { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 26px; background: var(--grad); }
+.chips button { background: var(--s1); border-color: var(--line); }
+
+/* do'kon */
+.sub-card { background: radial-gradient(120% 120% at 100% 0%, rgba(139, 92, 246, .35), transparent 55%), linear-gradient(160deg, #1a1830, #13151d 70%);
+    border-color: rgba(139, 123, 255, .35); border-radius: 22px; }
+.prod { border-radius: 20px; }
+.prod .p-ico { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; background: var(--s2); margin-bottom: 4px; }
+.prod .p-price { color: #c6bfff; }
+
+/* hamyon */
+.w-card { border-radius: 26px; border-color: rgba(139, 123, 255, .35);
+    background: radial-gradient(120% 120% at 100% 0%, rgba(139, 92, 246, .55), transparent 55%),
+                radial-gradient(90% 90% at 0% 100%, rgba(79, 139, 255, .3), transparent 60%), linear-gradient(160deg, #1d1b3a, #12141c 75%);
+    box-shadow: 0 24px 50px -24px rgba(99, 102, 241, .8); }
+.w-card small, .w-bal span, .w-id { color: #cfcaf5; }
+.w-bal b { font-size: 40px; }
+.mini { background: rgba(255, 255, 255, .14); }
+.w-act { border-radius: 20px; }
+.w-act span { width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center; font-size: 19px; background: var(--s2); }
+.hist { border-radius: 20px; }
+.h-ico { background: var(--s2); }
+
+/* pastki oyna, menyu */
+.sheet-bg { background: rgba(3, 4, 8, .65); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.sheet-card { background: #11131a; border-top: 1px solid var(--line2); border-radius: 28px 28px 0 0; }
+.sh-list button.opt.on { background: var(--acc-soft); box-shadow: inset 0 0 0 1px var(--acc-line); }
+.sh-list .o-tag.paid { background: rgba(251, 191, 36, .14); color: var(--gold); }
+.sh-input { background: var(--s2); border-color: var(--line); }
+.amounts button { background: var(--s2); border: 1px solid var(--line); }
+.me-ava { background: var(--grad); color: #fff; }
+.menu .m-ico { background: var(--s2); }
+
+/* yordam chati */
+#support .msgs .bubble.me { background: var(--grad); color: #fff; }
+#support .msgs .bubble.ai { background: var(--s1); }
+
+/* xabarnoma, maxfiylik */
+.toast { background: #1e2130; border: 1px solid var(--line2); }
+.pv-bar i { background: var(--grad); }
+#ptr { color: var(--acc); }
