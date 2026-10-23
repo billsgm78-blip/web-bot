@@ -63,7 +63,7 @@ async function toEnglishPrompt(apiKey, text) {
       method: "POST",
       headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://bilolsai.uz", "X-Title": "Bilols AI" },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash-001",
+        model: "google/gemini-2.5-flash-lite",
         max_tokens: 200,
         messages: [{ role: "user", content: `Rewrite this image request as a short, vivid English prompt for an image generator. Output only the prompt.\n\n${text}` }]
       })

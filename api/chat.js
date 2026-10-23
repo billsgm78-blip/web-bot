@@ -179,7 +179,11 @@ export default async function handler(req, res) {
   // Zaxira modellar faqat bot serveri ruxsat berganlaridan olinadi (ai.fallbacks): obunasiz foydalanuvchi uchun —
   // faqat bepul agentlar. Ilgari bu yerda qattiq yozilgan ro'yxat bor edi (Gemini 2.5, GPT-4o mini) va bepul
   // agent ishlamay qolganda obunasiz foydalanuvchi ham obunali agentlarga o'tib ketardi.
-  const FREE_MODEL = "google/gemini-2.0-flash-001";
+  const FREE_MODEL = "google/gemini-2.5-flash-lite";
+  // OpenRouter'dan olib tashlangan modellar (bot serveri hali eski id yuborsa ham ishlasin)
+  const RETIRED = { "google/gemini-2.0-flash-001": FREE_MODEL, "google/gemini-2.0-flash-lite-001": FREE_MODEL };
+  if (typeof ai.model === "string" && RETIRED[ai.model]) ai.model = RETIRED[ai.model];
+  if (Array.isArray(ai.fallbacks)) ai.fallbacks = [...new Set(ai.fallbacks.map(m => RETIRED[m] || m))];
   const validModel = (m) => typeof m === "string" && /^[\w.-]+\/[\w.:-]+$/.test(m);
   let modelList = [FREE_MODEL];   // bot serveri javob bermasa — faqat bepul model
   if (validModel(ai.model)) {
