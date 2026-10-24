@@ -1022,12 +1022,12 @@ select.inp option { background: #12151c; color: var(--text); }
 
     // ---------- Dizayn (sayt ko'rinishi) ----------
     var DESIGNS = [
-        { id: 'cosmic', emoji: '🌌', name: 'Kosmik', desc: "Yulduzlar suzadi va miltillaydi, uchar yulduzlar, sayyora nuri. Ko'k-binafsha." },
         { id: 'neon', emoji: '⚡', name: 'Neon', desc: "Kiberpank uslub: ufqda chiziqli neon quyosh, oldinga yuguruvchi 3D to'r, neon yomg'ir. Chat, hamyon, sozlamalar va hamma oynalar ham neon. Moviy-pushti." },
-        { id: 'premium', emoji: '◐', name: 'Premium', desc: "Och, nafis uslub: fil suyagi fon, katta chiroyli sarlavha, toza ikonlar, nozik animatsiyalar." }
+        { id: 'premium', emoji: '◐', name: 'Premium', desc: "Och, nafis uslub: krem fon, juda katta qora sarlavhalar, to'q sariq nuqta, uzun kirish sahifasi (imkoniyatlar, narxlar, savollar)." },
+        { id: 'axiom', emoji: '▲', name: 'Axiom', desc: "Qora fon va to'q sariq bloklar, yirik raqamlar, uzun kirish sahifasi. Chat va oynalar ham qora-to'q sariq." }
     ];
     async function vDesign(view) {
-        var active = 'cosmic';
+        var active = 'axiom';
         try {
             var r = await fetch('/api/design', { cache: 'no-store' }).then(function (x) { return x.json(); });
             if (r && r.design) active = r.design;
@@ -1046,7 +1046,7 @@ select.inp option { background: #12151c; color: var(--text); }
             var top = h('div', { class: 'ds-top' }, [h('b', { text: d.emoji + ' ' + d.name })]);
             if (d.id === active) top.appendChild(h('span', { class: 'ds-badge', text: '✓ Saytda' }));
             cards[d.id] = h('div', { class: 'ds-card', role: 'button', style: 'cursor:pointer', onclick: function () { picked = d.id; mark(); } }, [
-                h('img', { class: 'ds-shot', src: '/icons/design/' + d.id + '.jpg?v=4', alt: d.name, loading: 'lazy' }),
+                h('img', { class: 'ds-shot', src: '/icons/design/' + d.id + '.jpg?v=5', alt: d.name, loading: 'lazy' }),
                 top,
                 h('div', { class: 'sum', style: 'margin:0;line-height:1.5', text: d.desc })
             ]);

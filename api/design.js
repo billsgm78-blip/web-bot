@@ -4,9 +4,9 @@
 // Tanlov Vercel Blob'da saqlanadi (BLOB_READ_WRITE_TOKEN — Vercel o'zi qo'shadi).
 
 const RAILWAY_URL = (process.env.RAILWAY_URL || "https://ai2-production-7d7e.up.railway.app").replace(/\/$/, "");
-const DESIGNS = ["cosmic", "neon", "premium"];
-const OLD = { classic: "premium", current: "neon", smooth: "neon", modern: "neon" };
-const DEFAULT = "cosmic";
+const DESIGNS = ["neon", "premium", "axiom"];
+const OLD = { classic: "premium", current: "neon", smooth: "neon", modern: "neon", cosmic: "axiom" };
+const DEFAULT = "axiom";
 const FILE = "design.json";
 
 function blobAuth() {

@@ -48,8 +48,8 @@
         });
     };
     </script>
-<script src="/design.js?v=7"></script>
-<link rel="stylesheet" href="/design.css?v=7">
+<script src="/design.js?v=8"></script>
+<link rel="stylesheet" href="/design.css?v=8">
     <link rel="preload" href="/fonts/twemoji.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/emoji.css">
 <style>
@@ -2652,6 +2652,123 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 <div class="container">
     <!-- LANDING SCREEN -->
     <div id="landing-screen">
+<!-- ===== Yangi uzun kirish sahifasi (Premium = pipdot uslubi, Axiom = qora + to'q sariq) ===== -->
+<div class="pd-page pd-only">
+  <header class="pd-nav">
+    <a class="pd-brand" href="#" onclick="return false"><span class="pd-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg></span>Bilols AI</a>
+    <nav class="pd-links">
+      <a href="#pd-features"><span class="pm-t" data-l="uz">Imkoniyatlar</span><span class="pm-t" data-l="ru">Возможности</span><span class="pm-t" data-l="en">Features</span></a>
+      <a href="#pd-app"><span class="pm-t" data-l="uz">Ilova</span><span class="pm-t" data-l="ru">Приложение</span><span class="pm-t" data-l="en">App</span></a>
+      <a href="#pd-price"><span class="pm-t" data-l="uz">Narxlar</span><span class="pm-t" data-l="ru">Цены</span><span class="pm-t" data-l="en">Pricing</span></a>
+      <a href="#pd-faq"><span class="pm-t" data-l="uz">Savollar</span><span class="pm-t" data-l="ru">Вопросы</span><span class="pm-t" data-l="en">FAQ</span></a>
+    </nav>
+    <div class="pd-lang"><button type="button" data-lg="uz" onclick="setAppLanguage('uz')">UZ</button><button type="button" data-lg="ru" onclick="setAppLanguage('ru')">RU</button><button type="button" data-lg="en" onclick="setAppLanguage('en')">EN</button></div>
+    <button type="button" class="pd-pill" onclick="openAuthModal()"><span class="pm-t" data-l="uz">Kirish</span><span class="pm-t" data-l="ru">Войти</span><span class="pm-t" data-l="en">Log in</span></button>
+  </header>
+  <section class="pd-hero">
+    <i class="pd-dot" aria-hidden="true"></i>
+    <h1 class="pd-h1"><span class="pm-t" data-l="uz">Savol bering.<br>Javob<br>oling<em>.</em></span><span class="pm-t" data-l="ru">Спросите.<br>Получите<br>ответ<em>.</em></span><span class="pm-t" data-l="en">Ask it.<br>Get the<br>answer<em>.</em></span></h1>
+    <div class="pd-hero-row">
+      <p class="pd-lead"><span class="pm-t" data-l="uz">Bilols AI — o'zbek tilini tushunadigan shaxsiy sun'iy intellekt. Yozing, rasm yuboring yoki hujjat biriktiring — soniyalar ichida aniq javob.</span><span class="pm-t" data-l="ru">Bilols AI — личный искусственный интеллект, который понимает узбекский. Пишите, отправляйте фото или документы — точный ответ за секунды.</span><span class="pm-t" data-l="en">Bilols AI is a personal AI that understands Uzbek. Type, send a photo or attach a document — a precise answer in seconds.</span></p>
+      <div class="pd-cta">
+        <button type="button" class="pd-btn" onclick="openAuthModal()"><span class="pm-t" data-l="uz">Bepul boshlash</span><span class="pm-t" data-l="ru">Начать бесплатно</span><span class="pm-t" data-l="en">Start for free</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+        <a class="pd-btn ghost" href="https://t.me/BilolsAIbot" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg><span class="pm-t" data-l="uz">Telegram bot</span><span class="pm-t" data-l="ru">Telegram-бот</span><span class="pm-t" data-l="en">Telegram bot</span></a>
+      </div>
+    </div>
+    <figure class="pd-demo" aria-hidden="true">
+      <div class="pd-demo-top"><span></span><span></span><span></span><b>Bilols AI</b><small>⚡ Gemini Flash</small></div>
+      <div class="pd-q"><span class="pm-t" data-l="uz">Insho uchun reja tuzib ber: <em>«Kitobning ahamiyati»</em></span><span class="pm-t" data-l="ru">Составь план эссе: <em>«Роль книги»</em></span><span class="pm-t" data-l="en">Outline an essay: <em>“Why books matter”</em></span></div>
+      <div class="pd-a"><b><span class="pm-t" data-l="uz">Reja</span><span class="pm-t" data-l="ru">План</span><span class="pm-t" data-l="en">Outline</span></b>
+        <span>1. <span class="pm-t" data-l="uz">Kirish — kitob va inson</span><span class="pm-t" data-l="ru">Введение — книга и человек</span><span class="pm-t" data-l="en">Intro — books and people</span></span>
+        <span>2. <span class="pm-t" data-l="uz">Bilim va tafakkur manbai</span><span class="pm-t" data-l="ru">Источник знаний и мысли</span><span class="pm-t" data-l="en">A source of knowledge</span></span>
+        <span>3. <span class="pm-t" data-l="uz">Xulosa — o'qish madaniyati</span><span class="pm-t" data-l="ru">Вывод — культура чтения</span><span class="pm-t" data-l="en">Conclusion — reading culture</span></span></div>
+      <div class="pd-demo-in"><span><span class="pm-t" data-l="uz">Savolingizni yozing…</span><span class="pm-t" data-l="ru">Напишите вопрос…</span><span class="pm-t" data-l="en">Ask anything…</span></span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></i></div>
+    </figure>
+  </section>
+  <section class="pd-statement"><p><span class="pm-t" data-l="uz">Bilols AI uy vazifasi, ish, o'qish va kundalik savollar uchun yaratilgan. Matn yozadi, rasmni o'qiydi, hujjatni tahlil qiladi, rasm chizadi va uch tilda gaplashadi — bitta hisob bilan saytda, Android ilovada va Telegram botda.</span><span class="pm-t" data-l="ru">Bilols AI создан для учёбы, работы и повседневных вопросов. Пишет тексты, читает фото, анализирует документы, рисует и говорит на трёх языках — один аккаунт на сайте, в Android-приложении и Telegram-боте.</span><span class="pm-t" data-l="en">Bilols AI is built for homework, work, study and everyday questions. It writes, reads photos, analyses documents, draws images and speaks three languages — one account across the web, the Android app and the Telegram bot.</span></p></section>
+  <section class="pd-sec" id="pd-features">
+    <div class="pd-kicker">01 — <span class="pm-t" data-l="uz">Imkoniyatlar</span><span class="pm-t" data-l="ru">Возможности</span><span class="pm-t" data-l="en">Features</span></div>
+    <h2 class="pd-h2"><span class="pm-t" data-l="uz">Chat, rasm, hujjat —<br>bitta oynada.</span><span class="pm-t" data-l="ru">Чат, фото, документы —<br>в одном окне.</span><span class="pm-t" data-l="en">Chat, photos, documents —<br>one window.</span></h2>
+    <p class="pd-p"><span class="pm-t" data-l="uz">Oddiy tilda yozing. Kerakli rejimni Bilols AI o'zi tushunadi.</span><span class="pm-t" data-l="ru">Пишите обычным языком. Нужный режим Bilols AI поймёт сам.</span><span class="pm-t" data-l="en">Write in plain language. Bilols AI picks up the right mode.</span></p>
+    <ul class="pd-rows">
+      <li><span><span class="pm-t" data-l="uz">Masalani <em>bosqichma-bosqich</em> yechib ber</span><span class="pm-t" data-l="ru">Реши задачу <em>по шагам</em></span><span class="pm-t" data-l="en">Solve this problem <em>step by step</em></span></span><small><span class="pm-t" data-l="uz">O'qituvchi</span><span class="pm-t" data-l="ru">Учитель</span><span class="pm-t" data-l="en">Teacher</span></small></li>
+      <li><span><span class="pm-t" data-l="uz">Rasmdagi matnni <em>ingliz tiliga</em> tarjima qil</span><span class="pm-t" data-l="ru">Переведи текст с фото <em>на английский</em></span><span class="pm-t" data-l="en">Translate the text in this photo <em>into English</em></span></span><small><span class="pm-t" data-l="uz">Kamera</span><span class="pm-t" data-l="ru">Камера</span><span class="pm-t" data-l="en">Camera</span></small></li>
+      <li><span><span class="pm-t" data-l="uz">Shu PDF'dan <em>asosiy fikrlarni</em> ayt</span><span class="pm-t" data-l="ru">Выдели <em>главное</em> из этого PDF</span><span class="pm-t" data-l="en">Give me <em>the key points</em> of this PDF</span></span><small><span class="pm-t" data-l="uz">Hujjat</span><span class="pm-t" data-l="ru">Документ</span><span class="pm-t" data-l="en">Document</span></small></li>
+      <li><span><span class="pm-t" data-l="uz">«Vatan» mavzusida <em>insho</em> yoz</span><span class="pm-t" data-l="ru">Напиши <em>сочинение</em> о Родине</span><span class="pm-t" data-l="en">Write an <em>essay</em> about my homeland</span></span><small><span class="pm-t" data-l="uz">Insho</span><span class="pm-t" data-l="ru">Сочинение</span><span class="pm-t" data-l="en">Essay</span></small></li>
+      <li><span><span class="pm-t" data-l="uz">Kodimdagi <em>xatoni</em> topib ber</span><span class="pm-t" data-l="ru">Найди <em>ошибку</em> в моём коде</span><span class="pm-t" data-l="en">Find the <em>bug</em> in my code</span></span><small><span class="pm-t" data-l="uz">Dasturchi</span><span class="pm-t" data-l="ru">Программист</span><span class="pm-t" data-l="en">Coder</span></small></li>
+      <li><span><span class="pm-t" data-l="uz">Tog'lardagi shom, <em>akvarel</em> uslubida rasm chiz</span><span class="pm-t" data-l="ru">Нарисуй закат в горах <em>акварелью</em></span><span class="pm-t" data-l="en">Draw a mountain sunset <em>in watercolor</em></span></span><small><span class="pm-t" data-l="uz">Rasm</span><span class="pm-t" data-l="ru">Рисунок</span><span class="pm-t" data-l="en">Image</span></small></li>
+    </ul>
+  </section>
+  <section class="pd-sec">
+    <div class="pd-kicker">02 — <span class="pm-t" data-l="uz">Raqamlarda</span><span class="pm-t" data-l="ru">В цифрах</span><span class="pm-t" data-l="en">In numbers</span></div>
+    <div class="pd-stats">
+      <div class="pd-stat"><b>24/7</b><span><span class="pm-t" data-l="uz">Har doim javob beradi — kechasi ham</span><span class="pm-t" data-l="ru">Отвечает всегда — даже ночью</span><span class="pm-t" data-l="en">Always answers — even at night</span></span></div>
+      <div class="pd-stat"><b>5</b><span><span class="pm-t" data-l="uz">Rejim: o'qituvchi, dasturchi, tarjimon, insho, imtihon</span><span class="pm-t" data-l="ru">Режимов: учитель, программист, переводчик, сочинения, экзамен</span><span class="pm-t" data-l="en">Modes: teacher, coder, translator, essays, exams</span></span></div>
+      <div class="pd-stat"><b>3</b><span><span class="pm-t" data-l="uz">Til: o'zbek, rus, ingliz</span><span class="pm-t" data-l="ru">Языка: узбекский, русский, английский</span><span class="pm-t" data-l="en">Languages: Uzbek, Russian, English</span></span></div>
+      <div class="pd-stat"><b>1</b><span><span class="pm-t" data-l="uz">Hisob — sayt, ilova va Telegram botda</span><span class="pm-t" data-l="ru">Аккаунт — на сайте, в приложении и боте</span><span class="pm-t" data-l="en">Account — web, app and Telegram bot</span></span></div>
+    </div>
+  </section>
+  <section class="pd-sec pd-app" id="pd-app">
+    <div>
+      <div class="pd-kicker">03 — <span class="pm-t" data-l="uz">Ilova</span><span class="pm-t" data-l="ru">Приложение</span><span class="pm-t" data-l="en">App</span></div>
+      <h2 class="pd-h2"><span class="pm-t" data-l="uz">Cho'ntagingizda<em>.</em></span><span class="pm-t" data-l="ru">В вашем<br>кармане<em>.</em></span><span class="pm-t" data-l="en">In your<br>pocket<em>.</em></span></h2>
+      <ul class="pd-ticks">
+        <li><span class="pm-t" data-l="uz">Android ilova — tez, yengil, bildirishnomalar bilan</span><span class="pm-t" data-l="ru">Android-приложение — быстрое, лёгкое, с уведомлениями</span><span class="pm-t" data-l="en">Android app — fast, light, with notifications</span></li>
+        <li><span class="pm-t" data-l="uz">Kamera bilan rasm yuboring — masala, matn, chek</span><span class="pm-t" data-l="ru">Отправляйте фото с камеры — задачи, тексты, чеки</span><span class="pm-t" data-l="en">Send photos from the camera — problems, texts, receipts</span></li>
+        <li><span class="pm-t" data-l="uz">Kompyuterda QR kod bilan bir zumda kiring</span><span class="pm-t" data-l="ru">На компьютере — вход по QR-коду за секунду</span><span class="pm-t" data-l="en">Log in on a computer in a second with a QR code</span></li>
+        <li><span class="pm-t" data-l="uz">Hamyon: Telegram Stars va Premium xaridi</span><span class="pm-t" data-l="ru">Кошелёк: покупка Telegram Stars и Premium</span><span class="pm-t" data-l="en">Wallet: buy Telegram Stars and Premium</span></li>
+      </ul>
+      <div class="pd-cta"><a class="pd-btn" href="/apk"><span class="pm-t" data-l="uz">APK yuklab olish</span><span class="pm-t" data-l="ru">Скачать APK</span><span class="pm-t" data-l="en">Download APK</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></div>
+    </div>
+    <div class="pd-phone" aria-hidden="true"><div class="pd-phone-in">
+      <div class="pd-ph-top"><b>Bilols AI</b><span>● 15 000</span></div>
+      <div class="pd-q sm"><span class="pm-t" data-l="uz">Bu misolni yech: 2x + 6 = 14</span><span class="pm-t" data-l="ru">Реши: 2x + 6 = 14</span><span class="pm-t" data-l="en">Solve: 2x + 6 = 14</span></div>
+      <div class="pd-a sm"><span>2x = 14 − 6 = 8</span><span><b>x = 4</b> ✓</span></div>
+      <div class="pd-ph-kb"></div>
+    </div></div>
+  </section>
+  <section class="pd-sec" id="pd-price">
+    <div class="pd-kicker">04 — <span class="pm-t" data-l="uz">Narxlar</span><span class="pm-t" data-l="ru">Цены</span><span class="pm-t" data-l="en">Pricing</span></div>
+    <h2 class="pd-h2"><span class="pm-t" data-l="uz">Bepul boshlang.<br>Ko'proq kerak bo'lsa — obuna.</span><span class="pm-t" data-l="ru">Начните бесплатно.<br>Нужно больше — подписка.</span><span class="pm-t" data-l="en">Start free.<br>Need more — subscribe.</span></h2>
+    <div class="pd-plans">
+      <div class="pd-plan">
+        <small><span class="pm-t" data-l="uz">Bepul</span><span class="pm-t" data-l="ru">Бесплатно</span><span class="pm-t" data-l="en">Free</span></small><b>0 <i><span class="pm-t" data-l="uz">so'm</span><span class="pm-t" data-l="ru">сум</span><span class="pm-t" data-l="en">UZS</span></i></b>
+        <ul><li><span class="pm-t" data-l="uz">Bepul agent — har kuni</span><span class="pm-t" data-l="ru">Бесплатный агент — каждый день</span><span class="pm-t" data-l="en">Free agent — every day</span></li><li><span class="pm-t" data-l="uz">Rasm va hujjat tahlili</span><span class="pm-t" data-l="ru">Анализ фото и документов</span><span class="pm-t" data-l="en">Photo and document analysis</span></li><li><span class="pm-t" data-l="uz">Sayt, ilova, Telegram bot</span><span class="pm-t" data-l="ru">Сайт, приложение, бот</span><span class="pm-t" data-l="en">Web, app, Telegram bot</span></li></ul>
+        <button type="button" class="pd-btn ghost" onclick="openAuthModal()"><span class="pm-t" data-l="uz">Boshlash</span><span class="pm-t" data-l="ru">Начать</span><span class="pm-t" data-l="en">Start</span></button>
+      </div>
+      <div class="pd-plan dark">
+        <small><span class="pm-t" data-l="uz">Obuna</span><span class="pm-t" data-l="ru">Подписка</span><span class="pm-t" data-l="en">Subscription</span></small><b><span class="pm-t" data-l="uz">Barcha agentlar</span><span class="pm-t" data-l="ru">Все агенты</span><span class="pm-t" data-l="en">All agents</span></b>
+        <ul><li>GPT-4o, Gemini, DeepSeek</li><li><span class="pm-t" data-l="uz">Cheksiz xabar</span><span class="pm-t" data-l="ru">Без лимита сообщений</span><span class="pm-t" data-l="en">Unlimited messages</span></li><li><span class="pm-t" data-l="uz">Narxi — ilovadagi Do'kon bo'limida</span><span class="pm-t" data-l="ru">Цена — в разделе Магазин</span><span class="pm-t" data-l="en">Price — in the in-app Shop</span></li></ul>
+        <button type="button" class="pd-btn" onclick="openAuthModal()"><span class="pm-t" data-l="uz">Obuna olish</span><span class="pm-t" data-l="ru">Оформить</span><span class="pm-t" data-l="en">Subscribe</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+      </div>
+    </div>
+  </section>
+  <section class="pd-sec" id="pd-faq">
+    <div class="pd-kicker">05 — <span class="pm-t" data-l="uz">Savollar</span><span class="pm-t" data-l="ru">Вопросы</span><span class="pm-t" data-l="en">FAQ</span></div>
+    <h2 class="pd-h2"><span class="pm-t" data-l="uz">Qisqa javoblar.</span><span class="pm-t" data-l="ru">Короткие ответы.</span><span class="pm-t" data-l="en">Short answers.</span></h2>
+    <div class="pd-faq">
+      <details><summary><span class="pm-t" data-l="uz">Bilols AI bepulmi?</span><span class="pm-t" data-l="ru">Bilols AI бесплатный?</span><span class="pm-t" data-l="en">Is Bilols AI free?</span></summary><p><span class="pm-t" data-l="uz">Ha. Bepul agent bilan har kuni bepul xabar yozasiz. Kuchli agentlar (GPT-4o, Gemini, DeepSeek) va cheksiz xabar — obuna bilan.</span><span class="pm-t" data-l="ru">Да. С бесплатным агентом можно писать каждый день. Мощные агенты (GPT-4o, Gemini, DeepSeek) и безлимит — по подписке.</span><span class="pm-t" data-l="en">Yes. The free agent lets you chat every day. Pro agents (GPT-4o, Gemini, DeepSeek) and unlimited messages come with a subscription.</span></p></details>
+      <details><summary><span class="pm-t" data-l="uz">Qanday ro'yxatdan o'taman?</span><span class="pm-t" data-l="ru">Как зарегистрироваться?</span><span class="pm-t" data-l="en">How do I sign up?</span></summary><p><span class="pm-t" data-l="uz">Telefon raqamingiz va parol bilan. Tasdiqlash kodi Telegram botimizga keladi.</span><span class="pm-t" data-l="ru">По номеру телефона и паролю. Код подтверждения придёт в наш Telegram-бот.</span><span class="pm-t" data-l="en">With your phone number and a password. The confirmation code arrives in our Telegram bot.</span></p></details>
+      <details><summary><span class="pm-t" data-l="uz">Kompyuterda qanday kiraman?</span><span class="pm-t" data-l="ru">Как войти на компьютере?</span><span class="pm-t" data-l="en">How do I log in on a computer?</span></summary><p><span class="pm-t" data-l="uz">Kirish oynasida «QR kod orqali kirish»ni bosing va telefoningizda Sozlamalar → QR orqali kirish bilan skanerlang.</span><span class="pm-t" data-l="ru">В окне входа нажмите «Войти по QR-коду» и отсканируйте его на телефоне: Настройки → Вход по QR.</span><span class="pm-t" data-l="en">In the login window tap “Log in with a QR code” and scan it on your phone: Settings → Log in with QR.</span></p></details>
+      <details><summary><span class="pm-t" data-l="uz">Hisobni qanday to'ldiraman?</span><span class="pm-t" data-l="ru">Как пополнить баланс?</span><span class="pm-t" data-l="en">How do I top up?</span></summary><p><span class="pm-t" data-l="uz">Hamyon → To'ldirish. Summani tanlaysiz, karta raqami Telegram botga keladi, chekni yuborasiz — pul balansga tushadi.</span><span class="pm-t" data-l="ru">Кошелёк → Пополнить. Выберите сумму, номер карты придёт в бот, отправьте чек — деньги зачислятся.</span><span class="pm-t" data-l="en">Wallet → Top up. Pick an amount, the card number arrives in the bot, send the receipt — the money is credited.</span></p></details>
+      <details><summary><span class="pm-t" data-l="uz">Ma'lumotlarim xavfsizmi?</span><span class="pm-t" data-l="ru">Мои данные в безопасности?</span><span class="pm-t" data-l="en">Is my data safe?</span></summary><p><span class="pm-t" data-l="uz">Parolingiz serverda faqat shifrlangan holda saqlanadi. Batafsil — Maxfiylik siyosatida.</span><span class="pm-t" data-l="ru">Пароль хранится на сервере только в зашифрованном виде. Подробнее — в Политике конфиденциальности.</span><span class="pm-t" data-l="en">Your password is stored only in encrypted form. Details are in the Privacy policy.</span></p></details>
+      <details><summary><span class="pm-t" data-l="uz">Android ilovasi bormi?</span><span class="pm-t" data-l="ru">Есть приложение для Android?</span><span class="pm-t" data-l="en">Is there an Android app?</span></summary><p><span class="pm-t" data-l="uz">Ha — bilolsai.uz/apk sahifasidan yuklab oling. Bildirishnomalar, kamera va tezkor ishlash bilan.</span><span class="pm-t" data-l="ru">Да — скачайте на bilolsai.uz/apk. С уведомлениями, камерой и быстрой работой.</span><span class="pm-t" data-l="en">Yes — download it at bilolsai.uz/apk. With notifications, camera and fast performance.</span></p></details>
+    </div>
+  </section>
+  <section class="pd-final">
+    <h2 class="pd-h2"><span class="pm-t" data-l="uz">Birinchi savolingiz<br>bilan boshlang.</span><span class="pm-t" data-l="ru">Начните с первого<br>вопроса.</span><span class="pm-t" data-l="en">Start with your<br>first question.</span></h2>
+    <button type="button" class="pd-btn" onclick="openAuthModal()"><span class="pm-t" data-l="uz">Bepul boshlash</span><span class="pm-t" data-l="ru">Начать бесплатно</span><span class="pm-t" data-l="en">Start for free</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+  </section>
+  <footer class="pd-foot">
+    <div class="pd-foot-row">
+      <span>© Bilols AI</span>
+      <a href="/maxfiylik" target="_blank" rel="noopener"><span class="pm-t" data-l="uz">Maxfiylik siyosati</span><span class="pm-t" data-l="ru">Конфиденциальность</span><span class="pm-t" data-l="en">Privacy</span></a>
+      <a href="https://t.me/BilolsAIbot" target="_blank" rel="noopener">Telegram</a>
+      <a href="/apk">Android</a>
+    </div>
+    <div class="pd-word">bilolsai<em>.</em>uz</div>
+  </footer>
+</div>
         <!-- ◐ Premium dizayn qismlari (boshqa dizaynlarda yashirin) -->
         <header class="pm-nav pm-only">
             <span class="pm-brand"><span class="pm-mark"><svg class="pm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg></span>Bilols AI</span>
