@@ -6092,15 +6092,18 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 b.onclick = function () { histFilter = x[0]; paintHistory(); };
                 f.appendChild(b);
             });
-            body.appendChild(f);
+            // Sozlamalar → Buyurtmalarim: faqat do'kondan olinganlar (Stars, Premium, obuna), AI/rasm to'lovlari va kirimlarsiz
+            var shopOnly = !!window.__histShopOnly;
+            if (!shopOnly) body.appendChild(f);
             var list = histItems.filter(function (it) {
                 var inc = !!KIND_IN[it.kind];
+                if (shopOnly) return it.kind === 'purchase' && ['image', 'ai'].indexOf(it.source) < 0;
                 return histFilter === 'all' || (histFilter === 'in' ? inc : !inc);
             });
             if (!list.length) {
                 var e = document.createElement('div');
                 e.className = 'wsub-empty';
-                e.textContent = T("Hozircha hech narsa yo'q", 'Nothing here yet', 'Пока ничего нет');
+                e.textContent = shopOnly ? T("Hali do'kondan buyurtma yo'q", 'No shop orders yet', 'Заказов из магазина пока нет') : T("Hozircha hech narsa yo'q", 'Nothing here yet', 'Пока ничего нет');
                 body.appendChild(e);
                 return;
             }
@@ -8178,19 +8181,16 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         pA.appendChild(group(T('Ovoz va tebranish', 'Sound & haptics', 'Звук и вибрация'), [card('toggle-sound'), card('lang-set-vol-title'), card('toggle-click'), card('toggle-haptic')]));
         pA.appendChild(group(T('Chat', 'Chat', 'Чат'), [card('toggle-enter'), card('install-entry'), $('clear-chat-btn')]));
 
-        // 3) Do'kon
-        var pS = pane('shop', T("Do'kon", 'Shop', 'Магазин'), T('Obuna, Telegram Stars va Premium — balansingizdan xarid qiling.', 'Subscription, Telegram Stars and Premium — paid from your balance.', 'Подписка, Telegram Stars и Premium — оплата с баланса.'));
-        [ $('wx-sub'), wm.querySelector('.wx-row') ].forEach(function (n) { if (n) pS.appendChild(n); });
+        // 3) Do'kon: balans va to'ldirish ham shu yerda
+        var pS = pane('shop', T("Do'kon", 'Shop', 'Магазин'), T("Balansni to'ldiring va Obuna, Telegram Stars, Premium xarid qiling.", 'Top up your balance and buy a subscription, Telegram Stars or Premium.', 'Пополняйте баланс и покупайте подписку, Telegram Stars и Premium.'));
+        var bb = wm.querySelector('.balance-badge'); if (bb) pS.appendChild(bb);
+        var tnote = document.createElement('p'); tnote.className = 'sh-lead'; tnote.id = 'sh-topup-note';
+        pS.appendChild(group(T("Hisobni to'ldirish", 'Top up', 'Пополнение'), [$('wx-topup'), tnote, $('wx-bonus'), wm.querySelector('.wx-promo')]));
+        pS.appendChild(group(T('Obuna', 'Subscription', 'Подписка'), [$('wx-sub'), wm.querySelector('.wx-row')]));
         wm.querySelectorAll('.pack-scroll-area > .section-label, .pack-scroll-area > .pack-grid').forEach(function (n) { pS.appendChild(n); });
 
-        // 4) Hisobni to'ldirish
-        var pT = pane('topup', T("Hisobni to'ldirish", 'Top up balance', 'Пополнение баланса'));
-        var bb = wm.querySelector('.balance-badge'); if (bb) pT.appendChild(bb);
-        [ $('wx-topup'), $('wx-bonus'), wm.querySelector('.wx-promo') ].forEach(function (n) { if (n) pT.appendChild(n); });
-        var tnote = document.createElement('p'); tnote.className = 'sh-lead'; tnote.id = 'sh-topup-note'; pT.appendChild(tnote);
-
         // 5) Buyurtmalarim
-        var pO = pane('orders', T('Buyurtmalarim', 'My orders', 'Мои заказы'), T("To'lovlar, xaridlar va buyurtmalaringiz holati.", 'Your payments, purchases and order status.', 'Платежи, покупки и статус заказов.'));
+        var pO = pane('orders', T('Buyurtmalarim', 'My orders', 'Мои заказы'), T("Do'kondan olgan buyurtmalaringiz va ularning holati.", 'Your shop orders and their status.', 'Ваши заказы из магазина и их статус.'));
         var ws = $('wallet-sub'); if (ws) pO.appendChild(ws);
 
         // 6) Yordam
@@ -8202,8 +8202,8 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         Array.prototype.slice.call(scroll.children).forEach(function (n) { if (n !== hub) pA.appendChild(n); });
 
         var sections = [
+            [T("Do'kon", 'Shop', 'Магазин'), [['shop', T("Do'kon", 'Shop', 'Магазин')], ['orders', T('Buyurtmalarim', 'My orders', 'Мои заказы')]]],
             [T('Hisob', 'Account', 'Аккаунт'), [['profile', T('Profil', 'Profile', 'Профиль')], ['app', T('Ilova', 'App', 'Приложение')]]],
-            [T('Hamyon', 'Wallet', 'Кошелёк'), [['shop', T("Do'kon", 'Shop', 'Магазин')], ['topup', T("Hisob to'ldirish", 'Top up', 'Пополнение')], ['orders', T('Buyurtmalarim', 'My orders', 'Мои заказы')]]],
             [T('Boshqa', 'Other', 'Другое'), [['help', T('Yordam', 'Help', 'Помощь')]]]
         ];
         sections.forEach(function (s) {
@@ -8215,7 +8215,7 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
                 nav.appendChild(b); navBtns[it[0]] = b;
             });
         });
-        ['profile', 'app', 'shop', 'topup', 'orders', 'help'].forEach(function (k) { main.appendChild(panes[k]); });
+        ['shop', 'orders', 'profile', 'app', 'help'].forEach(function (k) { main.appendChild(panes[k]); });
         scroll.appendChild(hub);
         sm.classList.add('sh-on');
         var h2 = header.querySelector('h2'); if (h2) h2.textContent = T('Sozlamalar', 'Settings', 'Настройки');
@@ -8223,8 +8223,9 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
     function select(k) {
         Object.keys(panes).forEach(function (x) { panes[x].classList.toggle('on', x === k); navBtns[x] && navBtns[x].classList.toggle('on', x === k); });
         var m = document.querySelector('.sh-main'); if (m) m.scrollTop = 0;
+        window.__histShopOnly = (k === 'orders');
         if (k === 'orders' && $('wx-hist-open') && $('wx-hist-open').onclick) $('wx-hist-open').onclick();
-        if (k === 'topup') {
+        if (k === 'shop') {
             var t = $('wx-topup'), note = $('sh-topup-note');
             if (note) note.textContent = t && t.style.display === 'none' ? T("Hozircha to'ldirish usuli yoqilmagan. Yordam bo'limi orqali admin bilan bog'laning.", 'No top-up method is enabled yet. Contact the admin via Help.', 'Способ пополнения пока не включён. Свяжитесь с админом через раздел Помощь.') : '';
         }
@@ -8232,7 +8233,7 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
     function open(k) {
         var btn = $('open-settings-btn'); if (!btn) return;
         btn.onclick && btn.onclick();
-        build(); select(k || 'profile');
+        build(); select(k || 'shop');
     }
     window.__openSettingsHub = open;
     // Sozlamalar ochilganda — sahifa quriladi; Hamyon tugmasi -> Do'kon bo'limi
@@ -8240,7 +8241,7 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         if (!prem()) return;
         var w = e.target.closest && e.target.closest('#open-wallet-btn');
         if (w) { e.stopPropagation(); e.preventDefault(); open('shop'); return; }
-        if (e.target.closest && e.target.closest('#open-settings-btn')) setTimeout(function () { build(); if (!document.querySelector('.sh-pane.on')) select('profile'); }, 0);
+        if (e.target.closest && e.target.closest('#open-settings-btn')) setTimeout(function () { build(); if (!document.querySelector('.sh-pane.on')) select('shop'); }, 0);
     }, true);
 })();
 </script>
