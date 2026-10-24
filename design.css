@@ -1,5 +1,5 @@
 /* =====================================================================
-   Bilols AI — 3 TA DIZAYN:  🌌 cosmic · ⚡ neon · ◐ premium
+   Bilols AI — 4 TA DIZAYN:  🌌 cosmic · ⚡ neon · ◐ premium · ▲ axiom
    Silliqlik qoidasi: fon animatsiyalari faqat transform va opacity bilan
    (GPU bajaradi, telefon qotmaydi). Og'ir effektlar (blur-shisha, aylanuvchi
    gradient, kanvas zarrachalari) hamma dizaynda o'chirilgan.
@@ -709,3 +709,200 @@ html[data-design="premium"][data-page="sub"] .maint b { color: var(--pm-ink) !im
 html[data-design="premium"][data-page="sub"] .maint a, html[data-design="premium"][data-page="sub"] p a, html[data-design="premium"][data-page="sub"] li a { color: var(--pm-accent); }
 html[data-design="premium"][data-page="sub"] .hash code, html[data-design="premium"][data-page="sub"] .auto-note { color: var(--pm-accent) !important; }
 html[data-design="premium"][data-page="sub"] .inapp { background: var(--pm-accent-soft) !important; border-color: rgba(31,92,74,.3) !important; color: var(--pm-accent) !important; }
+
+/* ===================== Kompyuterda to'liq ekran (hamma dizaynlar) =====================
+   Ilgari kompyuterda sayt ekran o'rtasidagi ramka ichida (1060–1120px) turardi.
+   Endi butun oynani egallaydi; chatda matn o'qilishi uchun xabarlar o'rtada ~960px kenglikda. */
+@media (min-width: 992px) {
+    html[data-design] body .container {
+        max-width: none !important; width: 100vw !important; height: 100vh !important; height: 100dvh !important;
+        border-radius: 0 !important; border: 0 !important; box-shadow: none !important;
+    }
+    html[data-design="premium"] body { background: var(--pm-bg) !important; }
+    html[data-design] body .messages-container { padding-left: max(24px, calc((100% - 960px) / 2)) !important; padding-right: max(24px, calc((100% - 960px) / 2)) !important; }
+    html[data-design] body .input-bar { padding-left: max(16px, calc((100% - 980px) / 2)) !important; padding-right: max(16px, calc((100% - 980px) / 2)) !important; }
+    html[data-design] body .chat-header { padding-left: 24px !important; padding-right: 24px !important; }
+    /* to'liq ekranda ramka chizig'i kerak emas */
+    html[data-design] body .container::after { display: none !important; }
+    /* kirish sahifasi: mazmun o'rtada ~1280px, ikki ustun orasi juda keng bo'lib ketmasin */
+    html[data-design] body #landing-screen { padding-left: max(64px, calc((100% - 1280px) / 2)) !important; padding-right: max(64px, calc((100% - 1280px) / 2)) !important; }
+    html[data-design="premium"] body .pm-nav { left: max(64px, calc((100% - 1280px) / 2)); right: max(64px, calc((100% - 1280px) / 2)); }
+}
+/* Yopiq "Suhbatlar" paneli ekrandan tashqarida tursa ham soyasi chap chetga tushardi */
+#chats-drawer:not(.open) .drawer-panel { box-shadow: none !important; }
+
+/* =====================================================================
+   UZUN KIRISH SAHIFASI (.pd-page) — Premium'da pipdot uslubi (krem + qora + to'q sariq nuqta),
+   Axiom'da qora + to'q sariq bloklar. Boshqa dizaynlarda yashirin.
+   ===================================================================== */
+.pd-only { display: none !important; }
+html[data-design="premium"] .pd-only, html[data-design="axiom"] .pd-only { display: block !important; }
+html[data-design="premium"] body div#landing-screen, html[data-design="axiom"] body div#landing-screen {
+    flex-direction: column !important; align-items: stretch !important; justify-content: flex-start !important;
+    padding: 0 !important; gap: 0 !important; overflow-y: auto !important; overflow-x: hidden !important; scroll-behavior: smooth;
+}
+html[data-design="premium"] body #landing-screen > .landing-left-col, html[data-design="premium"] body #landing-screen > .landing-right-col, html[data-design="premium"] body #landing-screen > .pm-nav,
+html[data-design="axiom"] body #landing-screen > .landing-left-col, html[data-design="axiom"] body #landing-screen > .landing-right-col { display: none !important; }
+
+html[data-design="premium"] .pd-page {
+    --pd-bg: #f3f0e8; --pd-ink: #141311; --pd-ink2: #4d4a44; --pd-mute: #8c877d; --pd-line: rgba(20, 19, 17, .1);
+    --pd-card: #fbf9f4; --pd-dark: #151413; --pd-dark-ink: #f3f0e8; --pd-acc: #ff5a1f; --pd-stmt-bg: transparent; --pd-stmt-ink: #141311;
+    --pd-final-bg: transparent; --pd-final-ink: #141311;
+}
+html[data-design="axiom"] .pd-page {
+    --pd-bg: #0b0b0c; --pd-ink: #f4f2ee; --pd-ink2: #b9b5ad; --pd-mute: #7c7871; --pd-line: rgba(255, 255, 255, .1);
+    --pd-card: #151517; --pd-dark: #1b1b1e; --pd-dark-ink: #f4f2ee; --pd-acc: #ff5a14; --pd-stmt-bg: #ff5a14; --pd-stmt-ink: #160a03;
+    --pd-final-bg: #ff5a14; --pd-final-ink: #160a03;
+}
+.pd-page { background: var(--pd-bg); color: var(--pd-ink); min-height: 100%; width: 100%;
+    font-family: 'Inter Tight', 'Twemoji', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+.pd-page em { font-style: normal; color: var(--pd-acc); }
+.pd-page a { color: inherit; text-decoration: none; }
+.pd-page svg { width: 18px; height: 18px; flex-shrink: 0; }
+.pd-page > * { padding-left: max(20px, calc((100% - 1180px) / 2)); padding-right: max(20px, calc((100% - 1180px) / 2)); }
+
+/* nav */
+.pd-nav { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 14px; padding-top: calc(12px + env(safe-area-inset-top)); padding-bottom: 12px;
+    background: color-mix(in srgb, var(--pd-bg) 88%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid var(--pd-line); }
+.pd-brand { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 16px; letter-spacing: -.01em; margin-right: auto; }
+.pd-logo { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--pd-ink); color: var(--pd-bg); }
+.pd-logo svg { width: 15px; height: 15px; }
+.pd-links { display: none; gap: 26px; font-size: 14px; color: var(--pd-ink2); }
+.pd-links a:hover { color: var(--pd-ink); }
+.pd-lang { display: flex; gap: 2px; padding: 3px; border-radius: 999px; border: 1px solid var(--pd-line); }
+.pd-lang button { border: 0; background: transparent; color: var(--pd-mute); font: inherit; font-size: 11.5px; font-weight: 700; padding: 5px 9px; border-radius: 999px; cursor: pointer; }
+html[lang="uz"] .pd-lang [data-lg="uz"], html[lang="ru"] .pd-lang [data-lg="ru"], html[lang="en"] .pd-lang [data-lg="en"] { background: var(--pd-ink); color: var(--pd-bg); }
+.pd-pill { border: 0; border-radius: 999px; background: var(--pd-ink); color: var(--pd-bg); font: inherit; font-size: 13.5px; font-weight: 600; padding: 9px 16px; cursor: pointer; }
+html[data-design="axiom"] .pd-pill { background: var(--pd-acc); color: #160a03; }
+
+/* hero */
+.pd-hero { padding-top: 56px; padding-bottom: 40px; position: relative; }
+.pd-dot { display: block; width: 12px; height: 12px; border-radius: 50%; background: var(--pd-acc); margin: 0 0 28px; box-shadow: 0 0 0 6px color-mix(in srgb, var(--pd-acc) 18%, transparent); animation: pdPulse 2.4s ease-in-out infinite; }
+@keyframes pdPulse { 50% { box-shadow: 0 0 0 12px color-mix(in srgb, var(--pd-acc) 0%, transparent); } }
+.pd-h1 { margin: 0; font-size: clamp(54px, 15vw, 150px); line-height: .9; letter-spacing: -.055em; font-weight: 600; }
+.pd-hero-row { display: flex; flex-direction: column; gap: 22px; margin-top: 30px; }
+.pd-lead { margin: 0; max-width: 46ch; font-size: 16.5px; line-height: 1.55; color: var(--pd-ink2); }
+.pd-cta { display: flex; flex-wrap: wrap; gap: 10px; }
+.pd-btn { white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--pd-ink); border-radius: 999px; padding: 14px 22px;
+    background: var(--pd-ink); color: var(--pd-bg) !important; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform .15s ease, opacity .15s; }
+.pd-btn:active { transform: scale(.97); }
+.pd-btn.ghost { background: transparent; color: var(--pd-ink) !important; border-color: var(--pd-line); }
+html[data-design="axiom"] .pd-btn:not(.ghost) { background: var(--pd-acc); border-color: var(--pd-acc); color: #160a03 !important; }
+
+/* demo karta (har ikkala dizaynda qora) */
+.pd-demo { margin: 40px 0 0; max-width: 560px; border-radius: 26px; background: #121212; color: #f2efe8; padding: 16px; box-shadow: 0 40px 80px -40px rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.08); }
+.pd-demo-top { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; font-size: 13px; }
+.pd-demo-top span { width: 9px; height: 9px; border-radius: 50%; background: #3a3a3a; }
+.pd-demo-top b { margin-left: 8px; } .pd-demo-top small { margin-left: auto; color: #9b978f; }
+.pd-q { margin-left: auto; width: fit-content; max-width: 86%; background: #2a2a2a; border-radius: 18px 18px 6px 18px; padding: 11px 14px; font-size: 14.5px; line-height: 1.45; }
+.pd-a { margin-top: 10px; max-width: 86%; background: #1c1c1c; border: 1px solid rgba(255,255,255,.06); border-radius: 18px 18px 18px 6px; padding: 12px 14px; font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; }
+.pd-demo-in { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; border-radius: 999px; background: #1c1c1c; padding: 6px 6px 6px 16px; color: #8d8981; font-size: 14px; }
+.pd-demo-in i { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--pd-acc); color: #160a03; }
+.pd-demo em { color: var(--pd-acc); }
+
+/* statement */
+.pd-statement { padding-top: 36px; padding-bottom: 36px; }
+.pd-statement p { margin: 0; font-size: clamp(22px, 3.2vw, 38px); line-height: 1.22; letter-spacing: -.025em; font-weight: 500; color: var(--pd-stmt-ink); }
+html[data-design="axiom"] .pd-statement { background: var(--pd-stmt-bg); margin: 24px max(12px, calc((100% - 1220px) / 2)); border-radius: 6px; padding-top: 48px; padding-bottom: 48px;
+    padding-left: max(20px, 40px); padding-right: 40px; }
+
+/* bo'limlar */
+.pd-sec { padding-top: 72px; padding-bottom: 24px; }
+.pd-kicker { font-size: 11.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--pd-mute); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+.pd-kicker::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--pd-acc); }
+.pd-h2 { margin: 0 0 14px; font-size: clamp(36px, 7vw, 76px); line-height: .98; letter-spacing: -.045em; font-weight: 600; }
+.pd-p { margin: 0 0 26px; color: var(--pd-ink2); font-size: 16px; line-height: 1.55; max-width: 52ch; }
+.pd-rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--pd-line); }
+.pd-rows li { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 18px 2px; border-bottom: 1px solid var(--pd-line);
+    font-size: clamp(17px, 2.3vw, 24px); letter-spacing: -.015em; font-weight: 500; }
+.pd-rows small { flex-shrink: 0; font-size: 12px; font-weight: 600; color: var(--pd-mute); border: 1px solid var(--pd-line); border-radius: 999px; padding: 4px 10px; letter-spacing: 0; }
+
+.pd-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--pd-line); border: 1px solid var(--pd-line); border-radius: 22px; overflow: hidden; }
+.pd-stat { background: var(--pd-card); padding: 26px 20px; min-height: 170px; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; }
+.pd-stat b { font-size: clamp(54px, 9vw, 96px); line-height: .9; letter-spacing: -.05em; font-weight: 500; }
+.pd-stat span { color: var(--pd-ink2); font-size: 14px; line-height: 1.45; }
+html[data-design="axiom"] .pd-stat b { color: var(--pd-ink); }
+html[data-design="axiom"] .pd-stat:first-child b { color: var(--pd-acc); }
+
+.pd-app { display: grid; gap: 40px; align-items: center; }
+.pd-ticks { list-style: none; margin: 8px 0 28px; padding: 0; display: grid; gap: 12px; }
+.pd-ticks li { position: relative; padding-left: 26px; font-size: 16px; line-height: 1.5; color: var(--pd-ink2); }
+.pd-ticks li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 9px; height: 9px; border-radius: 50%; background: var(--pd-acc); }
+.pd-phone { justify-self: center; width: 250px; aspect-ratio: 9 / 19; border-radius: 42px; background: #0e0e0e; padding: 10px; box-shadow: 0 40px 80px -30px rgba(0,0,0,.6), inset 0 0 0 2px #2a2a2a; }
+.pd-phone-in { height: 100%; border-radius: 33px; background: #161616; color: #f2efe8; padding: 34px 12px 12px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
+.pd-phone-in::before { content: ""; position: absolute; top: 10px; left: 50%; width: 70px; height: 18px; margin-left: -35px; border-radius: 12px; background: #000; }
+.pd-ph-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; } .pd-ph-top span { color: var(--pd-acc); font-weight: 700; }
+.pd-q.sm, .pd-a.sm { font-size: 12.5px; max-width: 92%; }
+.pd-ph-kb { margin-top: auto; height: 34%; border-radius: 16px; background: repeating-linear-gradient(90deg, #262626 0 18px, transparent 18px 22px), #1c1c1c; opacity: .8;
+    -webkit-mask-image: repeating-linear-gradient(180deg, #000 0 26px, transparent 26px 32px); mask-image: repeating-linear-gradient(180deg, #000 0 26px, transparent 26px 32px); }
+
+.pd-plans { display: grid; gap: 14px; margin-top: 26px; }
+.pd-plan { border: 1px solid var(--pd-line); border-radius: 24px; padding: 24px; background: var(--pd-card); display: flex; flex-direction: column; gap: 10px; }
+.pd-plan small { font-size: 13px; font-weight: 600; color: var(--pd-mute); }
+.pd-plan b { font-size: 40px; letter-spacing: -.04em; font-weight: 600; line-height: 1; } .pd-plan b i { font-style: normal; font-size: 16px; color: var(--pd-mute); letter-spacing: 0; }
+.pd-plan ul { list-style: none; margin: 8px 0 14px; padding: 0; display: grid; gap: 8px; font-size: 15px; color: var(--pd-ink2); }
+.pd-plan li::before { content: "✓  "; color: var(--pd-acc); font-weight: 700; }
+.pd-plan .pd-btn { margin-top: auto; }
+.pd-plan.dark { background: var(--pd-dark); color: var(--pd-dark-ink); border-color: transparent; }
+.pd-plan.dark ul { color: color-mix(in srgb, var(--pd-dark-ink) 75%, transparent); }
+html[data-design="premium"] .pd-plan.dark .pd-btn { background: var(--pd-acc); border-color: var(--pd-acc); color: #fff !important; }
+
+.pd-faq { border-top: 1px solid var(--pd-line); margin-top: 22px; }
+.pd-faq details { border-bottom: 1px solid var(--pd-line); }
+.pd-faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; gap: 16px; padding: 19px 2px; font-size: 17px; font-weight: 500; letter-spacing: -.01em; }
+.pd-faq summary::-webkit-details-marker { display: none; }
+.pd-faq summary::after { content: "+"; color: var(--pd-mute); font-size: 22px; line-height: 1; transition: transform .2s; }
+.pd-faq details[open] summary::after { transform: rotate(45deg); color: var(--pd-acc); }
+.pd-faq p { margin: 0 2px 20px; color: var(--pd-ink2); font-size: 15px; line-height: 1.6; max-width: 70ch; }
+
+.pd-final { padding-top: 90px; padding-bottom: 60px; }
+.pd-final .pd-h2 { margin-bottom: 26px; }
+html[data-design="axiom"] .pd-final { background: var(--pd-final-bg); color: var(--pd-final-ink); margin-top: 80px; padding-top: 70px; }
+html[data-design="axiom"] .pd-final .pd-btn { background: #160a03; border-color: #160a03; color: #ff5a14 !important; }
+.pd-foot { padding-top: 24px; padding-bottom: calc(18px + env(safe-area-inset-bottom)); overflow: hidden; }
+html[data-design="axiom"] .pd-foot { background: var(--pd-final-bg); color: var(--pd-final-ink); }
+html[data-design="axiom"] .pd-foot em { color: #160a03; }
+.pd-foot-row { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--pd-mute); padding-bottom: 18px; border-bottom: 1px solid var(--pd-line); }
+html[data-design="axiom"] .pd-foot-row { color: rgba(22, 10, 3, .7); border-color: rgba(22, 10, 3, .2); }
+.pd-word { font-size: clamp(64px, 20.5vw, 290px); font-weight: 600; letter-spacing: -.065em; line-height: .82; margin-top: 18px; white-space: nowrap; }
+
+@media (min-width: 760px) {
+    .pd-links { display: flex; }
+    .pd-hero { padding-top: 90px; }
+    .pd-hero-row { flex-direction: row; align-items: flex-end; justify-content: space-between; }
+    .pd-demo { margin-left: auto; margin-top: -40px; }
+    .pd-stats { grid-template-columns: repeat(4, 1fr); }
+    .pd-app { grid-template-columns: 1.2fr 1fr; }
+    .pd-plans { grid-template-columns: 1fr 1fr; }
+    .pd-sec { padding-top: 110px; }
+}
+@media (min-width: 1100px) {
+    .pd-hero { display: grid; grid-template-columns: 1.25fr 1fr; column-gap: 56px; align-items: end; }
+    .pd-hero > .pd-dot, .pd-hero > .pd-h1, .pd-hero > .pd-hero-row { grid-column: 1; }
+    .pd-h1 { font-size: clamp(90px, 8.6vw, 132px); }
+    .pd-hero-row { flex-direction: column; align-items: flex-start; }
+    .pd-demo { grid-column: 2; grid-row: 1 / span 3; align-self: center; margin: 0; width: 100%; }
+}
+
+/* =====================================================================
+   ▲ AXIOM — qora + to'q sariq (4-dizayn). Chat va oynalar umumiy tokenlar orqali.
+   ===================================================================== */
+html[data-design="axiom"] {
+    --ds-bg: #0b0b0c; --ds-s1: rgba(24, 24, 27, 0.92); --ds-s2: rgba(255, 255, 255, 0.05); --ds-bar: rgba(12, 12, 13, 0.94);
+    --ds-modal: linear-gradient(170deg, #1a1a1d 0%, #0d0d0e 70%);
+    --ds-line: rgba(255, 255, 255, 0.09); --ds-line2: rgba(255, 90, 20, 0.55);
+    --ds-a: #ff7a3d; --ds-b: #ff5a14; --ds-c: #ffb27a; --ds-btn: #ff5a14;
+    --ds-grad: linear-gradient(120deg, #ff5a14 0%, #ff7a3d 100%);
+    --ds-user: linear-gradient(135deg, #ff5a14 0%, #ff7a3d 100%);
+    --ds-title: linear-gradient(90deg, #ffffff, #ffd2bd, #ffffff);
+    --ds-glow: rgba(255, 90, 20, 0.45); --ds-on: #160a03; --ds-text: #f4f2ee; --ds-muted: #a8a49c; --ds-soft: rgba(255, 90, 20, 0.12);
+}
+html[data-design="axiom"] #ds-bg { display: none !important; }
+html[data-design="axiom"] body:not(.theme-light) .msg-user { color: #160a03; font-weight: 500; }
+html[data-design="axiom"] body:not(.theme-light) .msg-ai { border-color: var(--ds-line) !important; box-shadow: none !important; animation: none; }
+/* katta "bilolsai.uz" yozuvi pastki havolalar ustiga chiqib, ularni bosib bo'lmas qilardi */
+.pd-foot-row { position: relative; z-index: 2; }
+.pd-foot-row a { padding: 6px 0; }
+.pd-foot-row a:hover { color: var(--pd-ink); text-decoration: underline; }
+html[data-design="axiom"] .pd-foot-row a:hover { color: #160a03; }
+.pd-word { pointer-events: none; position: relative; z-index: 1; }

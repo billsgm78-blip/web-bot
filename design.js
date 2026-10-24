@@ -1,17 +1,17 @@
 /* =====================================================================
    Bilols AI — SAYT DIZAYNI
-   3 ta dizayn: 🌌 Kosmik · ⚡ Neon · ◐ Premium (och, nafis)
+   3 ta dizayn: ⚡ Neon · ◐ Premium (och, pipdot uslubi) · ▲ Axiom (qora + to'q sariq)
    Admin panel → 🎨 Dizayn → bitta tugma: hamma foydalanuvchida avtomat almashadi
    (tanlov /api/design orqali saqlanadi). Bu fayl faqat ko'rinishni o'zgartiradi.
    ===================================================================== */
 (function () {
-    var DEFAULT = 'cosmic';
+    var DEFAULT = 'axiom';
     var LIST = {
-        cosmic:  { name: 'Kosmik',  emoji: '🌌' },
         neon:    { name: 'Neon',    emoji: '⚡' },
-        premium: { name: 'Premium', emoji: '◐' }
+        premium: { name: 'Premium', emoji: '◐' },
+        axiom:   { name: 'Axiom',   emoji: '▲' }
     };
-    var OLD = { current: 'neon', smooth: 'neon', modern: 'neon', classic: 'premium' };   // eski nomlar
+    var OLD = { current: 'neon', smooth: 'neon', modern: 'neon', classic: 'premium', cosmic: 'axiom' };   // eski nomlar
     var CACHE = 'bilols_design_live';
     var root = document.documentElement;
 
@@ -28,7 +28,7 @@
         if (fontAdded) return; fontAdded = true;
         var l = document.createElement('link');
         l.rel = 'stylesheet';
-        l.href = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap';
+        l.href = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&display=swap';
         document.head.appendChild(l);
     }
     function userWantsLight() { try { return localStorage.getItem('bilol_ai_light') === '1'; } catch (e) { return false; } }
@@ -54,7 +54,7 @@
     function apply(d) {
         root.setAttribute('data-design', d);
         window.BILOLS_DESIGN.current = d;
-        if (d === 'premium') addFont();
+        if (d === 'premium' || d === 'axiom') addFont();
         syncLight();
     }
 

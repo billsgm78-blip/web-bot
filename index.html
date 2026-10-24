@@ -48,8 +48,8 @@
         });
     };
     </script>
-<script src="/design.js?v=6"></script>
-<link rel="stylesheet" href="/design.css?v=6">
+<script src="/design.js?v=8"></script>
+<link rel="stylesheet" href="/design.css?v=9">
     <link rel="preload" href="/fonts/twemoji.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/emoji.css">
 <style>
@@ -1966,6 +1966,7 @@ body.fx-no-particles .fx-spark, body.fx-no-particles .fx-coin { display: none !i
 }
 .chat-item .ci-del:hover { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
 .chat-list-empty { color: #64748b; font-size: 13px; text-align: center; padding: 30px 10px; }
+.ci-group { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #64748b; padding: 12px 10px 4px; }
 
 /* ---------- AI javobi: matn, kod, tugmalar ---------- */
 .msg-ai .ai-body { white-space: normal; }
@@ -2157,6 +2158,7 @@ body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
 .gen-bubble { padding: 8px !important; }
 .gen-img { display: block; width: 100%; max-width: 360px; border-radius: 12px; }
 .gen-bubble .msg-actions { margin: 6px 0 -2px; }
+.gen-note { display: block; max-width: 360px; margin: 8px 4px 0; font-size: 12px; line-height: 1.45; opacity: .75; }
 .gen-wait { display: flex; flex-direction: column; gap: 8px; width: 240px; }
 .gen-wait small { color: #94a3b8; font-size: 12px; }
 .gen-skeleton {
@@ -2652,6 +2654,123 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 <div class="container">
     <!-- LANDING SCREEN -->
     <div id="landing-screen">
+<!-- ===== Yangi uzun kirish sahifasi (Premium = pipdot uslubi, Axiom = qora + to'q sariq) ===== -->
+<div class="pd-page pd-only">
+  <header class="pd-nav">
+    <a class="pd-brand" href="#" onclick="return false"><span class="pd-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg></span>Bilols AI</a>
+    <nav class="pd-links">
+      <a href="#pd-features"><span class="pm-t" data-l="uz">Imkoniyatlar</span><span class="pm-t" data-l="ru">Возможности</span><span class="pm-t" data-l="en">Features</span></a>
+      <a href="#pd-app"><span class="pm-t" data-l="uz">Ilova</span><span class="pm-t" data-l="ru">Приложение</span><span class="pm-t" data-l="en">App</span></a>
+      <a href="#pd-price"><span class="pm-t" data-l="uz">Narxlar</span><span class="pm-t" data-l="ru">Цены</span><span class="pm-t" data-l="en">Pricing</span></a>
+      <a href="#pd-faq"><span class="pm-t" data-l="uz">Savollar</span><span class="pm-t" data-l="ru">Вопросы</span><span class="pm-t" data-l="en">FAQ</span></a>
+    </nav>
+    <div class="pd-lang"><button type="button" data-lg="uz" onclick="setAppLanguage('uz')">UZ</button><button type="button" data-lg="ru" onclick="setAppLanguage('ru')">RU</button><button type="button" data-lg="en" onclick="setAppLanguage('en')">EN</button></div>
+    <button type="button" class="pd-pill" onclick="openAuthModal()"><span class="pm-t" data-l="uz">Kirish</span><span class="pm-t" data-l="ru">Войти</span><span class="pm-t" data-l="en">Log in</span></button>
+  </header>
+  <section class="pd-hero">
+    <i class="pd-dot" aria-hidden="true"></i>
+    <h1 class="pd-h1"><span class="pm-t" data-l="uz">Savol bering.<br>Javob<br>oling<em>.</em></span><span class="pm-t" data-l="ru">Спросите.<br>Получите<br>ответ<em>.</em></span><span class="pm-t" data-l="en">Ask it.<br>Get the<br>answer<em>.</em></span></h1>
+    <div class="pd-hero-row">
+      <p class="pd-lead"><span class="pm-t" data-l="uz">Bilols AI — o'zbek tilini tushunadigan shaxsiy sun'iy intellekt. Yozing, rasm yuboring yoki hujjat biriktiring — soniyalar ichida aniq javob.</span><span class="pm-t" data-l="ru">Bilols AI — личный искусственный интеллект, который понимает узбекский. Пишите, отправляйте фото или документы — точный ответ за секунды.</span><span class="pm-t" data-l="en">Bilols AI is a personal AI that understands Uzbek. Type, send a photo or attach a document — a precise answer in seconds.</span></p>
+      <div class="pd-cta">
+        <button type="button" class="pd-btn" onclick="openAuthModal()"><span class="pm-t" data-l="uz">Bepul boshlash</span><span class="pm-t" data-l="ru">Начать бесплатно</span><span class="pm-t" data-l="en">Start for free</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+        <a class="pd-btn ghost" href="https://t.me/BilolsAIbot" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg><span class="pm-t" data-l="uz">Telegram bot</span><span class="pm-t" data-l="ru">Telegram-бот</span><span class="pm-t" data-l="en">Telegram bot</span></a>
+      </div>
+    </div>
+    <figure class="pd-demo" aria-hidden="true">
+      <div class="pd-demo-top"><span></span><span></span><span></span><b>Bilols AI</b><small>⚡ Gemini Flash</small></div>
+      <div class="pd-q"><span class="pm-t" data-l="uz">Insho uchun reja tuzib ber: <em>«Kitobning ahamiyati»</em></span><span class="pm-t" data-l="ru">Составь план эссе: <em>«Роль книги»</em></span><span class="pm-t" data-l="en">Outline an essay: <em>“Why books matter”</em></span></div>
+      <div class="pd-a"><b><span class="pm-t" data-l="uz">Reja</span><span class="pm-t" data-l="ru">План</span><span class="pm-t" data-l="en">Outline</span></b>
+        <span>1. <span class="pm-t" data-l="uz">Kirish — kitob va inson</span><span class="pm-t" data-l="ru">Введение — книга и человек</span><span class="pm-t" data-l="en">Intro — books and people</span></span>
+        <span>2. <span class="pm-t" data-l="uz">Bilim va tafakkur manbai</span><span class="pm-t" data-l="ru">Источник знаний и мысли</span><span class="pm-t" data-l="en">A source of knowledge</span></span>
+        <span>3. <span class="pm-t" data-l="uz">Xulosa — o'qish madaniyati</span><span class="pm-t" data-l="ru">Вывод — культура чтения</span><span class="pm-t" data-l="en">Conclusion — reading culture</span></span></div>
+      <div class="pd-demo-in"><span><span class="pm-t" data-l="uz">Savolingizni yozing…</span><span class="pm-t" data-l="ru">Напишите вопрос…</span><span class="pm-t" data-l="en">Ask anything…</span></span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></i></div>
+    </figure>
+  </section>
+  <section class="pd-statement"><p><span class="pm-t" data-l="uz">Bilols AI uy vazifasi, ish, o'qish va kundalik savollar uchun yaratilgan. Matn yozadi, rasmni o'qiydi, hujjatni tahlil qiladi, rasm chizadi va uch tilda gaplashadi — bitta hisob bilan saytda, Android ilovada va Telegram botda.</span><span class="pm-t" data-l="ru">Bilols AI создан для учёбы, работы и повседневных вопросов. Пишет тексты, читает фото, анализирует документы, рисует и говорит на трёх языках — один аккаунт на сайте, в Android-приложении и Telegram-боте.</span><span class="pm-t" data-l="en">Bilols AI is built for homework, work, study and everyday questions. It writes, reads photos, analyses documents, draws images and speaks three languages — one account across the web, the Android app and the Telegram bot.</span></p></section>
+  <section class="pd-sec" id="pd-features">
+    <div class="pd-kicker">01 — <span class="pm-t" data-l="uz">Imkoniyatlar</span><span class="pm-t" data-l="ru">Возможности</span><span class="pm-t" data-l="en">Features</span></div>
+    <h2 class="pd-h2"><span class="pm-t" data-l="uz">Chat, rasm, hujjat —<br>bitta oynada.</span><span class="pm-t" data-l="ru">Чат, фото, документы —<br>в одном окне.</span><span class="pm-t" data-l="en">Chat, photos, documents —<br>one window.</span></h2>
+    <p class="pd-p"><span class="pm-t" data-l="uz">Oddiy tilda yozing. Kerakli rejimni Bilols AI o'zi tushunadi.</span><span class="pm-t" data-l="ru">Пишите обычным языком. Нужный режим Bilols AI поймёт сам.</span><span class="pm-t" data-l="en">Write in plain language. Bilols AI picks up the right mode.</span></p>
+    <ul class="pd-rows">
+      <li><span><span class="pm-t" data-l="uz">Masalani <em>bosqichma-bosqich</em> yechib ber</span><span class="pm-t" data-l="ru">Реши задачу <em>по шагам</em></span><span class="pm-t" data-l="en">Solve this problem <em>step by step</em></span></span><small><span class="pm-t" data-l="uz">O'qituvchi</span><span class="pm-t" data-l="ru">Учитель</span><span class="pm-t" data-l="en">Teacher</span></small></li>
+      <li><span><span class="pm-t" data-l="uz">Rasmdagi matnni <em>ingliz tiliga</em> tarjima qil</span><span class="pm-t" data-l="ru">Переведи текст с фото <em>на английский</em></span><span class="pm-t" data-l="en">Translate the text in this photo <em>into English</em></span></span><small><span class="pm-t" data-l="uz">Kamera</span><span class="pm-t" data-l="ru">Камера</span><span class="pm-t" data-l="en">Camera</span></small></li>
+      <li><span><span class="pm-t" data-l="uz">Shu PDF'dan <em>asosiy fikrlarni</em> ayt</span><span class="pm-t" data-l="ru">Выдели <em>главное</em> из этого PDF</span><span class="pm-t" data-l="en">Give me <em>the key points</em> of this PDF</span></span><small><span class="pm-t" data-l="uz">Hujjat</span><span class="pm-t" data-l="ru">Документ</span><span class="pm-t" data-l="en">Document</span></small></li>
+      <li><span><span class="pm-t" data-l="uz">«Vatan» mavzusida <em>insho</em> yoz</span><span class="pm-t" data-l="ru">Напиши <em>сочинение</em> о Родине</span><span class="pm-t" data-l="en">Write an <em>essay</em> about my homeland</span></span><small><span class="pm-t" data-l="uz">Insho</span><span class="pm-t" data-l="ru">Сочинение</span><span class="pm-t" data-l="en">Essay</span></small></li>
+      <li><span><span class="pm-t" data-l="uz">Kodimdagi <em>xatoni</em> topib ber</span><span class="pm-t" data-l="ru">Найди <em>ошибку</em> в моём коде</span><span class="pm-t" data-l="en">Find the <em>bug</em> in my code</span></span><small><span class="pm-t" data-l="uz">Dasturchi</span><span class="pm-t" data-l="ru">Программист</span><span class="pm-t" data-l="en">Coder</span></small></li>
+      <li><span><span class="pm-t" data-l="uz">Tog'lardagi shom, <em>akvarel</em> uslubida rasm chiz</span><span class="pm-t" data-l="ru">Нарисуй закат в горах <em>акварелью</em></span><span class="pm-t" data-l="en">Draw a mountain sunset <em>in watercolor</em></span></span><small><span class="pm-t" data-l="uz">Rasm</span><span class="pm-t" data-l="ru">Рисунок</span><span class="pm-t" data-l="en">Image</span></small></li>
+    </ul>
+  </section>
+  <section class="pd-sec">
+    <div class="pd-kicker">02 — <span class="pm-t" data-l="uz">Raqamlarda</span><span class="pm-t" data-l="ru">В цифрах</span><span class="pm-t" data-l="en">In numbers</span></div>
+    <div class="pd-stats">
+      <div class="pd-stat"><b>24/7</b><span><span class="pm-t" data-l="uz">Har doim javob beradi — kechasi ham</span><span class="pm-t" data-l="ru">Отвечает всегда — даже ночью</span><span class="pm-t" data-l="en">Always answers — even at night</span></span></div>
+      <div class="pd-stat"><b>5</b><span><span class="pm-t" data-l="uz">Rejim: o'qituvchi, dasturchi, tarjimon, insho, imtihon</span><span class="pm-t" data-l="ru">Режимов: учитель, программист, переводчик, сочинения, экзамен</span><span class="pm-t" data-l="en">Modes: teacher, coder, translator, essays, exams</span></span></div>
+      <div class="pd-stat"><b>3</b><span><span class="pm-t" data-l="uz">Til: o'zbek, rus, ingliz</span><span class="pm-t" data-l="ru">Языка: узбекский, русский, английский</span><span class="pm-t" data-l="en">Languages: Uzbek, Russian, English</span></span></div>
+      <div class="pd-stat"><b>1</b><span><span class="pm-t" data-l="uz">Hisob — sayt, ilova va Telegram botda</span><span class="pm-t" data-l="ru">Аккаунт — на сайте, в приложении и боте</span><span class="pm-t" data-l="en">Account — web, app and Telegram bot</span></span></div>
+    </div>
+  </section>
+  <section class="pd-sec pd-app" id="pd-app">
+    <div>
+      <div class="pd-kicker">03 — <span class="pm-t" data-l="uz">Ilova</span><span class="pm-t" data-l="ru">Приложение</span><span class="pm-t" data-l="en">App</span></div>
+      <h2 class="pd-h2"><span class="pm-t" data-l="uz">Cho'ntagingizda<em>.</em></span><span class="pm-t" data-l="ru">В вашем<br>кармане<em>.</em></span><span class="pm-t" data-l="en">In your<br>pocket<em>.</em></span></h2>
+      <ul class="pd-ticks">
+        <li><span class="pm-t" data-l="uz">Android ilova — tez, yengil, bildirishnomalar bilan</span><span class="pm-t" data-l="ru">Android-приложение — быстрое, лёгкое, с уведомлениями</span><span class="pm-t" data-l="en">Android app — fast, light, with notifications</span></li>
+        <li><span class="pm-t" data-l="uz">Kamera bilan rasm yuboring — masala, matn, chek</span><span class="pm-t" data-l="ru">Отправляйте фото с камеры — задачи, тексты, чеки</span><span class="pm-t" data-l="en">Send photos from the camera — problems, texts, receipts</span></li>
+        <li><span class="pm-t" data-l="uz">Kompyuterda QR kod bilan bir zumda kiring</span><span class="pm-t" data-l="ru">На компьютере — вход по QR-коду за секунду</span><span class="pm-t" data-l="en">Log in on a computer in a second with a QR code</span></li>
+        <li><span class="pm-t" data-l="uz">Hamyon: Telegram Stars va Premium xaridi</span><span class="pm-t" data-l="ru">Кошелёк: покупка Telegram Stars и Premium</span><span class="pm-t" data-l="en">Wallet: buy Telegram Stars and Premium</span></li>
+      </ul>
+      <div class="pd-cta"><a class="pd-btn" href="/apk"><span class="pm-t" data-l="uz">APK yuklab olish</span><span class="pm-t" data-l="ru">Скачать APK</span><span class="pm-t" data-l="en">Download APK</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></div>
+    </div>
+    <div class="pd-phone" aria-hidden="true"><div class="pd-phone-in">
+      <div class="pd-ph-top"><b>Bilols AI</b><span>● 15 000</span></div>
+      <div class="pd-q sm"><span class="pm-t" data-l="uz">Bu misolni yech: 2x + 6 = 14</span><span class="pm-t" data-l="ru">Реши: 2x + 6 = 14</span><span class="pm-t" data-l="en">Solve: 2x + 6 = 14</span></div>
+      <div class="pd-a sm"><span>2x = 14 − 6 = 8</span><span><b>x = 4</b> ✓</span></div>
+      <div class="pd-ph-kb"></div>
+    </div></div>
+  </section>
+  <section class="pd-sec" id="pd-price">
+    <div class="pd-kicker">04 — <span class="pm-t" data-l="uz">Narxlar</span><span class="pm-t" data-l="ru">Цены</span><span class="pm-t" data-l="en">Pricing</span></div>
+    <h2 class="pd-h2"><span class="pm-t" data-l="uz">Bepul boshlang.<br>Ko'proq kerak bo'lsa — obuna.</span><span class="pm-t" data-l="ru">Начните бесплатно.<br>Нужно больше — подписка.</span><span class="pm-t" data-l="en">Start free.<br>Need more — subscribe.</span></h2>
+    <div class="pd-plans">
+      <div class="pd-plan">
+        <small><span class="pm-t" data-l="uz">Bepul</span><span class="pm-t" data-l="ru">Бесплатно</span><span class="pm-t" data-l="en">Free</span></small><b>0 <i><span class="pm-t" data-l="uz">so'm</span><span class="pm-t" data-l="ru">сум</span><span class="pm-t" data-l="en">UZS</span></i></b>
+        <ul><li><span class="pm-t" data-l="uz">Bepul agent — har kuni</span><span class="pm-t" data-l="ru">Бесплатный агент — каждый день</span><span class="pm-t" data-l="en">Free agent — every day</span></li><li><span class="pm-t" data-l="uz">Rasm va hujjat tahlili</span><span class="pm-t" data-l="ru">Анализ фото и документов</span><span class="pm-t" data-l="en">Photo and document analysis</span></li><li><span class="pm-t" data-l="uz">Sayt, ilova, Telegram bot</span><span class="pm-t" data-l="ru">Сайт, приложение, бот</span><span class="pm-t" data-l="en">Web, app, Telegram bot</span></li></ul>
+        <button type="button" class="pd-btn ghost" onclick="openAuthModal()"><span class="pm-t" data-l="uz">Boshlash</span><span class="pm-t" data-l="ru">Начать</span><span class="pm-t" data-l="en">Start</span></button>
+      </div>
+      <div class="pd-plan dark">
+        <small><span class="pm-t" data-l="uz">Obuna</span><span class="pm-t" data-l="ru">Подписка</span><span class="pm-t" data-l="en">Subscription</span></small><b><span class="pm-t" data-l="uz">Barcha agentlar</span><span class="pm-t" data-l="ru">Все агенты</span><span class="pm-t" data-l="en">All agents</span></b>
+        <ul><li>GPT-4o, Gemini, DeepSeek</li><li><span class="pm-t" data-l="uz">Cheksiz xabar</span><span class="pm-t" data-l="ru">Без лимита сообщений</span><span class="pm-t" data-l="en">Unlimited messages</span></li><li><span class="pm-t" data-l="uz">Narxi — ilovadagi Do'kon bo'limida</span><span class="pm-t" data-l="ru">Цена — в разделе Магазин</span><span class="pm-t" data-l="en">Price — in the in-app Shop</span></li></ul>
+        <button type="button" class="pd-btn" onclick="openAuthModal()"><span class="pm-t" data-l="uz">Obuna olish</span><span class="pm-t" data-l="ru">Оформить</span><span class="pm-t" data-l="en">Subscribe</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+      </div>
+    </div>
+  </section>
+  <section class="pd-sec" id="pd-faq">
+    <div class="pd-kicker">05 — <span class="pm-t" data-l="uz">Savollar</span><span class="pm-t" data-l="ru">Вопросы</span><span class="pm-t" data-l="en">FAQ</span></div>
+    <h2 class="pd-h2"><span class="pm-t" data-l="uz">Qisqa javoblar.</span><span class="pm-t" data-l="ru">Короткие ответы.</span><span class="pm-t" data-l="en">Short answers.</span></h2>
+    <div class="pd-faq">
+      <details><summary><span class="pm-t" data-l="uz">Bilols AI bepulmi?</span><span class="pm-t" data-l="ru">Bilols AI бесплатный?</span><span class="pm-t" data-l="en">Is Bilols AI free?</span></summary><p><span class="pm-t" data-l="uz">Ha. Bepul agent bilan har kuni bepul xabar yozasiz. Kuchli agentlar (GPT-4o, Gemini, DeepSeek) va cheksiz xabar — obuna bilan.</span><span class="pm-t" data-l="ru">Да. С бесплатным агентом можно писать каждый день. Мощные агенты (GPT-4o, Gemini, DeepSeek) и безлимит — по подписке.</span><span class="pm-t" data-l="en">Yes. The free agent lets you chat every day. Pro agents (GPT-4o, Gemini, DeepSeek) and unlimited messages come with a subscription.</span></p></details>
+      <details><summary><span class="pm-t" data-l="uz">Qanday ro'yxatdan o'taman?</span><span class="pm-t" data-l="ru">Как зарегистрироваться?</span><span class="pm-t" data-l="en">How do I sign up?</span></summary><p><span class="pm-t" data-l="uz">Telefon raqamingiz va parol bilan. Tasdiqlash kodi Telegram botimizga keladi.</span><span class="pm-t" data-l="ru">По номеру телефона и паролю. Код подтверждения придёт в наш Telegram-бот.</span><span class="pm-t" data-l="en">With your phone number and a password. The confirmation code arrives in our Telegram bot.</span></p></details>
+      <details><summary><span class="pm-t" data-l="uz">Kompyuterda qanday kiraman?</span><span class="pm-t" data-l="ru">Как войти на компьютере?</span><span class="pm-t" data-l="en">How do I log in on a computer?</span></summary><p><span class="pm-t" data-l="uz">Kirish oynasida «QR kod orqali kirish»ni bosing va telefoningizda Sozlamalar → QR orqali kirish bilan skanerlang.</span><span class="pm-t" data-l="ru">В окне входа нажмите «Войти по QR-коду» и отсканируйте его на телефоне: Настройки → Вход по QR.</span><span class="pm-t" data-l="en">In the login window tap “Log in with a QR code” and scan it on your phone: Settings → Log in with QR.</span></p></details>
+      <details><summary><span class="pm-t" data-l="uz">Hisobni qanday to'ldiraman?</span><span class="pm-t" data-l="ru">Как пополнить баланс?</span><span class="pm-t" data-l="en">How do I top up?</span></summary><p><span class="pm-t" data-l="uz">Hamyon → To'ldirish. Summani tanlaysiz, karta raqami Telegram botga keladi, chekni yuborasiz — pul balansga tushadi.</span><span class="pm-t" data-l="ru">Кошелёк → Пополнить. Выберите сумму, номер карты придёт в бот, отправьте чек — деньги зачислятся.</span><span class="pm-t" data-l="en">Wallet → Top up. Pick an amount, the card number arrives in the bot, send the receipt — the money is credited.</span></p></details>
+      <details><summary><span class="pm-t" data-l="uz">Ma'lumotlarim xavfsizmi?</span><span class="pm-t" data-l="ru">Мои данные в безопасности?</span><span class="pm-t" data-l="en">Is my data safe?</span></summary><p><span class="pm-t" data-l="uz">Parolingiz serverda faqat shifrlangan holda saqlanadi. Batafsil — Maxfiylik siyosatida.</span><span class="pm-t" data-l="ru">Пароль хранится на сервере только в зашифрованном виде. Подробнее — в Политике конфиденциальности.</span><span class="pm-t" data-l="en">Your password is stored only in encrypted form. Details are in the Privacy policy.</span></p></details>
+      <details><summary><span class="pm-t" data-l="uz">Android ilovasi bormi?</span><span class="pm-t" data-l="ru">Есть приложение для Android?</span><span class="pm-t" data-l="en">Is there an Android app?</span></summary><p><span class="pm-t" data-l="uz">Ha — bilolsai.uz/apk sahifasidan yuklab oling. Bildirishnomalar, kamera va tezkor ishlash bilan.</span><span class="pm-t" data-l="ru">Да — скачайте на bilolsai.uz/apk. С уведомлениями, камерой и быстрой работой.</span><span class="pm-t" data-l="en">Yes — download it at bilolsai.uz/apk. With notifications, camera and fast performance.</span></p></details>
+    </div>
+  </section>
+  <section class="pd-final">
+    <h2 class="pd-h2"><span class="pm-t" data-l="uz">Birinchi savolingiz<br>bilan boshlang.</span><span class="pm-t" data-l="ru">Начните с первого<br>вопроса.</span><span class="pm-t" data-l="en">Start with your<br>first question.</span></h2>
+    <button type="button" class="pd-btn" onclick="openAuthModal()"><span class="pm-t" data-l="uz">Bepul boshlash</span><span class="pm-t" data-l="ru">Начать бесплатно</span><span class="pm-t" data-l="en">Start for free</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+  </section>
+  <footer class="pd-foot">
+    <div class="pd-foot-row">
+      <span>© Bilols AI</span>
+      <a href="/maxfiylik" target="_blank" rel="noopener"><span class="pm-t" data-l="uz">Maxfiylik siyosati</span><span class="pm-t" data-l="ru">Конфиденциальность</span><span class="pm-t" data-l="en">Privacy</span></a>
+      <a href="https://t.me/BilolsAIbot" target="_blank" rel="noopener">Telegram</a>
+      <a href="/apk">Android</a>
+    </div>
+    <div class="pd-word">bilolsai<em>.</em>uz</div>
+  </footer>
+</div>
         <!-- ◐ Premium dizayn qismlari (boshqa dizaynlarda yashirin) -->
         <header class="pm-nav pm-only">
             <span class="pm-brand"><span class="pm-mark"><svg class="pm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg></span>Bilols AI</span>
@@ -2822,6 +2941,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             <div data-st style="--i:5">
                 <button id="auth-action-btn" class="primary-btn">Tizimga kirish</button>
                 <button type="button" class="auth-forgot" id="auth-forgot">Parolni unutdingizmi?</button>
+                <button type="button" class="qr-login-link" id="qr-login-btn"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg><span id="qr-login-btn-t">QR kod orqali kirish</span></button>
             </div>
             <div id="status-box" style="margin-top: 12px; font-size: 13px;"></div>
             <a class="privacy-link" href="/maxfiylik" target="_blank" rel="noopener">🔒 <span class="lang-privacy">Maxfiylik siyosati</span></a>
@@ -2923,6 +3043,13 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             <button type="button" class="doc-remove" id="mode-chip-off">&times;</button>
         </div>
 
+        <!-- 🌐 INTERNETDAN QIDIRISH -->
+        <div id="web-chip" style="display: none;">
+            <span class="doc-ico">🌐</span>
+            <div class="doc-meta"><b id="web-chip-title">Internetdan qidirish yoqilgan</b><small id="web-chip-sub"></small></div>
+            <button type="button" class="doc-remove" id="web-chip-off">&times;</button>
+        </div>
+
         <!-- 🎨 RASM YARATISH REJIMI -->
         <div id="gen-mode" style="display: none;">
             <span class="doc-ico">🎨</span>
@@ -2937,6 +3064,9 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 <button type="button" id="attach-image"><span>🖼️</span><b id="lang-attach-img">Rasm</b></button>
                 <button type="button" id="attach-doc"><span>📄</span><b id="lang-attach-doc">Hujjat (PDF, Word, TXT)</b></button>
                 <button type="button" id="attach-gen"><span>🎨</span><b id="lang-attach-gen">Rasm yaratish</b></button>
+                <button type="button" id="attach-edit"><span>🖌️</span><b id="lang-attach-edit">Rasmni tahrirlash</b></button>
+                <button type="button" id="attach-web"><span>🌐</span><b id="lang-attach-web">Internetdan qidirish</b></button>
+                <button type="button" id="attach-quiz"><span>📝</span><b id="lang-attach-quiz">Test yechish</b></button>
                 <button type="button" id="attach-mode"><span>🎭</span><b id="lang-attach-mode">AI rejimi</b></button>
             </div>
             <div class="attach-menu" id="mode-menu"></div>
@@ -3121,6 +3251,22 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 <div class="settings-info">
                     <h4 id="lang-reset-title">🔐 Parolni tiklash</h4>
                     <p id="lang-reset-sub">Telegram bot orqali yangi parol o'rnatish</p>
+                </div>
+                <span class="set-arrow">›</span>
+            </div>
+
+            <div class="settings-card clickable" id="qr-scan-entry">
+                <div class="settings-info">
+                    <h4 id="qr-scan-entry-t">📷 QR orqali kirish</h4>
+                    <p id="qr-scan-entry-s">Kompyuterdagi QR kodni skanerlab, u yerda hisobingizga kiring</p>
+                </div>
+                <span class="set-arrow">›</span>
+            </div>
+
+            <div class="settings-card clickable" id="sess-entry" style="display:none">
+                <div class="settings-info">
+                    <h4 id="sess-entry-t">📱 Faol qurilmalar</h4>
+                    <p id="sess-entry-s">Hisobingiz ochiq qurilmalar · boshqalaridan chiqish</p>
                 </div>
                 <span class="set-arrow">›</span>
             </div>
@@ -3716,7 +3862,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
             pStatus.style.color = "#10b981";
             pStatus.innerText = tr("Parol muvaffaqiyatli yangilandi! 🎉", "Password successfully updated! 🎉", "Пароль успешно обновлён! 🎉");
-            localStorage.setItem("bilol_ai_password", newPass);
+            localStorage.setItem("bilol_ai_password", data.token || newPass);
             setTimeout(() => {
                 closePasswordModal();
                 showNotification(tr("Parol muvaffaqiyatli o'zgartirildi!", "Password successfully changed!", "Пароль успешно изменён!"));
@@ -4157,6 +4303,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
     logoutBtn.onclick = async () => {
         if (await bConfirm(tr("Hisobingizdan chiqishni tasdiqlaysizmi?", "Are you sure you want to log out?", "Вы уверены, что хотите выйти из аккаунта?"), { danger: true, icon: '👋', ok: tr("Chiqish", "Log out", "Выйти") })) {
+            await window.__serverLogout();
             localStorage.clear();
             location.reload();
         }
@@ -4169,6 +4316,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 localStorage.removeItem("bilol_ai_history");
                 localStorage.removeItem(CHATS_KEY);
                 localStorage.removeItem(CUR_CHAT_KEY);
+                window.BilolChats.clearAll();
                 newChat();
                 settingsModal.style.display = "none";
                 showNotification(tr("Chat tarixi tozalandi!", "Chat history cleared!", "История чата очищена!"));
@@ -4285,7 +4433,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             currentName = data.name || name || "";
             localStorage.setItem("bilol_ai_phone", phone);
             localStorage.setItem("bilol_ai_name", currentName);
-            localStorage.setItem("bilol_ai_password", password);
+            localStorage.setItem("bilol_ai_password", data.token || password);
 
             await refreshBalance();
             landingScreen.classList.add("hidden");
@@ -4426,13 +4574,19 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         t = t.replace(/^\s*\n+/, "").replace(/\n+\s*$/, "");
         const codes = [];
         t = t.replace(/`([^`\n]+)`/g, (m, c) => { codes.push(c); return "\u0000" + (codes.length - 1) + "\u0000"; });
+        // [matn](https://...) havolalar (internet qidiruvi manbalari)
+        const links = [];
+        t = t.replace(/\[([^\]\n]{1,200})\]\((https?:\/\/[^\s)]{1,500})\)/g, (m, label, url) => { links.push([label, url]); return "\u0001" + (links.length - 1) + "\u0001"; });
         t = t.split("\n").map(line => {
+            if (/^\s*-{3,}\s*$/.test(line)) return "\u0002";
             const h = line.match(/^\s{0,3}#{1,6}\s+(.*)$/);
             if (h) return "**" + h[1] + "**";
             return line.replace(/^(\s*)[-*]\s+/, "$1• ");
         }).join("\n");
         let html = formatMath(t);
         html = html.replace(/\u0000(\d+)\u0000/g, (m, i) => `<code class="md-inline">${escHtml(codes[+i])}</code>`);
+        html = html.replace(/\u0001(\d+)\u0001/g, (m, i) => `<a class="md-link" href="${escHtml(links[+i][1])}" target="_blank" rel="noopener nofollow">${escHtml(links[+i][0])}</a>`);
+        html = html.replace(/\u0002/g, '<hr class="md-hr">');
         return `<div class="md-prose">${html}</div>`;
     }
 
@@ -4530,7 +4684,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         if (isGen) {
             const tag = document.createElement("div");
             tag.className = "msg-file-chip";
-            tag.textContent = "🎨 " + tr("Rasm yaratish", "Create image", "Создать изображение");
+            tag.textContent = imgSrc ? "🖌️ " + tr("Rasmni tahrirlash", "Edit image", "Редактирование фото") : "🎨 " + tr("Rasm yaratish", "Create image", "Создать изображение");
             div.appendChild(tag);
         }
         if (imgSrc) {
@@ -4626,7 +4780,80 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         list.unshift(rec);
         storeChats(list);
         if (window.BilolUI) window.BilolUI.chatsChanged();
+        syncPush(rec);
     }
+
+    // ---------- Suhbatlarni qurilmalar orasida sinxronlash (server) ----------
+    function syncCreds() {
+        const phone = (localStorage.getItem("bilol_ai_phone") || "").replace(/[^0-9]/g, "");
+        const password = localStorage.getItem("bilol_ai_password") || "";
+        return phone && password ? { phone, password } : null;
+    }
+    async function syncCall(op, extra) {
+        const c = syncCreds();
+        if (!c) return null;
+        try {
+            const r = await fetch(`${RAILWAY_URL}/api/chats/${op}`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(Object.assign(c, extra || {})), keepalive: op !== "get" && op !== "list"
+            });
+            const j = await r.json();
+            return j && j.success ? j : null;
+        } catch (e) { return null; }
+    }
+    function serverCopy(rec) {
+        // katta rasm eskizlari serverga yuborilmaydi (joy tejash)
+        return Object.assign({}, rec, { messages: (rec.messages || []).map(m => m.role === "gen" && m.thumb && m.thumb.length > 40000 ? { role: "gen", prompt: m.prompt } : m) });
+    }
+    const pushTimers = {};
+    function syncPush(rec) {
+        if (!rec || !syncCreds()) return;
+        clearTimeout(pushTimers[rec.id]);
+        pushTimers[rec.id] = setTimeout(() => { delete pushTimers[rec.id]; syncCall("save", { chat: serverCopy(rec) }); }, 1500);
+    }
+    let pulling = false, lastPull = 0;
+    async function syncPull() {
+        if (pulling || !syncCreds() || Date.now() - lastPull < 5000) return;
+        pulling = true; lastPull = Date.now();
+        try {
+            const res = await syncCall("list");
+            if (!res) return;
+            let local = loadChats();
+            const byId = {};
+            local.forEach(c => { byId[c.id] = c; });
+            const need = [], seen = {};
+            let changed = false, curTouched = false;
+            res.chats.forEach(sc => {
+                seen[sc.id] = 1;
+                const lc = byId[sc.id];
+                if (sc.deleted) {
+                    if (lc && (lc.updated || 0) <= sc.updated) {
+                        local = local.filter(c => c.id !== sc.id); changed = true;
+                        if (sc.id === currentChatId) curTouched = true;
+                    }
+                } else if (!lc || (lc.updated || 0) < sc.updated) need.push(sc.id);
+                else if ((lc.updated || 0) > sc.updated) syncPush(lc);
+            });
+            local.forEach(c => { if (!seen[c.id]) syncPush(c); });   // faqat shu qurilmadagi suhbatlar serverga
+            for (let i = 0; i < need.length; i += 30) {
+                const got = await syncCall("get", { ids: need.slice(i, i + 30) });
+                ((got && got.chats) || []).forEach(sc => {
+                    local = local.filter(c => c.id !== sc.id);
+                    local.push({ id: sc.id, title: sc.title, updated: sc.updated, messages: sc.messages || [] });
+                    changed = true;
+                    if (sc.id === currentChatId) curTouched = true;
+                });
+            }
+            if (!changed) return;
+            local.sort((a, b) => (b.updated || 0) - (a.updated || 0));
+            storeChats(local);
+            if (curTouched && !isBusy) {
+                if (local.some(c => c.id === currentChatId)) openChat(currentChatId); else newChat();
+            } else if (window.BilolUI) window.BilolUI.chatsChanged();
+        } finally { pulling = false; }
+    }
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") syncPull(); });
+    setInterval(() => { if (document.visibilityState === "visible") syncPull(); }, 90000);
 
     function resetMessagesUI() {
         const t = translations[currentLang];
@@ -4656,6 +4883,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 }
                 const hadImg = d.image || (item.parts || []).some(p => p.text === "[Rasm biriktirildi]");
                 appendMsg(text, "user", null, d.file || null, hadImg);
+            } else if (d.quiz && window.BilolQuiz) {
+                window.BilolQuiz.render(d.quiz);
             } else {
                 const tp = (item.parts || []).find(p => p.text);
                 appendAIMsg(tp ? tp.text : "");
@@ -4689,6 +4918,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
     function deleteChat(id) {
         storeChats(loadChats().filter(c => c.id !== id));
+        clearTimeout(pushTimers[id]);
+        syncCall("delete", { id: id, when: Date.now() });
         if (id === currentChatId) newChat();
         else if (window.BilolUI) window.BilolUI.chatsChanged();
     }
@@ -4710,11 +4941,13 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         const list = loadChats();
         if (currentChatId && list.some(c => c.id === currentChatId)) openChat(currentChatId);
         else { chatHistory = []; currentChatId = null; resetMessagesUI(); }
+        syncPull();
     }
 
     window.BilolChats = {
         list: loadChats, open: openChat, newChat: newChat, remove: deleteChat,
-        current: () => currentChatId, isBusy: () => isBusy
+        current: () => currentChatId, isBusy: () => isBusy, sync: syncPull,
+        clearAll: () => { Object.keys(pushTimers).forEach(k => clearTimeout(pushTimers[k])); return syncCall("clear", { when: Date.now() }); }
     };
 
     function showTyping() {
@@ -4765,6 +4998,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                     history: buildRequestHistory(), lang: currentLang, stream: true,
                     mode: (window.BilolMode && window.BilolMode.get()) || "",
                     model: (window.BilolModel && window.BilolModel.get()) || "",
+                    web: !!(window.BilolWeb && window.BilolWeb.get()),
                     phone: String(currentPhone || "").replace(/[^0-9]/g, ""),
                     password: localStorage.getItem("bilol_ai_password") || ""
                 }),
@@ -4781,6 +5015,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 if (headerBalance) headerBalance.innerText = nb;
                 if (modalBalance) modalBalance.innerText = nb;
             }
+            const webLeft = res.headers.get("X-Web-Left");
+            if (webLeft !== null && window.BilolWeb) window.BilolWeb.left(Number(webLeft));
             const quotaLeft = res.headers.get("X-Quota-Left");
             if (quotaLeft !== null && window.BilolUI) window.BilolUI.quotaLeft(Number(quotaLeft));
 
@@ -4824,7 +5060,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 hideTyping();
                 if (data.insufficient) showNotification(data.error || tr("Balansda pul yetarli emas", "Not enough balance", "Недостаточно средств"), "error");
                 if (data.needSub) showNotification(data.error || tr("Bu agent faqat obunachilar uchun", "This agent is for subscribers only", "Этот агент только для подписчиков"), "warning");
-                if (data.limitReached || data.needLogin || data.maintenance || data.insufficient || data.needSub) {
+                if (data.webLimit && window.BilolWeb) { window.BilolWeb.left(0); showNotification(data.error, "warning"); }
+                if (data.limitReached || data.needLogin || data.maintenance || data.insufficient || data.needSub || data.webLimit) {
                     // Limit tugadi yoki qayta kirish kerak: savolni tarixdan olib tashlaymiz, keyin qayta yuborish mumkin
                     if (chatHistory.length && chatHistory[chatHistory.length - 1].role === "user") {
                         const last = chatHistory.pop();
@@ -4834,7 +5071,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                     }
                     bubble = createAIBubble();
                     finalizeAI(bubble, reply, false);
-                    if (data.limitReached && window.BilolUI) window.BilolUI.limitCTA(bubble);
+                    if ((data.limitReached || data.webLimit) && window.BilolUI) window.BilolUI.limitCTA(bubble);
                     if (data.needSub && window.BilolUI && window.BilolUI.subCTA) window.BilolUI.subCTA(bubble);
                     if (data.limitReached) showNotification(data.error || tr("Bugungi bepul xabarlar tugadi", "Today's free messages are used up", "Бесплатные сообщения на сегодня закончились"), "warning");
                     return;
@@ -4877,13 +5114,17 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         if (window.BilolUI && window.BilolUI.isImageMode()) {
             const prompt = chatInput.value.trim();
             if (!prompt) { chatInput.focus(); return; }
+            // Rasm biriktirilgan bo'lsa — shu rasm tahrirlanadi
+            const src = selectedImageBase64 ? `data:${selectedImageMime || "image/jpeg"};base64,${selectedImageBase64}` : null;
             chatInput.value = "";
+            selectedImageBase64 = null;
+            previewContainer.style.display = "none";
             isBusy = true;
             document.body.classList.add("ai-busy");
             try {
                 if (window.BilolUI) window.BilolUI.hideSuggestions();
-                appendMsg(prompt, "user", null, null, false, true);
-                const entry = await window.BilolUI.generateImage(prompt);
+                appendMsg(prompt, "user", src, null, false, true);
+                const entry = await window.BilolUI.generateImage(prompt, src);
                 if (entry) { chatHistory.push(entry); persistChat(); }
             } finally {
                 isBusy = false;
@@ -4965,13 +5206,140 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         else if (act === "regen") regenerateLast();
     });
 
+    // ---------- 📝 TEST YECHISH ----------
+    function quizToText(q) {
+        const L = "ABCD";
+        let t = `📝 **${q.title}**\n\n`;
+        q.questions.forEach((x, i) => { t += `**${i + 1}. ${x.q}**\n` + x.options.map((o, k) => `${L[k]}) ${o}`).join("\n") + "\n\n"; });
+        t += `**${tr("Javoblar", "Answers", "Ответы")}:** ` + q.questions.map((x, i) => `${i + 1}-${L[x.answer]}`).join(", ");
+        return t;
+    }
+    function parseQuiz(raw) {
+        let s = String(raw || "").trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
+        const a = s.indexOf("{"), b = s.lastIndexOf("}");
+        if (a < 0 || b < a) return null;
+        try {
+            const j = JSON.parse(s.slice(a, b + 1));
+            const qs = (j.questions || []).filter(x => x && x.q && Array.isArray(x.options) && x.options.length >= 2 && Number.isInteger(+x.answer) && +x.answer >= 0 && +x.answer < x.options.length)
+                .slice(0, 30).map(x => ({ q: String(x.q), options: x.options.slice(0, 6).map(String), answer: +x.answer, explain: String(x.explain || "") }));
+            return qs.length ? { title: String(j.title || tr("Test", "Quiz", "Тест")), questions: qs } : null;
+        } catch (e) { return null; }
+    }
+    function renderQuiz(q) {
+        const div = document.createElement("div");
+        div.className = "msg-bubble msg-ai quiz-bubble";
+        const L = "ABCDEF";
+        const head = document.createElement("div"); head.className = "qz-head";
+        head.innerHTML = '<span class="qz-ico">📝</span><div><b></b><small></small></div>';
+        head.querySelector("b").textContent = q.title;
+        head.querySelector("small").textContent = q.questions.length + " " + tr("ta savol", "questions", "вопросов");
+        div.appendChild(head);
+        let answered = 0, right = 0;
+        const score = document.createElement("div"); score.className = "qz-score";
+        q.questions.forEach((x, i) => {
+            const card = document.createElement("div"); card.className = "qz-q";
+            const qt = document.createElement("div"); qt.className = "qz-qt"; qt.textContent = (i + 1) + ". " + x.q; card.appendChild(qt);
+            const opts = document.createElement("div"); opts.className = "qz-opts";
+            const ex = document.createElement("div"); ex.className = "qz-ex";
+            x.options.forEach((o, k) => {
+                const b = document.createElement("button"); b.type = "button"; b.className = "qz-opt";
+                b.innerHTML = '<span class="qz-l"></span><span class="qz-t"></span>';
+                b.querySelector(".qz-l").textContent = L[k]; b.querySelector(".qz-t").textContent = o;
+                b.onclick = () => {
+                    if (card.classList.contains("done")) return;
+                    card.classList.add("done");
+                    const ok = k === x.answer;
+                    b.classList.add(ok ? "ok" : "bad");
+                    opts.children[x.answer].classList.add("ok");
+                    ex.textContent = (ok ? "✅ " + tr("To'g'ri!", "Correct!", "Верно!") : "❌ " + tr("To'g'ri javob: ", "Correct answer: ", "Правильный ответ: ") + L[x.answer]) + (x.explain ? " — " + x.explain : "");
+                    ex.classList.add(ok ? "ok" : "bad");
+                    answered++; if (ok) right++;
+                    if (window.BilolUI && window.BilolUI.sound) try { window.BilolUI.sound(ok); } catch (e) {}
+                    if (answered === q.questions.length) {
+                        const pct = Math.round(100 * right / q.questions.length);
+                        score.innerHTML = '<b></b><span></span><div class="qz-bar"><i></i></div><div class="qz-actions"><button type="button" class="qz-again"></button></div>';
+                        score.querySelector("b").textContent = right + " / " + q.questions.length;
+                        score.querySelector("span").textContent = pct >= 90 ? tr("A'lo! 🏆", "Excellent! 🏆", "Отлично! 🏆") : pct >= 70 ? tr("Yaxshi natija! 👏", "Good job! 👏", "Хороший результат! 👏") : pct >= 50 ? tr("Yomon emas, yana mashq qiling 💪", "Not bad, keep practicing 💪", "Неплохо, тренируйтесь ещё 💪") : tr("Mavzuni qayta takrorlang 📚", "Review the topic again 📚", "Повторите тему 📚");
+                        score.querySelector("i").style.width = pct + "%";
+                        const again = score.querySelector(".qz-again");
+                        again.textContent = "🔁 " + tr("Yangi test", "New quiz", "Новый тест");
+                        again.onclick = () => window.BilolQuiz.open();
+                        if (right < q.questions.length) {
+                            const why = document.createElement("button"); why.type = "button"; why.className = "qz-again";
+                            why.textContent = "📚 " + tr("Xatolarimni tushuntir", "Explain my mistakes", "Объясни мои ошибки");
+                            why.onclick = () => {
+                                if (isBusy) return;
+                                const wrong = q.questions.map((y, n) => ({ y, n })).filter(o => o.y._picked !== undefined && o.y._picked !== o.y.answer);
+                                chatInput.value = tr("Testda shu savollarda xato qildim, batafsil tushuntirib ber: ", "I got these quiz questions wrong, please explain them in detail: ", "Я ошибся в этих вопросах теста, объясни подробно: ") + wrong.map(o => (o.n + 1)).join(", ");
+                                sendChat();
+                            };
+                            score.querySelector(".qz-actions").appendChild(why);
+                        }
+                        score.classList.add("on");
+                        scrollDown(true);
+                    }
+                    x._picked = k;
+                };
+                opts.appendChild(b);
+            });
+            card.appendChild(opts); card.appendChild(ex);
+            div.appendChild(card);
+        });
+        div.appendChild(score);
+        messagesContainer.appendChild(div);
+        scrollDown(true);
+        return div;
+    }
+    async function startQuiz(o) {
+        if (isBusy) return;
+        const diff = { easy: tr("oson", "easy", "лёгкий"), mid: tr("o'rtacha", "medium", "средний"), hard: tr("qiyin", "hard", "сложный") }[o.level] || "";
+        const label = `📝 ${tr("Test", "Quiz", "Тест")}: ${o.topic} · ${o.count} ${tr("ta savol", "questions", "вопросов")} · ${diff}`;
+        const ask = `Make a ${o.count}-question multiple-choice test on: "${o.topic}". Difficulty: ${o.level}. Language: ${({ uz: "Uzbek", ru: "Russian", en: "English" })[currentLang] || "Uzbek"}.`;
+        isBusy = true;
+        document.body.classList.add("ai-busy");
+        if (window.BilolUI) window.BilolUI.hideSuggestions();
+        appendMsg(label, "user");
+        showTyping();
+        try {
+            const res = await fetch("/api/chat", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ history: [{ role: "user", parts: [{ text: ask }] }], lang: currentLang, mode: "quiz",
+                    model: (window.BilolModel && window.BilolModel.get()) || "",
+                    phone: String(currentPhone || "").replace(/[^0-9]/g, ""), password: localStorage.getItem("bilol_ai_password") || "" })
+            });
+            const data = await res.json().catch(() => ({}));
+            hideTyping();
+            const quotaLeft = res.headers.get("X-Quota-Left");
+            if (quotaLeft !== null && window.BilolUI) window.BilolUI.quotaLeft(Number(quotaLeft));
+            const quiz = res.ok ? parseQuiz(data.text) : null;
+            if (!quiz) {
+                const b = createAIBubble();
+                finalizeAI(b, data.error || tr("⚠️ Test tuzib bo'lmadi. Qayta urinib ko'ring.", "⚠️ Could not create the quiz. Please try again.", "⚠️ Не удалось составить тест. Попробуйте ещё раз."), false);
+                if (data.limitReached && window.BilolUI) window.BilolUI.limitCTA(b);
+                if (data.needSub && window.BilolUI && window.BilolUI.subCTA) window.BilolUI.subCTA(b);
+                return;
+            }
+            renderQuiz(quiz);
+            chatHistory.push({ role: "user", parts: [{ text: label }], display: { text: label } });
+            chatHistory.push({ role: "model", parts: [{ text: quizToText(quiz) }], display: { quiz: quiz } });
+            persistChat();
+        } catch (e) {
+            hideTyping();
+            appendAIMsg(tr("⚠️ Server bilan bog'lanib bo'lmadi.", "⚠️ Server connection error.", "⚠️ Ошибка соединения с сервером."));
+        } finally {
+            isBusy = false;
+            document.body.classList.remove("ai-busy");
+        }
+    }
+    window.BilolQuiz = Object.assign(window.BilolQuiz || {}, { start: startQuiz, render: renderQuiz, parse: parseQuiz });
+
     sendBtn.onclick = sendChat;
     chatInput.onkeydown = (e) => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); sendChat(); } };
 </script>
 
 <!-- ============================================================
      BILOLS AI — DIZAYN VA ANIMATSIYA KUCHAYTIRGICHI
-     Shu butun blokni asosiy faylingizdagi </body> dan OLDIN qo'ying.
+     Shu butun blokni asosiy faylingizdagi body yopilishidan OLDIN qo'ying.
      Mantiqiy kod (JS/API) ga tegmaydi, faqat ko'rinish.
      ============================================================ -->
 
@@ -5731,7 +6099,15 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 box.appendChild(e);
                 return;
             }
+            var lastGroup = '', today = new Date(), yest = new Date(); yest.setDate(today.getDate() - 1);
             list.forEach(function (c) {
+                var dd = new Date(c.updated || Date.now());
+                var grp = dd.toDateString() === today.toDateString() ? T('Bugun', 'Today', 'Сегодня')
+                    : dd.toDateString() === yest.toDateString() ? T('Kecha', 'Yesterday', 'Вчера') : T('Avvalroq', 'Earlier', 'Ранее');
+                if (grp !== lastGroup) {
+                    lastGroup = grp;
+                    var gh = document.createElement('div'); gh.className = 'ci-group'; gh.textContent = grp; box.appendChild(gh);
+                }
                 var it = document.createElement('div');
                 it.className = 'chat-item' + (c.id === cur ? ' active' : '');
                 it.innerHTML = '<div class="ci-text"><span class="ci-title"></span><span class="ci-date"></span></div><button type="button" class="ci-del" title="">✕</button>';
@@ -5957,15 +6333,18 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 b.onclick = function () { histFilter = x[0]; paintHistory(); };
                 f.appendChild(b);
             });
-            body.appendChild(f);
+            // Sozlamalar → Buyurtmalarim: faqat do'kondan olinganlar (Stars, Premium, obuna), AI/rasm to'lovlari va kirimlarsiz
+            var shopOnly = !!window.__histShopOnly;
+            if (!shopOnly) body.appendChild(f);
             var list = histItems.filter(function (it) {
                 var inc = !!KIND_IN[it.kind];
+                if (shopOnly) return it.kind === 'purchase' && ['image', 'ai'].indexOf(it.source) < 0;
                 return histFilter === 'all' || (histFilter === 'in' ? inc : !inc);
             });
             if (!list.length) {
                 var e = document.createElement('div');
                 e.className = 'wsub-empty';
-                e.textContent = T("Hozircha hech narsa yo'q", 'Nothing here yet', 'Пока ничего нет');
+                e.textContent = shopOnly ? T("Hali do'kondan buyurtma yo'q", 'No shop orders yet', 'Заказов из магазина пока нет') : T("Hozircha hech narsa yo'q", 'Nothing here yet', 'Пока ничего нет');
                 body.appendChild(e);
                 return;
             }
@@ -6218,6 +6597,14 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 img.src = src;
             });
         }
+        function imgAspect(src) {
+            return new Promise(function (res) {
+                var i = new Image();
+                i.onload = function () { res(i.naturalHeight ? i.naturalWidth / i.naturalHeight : 1); };
+                i.onerror = function () { res(1); };
+                i.src = src;
+            });
+        }
         function genBubble(src, prompt, full) {
             var div = document.createElement('div');
             div.className = 'msg-bubble msg-ai gen-bubble';
@@ -6240,16 +6627,17 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             msgBox.scrollTop = msgBox.scrollHeight;
             return div;
         }
-        async function generateImage(prompt) {
+        async function generateImage(prompt, src) {
             var wait = document.createElement('div');
             wait.className = 'msg-bubble msg-ai gen-wait';
             wait.innerHTML = '<div class="gen-skeleton"></div><small></small>';
-            wait.querySelector('small').textContent = T('Rasm chizilmoqda... (10–30 soniya)', 'Drawing the image... (10–30 s)', 'Рисую изображение... (10–30 с)');
+            wait.querySelector('small').textContent = src ? T('Rasm tahrirlanmoqda... (10–40 soniya)', 'Editing the image... (10–40 s)', 'Редактирую изображение... (10–40 с)')
+                : T('Rasm chizilmoqda... (10–30 soniya)', 'Drawing the image... (10–30 s)', 'Рисую изображение... (10–30 с)');
             msgBox.appendChild(wait);
             msgBox.scrollTop = msgBox.scrollHeight;
             var c = creds();
             try {
-                var r = await fetch('/api/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: c.phone, password: c.password, prompt: prompt }) });
+                var r = await fetch('/api/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: c.phone, password: c.password, prompt: prompt, image: src || undefined, aspect: src ? await imgAspect(src) : undefined }) });
                 var j = {};
                 try { j = await r.json(); } catch (e) {}
                 wait.remove();
@@ -6274,7 +6662,12 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                     return null;
                 }
                 var thumb = await makeThumb(j.image);
-                genBubble(j.image, prompt, j.image);
+                var gb = genBubble(j.image, prompt, j.image);
+                if (j.approx) {
+                    var n = document.createElement('small'); n.className = 'gen-note';
+                    n.textContent = T("ℹ️ Bepul rejim: rasm o'zgarish bilan qaytadan chizildi, asl rasmdan biroz farq qilishi mumkin.", 'ℹ️ Free mode: the image was redrawn with your change and may differ slightly from the original.', 'ℹ️ Бесплатный режим: изображение перерисовано с изменением и может немного отличаться от оригинала.');
+                    gb.insertBefore(n, gb.querySelector('.msg-actions'));
+                }
                 if (typeof refreshBalance === 'function') refreshBalance();
                 return { role: 'gen', prompt: prompt, thumb: thumb || '' };
             } catch (e) {
@@ -6616,6 +7009,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             copyText: copyText, speak: speak, takeDoc: takeDoc,
             isImageMode: function () { return imageMode; }, generateImage: generateImage, genBubble: genBubble,
             limitCTA: limitCTA, quotaLeft: quotaLeft, shareAnswer: shareAnswer,
+            rewards: function () { return rewards; }, loadRewards: loadRewards, setImageMode: function (on) { setImageMode(on); },
             subActive: function () { return !!subActive(); }, subCTA: subCTA,
             showSuggestions: showSuggestions, hideSuggestions: hideSuggestions,
             chatsChanged: function () { if (drawer.classList.contains('open')) renderChatList(); }
@@ -7384,6 +7778,1076 @@ body.theme-light #app-promo .ap-t b { color: #0f172a; }
     var prev = window.setAppLanguage;
     if (typeof prev === 'function') window.setAppLanguage = function () { var r = prev.apply(this, arguments); paint(); return r; };
     paint();
+})();
+</script>
+
+<!-- ============ QR ORQALI KIRISH ============
+     Kompyuter: kirish oynasida QR ko'rsatadi va natijani kutadi.
+     Telefon (saytga kirgan): Sozlamalar → QR orqali kirish → skanerlaydi → kimning hisobiga
+     qaysi qurilmadan kirilayotganini ko'rib tasdiqlaydi. QR'da faqat bir martalik id bor. -->
+<div id="qr-login-view" class="qrx-overlay" hidden>
+    <div class="qrx-card">
+        <button class="auth-close qrx-x" id="qr-login-close" aria-label="Close">&times;</button>
+        <h3 class="qrx-title" id="qrl-title">QR kod orqali kirish</h3>
+        <p class="qrx-sub" id="qrl-sub"></p>
+        <div class="qrx-code" id="qrl-code"><div class="qrx-spin"></div></div>
+        <div class="qrx-status" id="qrl-status"></div>
+        <button type="button" class="primary-btn qrx-btn" id="qrl-refresh" hidden>🔄 Yangi QR kod</button>
+    </div>
+</div>
+<div id="qr-scan-view" class="qrx-overlay" hidden>
+    <div class="qrx-card qrx-scan-card">
+        <button class="auth-close qrx-x" id="qr-scan-close" aria-label="Close">&times;</button>
+        <h3 class="qrx-title" id="qrs-title">QR kodni skanerlang</h3>
+        <div class="qrx-cam" id="qrs-cam">
+            <video id="qrs-video" playsinline muted></video>
+            <div class="qrx-frame"><i></i><i></i><i></i><i></i><b></b></div>
+        </div>
+        <p class="qrx-sub" id="qrs-hint"></p>
+        <div class="qrx-confirm" id="qrs-confirm" hidden>
+            <div class="qrx-dev" id="qrs-dev"></div>
+            <div class="qrx-acc"><span class="qrx-ava" id="qrs-ava"></span><div><b id="qrs-name"></b><small id="qrs-phone"></small></div></div>
+            <p class="qrx-warn" id="qrs-warn"></p>
+            <div class="qrx-row">
+                <button type="button" class="qrx-deny" id="qrs-deny">Rad etish</button>
+                <button type="button" class="primary-btn qrx-ok" id="qrs-ok">Ha, kirish</button>
+            </div>
+        </div>
+        <div class="qrx-status" id="qrs-status"></div>
+    </div>
+</div>
+<style>
+.qr-login-link { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin: 10px 0 0; padding: 11px 14px; border-radius: 14px;
+    border: 1px dashed var(--border-glass, rgba(255,255,255,.18)); background: transparent; color: inherit; opacity: .9; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.qr-login-link:hover { opacity: 1; border-style: solid; }
+.qrx-overlay { position: fixed; inset: 0; z-index: 100001; display: flex; align-items: center; justify-content: center; padding: 16px;
+    background: rgba(3, 5, 12, .72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); animation: aiSmoothIn .2s ease-out both; }
+.qrx-overlay[hidden] { display: none; }
+.qrx-card { position: relative; width: 100%; max-width: 380px; max-height: 94vh; overflow-y: auto; border-radius: 26px; padding: 24px 20px 20px; text-align: center;
+    background: var(--ds-modal, #10141f); color: var(--text-primary, #eef2ff); border: 1px solid var(--border-glass, rgba(255,255,255,.1)); box-shadow: 0 30px 80px -10px rgba(0,0,0,.8); }
+.qrx-x { position: absolute; top: 12px; right: 12px; }
+.qrx-title { margin: 2px 0 6px; font-size: 19px; font-weight: 800; }
+.qrx-sub { margin: 0 4px 14px; font-size: 13.5px; line-height: 1.5; opacity: .75; }
+.qrx-sub[hidden] { display: none; }
+.qrx-code { width: 236px; height: 236px; margin: 0 auto; border-radius: 18px; background: #fff; padding: 12px; display: grid; place-items: center; position: relative; }
+.qrx-code svg { width: 100%; height: 100%; display: block; }
+.qrx-code.dim > :not(.qrx-badge) { filter: blur(4px); opacity: .35; }
+.qrx-badge { position: absolute; inset: 0; display: grid; place-items: center; color: #111; font-weight: 800; font-size: 15px; padding: 18px; text-align: center; line-height: 1.4; }
+.qrx-spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #ddd; border-top-color: #6366f1; animation: qrxSpin .8s linear infinite; }
+@keyframes qrxSpin { to { transform: rotate(360deg); } }
+.qrx-status { min-height: 20px; margin-top: 12px; font-size: 13.5px; line-height: 1.5; white-space: pre-line; }
+.qrx-status.ok { color: #34d399; } .qrx-status.err { color: #f87171; } .qrx-status.wait { color: #fbbf24; font-weight: 600; }
+.qrx-btn { margin-top: 10px; width: 100%; }
+.qrx-btn[hidden] { display: none; }
+.qrx-cam { position: relative; width: 100%; aspect-ratio: 1; border-radius: 20px; overflow: hidden; background: #000; margin-bottom: 12px; }
+.qrx-cam video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.qrx-frame { position: absolute; inset: 14%; }
+.qrx-frame i { position: absolute; width: 26px; height: 26px; border: 3px solid #fff; border-radius: 4px; }
+.qrx-frame i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; } .qrx-frame i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.qrx-frame i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; } .qrx-frame i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+/* skaner chizig'i: ramka bo'ylab tepadan pastga va qaytib to'xtovsiz yuradi (yengil rejimda ham) */
+.qrx-frame b { position: absolute; left: 4%; right: 4%; top: 0; height: 3px; border-radius: 3px;
+    background: linear-gradient(90deg, transparent, #22d3ee 20%, #a5f3fc 50%, #22d3ee 80%, transparent);
+    box-shadow: 0 0 12px 2px rgba(34, 211, 238, .75), 0 0 34px 6px rgba(34, 211, 238, .3);
+    animation: qrxLine 1.8s ease-in-out infinite alternate !important; animation-iteration-count: infinite !important; }
+.qrx-frame b::after { content: ""; position: absolute; left: 0; right: 0; bottom: 3px; height: 46px;
+    background: linear-gradient(to top, rgba(34, 211, 238, .28), transparent); }
+@keyframes qrxLine { 0% { top: 0; } 100% { top: calc(100% - 3px); } }
+@media (prefers-reduced-motion: reduce) { .qrx-frame b { animation-duration: 3s !important; } }
+.qrx-cam.off { display: none; }
+.qrx-confirm { text-align: left; }
+.qrx-confirm[hidden] { display: none; }
+.qrx-dev { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid var(--border-glass, rgba(255,255,255,.1)); font-size: 14px; line-height: 1.4; }
+.qrx-dev .qd-ico { font-size: 28px; }
+.qrx-dev small { display: block; opacity: .65; font-size: 12.5px; }
+.qrx-acc { display: flex; align-items: center; gap: 12px; margin: 12px 0 8px; padding: 0 4px; }
+.qrx-acc b { display: block; font-size: 16px; } .qrx-acc small { opacity: .7; font-size: 13px; }
+.qrx-ava { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 18px; color: #fff; background: var(--accent-grad, linear-gradient(135deg,#6366f1,#a855f7)); flex-shrink: 0; }
+.qrx-warn { font-size: 12.5px; line-height: 1.5; opacity: .7; margin: 6px 4px 14px; }
+.qrx-row { display: flex; gap: 10px; }
+.qrx-row > * { flex: 1; margin: 0 !important; }
+.qrx-deny { border-radius: 14px; border: 1px solid rgba(248,113,113,.4); background: rgba(248,113,113,.1); color: #f87171; font: inherit; font-weight: 700; padding: 13px; cursor: pointer; }
+body.theme-light .qrx-card { background: #fff; color: #111827; border-color: rgba(17,24,39,.1); }
+body.theme-light .qrx-dev { background: #f3f4f6; }
+</style>
+<script id="qr-login-script">
+(function () {
+    'use strict';
+    var RAIL = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://ai2-production-7d7e.up.railway.app';
+    var $ = function (id) { return document.getElementById(id); };
+    function T(uz, en, ru) { return typeof tr === 'function' ? tr(uz, en, ru) : uz; }
+    function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+    function loadJs(src) {
+        return new Promise(function (res, rej) {
+            if (document.querySelector('script[src="' + src + '"]')) return res();
+            var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s);
+        });
+    }
+    function post(path, body) {
+        return fetch(RAIL + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) })
+            .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j._status = r.status; return j; }); });
+    }
+    function creds() {
+        var ph = (typeof currentPhone !== 'undefined' && currentPhone) || localStorage.getItem('bilol_ai_phone') || '';
+        return { phone: String(ph).replace(/[^0-9]/g, ''), password: localStorage.getItem('bilol_ai_password') || '' };
+    }
+    function loggedIn() { var c = creds(); return !!(c.phone && c.password); }
+    function device(ua) {
+        ua = String(ua || '');
+        var os = /iPhone|iPad/.test(ua) ? 'iPhone/iPad' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac OS X|Macintosh/.test(ua) ? 'macOS' : /Linux/.test(ua) ? 'Linux' : T("Noma'lum qurilma", 'Unknown device', 'Неизвестное устройство');
+        var br = /Edg\//.test(ua) ? 'Edge' : /OPR\/|Opera/.test(ua) ? 'Opera' : /YaBrowser/.test(ua) ? 'Yandex' : /Firefox\//.test(ua) ? 'Firefox' : /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : '';
+        return { os: os, br: br, ico: /iPhone|iPad|Android/.test(ua) ? '📱' : '💻' };
+    }
+    function paintTexts() {
+        if ($('qr-login-btn-t')) $('qr-login-btn-t').textContent = T('QR kod orqali kirish', 'Log in with a QR code', 'Войти по QR-коду');
+        if ($('qr-scan-entry-t')) $('qr-scan-entry-t').textContent = T('📷 QR orqali kirish', '📷 Log in with QR', '📷 Вход по QR');
+        if ($('qr-scan-entry-s')) $('qr-scan-entry-s').textContent = T('Kompyuterdagi QR kodni skanerlab, u yerda hisobingizga kiring', 'Scan the QR code on a computer to log in there', 'Отсканируйте QR-код на компьютере, чтобы войти там');
+        var e = $('qr-scan-entry'); if (e) e.style.display = loggedIn() ? '' : 'none';
+    }
+
+    /* ---------------- 1) Kompyuter: QR ko'rsatish ---------------- */
+    var L = { id: null, secret: null, ver: 0, run: 0, timer: null, exp: 0, scanned: false };
+    function lStatus(t, cls) { var el = $('qrl-status'); el.textContent = t || ''; el.className = 'qrx-status ' + (cls || ''); }
+    function badge(text) {
+        var box = $('qrl-code'), b = box.querySelector('.qrx-badge');
+        if (!text) { box.classList.remove('dim'); if (b) b.remove(); return; }
+        if (!b) { b = document.createElement('div'); b.className = 'qrx-badge'; box.appendChild(b); }
+        b.textContent = text; box.classList.add('dim');
+    }
+    function openLogin() {
+        $('qr-login-view').hidden = false;
+        $('qrl-title').textContent = T('QR kod orqali kirish', 'Log in with a QR code', 'Вход по QR-коду');
+        $('qrl-sub').innerHTML = T('Telefoningizda <b>bilolsai.uz</b> → ⚙️ Sozlamalar → <b>QR orqali kirish</b> ni oching va shu kodni skanerlang.',
+            'On your phone open <b>bilolsai.uz</b> → ⚙️ Settings → <b>Log in with QR</b> and scan this code.',
+            'На телефоне откройте <b>bilolsai.uz</b> → ⚙️ Настройки → <b>Вход по QR</b> и отсканируйте код.');
+        $('qrl-refresh').textContent = '🔄 ' + T('Yangi QR kod', 'New QR code', 'Новый QR-код');
+        newCode();
+    }
+    function closeLogin() { L.run++; clearInterval(L.timer); $('qr-login-view').hidden = true; }
+    async function newCode() {
+        var run = ++L.run; clearInterval(L.timer); L.scanned = false;
+        $('qrl-refresh').hidden = true; lStatus('');
+        $('qrl-code').className = 'qrx-code'; $('qrl-code').innerHTML = '<div class="qrx-spin"></div>';
+        try {
+            await loadJs('/vendor/qrcode-generator-1.4.4.js');
+            var j = await post('/api/qr/new', { ua: navigator.userAgent });
+            if (run !== L.run) return;
+            if (!j.success) throw new Error(j.error || 'err');
+            L.id = j.id; L.secret = j.secret; L.ver = 0; L.exp = Date.now() + (j.ttl || 120) * 1000;
+            var qr = qrcode(0, 'M'); qr.addData(location.origin + '/?qrl=' + encodeURIComponent(j.id)); qr.make();
+            $('qrl-code').innerHTML = qr.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
+            tick(); L.timer = setInterval(tick, 1000);
+            poll(run);
+        } catch (e) {
+            if (run !== L.run) return;
+            $('qrl-code').innerHTML = ''; badge(T("QR kod yaratib bo'lmadi", 'Could not create a QR code', 'Не удалось создать QR-код'));
+            lStatus(e && e.message && e.message !== 'err' && e.message !== 'Failed to fetch' ? e.message : T('Internetni tekshiring', 'Check your internet', 'Проверьте интернет'), 'err');
+            $('qrl-refresh').hidden = false;
+        }
+    }
+    function tick() {
+        var s = Math.max(0, Math.round((L.exp - Date.now()) / 1000));
+        if (s <= 0) return expired();
+        if (L.scanned) return;
+        lStatus(T('Kod amal qiladi: ', 'Code valid for: ', 'Код действует: ') + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'));
+    }
+    function expired() {
+        L.run++; clearInterval(L.timer);
+        badge(T('QR kod eskirdi', 'QR code expired', 'QR-код устарел')); lStatus('');
+        $('qrl-refresh').hidden = false;
+    }
+    async function poll(run) {
+        while (run === L.run) {
+            var j;
+            try { j = await post('/api/qr/poll', { id: L.id, secret: L.secret, ver: L.ver }); }
+            catch (e) { await wait(2000); continue; }
+            if (run !== L.run) return;
+            if (!j.success) { await wait(2000); continue; }
+            if (typeof j.ver === 'number') L.ver = j.ver;
+            if (j.status === 'scanned') {
+                // Kimning hisobiga kirilayotgani kompyuterda ham ko'rinadi
+                L.scanned = true; L.exp = Date.now() + 90000;
+                badge('📱 ' + T('Skanerlandi', 'Scanned', 'Отсканировано'));
+                lStatus('👤 ' + (j.name || T('Hisob', 'Account', 'Аккаунт')) + (j.phone ? ' (' + j.phone + ')' : '') + '\n' +
+                    T("hisobiga kirish so'ralmoqda — telefoningizda tasdiqlang", 'login requested — confirm on your phone', 'запрошен вход — подтвердите на телефоне'), 'wait');
+            } else if (j.status === 'ok' && j.login) {
+                L.run++; clearInterval(L.timer);
+                badge('✅'); lStatus(T('Kirildi! ', 'Logged in! ', 'Вход выполнен! ') + (j.login.name || ''), 'ok');
+                try {
+                    localStorage.setItem('bilol_ai_phone', j.login.phone);
+                    localStorage.setItem('bilol_ai_name', j.login.name || '');
+                    localStorage.setItem('bilol_ai_password', j.login.password);
+                } catch (e) {}
+                setTimeout(function () { location.replace(location.pathname); }, 700);
+                return;
+            } else if (j.status === 'denied') {
+                L.run++; clearInterval(L.timer);
+                badge(T('Rad etildi', 'Denied', 'Отклонено'));
+                lStatus(T('Telefonda kirish rad etildi.', 'Login was denied on the phone.', 'Вход отклонён на телефоне.'), 'err');
+                $('qrl-refresh').hidden = false; return;
+            } else if (j.status === 'expired') { expired(); return; }
+        }
+    }
+
+    /* ---------------- 2) Telefon: skanerlash va tasdiqlash ---------------- */
+    var S = { stream: null, raf: 0, busy: false, id: null, det: null };
+    function sStatus(t, cls) { var el = $('qrs-status'); el.textContent = t || ''; el.className = 'qrx-status ' + (cls || ''); }
+    function stopCam() {
+        cancelAnimationFrame(S.raf);
+        if (S.stream) { S.stream.getTracks().forEach(function (t) { t.stop(); }); S.stream = null; }
+    }
+    function closeScan() { stopCam(); S.id = null; $('qr-scan-view').hidden = true; }
+    function idFrom(text) {
+        text = String(text || '').trim();
+        try {
+            var u = new URL(text);
+            if (/(^|\.)bilolsai\.uz$/.test(u.hostname) || u.origin === location.origin) return u.searchParams.get('qrl');
+        } catch (e) {}
+        return null;
+    }
+    async function openScan(presetId) {
+        if (!loggedIn()) { alert(T('Avval saytga kiring.', 'Log in first.', 'Сначала войдите.')); return; }
+        $('qr-scan-view').hidden = false;
+        $('qrs-title').textContent = T('QR kodni skanerlang', 'Scan the QR code', 'Отсканируйте QR-код');
+        $('qrs-hint').innerHTML = T('Kompyuterda <b>bilolsai.uz</b> → Kirish → <b>QR kod orqali kirish</b> ni oching va kamerani kodga qarating.',
+            'On the computer open <b>bilolsai.uz</b> → Log in → <b>Log in with a QR code</b> and point the camera at it.',
+            'На компьютере откройте <b>bilolsai.uz</b> → Вход → <b>Войти по QR-коду</b> и наведите камеру на код.');
+        $('qrs-confirm').hidden = true; $('qrs-hint').hidden = false; $('qrs-cam').classList.remove('off'); sStatus(''); S.busy = false;
+        if (presetId) return gotId(presetId);
+        try {
+            S.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+        } catch (e) {
+            $('qrs-cam').classList.add('off');
+            sStatus(T('Kameraga ruxsat berilmadi. Brauzer sozlamalarida kameraga ruxsat bering.', 'Camera access was denied. Allow the camera in browser settings.', 'Нет доступа к камере. Разрешите камеру в настройках браузера.'), 'err');
+            return;
+        }
+        var v = $('qrs-video'); v.srcObject = S.stream; try { await v.play(); } catch (e) {}
+        S.det = null;
+        if ('BarcodeDetector' in window) { try { S.det = new BarcodeDetector({ formats: ['qr_code'] }); } catch (e) { S.det = null; } }
+        if (!S.det) { try { await loadJs('/vendor/jsQR-1.4.0.js'); } catch (e) {} }
+        var c = document.createElement('canvas'), cx = c.getContext('2d', { willReadFrequently: true }), last = 0;
+        (function loop(ts) {
+            if (!S.stream) return;
+            S.raf = requestAnimationFrame(loop);
+            if (S.busy || ts - last < 180 || v.readyState < 2 || !v.videoWidth) return;
+            last = ts;
+            if (S.det) {
+                S.busy = true;
+                S.det.detect(v).then(function (r) { S.busy = false; if (r && r[0]) found(r[0].rawValue); }).catch(function () { S.busy = false; });
+            } else if (window.jsQR) {
+                var w = Math.min(640, v.videoWidth), h = Math.round(v.videoHeight * w / v.videoWidth);
+                c.width = w; c.height = h; cx.drawImage(v, 0, 0, w, h);
+                var q = jsQR(cx.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: 'dontInvert' });
+                if (q && q.data) found(q.data);
+            }
+        })(0);
+    }
+    function found(text) {
+        var id = idFrom(text);
+        if (!id) { sStatus(T('Bu Bilols AI kirish QR kodi emas.', 'This is not a Bilols AI login QR code.', 'Это не QR-код входа Bilols AI.'), 'err'); return; }
+        if (navigator.vibrate) { try { navigator.vibrate(40); } catch (e) {} }
+        stopCam(); gotId(id);
+    }
+    async function gotId(id) {
+        S.id = id; S.busy = true;
+        $('qrs-cam').classList.add('off'); $('qrs-hint').hidden = true;
+        sStatus(T('Tekshirilmoqda…', 'Checking…', 'Проверка…'));
+        var c = creds(), j;
+        try { j = await post('/api/qr/scan', { id: id, phone: c.phone, password: c.password }); }
+        catch (e) { sStatus(T("Internet bilan aloqa yo'q", 'No connection', 'Нет соединения'), 'err'); return; }
+        if (!j.success) { sStatus(j._status === 403 ? T('Qaytadan kiring.', 'Please log in again.', 'Войдите снова.') : (j.error || 'Error'), 'err'); return; }
+        var d = device(j.ua);
+        $('qrs-title').textContent = T('Kirishni tasdiqlang', 'Confirm login', 'Подтвердите вход');
+        $('qrs-dev').innerHTML = '<span class="qd-ico"></span><div><b></b><small></small></div>';
+        $('qrs-dev').querySelector('.qd-ico').textContent = d.ico;
+        $('qrs-dev').querySelector('b').textContent = d.os + (d.br ? ' · ' + d.br : '');
+        $('qrs-dev').querySelector('small').textContent = T('Hisobingizga kirmoqchi', 'Wants to log in to your account', 'Хочет войти в ваш аккаунт') + (j.ip ? ' · IP ' + j.ip : '');
+        $('qrs-ava').textContent = (j.name || 'B').trim().charAt(0).toUpperCase();
+        $('qrs-name').textContent = j.name || T('Hisobingiz', 'Your account', 'Ваш аккаунт');
+        $('qrs-phone').textContent = j.phone || '';
+        $('qrs-warn').textContent = T("Shu qurilma yuqoridagi hisobga kiradi. Agar bu QR kodni o'zingiz ochmagan bo'lsangiz — rad eting.",
+            "This device will be logged in to the account above. If you didn't open this QR code yourself, deny it.",
+            'Это устройство войдёт в аккаунт выше. Если вы не открывали этот QR-код сами — отклоните.');
+        $('qrs-deny').textContent = T('Rad etish', 'Deny', 'Отклонить');
+        $('qrs-ok').textContent = T('Ha, kirish', 'Yes, log in', 'Да, войти');
+        $('qrs-confirm').hidden = false; sStatus('');
+    }
+    async function answer(ok) {
+        if (!S.id) return;
+        $('qrs-ok').disabled = $('qrs-deny').disabled = true;
+        var c = creds(), j;
+        try { j = await post('/api/qr/approve', { id: S.id, ok: ok, phone: c.phone, password: c.password }); }
+        catch (e) { j = { error: T("Internet bilan aloqa yo'q", 'No connection', 'Нет соединения') }; }
+        $('qrs-ok').disabled = $('qrs-deny').disabled = false;
+        if (!j.success) { sStatus(j.error || 'Error', 'err'); return; }
+        $('qrs-confirm').hidden = true; S.id = null;
+        sStatus(ok ? T('✅ Kompyuterda hisobingizga kirildi', '✅ Logged in on the computer', '✅ Вход на компьютере выполнен') : T('Kirish rad etildi', 'Login denied', 'Вход отклонён'), ok ? 'ok' : '');
+        setTimeout(closeScan, 1600);
+    }
+
+    /* ---------------- ulash ---------------- */
+    function bind() {
+        if ($('qr-login-btn')) $('qr-login-btn').onclick = function (e) { e.preventDefault(); openLogin(); };
+        $('qr-login-close').onclick = closeLogin;
+        $('qrl-refresh').onclick = newCode;
+        if ($('qr-scan-entry')) $('qr-scan-entry').onclick = function () { openScan(); };
+        $('qr-scan-close').onclick = closeScan;
+        $('qrs-ok').onclick = function () { answer(true); };
+        $('qrs-deny').onclick = function () { answer(false); };
+        paintTexts();
+        var sm = $('settings-modal');
+        if (sm && window.MutationObserver) new MutationObserver(paintTexts).observe(sm, { attributes: true, attributeFilter: ['style', 'class'] });
+        // Telefonning oddiy kamerasi bilan skanerlansa: bilolsai.uz/?qrl=... ochiladi
+        var qid = null; try { qid = new URLSearchParams(location.search).get('qrl'); } catch (e) {}
+        if (qid) {
+            try { history.replaceState(null, '', location.pathname); } catch (e) {}
+            setTimeout(function () {
+                if (loggedIn()) openScan(qid);
+                else alert(T("QR orqali kirishni tasdiqlash uchun avval shu telefonda saytga kiring, so'ng kodni qayta skanerlang.", 'To approve a QR login, first log in on this phone, then scan the code again.', 'Чтобы подтвердить вход по QR, сначала войдите на этом телефоне и отсканируйте код снова.'));
+            }, 700);
+        }
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            if (!$('qr-login-view').hidden) closeLogin();
+            if (!$('qr-scan-view').hidden) closeScan();
+        });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+})();
+</script>
+
+<!-- ============ PREMIUM CHAT (Cognivo uslubi): yon panel + oq oyna + markazda boshlang'ich ekran ============
+     Faqat Premium dizaynida ko'rinadi (.cg-only). Mavjud tugmalarni (sozlamalar, hamyon, rejimlar) qayta ishlatadi. -->
+<style>
+.cg-only { display: none !important; }
+html[data-design="premium"] .cg-only { display: flex !important; }
+html[data-design="premium"] { --cg-acc: #ff6a1f; --cg-acc2: #ff8a3d; --cg-ink: #18181b; --cg-ink2: #52525b; --cg-mute: #a1a1aa; --cg-line: #ececef; --cg-side: #f6f5f2; --cg-card: #ffffff; }
+
+/* ---- yon panel (suhbatlar) ---- */
+html[data-design="premium"] body #chats-drawer .drawer-panel { background: var(--cg-side) !important; border-right: 1px solid var(--cg-line) !important; padding: 16px 12px !important; gap: 2px; }
+html[data-design="premium"] body .cg-brand { align-items: center; gap: 10px; padding: 4px 8px 14px; font-weight: 700; font-size: 19px; color: var(--cg-ink); letter-spacing: -.01em; }
+.cg-mark { width: 30px; height: 30px; flex-shrink: 0; }
+html[data-design="premium"] body .drawer-head { display: none !important; }
+html[data-design="premium"] body #new-chat-btn { background: linear-gradient(180deg, var(--cg-acc2), var(--cg-acc)) !important; color: #fff !important; border: 0 !important; border-radius: 12px !important;
+    justify-content: flex-start !important; padding: 11px 14px !important; margin: 0 0 12px !important; box-shadow: 0 8px 18px -10px rgba(255, 106, 31, .9) !important; font-size: 14px !important; }
+html[data-design="premium"] body #new-chat-btn b { font-weight: 600 !important; }
+html[data-design="premium"] body .cg-nav { flex-direction: column; gap: 1px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--cg-line); }
+.cg-nav button, .cg-foot button { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; color: var(--cg-ink); font: inherit; font-size: 14px; font-weight: 500;
+    padding: 9px 10px; border-radius: 10px; cursor: pointer; text-align: left; }
+.cg-nav button:hover, .cg-foot button:hover { background: rgba(0, 0, 0, .045); }
+.cg-nav svg, .cg-foot svg { width: 17px; height: 17px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; color: var(--cg-ink2); }
+html[data-design="premium"] body .chat-list { gap: 0 !important; }
+html[data-design="premium"] body .ci-group { color: var(--cg-mute) !important; font-size: 11px; padding: 12px 10px 4px; }
+html[data-design="premium"] body .chat-item { color: var(--cg-ink) !important; background: transparent !important; border: 0 !important; padding: 7px 10px !important; border-radius: 9px !important; }
+html[data-design="premium"] body .chat-item .ci-title { font-size: 13.5px !important; font-weight: 500 !important; color: var(--cg-ink) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html[data-design="premium"] body .chat-item .ci-date { display: none !important; }
+html[data-design="premium"] body .chat-item:hover { background: rgba(0, 0, 0, .045) !important; }
+html[data-design="premium"] body .chat-item.active { background: #fff !important; box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 0 0 1px var(--cg-line) !important; }
+html[data-design="premium"] body .drawer-support, html[data-design="premium"] body #chats-drawer .privacy-link { display: none !important; }
+html[data-design="premium"] body .cg-foot { flex-direction: column; gap: 6px; margin-top: auto; padding-top: 8px; }
+.cg-user { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px; border-radius: 14px; background: #fff; border: 1px solid var(--cg-line); cursor: pointer; text-align: left; font: inherit; color: var(--cg-ink); }
+.cg-user .cg-ava { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--cg-acc2), var(--cg-acc)); color: #fff; font-weight: 700; flex-shrink: 0; }
+.cg-user b { display: block; font-size: 14px; font-weight: 600; } .cg-user small { display: block; font-size: 12px; color: var(--cg-mute); }
+.cg-user > div { flex: 1; min-width: 0; } .cg-user b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---- chat oynasi ---- */
+html[data-design="premium"] body #chat-screen { background: var(--cg-side) !important; }
+html[data-design="premium"] body #chat-screen .chat-header { background: transparent !important; border-bottom: 1px solid var(--cg-line) !important; box-shadow: none !important; }
+html[data-design="premium"] body #chat-screen .chat-header h3 { display: none; }
+html[data-design="premium"] body #chat-screen .avatar { display: none !important; }
+html[data-design="premium"] body #chat-screen .model-btn { background: transparent !important; border: 0 !important; color: var(--cg-ink) !important; font-size: 15px !important; font-weight: 600 !important; padding: 6px 8px !important; }
+html[data-design="premium"] body #chat-screen .model-btn i { color: var(--cg-mute); }
+html[data-design="premium"] body #chat-screen .icon-btn, html[data-design="premium"] body #chat-screen .hdr-menu-btn, html[data-design="premium"] body #chat-screen .wallet-pill {
+    background: #fff !important; border: 1px solid var(--cg-line) !important; border-radius: 12px !important; box-shadow: none !important; }
+html[data-design="premium"] body #chat-screen .logout-btn { background: #fff !important; border: 1px solid var(--cg-line) !important; color: var(--cg-ink2) !important; border-radius: 12px !important; }
+html[data-design="premium"] body #chat-screen .msg-user { background: #f4f4f5 !important; color: var(--cg-ink) !important; border-radius: 18px 18px 6px 18px !important; }
+html[data-design="premium"] body #chat-screen .msg-ai, html[data-design="premium"] body #chat-screen #welcome-bubble { background: transparent !important; border: 0 !important; box-shadow: none !important; color: var(--cg-ink) !important; padding-left: 2px !important; }
+
+/* yozish maydoni — katta oq quti, asboblar pastda */
+html[data-design="premium"] body #chat-screen .input-bar { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 6px 14px calc(12px + env(safe-area-inset-bottom)) !important; }
+html[data-design="premium"] body #chat-screen .input-bar > .media-buttons, html[data-design="premium"] body #chat-screen .input-bar > .chat-input-wrap, html[data-design="premium"] body #chat-screen .input-bar > .send-btn { position: relative; z-index: 1; }
+html[data-design="premium"] body #chat-screen .input-bar { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 8px !important; position: relative; }
+html[data-design="premium"] body #chat-screen .input-bar::after { content: ""; position: absolute; inset: 0 14px calc(12px + env(safe-area-inset-bottom)); top: 6px; border-radius: 20px; background: #fff; border: 1px solid var(--cg-line);
+    box-shadow: 0 10px 30px -18px rgba(0,0,0,.25); z-index: 0; pointer-events: none; }
+html[data-design="premium"] body #chat-screen .chat-input-wrap { order: -1; flex: 1 1 100% !important; padding: 10px 12px 0; }
+html[data-design="premium"] body #chat-screen #chat-input { background: transparent !important; border: 0 !important; box-shadow: none !important; font-size: 15.5px !important; padding: 6px 2px !important; height: 40px; color: var(--cg-ink) !important; }
+html[data-design="premium"] body #chat-screen .media-buttons { padding: 0 0 10px 10px; gap: 6px !important; }
+html[data-design="premium"] body #chat-screen .media-btn { width: 34px !important; height: 34px !important; border-radius: 10px !important; background: #fafafa !important; border: 1px solid var(--cg-line) !important; }
+html[data-design="premium"] body #chat-screen .media-btn svg { stroke: var(--cg-ink2) !important; }
+html[data-design="premium"] body #chat-screen .send-btn { margin: 0 10px 10px auto !important; width: 36px !important; height: 36px !important; border-radius: 50% !important;
+    background: linear-gradient(180deg, var(--cg-acc2), var(--cg-acc)) !important; color: #fff !important; box-shadow: 0 6px 14px -6px rgba(255, 106, 31, .9) !important; }
+html[data-design="premium"] body #chat-screen .send-btn svg { stroke: #fff !important; width: 17px; height: 17px; }
+
+/* ---- bo'sh chat: markazda logo, sarlavha, yozish maydoni, kartalar ---- */
+html[data-design="premium"] body .cg-hero { display: none !important; }
+html[data-design="premium"] body #chat-screen.cg-empty .cg-hero { display: flex !important; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 0 16px 14px; order: 1; margin-top: auto; }
+.cg-pill { border: 1px solid var(--cg-line); background: #fff; border-radius: 10px; padding: 7px 12px; font: inherit; font-size: 13.5px; color: var(--cg-ink); cursor: pointer; }
+.cg-pill b { color: var(--cg-acc); font-weight: 600; }
+.cg-hero .cg-mark { width: 52px; height: 52px; }
+.cg-hero h2 { margin: 0; font-size: clamp(24px, 3vw, 32px); font-weight: 500; letter-spacing: -.02em; color: var(--cg-ink); }
+html[data-design="premium"] body #chat-screen.cg-empty .chat-header { order: 0; }
+html[data-design="premium"] body #chat-screen.cg-empty .input-bar { order: 2; width: 100%; max-width: 760px; margin: 0 auto; }
+html[data-design="premium"] body #chat-screen.cg-empty #image-preview-container, html[data-design="premium"] body #chat-screen.cg-empty #doc-preview,
+html[data-design="premium"] body #chat-screen.cg-empty #mode-chip, html[data-design="premium"] body #chat-screen.cg-empty #gen-mode, html[data-design="premium"] body #chat-screen.cg-empty #chat-off-note { order: 2; }
+html[data-design="premium"] body #chat-screen.cg-empty .messages-container { order: 3; flex: 0 0 auto !important; overflow: visible !important; margin-bottom: auto; padding-top: 2px !important; }
+html[data-design="premium"] body #chat-screen.cg-empty #welcome-bubble { display: none !important; }
+html[data-design="premium"] body #chat-screen.cg-empty .suggest-grid { width: 100%; max-width: 732px; margin: 0 auto !important; grid-template-columns: repeat(2, 1fr) !important; }
+html[data-design="premium"] body #chat-screen .suggest-card { background: #fafafa !important; border: 1px solid var(--cg-line) !important; border-radius: 14px !important; text-align: left; }
+html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background: var(--cg-ink) !important; }
+
+/* ---- kompyuter: doimiy yon panel + oq yumaloq oyna ---- */
+@media (min-width: 992px) {
+    html[data-design="premium"] body #chat-screen { padding: 14px 14px 14px 286px !important; }
+    html[data-design="premium"] body #chat-screen::before { content: ""; position: absolute; left: 286px; top: 14px; right: 14px; bottom: 14px; background: var(--cg-card);
+        border: 1px solid var(--cg-line); border-radius: 22px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 30px 60px -40px rgba(0,0,0,.25); z-index: 0; pointer-events: none; }
+    html[data-design="premium"] body #chat-screen > *:not(#chats-drawer) { position: relative; z-index: 1; }
+    html[data-design="premium"] body #chats-drawer { position: absolute !important; left: 0; top: 0; bottom: 0; right: auto !important; width: 286px; pointer-events: auto !important; z-index: 2 !important; }
+    html[data-design="premium"] body #chats-drawer .drawer-backdrop { display: none !important; }
+    html[data-design="premium"] body #chats-drawer .drawer-panel { position: absolute !important; inset: 0 !important; width: auto !important; transform: none !important; box-shadow: none !important;
+        background: transparent !important; border: 0 !important; padding: 18px 12px 18px 16px !important; }
+    html[data-design="premium"] body #chat-screen .hdr-menu-btn { display: none !important; }
+    html[data-design="premium"] body #chat-screen .chat-header { padding: 14px 22px !important; }
+    html[data-design="premium"] body #chat-screen.cg-empty .suggest-grid { grid-template-columns: repeat(4, 1fr) !important; }
+    html[data-design="premium"] body #chat-screen .input-bar { padding-left: max(14px, calc((100% - 760px) / 2)) !important; padding-right: max(14px, calc((100% - 760px) / 2)) !important; }
+    html[data-design="premium"] body #chat-screen .input-bar::after { left: max(14px, calc((100% - 760px) / 2)); right: max(14px, calc((100% - 760px) / 2)); }
+    html[data-design="premium"] body #chat-screen.cg-empty .input-bar { padding-left: 14px !important; padding-right: 14px !important; }
+    html[data-design="premium"] body #chat-screen.cg-empty .input-bar::after { left: 14px; right: 14px; }
+}
+</style>
+<script id="cg-chat-script">
+(function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    function T(uz, en, ru) { return typeof tr === 'function' ? tr(uz, en, ru) : uz; }
+    // har bir nusxa o'z gradient id'si bilan (yashirin nusxadagi id'ga murojaat qilinsa, logo ko'rinmay qoladi)
+    var markN = 0;
+    function MARK() { var g = 'cgG' + (++markN); return '<svg class="cg-mark" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="' + g + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff6a1f"/></linearGradient></defs><rect width="40" height="40" rx="11" fill="url(#' + g + ')"/><path d="M20 8.5l2.6 7.2 7.4 2.3-7.4 2.3L20 27.5l-2.6-7.2L10 18l7.4-2.3z" fill="#fff"/><circle cx="29" cy="28.5" r="2.2" fill="#fff"/></svg>'; }
+    function ic(d) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>'; }
+    function build() {
+        var panel = document.querySelector('#chats-drawer .drawer-panel'), cs = $('chat-screen'), bar = document.querySelector('#chat-screen .input-bar');
+        if (!panel || !cs || !bar || $('cg-nav')) return;
+        var brand = document.createElement('div'); brand.className = 'cg-brand cg-only'; brand.innerHTML = MARK() + '<span>Bilols AI</span>';
+        panel.insertBefore(brand, panel.firstChild);
+        var nav = document.createElement('div'); nav.className = 'cg-nav cg-only'; nav.id = 'cg-nav';
+        nav.innerHTML =
+            '<button type="button" data-k="gen">' + ic('<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>') + '<span></span></button>' +
+            '<button type="button" data-k="doc">' + ic('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>') + '<span></span></button>' +
+            '<button type="button" data-k="mode">' + ic('<path d="M12 3l2.4 5 5.6.8-4 3.9.9 5.5L12 15.6 7.1 18.2l.9-5.5-4-3.9 5.6-.8z"/>') + '<span></span></button>' +
+            '<button type="button" data-k="sup">' + ic('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>') + '<span></span></button>';
+        var newBtn = $('new-chat-btn'); newBtn.parentNode.insertBefore(nav, newBtn.nextSibling);
+        var foot = document.createElement('div'); foot.className = 'cg-foot cg-only';
+        foot.innerHTML = '<button type="button" data-k="shop">' + ic('<path d="M3 7h18l-1.5 11a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2z"/><path d="M8 7a4 4 0 0 1 8 0"/>') + '<span></span></button>' +
+            '<button type="button" data-k="set">' + ic('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>') + '<span></span></button>' +
+            '<button type="button" class="cg-user" data-k="me"><span class="cg-ava"></span><div><b></b><small></small></div>' + ic('<path d="m7 15 5 5 5-5M7 9l5-5 5 5"/>') + '</button>';
+        panel.appendChild(foot);
+        var hero = document.createElement('div'); hero.className = 'cg-hero cg-only'; hero.id = 'cg-hero';
+        hero.innerHTML = '<button type="button" class="cg-pill" id="cg-pill"></button>' + MARK() + '<h2 id="cg-title"></h2>';
+        cs.insertBefore(hero, bar);
+        function act(k) {
+            var close = function () { var d = $('chats-drawer'); if (d && window.innerWidth < 992) d.classList.remove('open'); };
+            if (k === 'gen') { close(); $('attach-gen') && $('attach-gen').click(); }
+            else if (k === 'doc') { close(); $('doc-input') && $('doc-input').click(); }
+            else if (k === 'mode') { close(); var mm = $('mode-menu'); if (mm) setTimeout(function () { mm.classList.add('open'); }, 30); }
+            else if (k === 'sup') { close(); $('drawer-support') && $('drawer-support').click(); }
+            else if (k === 'set') { close(); $('open-settings-btn') && $('open-settings-btn').click(); }
+            else if (k === 'shop') { close(); window.__openSettingsHub ? window.__openSettingsHub('shop') : ($('open-wallet-btn') && $('open-wallet-btn').click()); }
+            else if (k === 'me') { close(); $('open-wallet-btn') && $('open-wallet-btn').click(); }
+        }
+        [nav, foot].forEach(function (box) { box.addEventListener('click', function (e) { var b = e.target.closest('button[data-k]'); if (b) { e.stopPropagation(); act(b.getAttribute('data-k')); } }); });
+        $('cg-pill').onclick = function () { $('model-btn') && $('model-btn').click(); };
+        paint();
+        var mc = $('messages-container');
+        if (mc && window.MutationObserver) new MutationObserver(empty).observe(mc, { childList: true });
+        var hb = $('header-balance'); if (hb && window.MutationObserver) new MutationObserver(paint).observe(hb, { childList: true, characterData: true, subtree: true });
+        empty();
+    }
+    function paint() {
+        var nav = $('cg-nav'); if (!nav) return;
+        var L = { gen: T('Rasm yaratish', 'Create images', 'Создать изображение'), doc: T('Hujjat tahlili', 'Analyse a document', 'Анализ документа'),
+            mode: T('AI rejimlari', 'AI modes', 'Режимы ИИ'), sup: T('Yordam — admin', 'Support', 'Поддержка'), set: T('Sozlamalar', 'Settings', 'Настройки'), shop: T("Do'kon", 'Shop', 'Магазин') };
+        document.querySelectorAll('.cg-nav button, .cg-foot button[data-k="set"], .cg-foot button[data-k="shop"]').forEach(function (b) { var s = b.querySelector('span'); if (s) s.textContent = L[b.getAttribute('data-k')] || ''; });
+        var name = (typeof currentName !== 'undefined' && currentName) || localStorage.getItem('bilol_ai_name') || 'Bilols AI';
+        var u = document.querySelector('.cg-user');
+        if (u) {
+            u.querySelector('.cg-ava').textContent = String(name).trim().charAt(0).toUpperCase() || 'B';
+            u.querySelector('b').textContent = name;
+            var bal = ($('header-balance') && $('header-balance').textContent) || '0';
+            u.querySelector('small').textContent = bal + ' ' + T("so'm", 'UZS', 'сум');
+        }
+        $('cg-pill').innerHTML = '✨ <b>' + T('Obuna', 'Subscribe', 'Подписка') + '</b> ' + T('— barcha kuchli agentlar', '— unlock all pro agents', '— все мощные агенты');
+        $('cg-title').textContent = T('Aqlli suhbatni boshlaymiz', "Let's start a smart conversation", 'Начнём умный разговор');
+    }
+    function empty() {
+        var cs = $('chat-screen'), mc = $('messages-container'); if (!cs || !mc) return;
+        var isEmpty = !!mc.querySelector('#suggest-grid') && !mc.querySelector('.msg-user');
+        cs.classList.toggle('cg-empty', isEmpty);
+    }
+    window.__cgPaint = paint;
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(build, 0); }); else setTimeout(build, 0);
+    document.addEventListener('click', function (e) { if (e.target.closest('[onclick*="setAppLanguage"]')) setTimeout(paint, 50); });
+})();
+</script>
+
+<!-- ============ PREMIUM SOZLAMALAR (Crisply uslubi): chapda bo'limlar, o'ngda qatorlar ============
+     Faqat Premium dizaynida. Mavjud sozlama kartalari va hamyon qismlari shu sahifaga ko'chiriladi
+     (id'lar o'zgarmaydi, eski kod ishlayveradi). Hamyon tugmasi ham shu sahifani "Do'kon" bo'limida ochadi. -->
+<style>
+html[data-design="premium"] body #settings-modal.sh-on { background: #f6f5f2 !important; padding: 0 !important; z-index: 80; }
+html[data-design="premium"] body #settings-modal.sh-on > .modal-header { padding: calc(14px + env(safe-area-inset-top)) 20px 14px !important; margin: 0 !important; border-bottom: 1px solid #ececef; background: #fff; }
+html[data-design="premium"] body #settings-modal.sh-on > .modal-header h2 { font-family: 'Inter Tight', var(--pm-sans) !important; font-size: 20px !important; font-weight: 600 !important; color: #18181b !important; }
+html[data-design="premium"] body #settings-modal.sh-on > .sh-scroll { padding: 0 !important; overflow: hidden !important; display: flex; min-height: 0; }
+.sh-hub { display: flex; flex-direction: column; flex: 1; min-height: 0; width: 100%; font-family: 'Inter Tight', 'Twemoji', -apple-system, 'Segoe UI', Roboto, sans-serif; color: #18181b; }
+.sh-nav { display: flex; gap: 4px; overflow-x: auto; padding: 10px 14px; background: #fff; border-bottom: 1px solid #ececef; scrollbar-width: none; flex-shrink: 0; }
+.sh-nav::-webkit-scrollbar { display: none; }
+.sh-nav small { display: none; }
+.sh-nav button { display: flex; align-items: center; gap: 8px; flex-shrink: 0; border: 0; background: transparent; color: #52525b; font: inherit; font-size: 14px; font-weight: 500; padding: 8px 12px; border-radius: 9px; cursor: pointer; white-space: nowrap; }
+.sh-nav button svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sh-nav button:hover { background: #f4f4f5; }
+.sh-nav button.on { background: #f4f4f5; color: #18181b; font-weight: 600; }
+.sh-main { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 18px calc(30px + env(safe-area-inset-bottom)); background: #fff; -webkit-overflow-scrolling: touch; }
+.sh-pane { display: none; max-width: 760px; }
+.sh-pane.on { display: block; animation: shIn .2s ease-out both; }
+@keyframes shIn { from { opacity: 0; transform: translateY(4px); } }
+.sh-pane > h3 { margin: 18px 0 2px; font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+.sh-pane > p.sh-lead { margin: 0 0 6px; color: #71717a; font-size: 13.5px; }
+.sh-group { margin-top: 22px; }
+.sh-group > h4 { margin: 0 0 4px; padding-bottom: 10px; border-bottom: 1px solid #ececef; font-size: 15px; font-weight: 600; color: #18181b; }
+/* kartalar -> qatorlar */
+html[data-design="premium"] body .sh-hub .settings-card { background: transparent !important; border: 0 !important; border-bottom: 1px solid #f1f1f3 !important; border-radius: 0 !important;
+    box-shadow: none !important; margin: 0 !important; padding: 14px 0 !important; animation: none !important; }
+html[data-design="premium"] body .sh-hub .settings-card:hover { transform: none !important; background: transparent !important; }
+html[data-design="premium"] body .sh-hub .settings-card h4 { font-family: inherit !important; font-size: 14.5px !important; font-weight: 600 !important; color: #18181b !important; margin: 0 0 2px !important; }
+html[data-design="premium"] body .sh-hub .settings-card p { font-size: 12.5px !important; color: #71717a !important; margin: 0 !important; }
+html[data-design="premium"] body .sh-hub .settings-card.clickable .set-arrow { border: 1px solid #e4e4e7; border-radius: 8px; padding: 4px 10px; font-size: 13px; color: #18181b; }
+html[data-design="premium"] body .sh-hub .toggle-switch { width: 40px !important; height: 22px !important; background: #e4e4e7 !important; box-shadow: none !important; }
+html[data-design="premium"] body .sh-hub .toggle-switch::after { width: 16px !important; height: 16px !important; top: 3px !important; left: 3px !important; background: #fff !important; box-shadow: 0 1px 2px rgba(0,0,0,.2) !important; }
+html[data-design="premium"] body .sh-hub .toggle-switch.active { background: #18181b !important; }
+html[data-design="premium"] body .sh-hub .toggle-switch.active::after { transform: translateX(18px) !important; }
+html[data-design="premium"] body .sh-hub .settings-segmented { background: #f4f4f5 !important; border: 0 !important; border-radius: 9px !important; padding: 3px !important; }
+html[data-design="premium"] body .sh-hub .segmented-btn { color: #52525b !important; background: transparent !important; border-radius: 7px !important; font-size: 12.5px !important; box-shadow: none !important; }
+html[data-design="premium"] body .sh-hub .segmented-btn.active { background: #fff !important; color: #18181b !important; box-shadow: 0 1px 2px rgba(0,0,0,.08) !important; }
+html[data-design="premium"] body .sh-hub .clear-chat-danger-btn { margin-top: 18px !important; background: #fff !important; color: #b91c1c !important; border: 1px solid #fecaca !important; border-radius: 10px !important; }
+/* profil sarlavhasi */
+.sh-me { display: flex; align-items: center; gap: 14px; padding: 16px 0 6px; }
+.sh-me .sh-ava { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #ff8a3d, #ff6a1f); flex-shrink: 0; }
+.sh-me b { display: block; font-size: 17px; font-weight: 600; } .sh-me small { display: block; color: #71717a; font-size: 13px; margin-top: 2px; }
+.sh-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f1f1f3; }
+.sh-row b { display: block; font-size: 14.5px; font-weight: 600; } .sh-row small { display: block; font-size: 12.5px; color: #71717a; margin-top: 2px; }
+.sh-btn { flex-shrink: 0; border: 1px solid #e4e4e7; background: #fff; color: #18181b; font: inherit; font-size: 13px; font-weight: 600; padding: 8px 12px; border-radius: 9px; cursor: pointer; }
+.sh-btn.dark { background: #18181b; color: #fff; border-color: #18181b; }
+.sh-btn.red { color: #b91c1c; }
+.sh-row .danger { color: #b91c1c; }
+/* hamyon qismlari */
+html[data-design="premium"] body .sh-hub .balance-badge { background: #18181b !important; color: #fff !important; border: 0 !important; border-radius: 16px !important; box-shadow: none !important; text-align: left !important; padding: 20px !important; margin: 18px 0 6px !important; }
+html[data-design="premium"] body .sh-hub .balance-badge * { color: #fff !important; }
+html[data-design="premium"] body .sh-hub .balance-badge .balance-num { font-size: 32px !important; }
+html[data-design="premium"] body .sh-hub .uid-chip { background: rgba(255,255,255,.14) !important; border: 1px solid rgba(255,255,255,.2) !important; color: #fff !important; }
+html[data-design="premium"] body .sh-hub .wx-card { background: transparent !important; border: 0 !important; border-bottom: 1px solid #f1f1f3 !important; border-radius: 0 !important; box-shadow: none !important; padding: 14px 0 !important; margin: 0 !important; }
+html[data-design="premium"] body .sh-hub .wx-btn { background: #18181b !important; color: #fff !important; border-radius: 9px !important; box-shadow: none !important; }
+html[data-design="premium"] body .sh-hub .wx-row { margin: 8px 0 !important; }
+html[data-design="premium"] body .sh-hub .wx-small { border: 1px solid #ececef !important; border-radius: 12px !important; padding: 12px !important; }
+html[data-design="premium"] body .sh-hub .wx-promo-input { background: #fafafa !important; border: 1px solid #e4e4e7 !important; color: #18181b !important; border-radius: 9px !important; }
+html[data-design="premium"] body .sh-hub .section-label { color: #18181b !important; font-size: 15px !important; font-weight: 600 !important; margin: 24px 0 10px !important; padding-bottom: 10px; border-bottom: 1px solid #ececef; }
+html[data-design="premium"] body .sh-hub .pack-card { background: #fff !important; border: 1px solid #ececef !important; border-radius: 14px !important; box-shadow: none !important; animation: none !important; }
+html[data-design="premium"] body .sh-hub .pack-card:hover { border-color: #18181b !important; }
+html[data-design="premium"] body .sh-hub .pack-val { color: #18181b !important; } html[data-design="premium"] body .sh-hub .pack-price { color: #ff6a1f !important; }
+html[data-design="premium"] body .sh-hub #wx-hist-open { display: none !important; }
+html[data-design="premium"] body .sh-hub #wallet-sub { position: static !important; display: flex !important; background: transparent !important; padding: 0 !important; animation: none !important; }
+html[data-design="premium"] body .sh-hub #wallet-sub > .modal-header { display: none !important; }
+html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
+@media (min-width: 900px) {
+    html[data-design="premium"] body #settings-modal.sh-on { padding: 28px !important; background: #ecebe7 !important; }
+    html[data-design="premium"] body #settings-modal.sh-on > .modal-header { border: 1px solid #ececef; border-bottom: 1px solid #ececef; border-radius: 18px 18px 0 0; padding: 18px 24px !important; }
+    html[data-design="premium"] body #settings-modal.sh-on > .sh-scroll { border: 1px solid #ececef; border-top: 0; border-radius: 0 0 18px 18px; overflow: hidden !important; background: #fff; }
+    .sh-hub { flex-direction: row; }
+    .sh-nav { flex-direction: column; width: 230px; overflow: visible; border-bottom: 0; border-right: 1px solid #ececef; padding: 16px 12px; background: #fafaf9; gap: 2px; }
+    .sh-nav small { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #a1a1aa; padding: 12px 12px 6px; }
+    .sh-nav small:first-child { padding-top: 2px; }
+    .sh-nav button { width: 100%; }
+    .sh-nav button.on { background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 0 0 1px #ececef; }
+    .sh-main { padding: 8px 32px 32px; }
+}
+</style>
+<script id="sh-hub-script">
+(function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    function T(uz, en, ru) { return typeof tr === 'function' ? tr(uz, en, ru) : uz; }
+    function prem() { return document.documentElement.getAttribute('data-design') === 'premium'; }
+    function ic(d) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>'; }
+    var ICON = {
+        profile: ic('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'),
+        app: ic('<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/>'),
+        shop: ic('<path d="M3 7h18l-1.5 11a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2z"/><path d="M8 7a4 4 0 0 1 8 0"/>'),
+        topup: ic('<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M7 15h3"/>'),
+        orders: ic('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'),
+        help: ic('<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7M12 17h.01"/>')
+    };
+    var built = false, panes = {}, navBtns = {};
+    function card(id) { var el = $(id); return el ? (el.closest('.settings-card') || el) : null; }
+    function group(title, nodes) {
+        var g = document.createElement('div'); g.className = 'sh-group';
+        var h = document.createElement('h4'); h.textContent = title; g.appendChild(h);
+        nodes.forEach(function (n) { if (n) g.appendChild(n); });
+        return g;
+    }
+    function row(title, sub, btnText, onClick, cls) {
+        var r = document.createElement('div'); r.className = 'sh-row';
+        r.innerHTML = '<div><b class="' + (cls || '') + '"></b><small></small></div><button type="button" class="sh-btn ' + (cls === 'danger' ? 'red' : '') + '"></button>';
+        r.querySelector('b').textContent = title; r.querySelector('small').textContent = sub; r.querySelector('button').textContent = btnText;
+        r.querySelector('button').onclick = onClick;
+        return r;
+    }
+    function pane(key, title, lead) {
+        var p = document.createElement('section'); p.className = 'sh-pane'; p.dataset.p = key;
+        var h = document.createElement('h3'); h.textContent = title; p.appendChild(h);
+        if (lead) { var l = document.createElement('p'); l.className = 'sh-lead'; l.textContent = lead; p.appendChild(l); }
+        panes[key] = p; return p;
+    }
+    function build() {
+        if (built || !prem()) return;
+        var sm = $('settings-modal'), wm = $('wallet-modal'); if (!sm || !wm) return;
+        var header = sm.querySelector('.modal-header'), scroll = header && header.nextElementSibling;
+        if (!scroll) return;
+        built = true;
+        scroll.classList.add('sh-scroll');
+        var hub = document.createElement('div'); hub.className = 'sh-hub';
+        var nav = document.createElement('nav'); nav.className = 'sh-nav';
+        var main = document.createElement('div'); main.className = 'sh-main';
+        hub.appendChild(nav); hub.appendChild(main);
+
+        var name = (typeof currentName !== 'undefined' && currentName) || localStorage.getItem('bilol_ai_name') || '';
+        var phone = String((typeof currentPhone !== 'undefined' && currentPhone) || localStorage.getItem('bilol_ai_phone') || '').replace(/\D/g, '');
+
+        // 1) Profil
+        var pP = pane('profile', T('Mening profilim', 'My profile', 'Мой профиль'));
+        var me = document.createElement('div'); me.className = 'sh-me';
+        me.innerHTML = '<span class="sh-ava"></span><div><b></b><small></small></div>';
+        me.querySelector('.sh-ava').textContent = (name || 'B').charAt(0).toUpperCase();
+        me.querySelector('b').textContent = name || 'Bilols AI';
+        me.querySelector('small').textContent = phone ? '+' + phone : '';
+        pP.appendChild(me);
+        pP.appendChild(group(T('Hisob xavfsizligi', 'Account security', 'Безопасность'), [
+            row(T('Parol', 'Password', 'Пароль'), '••••••••', T("Parolni o'zgartirish", 'Change password', 'Сменить пароль'), function () { typeof openPasswordModal === 'function' && openPasswordModal(); }),
+            card('reset-entry'), card('qr-scan-entry'), card('sess-entry')
+        ]));
+        var hidden = card('lang-set-profile'); if (hidden) hidden.style.display = 'none', pP.appendChild(hidden);
+        pP.appendChild(group(T('Kirish', 'Sessions', 'Сеансы'), [
+            row(T('Hisobdan chiqish', 'Log out', 'Выйти'), T('Shu qurilmada hisobdan chiqasiz', 'Log out on this device', 'Выйти на этом устройстве'), T('Chiqish', 'Log out', 'Выйти'), function () { $('logout-btn') && $('logout-btn').click(); }, 'danger')
+        ]));
+
+        // 2) Ilova
+        var pA = pane('app', T('Ilova sozlamalari', 'App settings', 'Настройки приложения'));
+        pA.appendChild(group(T("Ko'rinish", 'Appearance', 'Внешний вид'), [card('lang-set-lang-title'), card('lang-set-font-title'), card('lang-set-theme-title'), card('toggle-light'), card('toggle-animation'), card('toggle-particles'), card('toggle-msganim')]));
+        pA.appendChild(group(T('Ovoz va tebranish', 'Sound & haptics', 'Звук и вибрация'), [card('toggle-sound'), card('lang-set-vol-title'), card('toggle-click'), card('toggle-haptic')]));
+        pA.appendChild(group(T('Chat', 'Chat', 'Чат'), [card('toggle-enter'), card('install-entry'), $('clear-chat-btn')]));
+
+        // 3) Do'kon: balans va to'ldirish ham shu yerda
+        var pS = pane('shop', T("Do'kon", 'Shop', 'Магазин'), T("Balansni to'ldiring va Obuna, Telegram Stars, Premium xarid qiling.", 'Top up your balance and buy a subscription, Telegram Stars or Premium.', 'Пополняйте баланс и покупайте подписку, Telegram Stars и Premium.'));
+        var bb = wm.querySelector('.balance-badge'); if (bb) pS.appendChild(bb);
+        var tnote = document.createElement('p'); tnote.className = 'sh-lead'; tnote.id = 'sh-topup-note';
+        pS.appendChild(group(T("Hisobni to'ldirish", 'Top up', 'Пополнение'), [$('wx-topup'), tnote, $('wx-bonus'), wm.querySelector('.wx-promo')]));
+        pS.appendChild(group(T('Obuna', 'Subscription', 'Подписка'), [$('wx-sub'), wm.querySelector('.wx-row')]));
+        wm.querySelectorAll('.pack-scroll-area > .section-label, .pack-scroll-area > .pack-grid').forEach(function (n) { pS.appendChild(n); });
+
+        // 5) Buyurtmalarim
+        var pO = pane('orders', T('Buyurtmalarim', 'My orders', 'Мои заказы'), T("Do'kondan olgan buyurtmalaringiz va ularning holati.", 'Your shop orders and their status.', 'Ваши заказы из магазина и их статус.'));
+        var ws = $('wallet-sub'); if (ws) pO.appendChild(ws);
+
+        // 6) Yordam
+        var pH = pane('help', T('Yordam', 'Help', 'Помощь'));
+        var priv = scroll.querySelector('a.settings-card[href="/maxfiylik"]');
+        pH.appendChild(group(T('Aloqa', 'Contact', 'Связь'), [card('support-entry'), priv]));
+
+        // qolgan kartalar (yangi qo'shilganlari) — Ilova bo'limiga
+        Array.prototype.slice.call(scroll.children).forEach(function (n) { if (n !== hub) pA.appendChild(n); });
+
+        var sections = [
+            [T("Do'kon", 'Shop', 'Магазин'), [['shop', T("Do'kon", 'Shop', 'Магазин')], ['orders', T('Buyurtmalarim', 'My orders', 'Мои заказы')]], 'shop'],
+            [T('Hisob', 'Account', 'Аккаунт'), [['profile', T('Profil', 'Profile', 'Профиль')], ['app', T('Ilova', 'App', 'Приложение')]], 'settings'],
+            [T('Boshqa', 'Other', 'Другое'), [['help', T('Yordam', 'Help', 'Помощь')]], 'settings']
+        ];
+        sections.forEach(function (s) {
+            var sm2 = document.createElement('small'); sm2.textContent = s[0]; sm2.dataset.mode = s[2]; nav.appendChild(sm2);
+            s[1].forEach(function (it) {
+                var b = document.createElement('button'); b.type = 'button'; b.dataset.mode = s[2]; b.innerHTML = ICON[it[0]] + '<span></span>';
+                b.querySelector('span').textContent = it[1];
+                b.onclick = function () { select(it[0]); };
+                nav.appendChild(b); navBtns[it[0]] = b;
+            });
+        });
+        ['shop', 'orders', 'profile', 'app', 'help'].forEach(function (k) { main.appendChild(panes[k]); });
+        scroll.appendChild(hub);
+        sm.classList.add('sh-on');
+    }
+    // Do'kon va Sozlamalar — bitta oynada, lekin alohida: har biri faqat o'z bo'limlarini ko'rsatadi
+    function setMode(mode) {
+        var sm = $('settings-modal'); if (!sm) return;
+        sm.dataset.hub = mode;
+        document.querySelectorAll('.sh-nav [data-mode]').forEach(function (el) { el.style.display = el.dataset.mode === mode ? '' : 'none'; });
+        var h2 = sm.querySelector('.modal-header h2');
+        if (h2) h2.textContent = mode === 'shop' ? T("Do'kon", 'Shop', 'Магазин') : T('Sozlamalar', 'Settings', 'Настройки');
+    }
+    function select(k) {
+        Object.keys(panes).forEach(function (x) { panes[x].classList.toggle('on', x === k); navBtns[x] && navBtns[x].classList.toggle('on', x === k); });
+        var m = document.querySelector('.sh-main'); if (m) m.scrollTop = 0;
+        window.__histShopOnly = (k === 'orders');
+        if (k === 'orders' && $('wx-hist-open') && $('wx-hist-open').onclick) $('wx-hist-open').onclick();
+        if (k === 'shop') {
+            var t = $('wx-topup'), note = $('sh-topup-note');
+            if (note) note.textContent = t && t.style.display === 'none' ? T("Hozircha to'ldirish usuli yoqilmagan. Yordam bo'limi orqali admin bilan bog'laning.", 'No top-up method is enabled yet. Contact the admin via Help.', 'Способ пополнения пока не включён. Свяжитесь с админом через раздел Помощь.') : '';
+        }
+    }
+    function open(k) {
+        var btn = $('open-settings-btn'); if (!btn) return;
+        btn.onclick && btn.onclick();
+        k = k || 'shop';
+        build(); setMode(k === 'shop' || k === 'orders' ? 'shop' : 'settings'); select(k);
+    }
+    window.__openSettingsHub = open;
+    // Sozlamalar ochilganda — sahifa quriladi; Hamyon tugmasi -> Do'kon bo'limi
+    document.addEventListener('click', function (e) {
+        if (!prem()) return;
+        var w = e.target.closest && e.target.closest('#open-wallet-btn');
+        if (w) { e.stopPropagation(); e.preventDefault(); window.__shOpening = true; open('shop'); setTimeout(function () { window.__shOpening = false; }, 0); return; }
+        if (e.target.closest && e.target.closest('#open-settings-btn')) setTimeout(function () { if (window.__shOpening) return; build(); setMode('settings'); select('profile'); }, 0);
+    }, true);
+})();
+</script>
+
+<!-- ============ SESSIYALAR: xavfsiz kirish kaliti + faol qurilmalar ============ -->
+<style>
+#sess-modal { position: fixed; inset: 0; z-index: 100001; display: none; align-items: center; justify-content: center; padding: 20px;
+    background: rgba(2, 4, 10, 0.86); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); overflow-y: auto; }
+#sess-modal.open { display: flex; animation: authFade 0.25s ease-out both; }
+#sess-modal .sess-card { position: relative; margin: auto; width: 100%; max-width: 420px; padding: 24px 20px 20px; text-align: left;
+    background: rgba(13, 18, 32, 0.97); border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 24px; box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.85); }
+#sess-modal .auth-close { top: 16px !important; right: 16px !important; width: 34px; height: 34px; border-radius: 11px; }
+.sess-list { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 16px; max-height: 46vh; overflow-y: auto; }
+.sess-item { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.07); }
+.sess-item .sess-ic { width: 36px; height: 36px; flex: 0 0 36px; border-radius: 11px; display: grid; place-items: center; font-size: 18px; background: rgba(255, 255, 255, 0.06); }
+.sess-item b { display: block; font-size: 14px; color: #f1f5f9; font-weight: 700; }
+.sess-item small { display: block; font-size: 12px; color: #94a3b8; margin-top: 2px; }
+.sess-item .sess-now { margin-left: auto; font-size: 11px; font-weight: 700; color: #34d399; background: rgba(52, 211, 153, 0.12); padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
+.sess-empty { font-size: 13.5px; color: #94a3b8; text-align: center; padding: 14px 0; }
+#sess-modal .primary-btn { height: 50px; border-radius: 14px; animation: none; }
+#sess-modal .primary-btn.danger { background: linear-gradient(135deg, #ef4444, #e11d48); }
+#sess-modal .primary-btn:disabled { opacity: 0.6; cursor: progress; }
+.sess-note { margin-top: 10px; font-size: 12.5px; color: #94a3b8; line-height: 1.5; text-align: center; }
+body.theme-light #sess-modal .sess-card { background: #fff; border-color: rgba(15, 23, 42, 0.1); }
+body.theme-light .sess-item { background: #f8fafc; border-color: rgba(15, 23, 42, 0.08); }
+body.theme-light .sess-item b { color: #0f172a; }
+</style>
+<div id="sess-modal">
+    <div class="sess-card">
+        <button class="auth-close" id="sess-close">&times;</button>
+        <div class="reset-ico">📱</div>
+        <h2 class="reset-title" id="sess-title">Faol qurilmalar</h2>
+        <p class="reset-sub" id="sess-sub"></p>
+        <div class="sess-list" id="sess-list"></div>
+        <button type="button" class="primary-btn danger" id="sess-out-others">Boshqa qurilmalardan chiqish</button>
+        <p class="sess-note" id="sess-note"></p>
+    </div>
+</div>
+<script id="sess-script">
+(function () {
+    var API = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://ai2-production-7d7e.up.railway.app';
+    function $(id) { return document.getElementById(id); }
+    function lang() { return (typeof currentLang !== 'undefined' && currentLang) || localStorage.getItem('bilol_ai_lang') || 'uz'; }
+    function T(uz, en, ru) { var l = lang(); return l === 'en' ? en : l === 'ru' ? ru : uz; }
+    function creds() {
+        var ph = (localStorage.getItem('bilol_ai_phone') || '').replace(/[^0-9]/g, ''), pw = localStorage.getItem('bilol_ai_password') || '';
+        return ph && pw ? { phone: ph, password: pw } : null;
+    }
+    function post(path, body, keep) {
+        return fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), keepalive: !!keep })
+            .then(function (r) { return r.json(); }).catch(function () { return {}; });
+    }
+
+    // Shu qurilmada chiqish — server kalitni ham o'chiradi
+    window.__serverLogout = function () {
+        var c = creds();
+        if (!c || c.password.indexOf('st_') !== 0) return Promise.resolve();
+        return Promise.race([post('/api/session/logout', c, true), new Promise(function (r) { setTimeout(r, 1500); })]);
+    };
+
+    // Eski usul: parol saqlangan bo'lsa — jimgina xavfsiz kalitga almashtiriladi
+    function upgrade() {
+        var c = creds();
+        if (!c || c.password.indexOf('st_') === 0) return;
+        post('/api/session/upgrade', c).then(function (j) {
+            if (j && j.success && j.token && creds() && creds().password === c.password) localStorage.setItem('bilol_ai_password', j.token);
+        });
+    }
+    setTimeout(upgrade, 2500);
+
+    function device(ua) {
+        ua = ua || '';
+        var os = /iPhone|iPad/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac OS/.test(ua) ? 'Mac' : /Linux/.test(ua) ? 'Linux' : T('Qurilma', 'Device', 'Устройство');
+        var br = /; wv\)/.test(ua) ? 'Bilols AI ' + T('ilova', 'app', 'приложение') : /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /YaBrowser/.test(ua) ? T('Yandex', 'Yandex', 'Яндекс') :
+            /Firefox\//.test(ua) ? 'Firefox' : /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : '';
+        var ic = /iPhone|iPad|Android/.test(ua) ? '📱' : '💻';
+        return { name: os + (br ? ' · ' + br : ''), icon: ic };
+    }
+    function ago(ts) {
+        var s = Math.max(0, Math.floor(Date.now() / 1000) - ts);
+        if (s < 3600) return T('hozir faol', 'active now', 'активен сейчас');
+        if (s < 86400) return T(Math.floor(s / 3600) + ' soat oldin', Math.floor(s / 3600) + 'h ago', Math.floor(s / 3600) + ' ч назад');
+        var d = new Date(ts * 1000);
+        return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear();
+    }
+    function render(list) {
+        var box = $('sess-list'); box.innerHTML = '';
+        if (!list.length) { box.innerHTML = '<div class="sess-empty"></div>'; box.firstChild.textContent = T("Ma'lumot yo'q", 'No data', 'Нет данных'); return; }
+        list.forEach(function (s) {
+            var d = device(s.ua), it = document.createElement('div'); it.className = 'sess-item';
+            it.innerHTML = '<span class="sess-ic"></span><div><b></b><small></small></div>' + (s.current ? '<span class="sess-now"></span>' : '');
+            it.querySelector('.sess-ic').textContent = d.icon;
+            it.querySelector('b').textContent = d.name;
+            it.querySelector('small').textContent = T('Kirgan: ', 'Signed in: ', 'Вход: ') + ago(s.created).replace(/^(hozir faol|active now|активен сейчас)$/, T('bugun', 'today', 'сегодня')) + ' · ' + ago(s.lastUsed);
+            if (s.current) it.querySelector('.sess-now').textContent = T('Shu qurilma', 'This device', 'Это устройство');
+            box.appendChild(it);
+        });
+    }
+    function load() {
+        var c = creds(); if (!c) return;
+        $('sess-list').innerHTML = '<div class="sess-empty">⏳</div>';
+        post('/api/session/list', c).then(function (j) { render((j && j.sessions) || []); });
+    }
+    function open() {
+        $('sess-title').textContent = T('Faol qurilmalar', 'Active devices', 'Активные устройства');
+        $('sess-sub').textContent = T('Hisobingizga shu qurilmalardan kirilgan.', 'Your account is signed in on these devices.', 'В ваш аккаунт выполнен вход на этих устройствах.');
+        $('sess-out-others').textContent = T('Boshqa qurilmalardan chiqish', 'Log out of other devices', 'Выйти на других устройствах');
+        $('sess-note').textContent = T("Begona qurilma ko'rsangiz — chiqaring va parolni o'zgartiring.", "If you see an unknown device, log it out and change your password.", 'Если видите чужое устройство — выйдите и смените пароль.');
+        $('sess-modal').classList.add('open');
+        var sm = $('settings-modal'); if (sm) sm.style.display = 'none';
+        load();
+    }
+    function close() { $('sess-modal').classList.remove('open'); }
+    $('sess-close').onclick = close;
+    $('sess-modal').addEventListener('click', function (e) { if (e.target === this) close(); });
+    $('sess-entry').onclick = open;
+    $('sess-out-others').onclick = async function () {
+        var c = creds(); if (!c) return;
+        var ok = typeof bConfirm === 'function' ? await bConfirm(T("Shu qurilmadan boshqa barcha qurilmalarda hisobdan chiqilsinmi?", 'Log out on all other devices?', 'Выйти на всех других устройствах?'), { danger: true, icon: '🔒', ok: T('Chiqish', 'Log out', 'Выйти') }) : confirm('?');
+        if (!ok) return;
+        var b = this; b.disabled = true;
+        var j = await post('/api/session/logout-others', c);
+        b.disabled = false;
+        if (j && j.success) {
+            if (typeof showNotification === 'function') showNotification(T('Boshqa qurilmalardan chiqildi: ', 'Logged out devices: ', 'Выход выполнен на устройствах: ') + (j.closed || 0));
+            load();
+        } else if (typeof showNotification === 'function') showNotification(j.error || T('Xatolik', 'Error', 'Ошибка'), 'error');
+    };
+    function sync() {
+        if ($('sess-entry-t')) $('sess-entry-t').textContent = T('📱 Faol qurilmalar', '📱 Active devices', '📱 Активные устройства');
+        if ($('sess-entry-s')) $('sess-entry-s').textContent = T('Hisobingiz ochiq qurilmalar · boshqalaridan chiqish', 'Where you are signed in · log out others', 'Где выполнен вход · выйти на других');
+        $('sess-entry').style.display = creds() ? '' : 'none';
+    }
+    sync();
+    var sm = $('settings-modal');
+    if (sm) new MutationObserver(sync).observe(sm, { attributes: true, attributeFilter: ['style', 'class'] });
+})();
+</script>
+
+<!-- ============ 🌐 INTERNET · 🖌️ RASM TAHRIRLASH · 📝 TEST ============ -->
+<style>
+#web-chip { display: flex; align-items: center; gap: 10px; margin: 0 12px 8px; padding: 8px 10px; border-radius: 14px;
+    background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); animation: aiSmoothIn 0.2s ease-out both; }
+#web-chip .doc-ico { font-size: 20px; }
+#web-chip .doc-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+#web-chip .doc-meta b { font-size: 13px; color: #f1f5f9; }
+#web-chip .doc-meta small { font-size: 11.5px; color: #7dd3fc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#web-chip .doc-remove { width: 30px; height: 30px; border-radius: 9px; border: none; cursor: pointer; font-size: 18px; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; }
+body.theme-light #web-chip .doc-meta b { color: #0f172a; }
+body.theme-light #web-chip .doc-meta small { color: #0369a1; }
+html[data-design="premium"] body #chat-screen.cg-empty #web-chip { order: 2; }
+#attach-web.on b::after { content: " ✓"; color: #38bdf8; }
+
+.quiz-bubble { max-width: min(640px, 92%) !important; }
+.md-link { color: #7dd3fc; text-decoration: underline; text-underline-offset: 2px; word-break: break-word; }
+.md-link:hover { color: #bae6fd; }
+body.theme-light .md-link { color: #0369a1; }
+.md-hr { border: none; border-top: 1px solid rgba(148, 163, 184, 0.25); margin: 10px 0; }
+.qz-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.qz-head .qz-ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; background: rgba(139, 92, 246, 0.16); flex: 0 0 40px; }
+.qz-head b { display: block; font-size: 16px; }
+.qz-head small { display: block; font-size: 12.5px; opacity: .65; margin-top: 2px; }
+.qz-q { padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.07); margin-bottom: 10px; }
+.qz-qt { font-weight: 650; font-size: 14.5px; line-height: 1.45; margin-bottom: 10px; }
+.qz-opts { display: grid; gap: 7px; }
+.qz-opt { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 9px 10px; border-radius: 11px; cursor: pointer; font: inherit; font-size: 14px;
+    color: inherit; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.09); transition: background .15s, border-color .15s, transform .1s; }
+.qz-opt:hover { background: rgba(255, 255, 255, 0.08); }
+.qz-opt:active { transform: scale(.99); }
+.qz-l { width: 26px; height: 26px; flex: 0 0 26px; border-radius: 8px; display: grid; place-items: center; font-weight: 700; font-size: 12.5px; background: rgba(255, 255, 255, 0.08); }
+.qz-q.done .qz-opt { cursor: default; opacity: .6; }
+.qz-q.done .qz-opt.ok, .qz-q.done .qz-opt.bad { opacity: 1; }
+.qz-opt.ok { background: rgba(16, 185, 129, 0.16); border-color: rgba(16, 185, 129, 0.55); }
+.qz-opt.ok .qz-l { background: #10b981; color: #fff; }
+.qz-opt.bad { background: rgba(244, 63, 94, 0.14); border-color: rgba(244, 63, 94, 0.5); }
+.qz-opt.bad .qz-l { background: #f43f5e; color: #fff; }
+.qz-ex { display: none; margin-top: 9px; font-size: 13px; line-height: 1.5; }
+.qz-ex.ok, .qz-ex.bad { display: block; }
+.qz-ex.ok { color: #34d399; } .qz-ex.bad { color: #fda4af; }
+.qz-score { display: none; text-align: center; padding: 16px 12px 6px; }
+.qz-score.on { display: block; animation: aiSmoothIn .3s ease-out both; }
+.qz-score b { display: block; font-size: 30px; font-weight: 800; }
+.qz-score > span { display: block; font-size: 14px; opacity: .8; margin: 2px 0 10px; }
+.qz-bar { height: 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.08); overflow: hidden; margin: 0 auto 14px; max-width: 320px; }
+.qz-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #8b5cf6, #10b981); transition: width .6s ease; }
+.qz-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.qz-again { padding: 9px 14px; border-radius: 11px; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.06); color: inherit; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.qz-again:hover { background: rgba(255, 255, 255, 0.12); }
+body.theme-light .qz-q { background: #f8fafc; border-color: rgba(15, 23, 42, 0.08); }
+body.theme-light .qz-opt { background: #fff; border-color: rgba(15, 23, 42, 0.12); }
+body.theme-light .qz-l, body.theme-light .qz-again { background: rgba(15, 23, 42, 0.06); }
+body.theme-light .qz-ex.ok { color: #047857; } body.theme-light .qz-ex.bad { color: #be123c; }
+body.theme-light .qz-opt.ok { background: #ecfdf5; border-color: #10b981; }
+body.theme-light .qz-opt.bad { background: #fff1f2; border-color: #f43f5e; }
+body.theme-light .qz-opt.ok .qz-l { background: #10b981; color: #fff; }
+body.theme-light .qz-opt.bad .qz-l { background: #f43f5e; color: #fff; }
+body.theme-light .qz-bar { background: rgba(15, 23, 42, 0.08); }
+body.theme-light #web-chip .doc-remove, body.theme-light #gen-mode .doc-remove, body.theme-light #mode-chip .doc-remove { background: rgba(15, 23, 42, 0.07); color: #334155; }
+
+#quiz-modal { position: fixed; inset: 0; z-index: 100001; display: none; align-items: center; justify-content: center; padding: 20px;
+    background: rgba(2, 4, 10, 0.86); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); overflow-y: auto; }
+#quiz-modal.open { display: flex; animation: authFade 0.25s ease-out both; }
+#quiz-modal .qm-card { position: relative; margin: auto; width: 100%; max-width: 420px; padding: 24px 20px 20px; text-align: left;
+    background: rgba(13, 18, 32, 0.97); border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 24px; box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.85); }
+#quiz-modal .auth-close { top: 16px !important; right: 16px !important; width: 34px; height: 34px; border-radius: 11px; }
+#quiz-modal .styled-input { height: 50px; margin-bottom: 12px; border-radius: 14px; animation: none !important; }
+.qm-label { display: block; font-size: 12.5px; color: #94a3b8; font-weight: 600; margin: 4px 0 7px; }
+.qm-seg { display: flex; gap: 6px; margin-bottom: 14px; }
+.qm-seg button { flex: 1; padding: 10px 6px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.04); color: #e2e8f0; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.qm-seg button.on { background: rgba(139, 92, 246, 0.2); border-color: #8b5cf6; color: #fff; }
+.qm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 14px; }
+.qm-chips button { padding: 6px 10px; border-radius: 99px; border: 1px solid rgba(255, 255, 255, 0.1); background: transparent; color: #cbd5e1; font: inherit; font-size: 12.5px; cursor: pointer; }
+#quiz-modal .primary-btn { height: 50px; border-radius: 14px; animation: none; }
+body.theme-light #quiz-modal .qm-card { background: #fff; border-color: rgba(15, 23, 42, 0.1); }
+body.theme-light .qm-seg button { background: #f8fafc; color: #0f172a; border-color: rgba(15, 23, 42, 0.12); }
+body.theme-light .qm-seg button.on { background: rgba(139, 92, 246, 0.12); color: #4c1d95; }
+body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 42, 0.14); }
+</style>
+<div id="quiz-modal">
+    <div class="qm-card">
+        <button class="auth-close" id="qm-close">&times;</button>
+        <div class="reset-ico">📝</div>
+        <h2 class="reset-title" id="qm-title">Test yechish</h2>
+        <p class="reset-sub" id="qm-sub"></p>
+        <input type="text" id="qm-topic" class="styled-input" maxlength="200">
+        <div class="qm-chips" id="qm-chips"></div>
+        <span class="qm-label" id="qm-count-l">Savollar soni</span>
+        <div class="qm-seg" id="qm-count"><button type="button" data-v="5">5</button><button type="button" data-v="10" class="on">10</button><button type="button" data-v="15">15</button><button type="button" data-v="20">20</button></div>
+        <span class="qm-label" id="qm-level-l">Qiyinlik</span>
+        <div class="qm-seg" id="qm-level"><button type="button" data-v="easy"></button><button type="button" data-v="mid" class="on"></button><button type="button" data-v="hard"></button></div>
+        <button type="button" class="primary-btn" id="qm-start">Testni boshlash</button>
+    </div>
+</div>
+<script id="tools-script">
+(function () {
+    function $(id) { return document.getElementById(id); }
+    function lang() { return (typeof currentLang !== 'undefined' && currentLang) || localStorage.getItem('bilol_ai_lang') || 'uz'; }
+    function T(uz, en, ru) { var l = lang(); return l === 'en' ? en : l === 'ru' ? ru : uz; }
+    function closeMenu() { var m = $('attach-menu'); if (m) m.classList.remove('open'); }
+    function note(t, kind) { if (typeof showNotification === 'function') showNotification(t, kind); }
+
+    /* ---------- 🌐 Internetdan qidirish ---------- */
+    var webOn = false, webLeft = null;
+    try { webOn = localStorage.getItem('bilol_ai_web') === '1'; } catch (e) {}
+    function subActive() { return !!(window.BilolUI && window.BilolUI.subActive && window.BilolUI.subActive()); }
+    function paintWeb() {
+        $('web-chip').style.display = webOn ? 'flex' : 'none';
+        $('attach-web').classList.toggle('on', webOn);
+        $('web-chip-title').textContent = T('Internetdan qidirish yoqilgan', 'Web search is on', 'Поиск в интернете включён');
+        var r = window.BilolUI && window.BilolUI.rewards && window.BilolUI.rewards();
+        if (webLeft === null && r && typeof r.webLimit === 'number') webLeft = r.webLimit > 0 ? Math.max(0, r.webLimit - (r.webUsed || 0)) : -1;
+        $('web-chip-sub').textContent = subActive() || webLeft === -1 ? T('Obuna: cheksiz qidiruv · yangi maʼlumot va manbalar bilan', 'Subscription: unlimited · fresh info with sources', 'Подписка: без ограничений · свежие данные с источниками')
+            : webLeft === null ? T('Yangi maʼlumot va manbalar bilan javob beradi', 'Answers with fresh info and sources', 'Отвечает со свежими данными и источниками')
+            : T('Bugun ' + webLeft + ' ta bepul qidiruv qoldi · obunada cheksiz', webLeft + ' free searches left today · unlimited with subscription', 'Сегодня осталось ' + webLeft + ' бесплатных поисков · с подпиской без ограничений');
+    }
+    function setWeb(on) {
+        webOn = on; try { localStorage.setItem('bilol_ai_web', on ? '1' : '0'); } catch (e) {}
+        paintWeb();
+        if (on) note('🌐 ' + T('Internetdan qidirish yoqildi', 'Web search on', 'Поиск в интернете включён'));
+    }
+    $('attach-web').onclick = function (e) { e.stopPropagation(); closeMenu(); setWeb(!webOn); };
+    $('web-chip-off').onclick = function () { setWeb(false); };
+    window.BilolWeb = { get: function () { return webOn; }, set: setWeb, left: function (n) { webLeft = n; paintWeb(); } };
+    paintWeb();
+    setTimeout(paintWeb, 3000);
+
+    /* ---------- 🖌️ Rasmni tahrirlash ---------- */
+    $('attach-edit').onclick = async function () {
+        closeMenu();
+        if (window.BilolUI && window.BilolUI.setImageMode) {
+            if (!(window.BilolUI.rewards && window.BilolUI.rewards()) && window.BilolUI.loadRewards) await window.BilolUI.loadRewards();
+            window.BilolUI.setImageMode(true);
+        }
+        $('gen-title').textContent = T('Rasmni tahrirlash', 'Edit image', 'Редактирование фото');
+        var gi = document.querySelector('#gen-mode .doc-ico'); if (gi) gi.textContent = '🖌️';
+        $('gen-sub').textContent = T("Rasm tanlang va nima o'zgarishini yozing", 'Pick a photo and describe the change', 'Выберите фото и опишите изменение');
+        $('chat-input').placeholder = T("Masalan: fonni olib tashla, multfilm uslubida qil", 'E.g. remove the background, make it a cartoon', 'Например: убери фон, сделай в стиле мультфильма');
+        $('gallery-input').click();
+    };
+    $('gen-off').addEventListener('click', function () {
+        $('gen-title').textContent = T('Rasm yaratish rejimi', 'Image generation mode', 'Режим создания изображений');
+        var gi = document.querySelector('#gen-mode .doc-ico'); if (gi) gi.textContent = '🎨';
+    });
+
+    /* ---------- 📝 Test yechish ---------- */
+    var TOPICS = [['Matematika', 'Math', 'Математика'], ['Ingliz tili', 'English grammar', 'Английский язык'], ["O'zbekiston tarixi", 'World history', 'История Узбекистана'],
+        ['Biologiya', 'Biology', 'Биология'], ['Fizika', 'Physics', 'Физика'], ['Informatika', 'Computer science', 'Информатика']];
+    function seg(id) { var on = $(id).querySelector('.on'); return on ? on.getAttribute('data-v') : ''; }
+    ['qm-count', 'qm-level'].forEach(function (id) {
+        $(id).addEventListener('click', function (e) {
+            var b = e.target.closest('button'); if (!b) return;
+            this.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+        });
+    });
+    function openQuiz() {
+        closeMenu();
+        $('qm-title').textContent = T('Test yechish', 'Take a quiz', 'Пройти тест');
+        $('qm-sub').textContent = T("Mavzuni yozing — AI test tuzadi, javoblaringizni tekshirib ball qo'yadi.", 'Enter a topic — AI builds a quiz, checks your answers and scores you.', 'Введите тему — ИИ составит тест, проверит ответы и поставит балл.');
+        $('qm-topic').placeholder = T('Mavzu: masalan, kvadrat tenglamalar', 'Topic: e.g. quadratic equations', 'Тема: например, квадратные уравнения');
+        $('qm-count-l').textContent = T('Savollar soni', 'Questions', 'Количество вопросов');
+        $('qm-level-l').textContent = T('Qiyinlik', 'Difficulty', 'Сложность');
+        var lv = $('qm-level').children;
+        lv[0].textContent = T('Oson', 'Easy', 'Лёгкий'); lv[1].textContent = T("O'rtacha", 'Medium', 'Средний'); lv[2].textContent = T('Qiyin', 'Hard', 'Сложный');
+        $('qm-start').textContent = T('Testni boshlash', 'Start the quiz', 'Начать тест');
+        var ch = $('qm-chips'); ch.innerHTML = '';
+        TOPICS.forEach(function (t) {
+            var b = document.createElement('button'); b.type = 'button'; b.textContent = T(t[0], t[1], t[2]);
+            b.onclick = function () { $('qm-topic').value = b.textContent; $('qm-topic').focus(); };
+            ch.appendChild(b);
+        });
+        $('quiz-modal').classList.add('open');
+        setTimeout(function () { $('qm-topic').focus(); }, 50);
+    }
+    function closeQuiz() { $('quiz-modal').classList.remove('open'); }
+    $('attach-quiz').onclick = function (e) { e.stopPropagation(); openQuiz(); };
+    $('qm-close').onclick = closeQuiz;
+    $('quiz-modal').addEventListener('click', function (e) { if (e.target === this) closeQuiz(); });
+    function go() {
+        var topic = $('qm-topic').value.trim();
+        if (!topic) { $('qm-topic').focus(); return; }
+        closeQuiz();
+        window.BilolQuiz.start({ topic: topic, count: +seg('qm-count') || 10, level: seg('qm-level') || 'mid' });
+    }
+    $('qm-start').onclick = go;
+    $('qm-topic').addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    window.BilolQuiz = Object.assign(window.BilolQuiz || {}, { open: openQuiz });
+
+    function paintLang() {
+        var s = function (id, uz, en, ru) { var el = $(id); if (el) el.textContent = T(uz, en, ru); };
+        s('lang-attach-edit', 'Rasmni tahrirlash', 'Edit image', 'Редактировать фото');
+        s('lang-attach-web', 'Internetdan qidirish', 'Web search', 'Поиск в интернете');
+        s('lang-attach-quiz', 'Test yechish', 'Take a quiz', 'Пройти тест');
+        paintWeb();
+    }
+    paintLang();
+    var gm = $('attach-menu');
+    if (gm) new MutationObserver(function () { if (gm.classList.contains('open')) paintLang(); }).observe(gm, { attributes: true, attributeFilter: ['class'] });
 })();
 </script>
 </body>

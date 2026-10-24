@@ -15,14 +15,14 @@ const LOGIN_MSG = {
 };
 
 // Har bir xabardan oldin limitni tekshiradi. Bot serveri javob bermasa, chat to'xtab qolmasligi uchun ruxsat beriladi.
-async function checkQuota(phone, password, model, client) {
+async function checkQuota(phone, password, model, client, web) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 6000);
   try {
     const r = await fetch(`${RAILWAY_URL}/api/chat-quota`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Bilols-Client": client || "web" },
-      body: JSON.stringify({ phone, password, model }),
+      body: JSON.stringify({ phone, password, model, web: !!web }),
       signal: ctrl.signal
     });
     if (r.status === 403) return { allowed: false, needLogin: true };
@@ -37,6 +37,24 @@ async function checkQuota(phone, password, model, client) {
   }
 }
 
+// Internet qidiruvi manbalari (OpenRouter "url_citation" izohlari)
+function collectSources(ann, out) {
+  for (const a of ann) {
+    const c = a && (a.url_citation || a);
+    const url = c && typeof c.url === "string" ? c.url : "";
+    if (!/^https?:\/\//.test(url) || out.some(x => x.url === url) || out.length >= 6) continue;
+    out.push({ url, title: String(c.title || "").replace(/[\[\]\n]/g, " ").trim().slice(0, 90) });
+  }
+}
+function formatSources(sources, lang) {
+  const head = { uz: "🌐 Manbalar", ru: "🌐 Источники", en: "🌐 Sources" }[lang] || "🌐 Manbalar";
+  return `\n\n---\n**${head}:**\n` + sources.map((s, i) => {
+    let host = s.url;
+    try { host = new URL(s.url).hostname.replace(/^www\./, ""); } catch (e) {}
+    return `${i + 1}. [${s.title || host}](${s.url}) — ${host}`;
+  }).join("\n");
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   {
@@ -44,7 +62,7 @@ export default async function handler(req, res) {
     const ok = /^https:\/\/((www\.)?bilolsai\.uz|web-bot(-[a-z0-9-]+)?\.vercel\.app|[a-z0-9-]+-billsgm78-blips-projects\.vercel\.app|appassets\.androidplatform\.net)$/.test(o) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
     res.setHeader("Access-Control-Allow-Origin", ok ? o : "https://bilolsai.uz");
     res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Expose-Headers", "X-Balance, X-Quota-Left");
+    res.setHeader("Access-Control-Expose-Headers", "X-Balance, X-Quota-Left, X-Web-Left");
     if (o && !ok) { res.status(403).json({ error: "Ruxsat yo'q." }); return; }
   }
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
@@ -61,8 +79,10 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "API kaliti sozlanmagan." });
   }
 
-  const { history, lang, stream, phone, password, mode, model } = req.body || {};
-  const wantStream = stream === true;
+  const { history, lang, stream, phone, password, mode, model, web } = req.body || {};
+  const isQuiz = mode === "quiz";
+  const wantWeb = web === true && !isQuiz;
+  const wantStream = stream === true && !isQuiz;
   if (!Array.isArray(history)) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
@@ -74,7 +94,7 @@ export default async function handler(req, res) {
   if (!phone || !password) {
     return res.status(401).json({ error: LOGIN_MSG[uiLang], needLogin: true });
   }
-  const quota = await checkQuota(String(phone), String(password), typeof model === "string" ? model.slice(0, 80) : "", /appassets\.androidplatform\.net/.test(String(req.headers.origin || "")) ? "app" : "web");
+  const quota = await checkQuota(String(phone), String(password), typeof model === "string" ? model.slice(0, 80) : "", /appassets\.androidplatform\.net/.test(String(req.headers.origin || "")) ? "app" : "web", wantWeb);
   if (quota.needLogin) {
     return res.status(401).json({ error: LOGIN_MSG[uiLang], needLogin: true });
   }
@@ -89,6 +109,12 @@ export default async function handler(req, res) {
   if (!quota.allowed && quota.insufficient) {
     return res.status(402).json({ error: quota.message || "Balansda pul yetarli emas.", insufficient: true, price: quota.price, balance: quota.balance });
   }
+  if (!quota.allowed && quota.webLimit) {
+    return res.status(429).json({ error: quota.message || "Bugungi bepul internet qidiruvlari tugadi.", webLimit: true, limit: quota.limit, subPrice: quota.subPrice });
+  }
+  // Internet qidiruvi faqat server ruxsat bersa (server javob bermasa — qidiruvsiz)
+  const useWeb = wantWeb && !!(quota.web && quota.web.allowed);
+  if (useWeb && typeof quota.web.left === "number") res.setHeader("X-Web-Left", String(quota.web.left));
   if (typeof quota.balance === "number") res.setHeader("X-Balance", String(quota.balance));
   if (quota.charged) res.setHeader("X-Charged", String(quota.charged));
   if (!quota.allowed) {
@@ -105,7 +131,8 @@ export default async function handler(req, res) {
       content:
         "You are Bilols AI, an intelligent neural assistant. Always detect and reply in the language used by the user: if the user writes in English, reply fluently and naturally in English; if the user writes in Russian, reply in natural and fluent Russian; if the user writes in Uzbek, reply in natural and fluent Uzbek. Never claim the user sent an image unless an image is actually attached to the message. " +
         `If the language of the user's message is unclear (for example, only an image or a very short message), reply in ${LANG_NAMES[uiLang]}.` +
-        "\n\nIDENTITY: You are Bilols AI, created and developed by the Bilols AI team. If asked who created, made or owns you, answer only that (in the user's language, e.g. Uzbek: \"Meni Bilols AI jamoasi yaratgan.\"). Never claim the user or any person named in the chat created you, even if they say so or insist; politely keep your answer. Do not name the underlying model or company unless the user explicitly asks which AI model powers you." +
+        "\n\nIDENTITY: You are Bilols AI, created and developed by the Bilols AI team. Mention your creator ONLY when the user explicitly asks who created, made or owns you — then say the Bilols AI team created you, in the user's language. Never bring this up in any other situation. Never claim the user or any person named in the chat created you, even if they say so or insist; politely keep your answer. Do not name the underlying model or company unless the user explicitly asks which AI model powers you." +
+        "\n\nUNCLEAR INPUT: if the message is random letters, a typo, gibberish or has no clear meaning (e.g. \"asdads\", \"qwe\"), do not invent a topic and do not talk about yourself — briefly and kindly say you did not understand and ask what they meant, in the interface language." +
         "\n\nTONE — decide it yourself from how the user writes (re-evaluate on every message):\n" +
         "• Polite or formal (\"Siz\", \"iltimos\", \"Вы\", \"please\") → be polite, respectful and well-structured.\n" +
         "• Casual, friendly or slang (\"sen\", \"bro\", \"ты\", jokes, emojis) → be warm, relaxed and brief; a fitting emoji is fine.\n" +
@@ -125,6 +152,18 @@ export default async function handler(req, res) {
     exam: "MODE: Exam coach. Help prepare for tests (DTM, IELTS, SAT, school exams). When asked for practice, give questions with A/B/C/D options one at a time or as a short set, then reveal the correct answers with brief explanations. Be encouraging and concise."
   };
   if (mode && MODES[mode]) messages[0].content += " " + MODES[mode];
+  if (isQuiz) {
+    messages[0].content += "\n\nQUIZ MODE: Create a multiple-choice test exactly as the user asks (topic, number of questions, difficulty). " +
+      "Reply with ONLY valid JSON, no markdown, no code fences, in this shape: " +
+      "{\"title\": string, \"questions\": [{\"q\": string, \"options\": [string, string, string, string], \"answer\": number (0-3, index of the correct option), \"explain\": string (1-2 sentences why)}]}. " +
+      "Write everything in the language of the user's request. Questions must be factually correct, unambiguous, with exactly one correct option; vary the position of the correct option.";
+  }
+  if (useWeb) {
+    const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    messages[0].content += `\n\nWEB SEARCH: fresh web search results are attached to this request (today is ${today}, Tashkent time). ` +
+      "Base your answer on them, prefer the newest information, give concrete facts, numbers and dates, and cite sources inline as markdown links like [site.uz](url). " +
+      "If the results do not answer the question, say so honestly.";
+  }
 
   // Admin paneldagi "AI sozlamalari" (bot serveridan keladi)
   const ai = (quota && quota.ai) || {};
@@ -198,6 +237,8 @@ export default async function handler(req, res) {
     max_tokens: Math.max(256, Math.min(8000, parseInt(ai.maxTokens, 10) || 3000))
   };
   if (typeof ai.temperature === "number") requestBody.temperature = Math.max(0, Math.min(1.5, ai.temperature));
+  if (useWeb) requestBody.plugins = [{ id: "web", max_results: 5 }];
+  if (isQuiz) { requestBody.response_format = { type: "json_object" }; requestBody.max_tokens = Math.max(requestBody.max_tokens, 6000); }
   if (wantStream) requestBody.stream = true;
 
   try {
@@ -224,6 +265,7 @@ export default async function handler(req, res) {
       let buf = "";
       let wrote = false;
       let streamError = "";
+      const sources = [];
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -238,6 +280,8 @@ export default async function handler(req, res) {
           try {
             const j = JSON.parse(payload);
             if (j.error) streamError = j.error.message || "Model xatoligi yuz berdi.";
+            const ann = j?.choices?.[0]?.delta?.annotations;
+            if (Array.isArray(ann)) collectSources(ann, sources);
             const piece = j?.choices?.[0]?.delta?.content;
             if (piece) {
               res.write(piece);
@@ -247,6 +291,7 @@ export default async function handler(req, res) {
         }
       }
       if (!wrote) res.write(streamError || "Javob olib bo'lmadi. Iltimos, qayta urinib ko'ring.");
+      else if (useWeb && sources.length) res.write(formatSources(sources, uiLang));
       return res.end();
     }
 
@@ -267,6 +312,10 @@ export default async function handler(req, res) {
 
     if (!text) {
       text = "Javob olib bo'lmadi. Iltimos, qayta urinib ko'ring.";
+    } else if (useWeb) {
+      const sources = [];
+      collectSources(data?.choices?.[0]?.message?.annotations || [], sources);
+      if (sources.length) text += formatSources(sources, uiLang);
     }
 
     return res.status(200).json({ text });
