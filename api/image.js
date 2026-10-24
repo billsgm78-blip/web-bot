@@ -1,6 +1,6 @@
 export const maxDuration = 60;
 
-// Rasm yaratish: avval bot serverida pul yechiladi, rasm chiqmasa avtomatik qaytariladi.
+// Rasm yaratish: faqat obunachilar uchun va bepul. Obuna bot serverida tekshiriladi.
 const RAILWAY_URL = (process.env.RAILWAY_URL || "https://ai2-production-7d7e.up.railway.app").replace(/\/$/, "");
 const IMAGE_MODELS = ["google/gemini-2.5-flash-image", "google/gemini-2.5-flash-image-preview"];
 
@@ -139,10 +139,11 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: "API kaliti sozlanmagan." });
   if (!text) return res.status(400).json({ error: "Rasm tavsifini yozing." });
 
-  // Pul yechiladi va tavsif botning Google Gemini kaliti bilan inglizchaga o'giriladi
+  // Obuna tekshiriladi va tavsif botning Google Gemini kaliti bilan inglizchaga o'giriladi
   const charge = await railway("/api/image-charge", { phone, password, prompt: text }, /appassets\.androidplatform\.net/.test(String(req.headers.origin || "")) ? "app" : "web");
   if (charge._status === 403) return res.status(401).json({ error: "Iltimos, hisobdan chiqib qayta kiring.", needLogin: true });
   if (charge.blocked) return res.status(503).json({ error: charge.message || "Bu funksiya vaqtincha o'chirilgan.", blocked: true });
+  if (charge.needSub) return res.status(402).json({ error: charge.error || "Rasm yaratish faqat obunachilar uchun", needSub: true, subPrice: charge.subPrice, subDays: charge.subDays });
   if (!charge.success) return res.status(402).json({ error: charge.error || "Mablag' yetarli emas", noMoney: true, price: charge.price, balance: charge.balance });
 
   let image = null;
@@ -163,8 +164,9 @@ export default async function handler(req, res) {
   if (lastError) console.error("image:", lastError);
 
   if (!image) {
+    if (!charge.txId) return res.status(502).json({ error: "Rasm yaratib bo'lmadi. Birozdan so'ng qayta urinib ko'ring." });
     const refund = await railway("/api/image-refund", { txId: charge.txId, refundToken: charge.refundToken }).catch(() => ({}));
     return res.status(502).json({ error: "Rasm yaratib bo'lmadi. Pul balansingizga qaytarildi.", refunded: !!refund.success, balance: refund.balance });
   }
-  return res.status(200).json({ image, balance: charge.balance });
+  return res.status(200).json(charge.balance != null ? { image, balance: charge.balance } : { image });
 }

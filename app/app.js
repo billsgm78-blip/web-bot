@@ -51,7 +51,30 @@
         invite: ["Taklif", "Пригласить", "Invite"],
         history: ["Tarix", "История", "History"],
         refresh: ["Yangilash", "Обновить", "Refresh"],
-        support: ["Yordam", "Поддержка", "Support"]
+        support: ["Yordam", "Поддержка", "Support"],
+        apkTitle: ["APK yuklash", "Скачать APK", "Download APK"],
+        apkApp: ["ilovasi", "приложение", "app"],
+        apkSub: ["AI chat, rasm yaratish, Stars va Premium, hamyon va admin bilan yordam chati. Hammasi telefoningizda, brauzersiz.",
+            "AI-чат, генерация изображений, Stars и Premium, кошелёк и чат с админом. Всё в телефоне, без браузера.",
+            "AI chat, image generation, Stars and Premium, wallet and admin support chat. All on your phone, no browser."],
+        apkDl: ["Yuklab olish", "Скачать", "Download"],
+        apkMaint: ["Texnik ishlar", "Технические работы", "Maintenance"],
+        apkPage: ["Saytdagi yuklash sahifasini ochish →", "Открыть страницу загрузки на сайте →", "Open the download page on the site →"],
+        apkHowTitle: ["Qanday o'rnatiladi", "Как установить", "How to install"],
+        apkUpdTitle: ["Yangi versiyaga yangilash", "Обновление до новой версии", "Updating to a new version"],
+        apkBrandTitle: ["Telefon rusumi bo'yicha", "По марке телефона", "By phone brand"],
+        apkFeatTitle: ["Ilovada nimalar bor", "Что есть в приложении", "What's inside"],
+        apkSecTitle: ["Xavfsizlik va SHA hashlar", "Безопасность и SHA-хеши", "Security and SHA hashes"],
+        apkSecText: ["Ilova faqat internet, bildirishnoma va (siz tanlaganda) kamera ruxsatlarini so'raydi — SMS, kontaktlar yoki joylashuvga kirmaydi. Fayl asl ekanini quyidagi hashlar orqali tekshiring. Hash ustiga bossangiz — nusxa olinadi.",
+            "Приложение запрашивает только интернет, уведомления и (по вашему выбору) камеру — без доступа к SMS, контактам и геолокации. Проверьте подлинность файла по хешам ниже. Нажмите на хеш, чтобы скопировать.",
+            "The app only asks for internet, notifications and (when you choose) camera — no SMS, contacts or location. Check the file is genuine with the hashes below. Tap a hash to copy it."],
+        apkCert: ["Imzo sertifikati SHA-256", "SHA-256 сертификата подписи", "Signing certificate SHA-256"],
+        apkVerify: ["Kompyuterda tekshirish (Linux/Mac, Windows, Android SDK):", "Проверка на компьютере (Linux/Mac, Windows, Android SDK):", "Verify on a computer (Linux/Mac, Windows, Android SDK):"],
+        apkFaqTitle: ["Ko'p beriladigan savollar", "Частые вопросы", "FAQ"],
+        apkIosTitle: ["iPhone uchun", "Для iPhone", "For iPhone"],
+        apkIosText: ["iPhone'da APK ishlamaydi. Saytni Safari'da oching → pastdagi Ulashish tugmasi → \"Bosh ekranga qo'shish\". Ilova kabi ochiladi.",
+            "На iPhone APK не работает. Откройте сайт в Safari → кнопка «Поделиться» → «На экран Домой». Откроется как приложение.",
+            "APK does not work on iPhone. Open the site in Safari → Share → \"Add to Home Screen\". It opens like an app."]
     };
     function T(k) { var v = D[k]; return v ? L(v[0], v[1], v[2]) : k; }
     function applyI18n() {
@@ -63,7 +86,7 @@
         $('i-prompt').placeholder = L("Masalan: tog'lar orasida quyosh botishi, akvarel uslubida", 'Например: закат в горах, акварель', 'E.g. a sunset in the mountains, watercolor');
         $('a-name').placeholder = L('Masalan: Bilol', 'Например: Билол', 'e.g. Bilol');
         paintAuthBtn();
-        if (state.inMain) { paintTitle(); paintModes(); paintModel(); renderChat(); paintIdeas(); paintImgPrice(); paintShop(); paintWalletActs(); paintTpl(); }
+        if (state.inMain) { paintTitle(); paintModes(); paintModel(); renderChat(); paintIdeas(); paintImgPrice(); paintShop(); if ($('apk').classList.contains('on')) paintApk(); paintWalletActs(); paintTpl(); }
     }
 
     /* ================= Holat ================= */
@@ -250,7 +273,7 @@
         document.querySelector('#lock .big-ico').textContent = ico || '🛠';
         $('lock-retry').textContent = btn || T('retry');
         lockAction = action || function () { loadStatus(); };
-        closeSheet(false); closeSupport();
+        closeSheet(false); closeSupport(); $('apk').classList.remove('on');
         show('lock');
     }
     function appVer() { try { return (N && N.version && N.version()) || VERSION; } catch (e) { return VERSION; } }
@@ -421,7 +444,7 @@
         pushUnregister();
         ['ba_phone', 'ba_pass', 'ba_name', 'ba_chat'].forEach(function (k) { ls(k, null); });
         state.phone = state.pass = state.name = ''; state.balance = null; state.rewards = null; state.inMain = false; liveId++;
-        closeSupport(); closeSheet(false);
+        closeSupport(); closeSheet(false); $('apk').classList.remove('on');
         show('auth');
         if (!silent) toast(L('Hisobdan chiqdingiz', 'Вы вышли из аккаунта', 'Logged out'));
     }
@@ -784,12 +807,20 @@
         openSheet('<div class="sh-title">' + esc(docs ? L('Fayl biriktirish', 'Прикрепить файл', 'Attach a file') : L('Rasm yuborish', 'Отправить фото', 'Send a photo')) + '</div><div class="menu">' +
             '<button data-k="cam"><span class="m-ico">📷</span>' + esc(L('Kamera', 'Камера', 'Camera')) + '</button>' +
             '<button data-k="gal"><span class="m-ico">🖼</span>' + esc(L('Galereya', 'Галерея', 'Gallery')) + '</button>' +
-            (docs ? '<button data-k="doc"><span class="m-ico">📄</span><span>' + esc(L('Hujjat', 'Документ', 'Document')) + '<br><small style="color:var(--muted);font-weight:500">PDF, Word, TXT</small></span></button>' : '') + '</div>',
+            (docs ? '<button data-k="doc"><span class="m-ico">📄</span><span>' + esc(L('Hujjat', 'Документ', 'Document')) + '<br><small style="color:var(--muted);font-weight:500">PDF, Word, TXT</small></span></button>' : '') +
+            (docs ? '<button data-k="gen"><span class="m-ico">🎨</span><span>' + esc(L('Rasm yaratish', 'Создать изображение', 'Create an image')) + '<br><small style="color:var(--muted);font-weight:500">' + esc(L('Obunachilar uchun bepul', 'Бесплатно для подписчиков', 'Free for subscribers')) + '</small></span></button>' : '') + '</div>',
             function (b) {
                 b.querySelectorAll('[data-k]').forEach(function (x) {
                     x.onclick = function () {
                         var k = x.getAttribute('data-k');
                         closeSheet(true);
+                        if (k === 'gen') {
+                            var t = $('c-in').value.trim();
+                            switchTab('image');
+                            if (t) { $('i-prompt').value = t; $('c-in').value = ''; }
+                            setTimeout(function () { $('i-prompt').focus(); }, 250);
+                            return;
+                        }
                         if (k === 'doc' && N && verLess(appVer(), '3.2.0')) {
                             ask(L('Yangilash kerak', 'Нужно обновление', 'Update needed'), L("Hujjat yuborish uchun ilovaning yangi versiyasini o'rnating.", 'Чтобы отправлять документы, установите новую версию.', 'Install the new version to send documents.'), L('Yangilash', 'Обновить', 'Update'))
                                 .then(function (ok) { if (ok) openExternal((state.status && state.status.app && state.status.app.url) || 'https://bilolsai.uz/apkyuklash'); });
@@ -989,9 +1020,12 @@
             box.appendChild(b);
         });
     }
+    function hasSub() { var r = state.rewards; return !!(r && r.subUntil && r.subUntil * 1000 > Date.now()); }
     function paintImgPrice() {
-        var p = state.rewards && state.rewards.imagePrice;
-        $('i-price').textContent = p ? L('Narxi: ', 'Цена: ', 'Price: ') + money(p) + ' ' + T('sum') + L(' · 10–30 soniya', ' · 10–30 сек', ' · 10–30 s') : L('10–30 soniyada tayyor', 'Готово за 10–30 сек', 'Ready in 10–30 s');
+        // Rasm yaratish — faqat obunachilar uchun va bepul
+        $('i-price').textContent = hasSub()
+            ? L('✅ Obunangiz bor — bepul, cheksiz · 10–30 soniya', '✅ Подписка активна — бесплатно, без лимита · 10–30 сек', '✅ Subscribed — free, unlimited · 10–30 s')
+            : L('⭐ Faqat obunachilar uchun — obunada bepul', '⭐ Только для подписчиков — бесплатно по подписке', '⭐ Subscribers only — free with a subscription');
     }
     function paintGallery() {
         var g = lsJSON('ba_gal', []), box = $('i-gal');
@@ -1040,9 +1074,10 @@
             if (j.balance != null) setBalance(j.balance);
             if (!r.ok || !j.image) {
                 box.innerHTML = '';
-                var eb = bubble({ r: 'a', err: true, t: '⚠️ ' + (j.noMoney ? L('Balans yetarli emas. Rasm narxi: ', 'Недостаточно средств. Цена: ', 'Not enough balance. Price: ') + money(j.price) + ' ' + T('sum') : (j.error || L("Rasm yaratib bo'lmadi", 'Не удалось создать изображение', 'Could not create the image'))) });
+                var eb = bubble({ r: 'a', err: true, t: '⚠️ ' + (j.needSub ? L("Rasm yaratish faqat obunachilar uchun. Obuna bilan — bepul va cheksiz!", 'Создание изображений только для подписчиков. С подпиской — бесплатно и без лимита!', 'Image generation is for subscribers only. With a subscription it is free and unlimited!') : j.noMoney ? L('Balans yetarli emas. Rasm narxi: ', 'Недостаточно средств. Цена: ', 'Not enough balance. Price: ') + money(j.price) + ' ' + T('sum') : (j.error || L("Rasm yaratib bo'lmadi", 'Не удалось создать изображение', 'Could not create the image'))) });
                 eb.style.maxWidth = '100%';
-                if (j.noMoney) chatCTA(eb, 'money');
+                if (j.needSub) chatCTA(eb, 'sub');
+                else if (j.noMoney) chatCTA(eb, 'money');
                 box.appendChild(eb);
                 return;
             }
@@ -1251,11 +1286,95 @@
             });
     };
 
+    /* ================= APK YUKLASH ================= */
+    // Saytdagi /download/bilols-ai.apk fayli haqida (yangi APK chiqqanda shu yerni ham yangilang)
+    var APK = {
+        ver: '3.4.1', size: '2,7 MB', minAndroid: '7.0',
+        sha: '70baf0be8f6f72e1d95ea8204aaa54249785e344f1745e4c812869a9b67aea7d',
+        cert: '8F:50:98:52:92:44:59:12:BF:72:79:CE:76:52:EE:3F:D1:89:AA:54:2A:F0:DE:24:A0:22:CB:67:A6:4C:90:A6',
+        owner: 'CN=Bilols AI, O=Bilols AI, L=Xorazm, C=UZ', pkg: 'uz.bilolsai.twa',
+        file: 'https://www.bilolsai.uz/download/bilols-ai.apk', page: 'https://www.bilolsai.uz/apkyuklash'
+    };
+    function apkLatest() { var a = state.status && state.status.app; return (a && a.latest) || APK.ver; }
+    function apkUpdate() { return verLess(VERSION, apkLatest()); }
+    function fillList(id, items) {
+        var box = $(id); box.innerHTML = '';
+        items.forEach(function (it) { var li = document.createElement('li'); li.innerHTML = it; box.appendChild(li); });
+    }
+    function paintApk() {
+        var meta = $('apk-meta'); meta.innerHTML = '';
+        ['Android ' + APK.minAndroid + '+', L('Versiya ', 'Версия ', 'Version ') + apkLatest(), APK.size, L('Bepul', 'Бесплатно', 'Free')].forEach(function (t) {
+            var s = document.createElement('span'); s.textContent = t; meta.appendChild(s);
+        });
+        $('apk-cur').textContent = apkUpdate()
+            ? '🔔 ' + L('Sizda v', 'У вас v', 'You have v') + VERSION + ' — ' + L('yangi versiya bor, yangilang!', 'есть новая версия, обновитесь!', 'a new version is out, please update!')
+            : '✅ ' + L('Sizda eng so\'nggi versiya: v', 'У вас последняя версия: v', 'You have the latest version: v') + VERSION;
+        $('apk-cur').classList.toggle('upd', apkUpdate());
+        var a = state.status && state.status.apk, on = !a || a.on !== false;
+        $('apk-dl').hidden = !on; $('apk-maint').hidden = on;
+        if (!on) $('apk-maint-msg').textContent = a.msg || L("Android ilovada texnik ishlar olib borilmoqda. Tez orada yangi versiya chiqadi!", 'В приложении идут технические работы. Скоро выйдет новая версия!', 'The Android app is under maintenance. A new version is coming soon!');
+        fillList('apk-steps', [
+            L('<b>"Yuklab olish"</b> tugmasini bosing — fayl brauzer orqali yuklanadi.', 'Нажмите <b>«Скачать»</b> — файл загрузится через браузер.', 'Tap <b>"Download"</b> — the file downloads through your browser.'),
+            L('Yuklangan <b>Bilols-AI.apk</b> faylini bildirishnomadan yoki <b>Fayllar → Yuklanmalar</b> papkasidan oching.', 'Откройте <b>Bilols-AI.apk</b> из уведомления или из <b>Файлы → Загрузки</b>.', 'Open <b>Bilols-AI.apk</b> from the notification or <b>Files → Downloads</b>.'),
+            L('Telefon <b>"Noma\'lum manbalar"</b> deb so\'rasa — <b>Sozlamalar → Shu manbadan ruxsat berish</b> ni yoqing va orqaga qayting.', 'Если телефон спросит про <b>«Неизвестные источники»</b> — включите <b>Настройки → Разрешить из этого источника</b> и вернитесь.', 'If asked about <b>"Unknown sources"</b> — enable <b>Settings → Allow from this source</b> and go back.'),
+            L('<b>O\'rnatish</b> tugmasini bosing.', 'Нажмите <b>«Установить»</b>.', 'Tap <b>Install</b>.'),
+            L('<b>Play Protect</b> ogohlantirsa — <b>"Batafsil" → "Baribir o\'rnatish"</b>. Bu Google Play\'dan tashqari ilovalar uchun oddiy ogohlantirish.', 'Если предупредит <b>Play Protect</b> — <b>«Подробнее» → «Всё равно установить»</b>. Это обычное предупреждение для приложений не из Google Play.', 'If <b>Play Protect</b> warns — <b>"More details" → "Install anyway"</b>. This is a normal warning for apps outside Google Play.'),
+            L('Tayyor! Ilova bosh ekranda paydo bo\'ladi — telefon raqam va parol bilan kiring.', 'Готово! Приложение появится на главном экране — войдите по номеру и паролю.', 'Done! The app appears on your home screen — log in with your phone and password.')
+        ]);
+        fillList('apk-upd', [
+            L('Eskisini <b>o\'chirmang</b> — yangi APK ustidan o\'rnatiladi, hisobingiz va suhbatlaringiz saqlanib qoladi.', '<b>Не удаляйте</b> старую версию — новая ставится поверх, аккаунт и чаты сохранятся.', '<b>Don\'t uninstall</b> the old one — the new APK installs over it, your account and chats stay.'),
+            L('Yangi versiya chiqsa, ilova o\'zi xabar beradi yoki shu sahifada <b>"Yangi versiya!"</b> yozuvi chiqadi.', 'Когда выйдет новая версия, приложение сообщит само или здесь появится <b>«Новая версия!»</b>.', 'When a new version is out, the app tells you, or this page shows <b>"New version!"</b>.'),
+            L('Agar "Ilova o\'rnatilmadi" chiqsa — telefonda joy borligini tekshiring, so\'ng eski ilovani o\'chirib, qayta o\'rnating.', 'Если «Приложение не установлено» — проверьте свободное место, затем удалите старую версию и установите заново.', 'If you see "App not installed" — check free space, then uninstall the old app and install again.')
+        ]);
+        var br = $('apk-brands'); br.innerHTML = '';
+        [['Samsung', L('Sozlamalar → Ilovalar → ⋮ → Maxsus ruxsat → Noma\'lum ilovalarni o\'rnatish → Brauzer → Ruxsat', 'Настройки → Приложения → ⋮ → Особые права → Установка неизвестных приложений → Браузер → Разрешить', 'Settings → Apps → ⋮ → Special access → Install unknown apps → Browser → Allow')],
+         ['Xiaomi / Redmi / POCO', L('Sozlamalar → Maxfiylik himoyasi → Maxsus ruxsatlar → Noma\'lum ilovalarni o\'rnatish → Brauzer', 'Настройки → Защита конфиденциальности → Специальные разрешения → Установка неизвестных приложений → Браузер', 'Settings → Privacy protection → Special permissions → Install unknown apps → Browser')],
+         ['Huawei / Honor', L('Sozlamalar → Xavfsizlik → Qo\'shimcha → Tashqi manbadan o\'rnatish → Brauzer', 'Настройки → Безопасность → Дополнительно → Установка из внешних источников → Браузер', 'Settings → Security → More → Install from external sources → Browser')],
+         ['Tecno / Infinix / Realme / Oppo', L('Sozlamalar → Ilovalar → Maxsus ruxsat → Noma\'lum manbalar → Brauzer → Ruxsat', 'Настройки → Приложения → Особый доступ → Неизвестные источники → Браузер → Разрешить', 'Settings → Apps → Special access → Unknown sources → Browser → Allow')],
+         ['Android 7', L('Sozlamalar → Xavfsizlik → "Noma\'lum manbalar" ni yoqing', 'Настройки → Безопасность → включите «Неизвестные источники»', 'Settings → Security → turn on "Unknown sources"')]
+        ].forEach(function (b) {
+            var d = document.createElement('div'); d.innerHTML = '<b></b><small></small>';
+            d.querySelector('b').textContent = b[0]; d.querySelector('small').textContent = b[1]; br.appendChild(d);
+        });
+        var ft = $('apk-feat'); ft.innerHTML = '';
+        [['💬', L('AI chat va 5 rejim', 'AI-чат и 5 режимов', 'AI chat, 5 modes')], ['🎨', L('Rasm yaratish (obunada bepul)', 'Изображения (бесплатно по подписке)', 'Images (free with sub)')],
+         ['📄', L('PDF va Word tahlili', 'Анализ PDF и Word', 'PDF & Word analysis')], ['⭐', L('Stars va Premium', 'Stars и Premium', 'Stars & Premium')],
+         ['💳', L('Hamyon, karta orqali', 'Кошелёк, по карте', 'Wallet, card top-up')], ['🛠', L('Admin bilan chat', 'Чат с админом', 'Admin chat')],
+         ['🌍', '3 til: UZ / RU / EN'], ['📳', L('Bildirishnomalar', 'Уведомления', 'Notifications')]
+        ].forEach(function (f) { var d = document.createElement('div'); d.innerHTML = '<i></i>'; d.querySelector('i').textContent = f[0]; d.appendChild(document.createTextNode(f[1])); ft.appendChild(d); });
+        $('apk-h-apk-l').textContent = 'APK SHA-256 (v' + APK.ver + ')';
+        $('h-apk').textContent = APK.sha; $('h-cert').textContent = APK.cert;
+        $('apk-owner').innerHTML = esc(L('Imzo egasi: ', 'Владелец подписи: ', 'Signed by: ')) + '<b>' + esc(APK.owner) + '</b> · ' + esc(L('Paket: ', 'Пакет: ', 'Package: ')) + '<b>' + esc(APK.pkg) + '</b>';
+        var fq = $('apk-faq'); fq.innerHTML = '';
+        [[L('Nega Google Play\'da emas?', 'Почему не в Google Play?', 'Why not on Google Play?'), L('Ilova hozircha to\'g\'ridan-to\'g\'ri saytdan tarqatiladi. Fayl bizning kalitimiz bilan imzolangan — yuqoridagi SHA-256 orqali tekshirishingiz mumkin.', 'Пока приложение распространяется напрямую с сайта. Файл подписан нашим ключом — проверьте по SHA-256 выше.', 'For now the app is distributed directly from the site. The file is signed with our key — verify it with the SHA-256 above.')],
+         [L('Xavfsizmi?', 'Это безопасно?', 'Is it safe?'), L('Ha. Faqat rasmiy bilolsai.uz saytidan yuklang va hashni solishtiring. Boshqa joydan olingan APK\'ni o\'rnatmang.', 'Да. Скачивайте только с bilolsai.uz и сверяйте хеш. Не ставьте APK из других мест.', 'Yes. Only download from bilolsai.uz and compare the hash. Don\'t install APKs from elsewhere.')],
+         [L('Hisobim o\'chib ketadimi?', 'Аккаунт удалится?', 'Will I lose my account?'), L('Yo\'q. Hisob serverda saqlanadi — istalgan qurilmada raqam va parol bilan kirasiz.', 'Нет. Аккаунт хранится на сервере — входите с любого устройства по номеру и паролю.', 'No. Your account lives on the server — log in on any device with your phone and password.')],
+         [L('Yuklab bo\'lmayapti', 'Не скачивается', 'Download fails'), L('Internetni tekshiring, Chrome orqali oching yoki "Saytdagi yuklash sahifasi" havolasidan foydalaning. Muammo qolsa — Yordam chatiga yozing.', 'Проверьте интернет, откройте через Chrome или по ссылке на страницу загрузки. Не помогло — напишите в поддержку.', 'Check your internet, open it in Chrome or use the download page link. Still stuck — write to Support.')]
+        ].forEach(function (q) {
+            var d = document.createElement('details'); d.innerHTML = '<summary></summary><p></p>';
+            d.querySelector('summary').textContent = q[0]; d.querySelector('p').textContent = q[1]; fq.appendChild(d);
+        });
+    }
+    function openApk() { paintApk(); $('apk').classList.add('on'); $('apk').querySelector('.scroll').scrollTop = 0; }
+    function closeApk() { $('apk').classList.remove('on'); }
+    $('apk-back').onclick = closeApk;
+    $('apk-dl').onclick = function () {
+        try { fetch(RAIL + '/api/apk/hit', { method: 'POST', keepalive: true, body: '{}' }); } catch (e) {}
+        openExternal(APK.file);
+        toast(L("⬇️ Yuklab olish brauzerda boshlandi. Tugagach, faylni oching.", '⬇️ Загрузка началась в браузере. Затем откройте файл.', '⬇️ Download started in the browser. Open the file when done.'), 'ok');
+    };
+    $('apk-page').onclick = function () { openExternal(APK.page); };
+    document.querySelectorAll('.apk-hash').forEach(function (h) {
+        h.onclick = function () { copyText($(h.getAttribute('data-copy')).textContent); h.classList.add('ok'); setTimeout(function () { h.classList.remove('ok'); }, 1500); };
+    });
+
     /* ================= PROFIL ================= */
     $('tb-me').onclick = function () {
         var r = state.rewards || {};
         openSheet('<div class="me-head"><div class="me-ava"></div><div><b></b><small></small></div></div><div class="menu">' +
             '<button data-k="sup"><span class="m-ico">💬</span>' + esc(L('Yordam — admin bilan chat', 'Поддержка — чат с админом', 'Support — chat with admin')) + '<span class="m-badge" id="m-unread" hidden></span></button>' +
+            '<button data-k="shop"><span class="m-ico">🛍</span>' + esc(L("Do'kon", 'Магазин', 'Shop')) + '<span class="m-r">' + esc(hasSub() ? L('Obuna faol', 'Подписка активна', 'Subscribed') : 'Stars · Premium') + '</span></button>' +
+            '<button data-k="apk"><span class="m-ico">📲</span>' + esc(L('APK yuklash', 'Скачать APK', 'Download APK')) + '<span class="m-r">' + esc(apkUpdate() ? L('Yangi versiya!', 'Новая версия!', 'New version!') : 'v' + APK.ver) + '</span></button>' +
             '<button data-k="lang"><span class="m-ico">🌍</span>' + esc(L('Til', 'Язык', 'Language')) + '<span class="m-r">' + ({ uz: "O'zbekcha", ru: 'Русский', en: 'English' })[lang] + '</span></button>' +
             (pushSupported() ? '<button data-k="push"><span class="m-ico">📳</span>' + esc(L('Bildirishnomalar', 'Уведомления', 'Notifications')) + '<span class="m-r" id="m-push"></span></button>' : '') +
             '<button data-k="snd"><span class="m-ico">🔔</span>' + esc(L("Pul tushganda ovoz", 'Звук при зачислении', 'Sound on top-up')) + '<span class="m-r" id="m-snd">' + (ls('ba_sound') === 'off' ? L("O'chiq", 'Выкл', 'Off') : L('Yoqilgan', 'Вкл', 'On')) + '</span></button>' +
@@ -1280,6 +1399,8 @@
                     x.onclick = function () {
                         var k = x.getAttribute('data-k');
                         if (k === 'sup') { closeSheet(true); openSupport(); }
+                        else if (k === 'shop') { closeSheet(true); switchTab('shop'); }
+                        else if (k === 'apk') { closeSheet(true); openApk(); }
                         else if (k === 'lang') { langSheet(); }
                         else if (k === 'snd') {
                             var off = ls('ba_sound') !== 'off';
@@ -1470,6 +1591,7 @@
         if (sheetClose) { closeSheet(false); return true; }
         if ($('privacy').classList.contains('on')) { closePrivacy(); return true; }
         if (sp.open) { closeSupport(); return true; }
+        if ($('apk').classList.contains('on')) { closeApk(); return true; }
         if (state.inMain && state.tab !== 'chat') { switchTab('chat'); return true; }
         return false;
     };

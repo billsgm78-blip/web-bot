@@ -170,6 +170,69 @@
         </div>
     </section>
 
+    <!-- APK yuklash (to'liq ekran, sayt sahifasi uslubida) -->
+    <section id="apk" class="screen over">
+        <header class="topbar">
+            <button class="icon-b" id="apk-back" aria-label="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <div class="tb-left"><b>📲 <span data-t="apkTitle"></span></b></div>
+        </header>
+        <div class="scroll pad apk-body">
+            <div class="apk-hero">
+                <img src="logo.png" alt="" class="apk-logo">
+                <h2>Bilols AI <span data-t="apkApp"></span></h2>
+                <p data-t="apkSub"></p>
+                <div class="apk-meta" id="apk-meta"></div>
+                <div class="apk-cur" id="apk-cur"></div>
+                <button class="btn primary big apk-dl" id="apk-dl">⬇️ <span data-t="apkDl"></span> <small>APK</small></button>
+                <div class="apk-maint" id="apk-maint" hidden><div>🛠</div><b data-t="apkMaint"></b><p id="apk-maint-msg"></p></div>
+                <button class="link apk-page" id="apk-page" data-t="apkPage"></button>
+            </div>
+
+            <div class="apk-card">
+                <h3>📲 <span data-t="apkHowTitle"></span></h3>
+                <ol class="apk-steps" id="apk-steps"></ol>
+            </div>
+
+            <div class="apk-card">
+                <h3>🔄 <span data-t="apkUpdTitle"></span></h3>
+                <ol class="apk-steps" id="apk-upd"></ol>
+            </div>
+
+            <div class="apk-card">
+                <h3>🧩 <span data-t="apkBrandTitle"></span></h3>
+                <div class="apk-brands" id="apk-brands"></div>
+            </div>
+
+            <div class="apk-card">
+                <h3>⚡ <span data-t="apkFeatTitle"></span></h3>
+                <div class="apk-feat" id="apk-feat"></div>
+            </div>
+
+            <div class="apk-card">
+                <h3>🛡 <span data-t="apkSecTitle"></span></h3>
+                <p class="apk-note" data-t="apkSecText"></p>
+                <button class="apk-hash" data-copy="h-apk"><small id="apk-h-apk-l"></small><code id="h-apk"></code></button>
+                <button class="apk-hash" data-copy="h-cert"><small data-t="apkCert"></small><code id="h-cert"></code></button>
+                <p class="apk-note" id="apk-owner"></p>
+                <p class="apk-note" data-t="apkVerify"></p>
+                <pre class="apk-cmd">sha256sum Bilols-AI.apk
+certutil -hashfile Bilols-AI.apk SHA256
+apksigner verify --print-certs Bilols-AI.apk</pre>
+            </div>
+
+            <div class="apk-card">
+                <h3>❓ <span data-t="apkFaqTitle"></span></h3>
+                <div class="apk-faq" id="apk-faq"></div>
+            </div>
+
+            <div class="apk-card">
+                <h3>🍏 <span data-t="apkIosTitle"></span></h3>
+                <p class="apk-note" data-t="apkIosText"></p>
+            </div>
+            <button class="privacy-link" data-privacy>🔒 <span data-t="privacy"></span></button>
+        </div>
+    </section>
+
     <!-- Yordam chati (to'liq ekran) -->
     <section id="support" class="screen over">
         <header class="topbar">

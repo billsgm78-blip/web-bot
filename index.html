@@ -6193,8 +6193,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         function setImageMode(on) {
             imageMode = on;
             $('gen-mode').style.display = on ? 'flex' : 'none';
-            var price = rewards && rewards.imagePrice ? rewards.imagePrice : null;
-            $('gen-sub').textContent = (price ? money(price) + ' ' + sum() + ' · ' : '') + T('rasm tavsifini yozing', 'describe the image', 'опишите изображение');
+            $('gen-sub').textContent = T('Obunachilar uchun bepul', 'Free for subscribers', 'Бесплатно для подписчиков') + ' · ' + T('rasm tavsifini yozing', 'describe the image', 'опишите изображение');
             $('chat-input').placeholder = on ? T("Masalan: tog'lar ortida quyosh botmoqda, akvarel", 'E.g. sunset behind mountains, watercolor', 'Например: закат за горами, акварель') : (translations[lang()] || {}).chatPlaceholder || '';
             if (on) $('chat-input').focus();
         }
@@ -6257,12 +6256,16 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 if (!r.ok || !j.image) {
                     var err = document.createElement('div');
                     err.className = 'msg-bubble msg-ai';
-                    var t = j.noMoney ? T("Balans yetarli emas. Rasm narxi: ", 'Not enough balance. Image price: ', 'Недостаточно средств. Цена изображения: ') + money(j.price) + ' ' + sum()
+                    var t = j.needSub ? T("Rasm yaratish faqat obunachilar uchun — obunada bepul va cheksiz.", 'Image generation is for subscribers only — free and unlimited with a subscription.', 'Создание изображений только для подписчиков — бесплатно и без лимита.')
+                        : j.noMoney ? T("Balans yetarli emas. Rasm narxi: ", 'Not enough balance. Image price: ', 'Недостаточно средств. Цена изображения: ') + money(j.price) + ' ' + sum()
                         : (j.error || T("Rasm yaratib bo'lmadi.", 'Could not create the image.', 'Не удалось создать изображение.'));
                     err.textContent = '⚠️ ' + t + (j.detail && rewards && rewards.isAdmin ? '\n\n[admin] ' + j.detail : '');
                     err.style.whiteSpace = 'pre-wrap';
                     msgBox.appendChild(err);
-                    if (j.noMoney) {
+                    if (j.needSub) {
+                        limitCTA(err);
+                        err.querySelector('.limit-cta').textContent = T('⭐ Obuna olish', '⭐ Subscribe', '⭐ Оформить подписку');
+                    } else if (j.noMoney) {
                         limitCTA(err);
                         err.querySelector('.limit-cta').textContent = T("💳 Hisobni to'ldirish", '💳 Top up', '💳 Пополнить');
                     }
