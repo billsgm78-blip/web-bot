@@ -4794,10 +4794,10 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         clearTimeout(pushTimers[rec.id]);
         pushTimers[rec.id] = setTimeout(() => { delete pushTimers[rec.id]; syncCall("save", { chat: serverCopy(rec) }); }, 1500);
     }
-    let pulling = false;
+    let pulling = false, lastPull = 0;
     async function syncPull() {
-        if (pulling || !syncCreds()) return;
-        pulling = true;
+        if (pulling || !syncCreds() || Date.now() - lastPull < 5000) return;
+        pulling = true; lastPull = Date.now();
         try {
             const res = await syncCall("list");
             if (!res) return;
