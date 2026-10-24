@@ -1832,7 +1832,7 @@ select.inp option { background: #12151c; color: var(--text); }
         if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
         var LABELS = {
             FREE_DAILY_MESSAGES: ['Kunlik bepul xabarlar', '0 = cheklovsiz'], FREE_DAILY_WEB: ['Kunlik bepul internet qidiruv', 'obunachilarga cheksiz · 0 = hammaga cheksiz'], SUB_PRICE: ["Obuna narxi, so'm", ''], SUB_DAYS: ['Obuna muddati, kun', ''],
-            IMAGE_PRICE: ["1 ta rasm narxi, so'm", ''], DAILY_BONUS: ["Kunlik bonus, so'm", '0 = o\'chiq'], REFERRAL_BONUS: ["Taklif bonusi, so'm", '0 = o\'chiq']
+            DAILY_BONUS: ["Kunlik bonus, so'm", '0 = o\'chiq'], REFERRAL_BONUS: ["Taklif bonusi, so'm", '0 = o\'chiq']
         };
         var inputs = {};
         var grid = h('div', { class: 'form-row' });
@@ -1841,7 +1841,9 @@ select.inp option { background: #12151c; color: var(--text); }
             grid.appendChild(h('label', { class: 'lb' }, [LABELS[k][0], inp, h('small', { text: (LABELS[k][1] ? LABELS[k][1] + ' · ' : '') + 'standart: ' + money(j.defaults[k]) })]));
         });
         view.appendChild(h('div', { class: 'h', text: 'Narxlar va limitlar' }));
-        view.appendChild(h('div', { class: 'card form' }, [grid, h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+        // Rasm yaratish alohida pullik emas: faqat obunachilar uchun va ular uchun bepul
+        var imgNote = h('div', { class: 'sum', text: "🎨 Rasm yaratish va tahrirlash — faqat obunachilar uchun, ular uchun bepul va cheksiz. Alohida narx yo'q: obuna narxi yuqorida." });
+        view.appendChild(h('div', { class: 'card form' }, [grid, imgNote, h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
             var values = {}; for (var k in inputs) { var n = parseInt(inputs[k].value, 10); if (isNaN(n) || n < 0) { toast(LABELS[k][0] + ': noto\'g\'ri qiymat'); return; } values[k] = n; }
             var x = await admin('settings_set', { values: values }); toast(x.success ? '✅ Saqlandi — darhol kuchga kirdi' : (x.error || 'Xato'));
         } })]));

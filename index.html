@@ -6255,6 +6255,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 rewards = j;
                 paintBonus();
                 paintSub();
+                if (window.__cgPaint) window.__cgPaint();
+                if (imageMode) setImageMode(true, true);
                 paintTopup();
             } catch (e) { btn.disabled = true; btn.textContent = '—'; }
         }
@@ -6569,12 +6571,12 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
         /* ================= RASM YARATISH ================= */
         var imageMode = false;
-        function setImageMode(on) {
+        function setImageMode(on, quiet) {
             imageMode = on;
             $('gen-mode').style.display = on ? 'flex' : 'none';
-            $('gen-sub').textContent = T('Obunachilar uchun bepul', 'Free for subscribers', 'Бесплатно для подписчиков') + ' · ' + T('rasm tavsifini yozing', 'describe the image', 'опишите изображение');
+            $('gen-sub').textContent = (subActive() ? T('Obunangiz bor — bepul', 'Subscribed — free', 'Подписка активна — бесплатно') : T('Obunachilar uchun bepul', 'Free for subscribers', 'Бесплатно для подписчиков')) + ' · ' + T('rasm tavsifini yozing', 'describe the image', 'опишите изображение');
             $('chat-input').placeholder = on ? T("Masalan: tog'lar ortida quyosh botmoqda, akvarel", 'E.g. sunset behind mountains, watercolor', 'Например: закат за горами, акварель') : (translations[lang()] || {}).chatPlaceholder || '';
-            if (on) $('chat-input').focus();
+            if (on && !quiet) $('chat-input').focus();
         }
         $('attach-gen').onclick = async function () {
             attachMenu.classList.remove('open');
@@ -8276,7 +8278,9 @@ html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background
             var bal = ($('header-balance') && $('header-balance').textContent) || '0';
             u.querySelector('small').textContent = bal + ' ' + T("so'm", 'UZS', 'сум');
         }
-        $('cg-pill').innerHTML = '✨ <b>' + T('Obuna', 'Subscribe', 'Подписка') + '</b> ' + T('— barcha kuchli agentlar', '— unlock all pro agents', '— все мощные агенты');
+        var subOn = window.BilolUI && window.BilolUI.subActive && window.BilolUI.subActive();
+        $('cg-pill').innerHTML = subOn ? '✅ <b>' + T('Obuna faol', 'Subscribed', 'Подписка активна') + '</b> ' + T('— barcha agentlar ochiq', '— all agents unlocked', '— все агенты открыты')
+            : '✨ <b>' + T('Obuna', 'Subscribe', 'Подписка') + '</b> ' + T('— barcha kuchli agentlar', '— unlock all pro agents', '— все мощные агенты');
         $('cg-title').textContent = T('Aqlli suhbatni boshlaymiz', "Let's start a smart conversation", 'Начнём умный разговор');
     }
     function empty() {
