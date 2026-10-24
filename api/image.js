@@ -287,10 +287,11 @@ export default async function handler(req, res) {
     }
     if (lastError) console.error("image edit:", lastError);
     if (!image) {
+      if (!charge.txId) return res.status(502).json({ error: "Rasmni tahrirlab bo'lmadi. Birozdan so'ng qayta urinib ko'ring." });
       const refund = await railway("/api/image-refund", { txId: charge.txId, refundToken: charge.refundToken }).catch(() => ({}));
       return res.status(502).json({ error: "Rasmni tahrirlab bo'lmadi. Pul balansingizga qaytarildi.", refunded: !!refund.success, balance: refund.balance });
     }
-    return res.status(200).json({ image, balance: charge.balance, approx });
+    return res.status(200).json(charge.balance != null ? { image, balance: charge.balance, approx } : { image, approx });
   }
   const enPrompt = (charge.prompt || "").trim()
     || await toEnglishPrompt(apiKey, text)
