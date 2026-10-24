@@ -78,6 +78,38 @@ async function viaChatEdit(apiKey, instruction, image) {
   return j?.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
 }
 
+// Pollinations kaliti (POLLINATIONS_TOKEN) bo'lsa: haqiqiy tahrirlash — Nano Banana, bo'lmasa FLUX Kontext, GPT-Image mini
+const POLL_EDIT_MODELS = (process.env.POLLINATIONS_EDIT_MODELS || "google/gemini-nano-banana-2.1,black-forest-labs/flux.1-kontext-pro,openai/gpt-image-1-mini")
+  .split(",").map(x => x.trim()).filter(Boolean);
+async function viaPollinationsEdit(instruction, image, deadline) {
+  const token = (process.env.POLLINATIONS_TOKEN || "").trim();
+  if (!token) return null;
+  for (const model of POLL_EDIT_MODELS) {
+    if (Date.now() + 8000 > deadline) break;
+    const body = JSON.stringify({ model, prompt: `${instruction}. Keep everything else in the image unchanged.`, image: [{ image_url: image }] });
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), Math.max(5000, deadline - Date.now()));
+    try {
+      const r = await fetch("https://gen.pollinations.ai/v1/images/edits", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body, signal: ctrl.signal });
+      const j = await r.json().catch(() => null);
+      if (!r.ok) { lastError += ` | poll-edit ${model} ${r.status}: ${String(j?.error?.message || "").slice(0, 120)}`; continue; }
+      const item = j?.data?.[0];
+      if (item?.b64_json) return `data:image/png;base64,${item.b64_json}`;
+      if (item?.url) {
+        const ir = await fetch(item.url, { signal: ctrl.signal });
+        const type = ir.headers.get("content-type") || "image/png";
+        if (ir.ok && type.startsWith("image/")) return `data:${type.split(";")[0]};base64,${Buffer.from(await ir.arrayBuffer()).toString("base64")}`;
+      }
+      lastError += ` | poll-edit ${model} empty`;
+    } catch (e) {
+      lastError += ` | poll-edit ${model} ${e.name || "error"}`;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return null;
+}
+
 // Bepul zaxira: bepul ko'ruvchi model rasmni tasvirlaydi (o'zgarish bilan), keyin Pollinations qaytadan chizadi
 async function describeForEdit(apiKey, image, instruction) {
   try {
@@ -175,8 +207,10 @@ async function viaPollinations(prompt, size, deadline = Date.now() + 50000) {
 async function pollinationsOnce(prompt, size, timeoutMs) {
   const token = (process.env.POLLINATIONS_TOKEN || "").trim();
   const params = new URLSearchParams({ width: String(size?.w || 1024), height: String(size?.h || 1024), referrer: "bilolsai.uz", seed: String(Math.floor(Math.random() * 1e9)) });
-  if (token) { params.set("nologo", "true"); params.set("model", "flux"); }
-  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt.slice(0, 900))}?${params}`;
+  if (token) { params.set("nologo", "true"); params.set("model", process.env.POLLINATIONS_IMAGE_MODEL || "zimage"); }
+  // Kalit bo'lsa — yangi API (limitsiz), bo'lmasa — bepul "Classic" API (IP bo'yicha 45 soniyada 1 ta)
+  const url = token ? `https://gen.pollinations.ai/image/${encodeURIComponent(prompt.slice(0, 900))}?${params}`
+    : `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt.slice(0, 900))}?${params}`;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), Math.min(45000, timeoutMs || 45000));
   try {
@@ -238,7 +272,9 @@ export default async function handler(req, res) {
     const instr = await toEnglishInstruction(apiKey, text) || text;
     try { image = await viaChatEdit(apiKey, instr, srcImage); } catch (e) { lastError += ` | ${e.message || e}`; }
     let approx = false;
-    if (!image) {
+    if (!image) image = await viaPollinationsEdit(instr, srcImage, deadline);
+    // Taxminiy "tasvirlab qayta chizish" faqat Pollinations kaliti yo'q paytda (kalit bo'lsa — haqiqiy tahrir yoki pul qaytariladi)
+    if (!image && !(process.env.POLLINATIONS_TOKEN || "").trim()) {
       // OpenRouter rasm chiqara olmadi (masalan, balans 1$ dan kam) — bepul usul: tasvirlab, qaytadan chizish
       const desc = await describeForEdit(apiKey, srcImage, instr);
       if (desc) {
