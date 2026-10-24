@@ -709,3 +709,24 @@ html[data-design="premium"][data-page="sub"] .maint b { color: var(--pm-ink) !im
 html[data-design="premium"][data-page="sub"] .maint a, html[data-design="premium"][data-page="sub"] p a, html[data-design="premium"][data-page="sub"] li a { color: var(--pm-accent); }
 html[data-design="premium"][data-page="sub"] .hash code, html[data-design="premium"][data-page="sub"] .auto-note { color: var(--pm-accent) !important; }
 html[data-design="premium"][data-page="sub"] .inapp { background: var(--pm-accent-soft) !important; border-color: rgba(31,92,74,.3) !important; color: var(--pm-accent) !important; }
+
+/* ===================== Kompyuterda to'liq ekran (hamma dizaynlar) =====================
+   Ilgari kompyuterda sayt ekran o'rtasidagi ramka ichida (1060–1120px) turardi.
+   Endi butun oynani egallaydi; chatda matn o'qilishi uchun xabarlar o'rtada ~960px kenglikda. */
+@media (min-width: 992px) {
+    html[data-design] body .container {
+        max-width: none !important; width: 100vw !important; height: 100vh !important; height: 100dvh !important;
+        border-radius: 0 !important; border: 0 !important; box-shadow: none !important;
+    }
+    html[data-design="premium"] body { background: var(--pm-bg) !important; }
+    html[data-design] body .messages-container { padding-left: max(24px, calc((100% - 960px) / 2)) !important; padding-right: max(24px, calc((100% - 960px) / 2)) !important; }
+    html[data-design] body .input-bar { padding-left: max(16px, calc((100% - 980px) / 2)) !important; padding-right: max(16px, calc((100% - 980px) / 2)) !important; }
+    html[data-design] body .chat-header { padding-left: 24px !important; padding-right: 24px !important; }
+    /* to'liq ekranda ramka chizig'i kerak emas */
+    html[data-design] body .container::after { display: none !important; }
+    /* kirish sahifasi: mazmun o'rtada ~1280px, ikki ustun orasi juda keng bo'lib ketmasin */
+    html[data-design] body #landing-screen { padding-left: max(64px, calc((100% - 1280px) / 2)) !important; padding-right: max(64px, calc((100% - 1280px) / 2)) !important; }
+    html[data-design="premium"] body .pm-nav { left: max(64px, calc((100% - 1280px) / 2)); right: max(64px, calc((100% - 1280px) / 2)); }
+}
+/* Yopiq "Suhbatlar" paneli ekrandan tashqarida tursa ham soyasi chap chetga tushardi */
+#chats-drawer:not(.open) .drawer-panel { box-shadow: none !important; }
