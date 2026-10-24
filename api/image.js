@@ -56,6 +56,47 @@ async function viaChat(apiKey, prompt) {
   return url || null;
 }
 
+// Rasmni tahrirlash: asl rasm + ko'rsatma (fonni olib tashla, multfilm qil...) -> yangi rasm
+async function viaChatEdit(apiKey, instruction, image) {
+  const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://bilolsai.uz", "X-Title": "Bilols AI" },
+    body: JSON.stringify({
+      model: IMAGE_MODELS[0], models: IMAGE_MODELS, modalities: ["image", "text"],
+      messages: [{ role: "user", content: [
+        { type: "text", text: `Edit this image: ${instruction}. Keep everything else in the image unchanged unless the instruction says otherwise. Return the edited image.` },
+        { type: "image_url", image_url: { url: image } }
+      ] }]
+    })
+  });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({}));
+    lastError = `openrouter/edit ${r.status}: ${e?.error?.message || ""}`.slice(0, 300);
+    return null;
+  }
+  const j = await r.json().catch(() => null);
+  return j?.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
+}
+
+// Tahrirlash ko'rsatmasini inglizchaga o'giradi
+async function toEnglishInstruction(apiKey, text) {
+  try {
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://bilolsai.uz", "X-Title": "Bilols AI" },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-lite", max_tokens: 200,
+        messages: [{ role: "user", content: `Translate this photo-editing instruction into short, precise English. Output only the instruction.\n\n${text}` }]
+      })
+    });
+    if (!r.ok) return "";
+    const j = await r.json().catch(() => null);
+    return String(j?.choices?.[0]?.message?.content || "").trim().replace(/^["']|["']$/g, "");
+  } catch (e) {
+    return "";
+  }
+}
+
 // Tavsifni ingliz tiliga o'giramiz (rasm modellari inglizchani yaxshi tushunadi). Xato bo'lsa — asl matn.
 async function toEnglishPrompt(apiKey, text) {
   try {
@@ -134,10 +175,14 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const apiKey = (process.env.GEMINI_API_KEY || "").trim();
-  const { phone, password, prompt } = req.body || {};
+  const { phone, password, prompt, image: srcImage } = req.body || {};
   const text = String(prompt || "").trim().slice(0, 1500);
   if (!apiKey) return res.status(500).json({ error: "API kaliti sozlanmagan." });
-  if (!text) return res.status(400).json({ error: "Rasm tavsifini yozing." });
+  if (!text) return res.status(400).json({ error: srcImage ? "Rasmni qanday o'zgartirish kerakligini yozing." : "Rasm tavsifini yozing." });
+  const isEdit = typeof srcImage === "string" && srcImage.length > 0;
+  if (isEdit && (!/^data:image\/(png|jpe?g|webp);base64,[A-Za-z0-9+/=]+$/.test(srcImage) || srcImage.length > 4_000_000)) {
+    return res.status(400).json({ error: "Rasm formati noto'g'ri yoki juda katta." });
+  }
 
   // Pul yechiladi va tavsif botning Google Gemini kaliti bilan inglizchaga o'giriladi
   const charge = await railway("/api/image-charge", { phone, password, prompt: text }, /appassets\.androidplatform\.net/.test(String(req.headers.origin || "")) ? "app" : "web");
@@ -147,6 +192,16 @@ export default async function handler(req, res) {
 
   let image = null;
   lastError = "";
+  if (isEdit) {
+    const instr = await toEnglishInstruction(apiKey, text) || text;
+    try { image = await viaChatEdit(apiKey, instr, srcImage); } catch (e) { lastError += ` | ${e.message || e}`; }
+    if (lastError) console.error("image edit:", lastError);
+    if (!image) {
+      const refund = await railway("/api/image-refund", { txId: charge.txId, refundToken: charge.refundToken }).catch(() => ({}));
+      return res.status(502).json({ error: "Rasmni tahrirlab bo'lmadi. Pul balansingizga qaytarildi.", refunded: !!refund.success, balance: refund.balance });
+    }
+    return res.status(200).json({ image, balance: charge.balance });
+  }
   const enPrompt = (charge.prompt || "").trim()
     || await toEnglishPrompt(apiKey, text)
     || await toEnglishViaPollinations(text)
