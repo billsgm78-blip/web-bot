@@ -2822,6 +2822,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             <div data-st style="--i:5">
                 <button id="auth-action-btn" class="primary-btn">Tizimga kirish</button>
                 <button type="button" class="auth-forgot" id="auth-forgot">Parolni unutdingizmi?</button>
+                <button type="button" class="qr-login-link" id="qr-login-btn"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg><span id="qr-login-btn-t">QR kod orqali kirish</span></button>
             </div>
             <div id="status-box" style="margin-top: 12px; font-size: 13px;"></div>
             <a class="privacy-link" href="/maxfiylik" target="_blank" rel="noopener">🔒 <span class="lang-privacy">Maxfiylik siyosati</span></a>
@@ -3121,6 +3122,14 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 <div class="settings-info">
                     <h4 id="lang-reset-title">🔐 Parolni tiklash</h4>
                     <p id="lang-reset-sub">Telegram bot orqali yangi parol o'rnatish</p>
+                </div>
+                <span class="set-arrow">›</span>
+            </div>
+
+            <div class="settings-card clickable" id="qr-scan-entry">
+                <div class="settings-info">
+                    <h4 id="qr-scan-entry-t">📷 QR orqali kirish</h4>
+                    <p id="qr-scan-entry-s">Kompyuterdagi QR kodni skanerlab, u yerda hisobingizga kiring</p>
                 </div>
                 <span class="set-arrow">›</span>
             </div>
@@ -4971,7 +4980,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
 <!-- ============================================================
      BILOLS AI — DIZAYN VA ANIMATSIYA KUCHAYTIRGICHI
-     Shu butun blokni asosiy faylingizdagi </body> dan OLDIN qo'ying.
+     Shu butun blokni asosiy faylingizdagi body yopilishidan OLDIN qo'ying.
      Mantiqiy kod (JS/API) ga tegmaydi, faqat ko'rinish.
      ============================================================ -->
 
@@ -7381,6 +7390,334 @@ body.theme-light #app-promo .ap-t b { color: #0f172a; }
     var prev = window.setAppLanguage;
     if (typeof prev === 'function') window.setAppLanguage = function () { var r = prev.apply(this, arguments); paint(); return r; };
     paint();
+})();
+</script>
+
+<!-- ============ QR ORQALI KIRISH ============
+     Kompyuter: kirish oynasida QR ko'rsatadi va natijani kutadi.
+     Telefon (saytga kirgan): Sozlamalar → QR orqali kirish → skanerlaydi → kimning hisobiga
+     qaysi qurilmadan kirilayotganini ko'rib tasdiqlaydi. QR'da faqat bir martalik id bor. -->
+<div id="qr-login-view" class="qrx-overlay" hidden>
+    <div class="qrx-card">
+        <button class="auth-close qrx-x" id="qr-login-close" aria-label="Close">&times;</button>
+        <h3 class="qrx-title" id="qrl-title">QR kod orqali kirish</h3>
+        <p class="qrx-sub" id="qrl-sub"></p>
+        <div class="qrx-code" id="qrl-code"><div class="qrx-spin"></div></div>
+        <div class="qrx-status" id="qrl-status"></div>
+        <button type="button" class="primary-btn qrx-btn" id="qrl-refresh" hidden>🔄 Yangi QR kod</button>
+    </div>
+</div>
+<div id="qr-scan-view" class="qrx-overlay" hidden>
+    <div class="qrx-card qrx-scan-card">
+        <button class="auth-close qrx-x" id="qr-scan-close" aria-label="Close">&times;</button>
+        <h3 class="qrx-title" id="qrs-title">QR kodni skanerlang</h3>
+        <div class="qrx-cam" id="qrs-cam">
+            <video id="qrs-video" playsinline muted></video>
+            <div class="qrx-frame"><i></i><i></i><i></i><i></i><b></b></div>
+        </div>
+        <p class="qrx-sub" id="qrs-hint"></p>
+        <div class="qrx-confirm" id="qrs-confirm" hidden>
+            <div class="qrx-dev" id="qrs-dev"></div>
+            <div class="qrx-acc"><span class="qrx-ava" id="qrs-ava"></span><div><b id="qrs-name"></b><small id="qrs-phone"></small></div></div>
+            <p class="qrx-warn" id="qrs-warn"></p>
+            <div class="qrx-row">
+                <button type="button" class="qrx-deny" id="qrs-deny">Rad etish</button>
+                <button type="button" class="primary-btn qrx-ok" id="qrs-ok">Ha, kirish</button>
+            </div>
+        </div>
+        <div class="qrx-status" id="qrs-status"></div>
+    </div>
+</div>
+<style>
+.qr-login-link { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin: 10px 0 0; padding: 11px 14px; border-radius: 14px;
+    border: 1px dashed var(--border-glass, rgba(255,255,255,.18)); background: transparent; color: inherit; opacity: .9; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.qr-login-link:hover { opacity: 1; border-style: solid; }
+.qrx-overlay { position: fixed; inset: 0; z-index: 100001; display: flex; align-items: center; justify-content: center; padding: 16px;
+    background: rgba(3, 5, 12, .72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); animation: aiSmoothIn .2s ease-out both; }
+.qrx-overlay[hidden] { display: none; }
+.qrx-card { position: relative; width: 100%; max-width: 380px; max-height: 94vh; overflow-y: auto; border-radius: 26px; padding: 24px 20px 20px; text-align: center;
+    background: var(--ds-modal, #10141f); color: var(--text-primary, #eef2ff); border: 1px solid var(--border-glass, rgba(255,255,255,.1)); box-shadow: 0 30px 80px -10px rgba(0,0,0,.8); }
+.qrx-x { position: absolute; top: 12px; right: 12px; }
+.qrx-title { margin: 2px 0 6px; font-size: 19px; font-weight: 800; }
+.qrx-sub { margin: 0 4px 14px; font-size: 13.5px; line-height: 1.5; opacity: .75; }
+.qrx-sub[hidden] { display: none; }
+.qrx-code { width: 236px; height: 236px; margin: 0 auto; border-radius: 18px; background: #fff; padding: 12px; display: grid; place-items: center; position: relative; }
+.qrx-code svg { width: 100%; height: 100%; display: block; }
+.qrx-code.dim > :not(.qrx-badge) { filter: blur(4px); opacity: .35; }
+.qrx-badge { position: absolute; inset: 0; display: grid; place-items: center; color: #111; font-weight: 800; font-size: 15px; padding: 18px; text-align: center; line-height: 1.4; }
+.qrx-spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #ddd; border-top-color: #6366f1; animation: qrxSpin .8s linear infinite; }
+@keyframes qrxSpin { to { transform: rotate(360deg); } }
+.qrx-status { min-height: 20px; margin-top: 12px; font-size: 13.5px; line-height: 1.5; white-space: pre-line; }
+.qrx-status.ok { color: #34d399; } .qrx-status.err { color: #f87171; } .qrx-status.wait { color: #fbbf24; font-weight: 600; }
+.qrx-btn { margin-top: 10px; width: 100%; }
+.qrx-btn[hidden] { display: none; }
+.qrx-cam { position: relative; width: 100%; aspect-ratio: 1; border-radius: 20px; overflow: hidden; background: #000; margin-bottom: 12px; }
+.qrx-cam video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.qrx-frame { position: absolute; inset: 14%; }
+.qrx-frame i { position: absolute; width: 26px; height: 26px; border: 3px solid #fff; border-radius: 4px; }
+.qrx-frame i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; } .qrx-frame i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.qrx-frame i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; } .qrx-frame i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+.qrx-frame b { position: absolute; left: 6%; right: 6%; height: 2px; top: 50%; background: linear-gradient(90deg, transparent, #22d3ee, transparent); animation: qrxLine 2s ease-in-out infinite alternate; }
+@keyframes qrxLine { from { transform: translateY(-80px); } to { transform: translateY(80px); } }
+.qrx-cam.off { display: none; }
+.qrx-confirm { text-align: left; }
+.qrx-confirm[hidden] { display: none; }
+.qrx-dev { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid var(--border-glass, rgba(255,255,255,.1)); font-size: 14px; line-height: 1.4; }
+.qrx-dev .qd-ico { font-size: 28px; }
+.qrx-dev small { display: block; opacity: .65; font-size: 12.5px; }
+.qrx-acc { display: flex; align-items: center; gap: 12px; margin: 12px 0 8px; padding: 0 4px; }
+.qrx-acc b { display: block; font-size: 16px; } .qrx-acc small { opacity: .7; font-size: 13px; }
+.qrx-ava { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 18px; color: #fff; background: var(--accent-grad, linear-gradient(135deg,#6366f1,#a855f7)); flex-shrink: 0; }
+.qrx-warn { font-size: 12.5px; line-height: 1.5; opacity: .7; margin: 6px 4px 14px; }
+.qrx-row { display: flex; gap: 10px; }
+.qrx-row > * { flex: 1; margin: 0 !important; }
+.qrx-deny { border-radius: 14px; border: 1px solid rgba(248,113,113,.4); background: rgba(248,113,113,.1); color: #f87171; font: inherit; font-weight: 700; padding: 13px; cursor: pointer; }
+body.theme-light .qrx-card { background: #fff; color: #111827; border-color: rgba(17,24,39,.1); }
+body.theme-light .qrx-dev { background: #f3f4f6; }
+</style>
+<script id="qr-login-script">
+(function () {
+    'use strict';
+    var RAIL = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://ai2-production-7d7e.up.railway.app';
+    var $ = function (id) { return document.getElementById(id); };
+    function T(uz, en, ru) { return typeof tr === 'function' ? tr(uz, en, ru) : uz; }
+    function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+    function loadJs(src) {
+        return new Promise(function (res, rej) {
+            if (document.querySelector('script[src="' + src + '"]')) return res();
+            var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s);
+        });
+    }
+    function post(path, body) {
+        return fetch(RAIL + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) })
+            .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j._status = r.status; return j; }); });
+    }
+    function creds() {
+        var ph = (typeof currentPhone !== 'undefined' && currentPhone) || localStorage.getItem('bilol_ai_phone') || '';
+        return { phone: String(ph).replace(/[^0-9]/g, ''), password: localStorage.getItem('bilol_ai_password') || '' };
+    }
+    function loggedIn() { var c = creds(); return !!(c.phone && c.password); }
+    function device(ua) {
+        ua = String(ua || '');
+        var os = /iPhone|iPad/.test(ua) ? 'iPhone/iPad' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac OS X|Macintosh/.test(ua) ? 'macOS' : /Linux/.test(ua) ? 'Linux' : T("Noma'lum qurilma", 'Unknown device', 'Неизвестное устройство');
+        var br = /Edg\//.test(ua) ? 'Edge' : /OPR\/|Opera/.test(ua) ? 'Opera' : /YaBrowser/.test(ua) ? 'Yandex' : /Firefox\//.test(ua) ? 'Firefox' : /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : '';
+        return { os: os, br: br, ico: /iPhone|iPad|Android/.test(ua) ? '📱' : '💻' };
+    }
+    function paintTexts() {
+        if ($('qr-login-btn-t')) $('qr-login-btn-t').textContent = T('QR kod orqali kirish', 'Log in with a QR code', 'Войти по QR-коду');
+        if ($('qr-scan-entry-t')) $('qr-scan-entry-t').textContent = T('📷 QR orqali kirish', '📷 Log in with QR', '📷 Вход по QR');
+        if ($('qr-scan-entry-s')) $('qr-scan-entry-s').textContent = T('Kompyuterdagi QR kodni skanerlab, u yerda hisobingizga kiring', 'Scan the QR code on a computer to log in there', 'Отсканируйте QR-код на компьютере, чтобы войти там');
+        var e = $('qr-scan-entry'); if (e) e.style.display = loggedIn() ? '' : 'none';
+    }
+
+    /* ---------------- 1) Kompyuter: QR ko'rsatish ---------------- */
+    var L = { id: null, secret: null, ver: 0, run: 0, timer: null, exp: 0, scanned: false };
+    function lStatus(t, cls) { var el = $('qrl-status'); el.textContent = t || ''; el.className = 'qrx-status ' + (cls || ''); }
+    function badge(text) {
+        var box = $('qrl-code'), b = box.querySelector('.qrx-badge');
+        if (!text) { box.classList.remove('dim'); if (b) b.remove(); return; }
+        if (!b) { b = document.createElement('div'); b.className = 'qrx-badge'; box.appendChild(b); }
+        b.textContent = text; box.classList.add('dim');
+    }
+    function openLogin() {
+        $('qr-login-view').hidden = false;
+        $('qrl-title').textContent = T('QR kod orqali kirish', 'Log in with a QR code', 'Вход по QR-коду');
+        $('qrl-sub').innerHTML = T('Telefoningizda <b>bilolsai.uz</b> → ⚙️ Sozlamalar → <b>QR orqali kirish</b> ni oching va shu kodni skanerlang.',
+            'On your phone open <b>bilolsai.uz</b> → ⚙️ Settings → <b>Log in with QR</b> and scan this code.',
+            'На телефоне откройте <b>bilolsai.uz</b> → ⚙️ Настройки → <b>Вход по QR</b> и отсканируйте код.');
+        $('qrl-refresh').textContent = '🔄 ' + T('Yangi QR kod', 'New QR code', 'Новый QR-код');
+        newCode();
+    }
+    function closeLogin() { L.run++; clearInterval(L.timer); $('qr-login-view').hidden = true; }
+    async function newCode() {
+        var run = ++L.run; clearInterval(L.timer); L.scanned = false;
+        $('qrl-refresh').hidden = true; lStatus('');
+        $('qrl-code').className = 'qrx-code'; $('qrl-code').innerHTML = '<div class="qrx-spin"></div>';
+        try {
+            await loadJs('/vendor/qrcode-generator-1.4.4.js');
+            var j = await post('/api/qr/new', { ua: navigator.userAgent });
+            if (run !== L.run) return;
+            if (!j.success) throw new Error(j.error || 'err');
+            L.id = j.id; L.secret = j.secret; L.ver = 0; L.exp = Date.now() + (j.ttl || 120) * 1000;
+            var qr = qrcode(0, 'M'); qr.addData(location.origin + '/?qrl=' + encodeURIComponent(j.id)); qr.make();
+            $('qrl-code').innerHTML = qr.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
+            tick(); L.timer = setInterval(tick, 1000);
+            poll(run);
+        } catch (e) {
+            if (run !== L.run) return;
+            $('qrl-code').innerHTML = ''; badge(T("QR kod yaratib bo'lmadi", 'Could not create a QR code', 'Не удалось создать QR-код'));
+            lStatus(e && e.message && e.message !== 'err' && e.message !== 'Failed to fetch' ? e.message : T('Internetni tekshiring', 'Check your internet', 'Проверьте интернет'), 'err');
+            $('qrl-refresh').hidden = false;
+        }
+    }
+    function tick() {
+        var s = Math.max(0, Math.round((L.exp - Date.now()) / 1000));
+        if (s <= 0) return expired();
+        if (L.scanned) return;
+        lStatus(T('Kod amal qiladi: ', 'Code valid for: ', 'Код действует: ') + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'));
+    }
+    function expired() {
+        L.run++; clearInterval(L.timer);
+        badge(T('QR kod eskirdi', 'QR code expired', 'QR-код устарел')); lStatus('');
+        $('qrl-refresh').hidden = false;
+    }
+    async function poll(run) {
+        while (run === L.run) {
+            var j;
+            try { j = await post('/api/qr/poll', { id: L.id, secret: L.secret, ver: L.ver }); }
+            catch (e) { await wait(2000); continue; }
+            if (run !== L.run) return;
+            if (!j.success) { await wait(2000); continue; }
+            if (typeof j.ver === 'number') L.ver = j.ver;
+            if (j.status === 'scanned') {
+                // Kimning hisobiga kirilayotgani kompyuterda ham ko'rinadi
+                L.scanned = true; L.exp = Date.now() + 90000;
+                badge('📱 ' + T('Skanerlandi', 'Scanned', 'Отсканировано'));
+                lStatus('👤 ' + (j.name || T('Hisob', 'Account', 'Аккаунт')) + (j.phone ? ' (' + j.phone + ')' : '') + '\n' +
+                    T("hisobiga kirish so'ralmoqda — telefoningizda tasdiqlang", 'login requested — confirm on your phone', 'запрошен вход — подтвердите на телефоне'), 'wait');
+            } else if (j.status === 'ok' && j.login) {
+                L.run++; clearInterval(L.timer);
+                badge('✅'); lStatus(T('Kirildi! ', 'Logged in! ', 'Вход выполнен! ') + (j.login.name || ''), 'ok');
+                try {
+                    localStorage.setItem('bilol_ai_phone', j.login.phone);
+                    localStorage.setItem('bilol_ai_name', j.login.name || '');
+                    localStorage.setItem('bilol_ai_password', j.login.password);
+                } catch (e) {}
+                setTimeout(function () { location.replace(location.pathname); }, 700);
+                return;
+            } else if (j.status === 'denied') {
+                L.run++; clearInterval(L.timer);
+                badge(T('Rad etildi', 'Denied', 'Отклонено'));
+                lStatus(T('Telefonda kirish rad etildi.', 'Login was denied on the phone.', 'Вход отклонён на телефоне.'), 'err');
+                $('qrl-refresh').hidden = false; return;
+            } else if (j.status === 'expired') { expired(); return; }
+        }
+    }
+
+    /* ---------------- 2) Telefon: skanerlash va tasdiqlash ---------------- */
+    var S = { stream: null, raf: 0, busy: false, id: null, det: null };
+    function sStatus(t, cls) { var el = $('qrs-status'); el.textContent = t || ''; el.className = 'qrx-status ' + (cls || ''); }
+    function stopCam() {
+        cancelAnimationFrame(S.raf);
+        if (S.stream) { S.stream.getTracks().forEach(function (t) { t.stop(); }); S.stream = null; }
+    }
+    function closeScan() { stopCam(); S.id = null; $('qr-scan-view').hidden = true; }
+    function idFrom(text) {
+        text = String(text || '').trim();
+        try {
+            var u = new URL(text);
+            if (/(^|\.)bilolsai\.uz$/.test(u.hostname) || u.origin === location.origin) return u.searchParams.get('qrl');
+        } catch (e) {}
+        return null;
+    }
+    async function openScan(presetId) {
+        if (!loggedIn()) { alert(T('Avval saytga kiring.', 'Log in first.', 'Сначала войдите.')); return; }
+        $('qr-scan-view').hidden = false;
+        $('qrs-title').textContent = T('QR kodni skanerlang', 'Scan the QR code', 'Отсканируйте QR-код');
+        $('qrs-hint').innerHTML = T('Kompyuterda <b>bilolsai.uz</b> → Kirish → <b>QR kod orqali kirish</b> ni oching va kamerani kodga qarating.',
+            'On the computer open <b>bilolsai.uz</b> → Log in → <b>Log in with a QR code</b> and point the camera at it.',
+            'На компьютере откройте <b>bilolsai.uz</b> → Вход → <b>Войти по QR-коду</b> и наведите камеру на код.');
+        $('qrs-confirm').hidden = true; $('qrs-hint').hidden = false; $('qrs-cam').classList.remove('off'); sStatus(''); S.busy = false;
+        if (presetId) return gotId(presetId);
+        try {
+            S.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+        } catch (e) {
+            $('qrs-cam').classList.add('off');
+            sStatus(T('Kameraga ruxsat berilmadi. Brauzer sozlamalarida kameraga ruxsat bering.', 'Camera access was denied. Allow the camera in browser settings.', 'Нет доступа к камере. Разрешите камеру в настройках браузера.'), 'err');
+            return;
+        }
+        var v = $('qrs-video'); v.srcObject = S.stream; try { await v.play(); } catch (e) {}
+        S.det = null;
+        if ('BarcodeDetector' in window) { try { S.det = new BarcodeDetector({ formats: ['qr_code'] }); } catch (e) { S.det = null; } }
+        if (!S.det) { try { await loadJs('/vendor/jsQR-1.4.0.js'); } catch (e) {} }
+        var c = document.createElement('canvas'), cx = c.getContext('2d', { willReadFrequently: true }), last = 0;
+        (function loop(ts) {
+            if (!S.stream) return;
+            S.raf = requestAnimationFrame(loop);
+            if (S.busy || ts - last < 180 || v.readyState < 2 || !v.videoWidth) return;
+            last = ts;
+            if (S.det) {
+                S.busy = true;
+                S.det.detect(v).then(function (r) { S.busy = false; if (r && r[0]) found(r[0].rawValue); }).catch(function () { S.busy = false; });
+            } else if (window.jsQR) {
+                var w = Math.min(640, v.videoWidth), h = Math.round(v.videoHeight * w / v.videoWidth);
+                c.width = w; c.height = h; cx.drawImage(v, 0, 0, w, h);
+                var q = jsQR(cx.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: 'dontInvert' });
+                if (q && q.data) found(q.data);
+            }
+        })(0);
+    }
+    function found(text) {
+        var id = idFrom(text);
+        if (!id) { sStatus(T('Bu Bilols AI kirish QR kodi emas.', 'This is not a Bilols AI login QR code.', 'Это не QR-код входа Bilols AI.'), 'err'); return; }
+        if (navigator.vibrate) { try { navigator.vibrate(40); } catch (e) {} }
+        stopCam(); gotId(id);
+    }
+    async function gotId(id) {
+        S.id = id; S.busy = true;
+        $('qrs-cam').classList.add('off'); $('qrs-hint').hidden = true;
+        sStatus(T('Tekshirilmoqda…', 'Checking…', 'Проверка…'));
+        var c = creds(), j;
+        try { j = await post('/api/qr/scan', { id: id, phone: c.phone, password: c.password }); }
+        catch (e) { sStatus(T("Internet bilan aloqa yo'q", 'No connection', 'Нет соединения'), 'err'); return; }
+        if (!j.success) { sStatus(j._status === 403 ? T('Qaytadan kiring.', 'Please log in again.', 'Войдите снова.') : (j.error || 'Error'), 'err'); return; }
+        var d = device(j.ua);
+        $('qrs-title').textContent = T('Kirishni tasdiqlang', 'Confirm login', 'Подтвердите вход');
+        $('qrs-dev').innerHTML = '<span class="qd-ico"></span><div><b></b><small></small></div>';
+        $('qrs-dev').querySelector('.qd-ico').textContent = d.ico;
+        $('qrs-dev').querySelector('b').textContent = d.os + (d.br ? ' · ' + d.br : '');
+        $('qrs-dev').querySelector('small').textContent = T('Hisobingizga kirmoqchi', 'Wants to log in to your account', 'Хочет войти в ваш аккаунт') + (j.ip ? ' · IP ' + j.ip : '');
+        $('qrs-ava').textContent = (j.name || 'B').trim().charAt(0).toUpperCase();
+        $('qrs-name').textContent = j.name || T('Hisobingiz', 'Your account', 'Ваш аккаунт');
+        $('qrs-phone').textContent = j.phone || '';
+        $('qrs-warn').textContent = T("Shu qurilma yuqoridagi hisobga kiradi. Agar bu QR kodni o'zingiz ochmagan bo'lsangiz — rad eting.",
+            "This device will be logged in to the account above. If you didn't open this QR code yourself, deny it.",
+            'Это устройство войдёт в аккаунт выше. Если вы не открывали этот QR-код сами — отклоните.');
+        $('qrs-deny').textContent = T('Rad etish', 'Deny', 'Отклонить');
+        $('qrs-ok').textContent = T('Ha, kirish', 'Yes, log in', 'Да, войти');
+        $('qrs-confirm').hidden = false; sStatus('');
+    }
+    async function answer(ok) {
+        if (!S.id) return;
+        $('qrs-ok').disabled = $('qrs-deny').disabled = true;
+        var c = creds(), j;
+        try { j = await post('/api/qr/approve', { id: S.id, ok: ok, phone: c.phone, password: c.password }); }
+        catch (e) { j = { error: T("Internet bilan aloqa yo'q", 'No connection', 'Нет соединения') }; }
+        $('qrs-ok').disabled = $('qrs-deny').disabled = false;
+        if (!j.success) { sStatus(j.error || 'Error', 'err'); return; }
+        $('qrs-confirm').hidden = true; S.id = null;
+        sStatus(ok ? T('✅ Kompyuterda hisobingizga kirildi', '✅ Logged in on the computer', '✅ Вход на компьютере выполнен') : T('Kirish rad etildi', 'Login denied', 'Вход отклонён'), ok ? 'ok' : '');
+        setTimeout(closeScan, 1600);
+    }
+
+    /* ---------------- ulash ---------------- */
+    function bind() {
+        if ($('qr-login-btn')) $('qr-login-btn').onclick = function (e) { e.preventDefault(); openLogin(); };
+        $('qr-login-close').onclick = closeLogin;
+        $('qrl-refresh').onclick = newCode;
+        if ($('qr-scan-entry')) $('qr-scan-entry').onclick = function () { openScan(); };
+        $('qr-scan-close').onclick = closeScan;
+        $('qrs-ok').onclick = function () { answer(true); };
+        $('qrs-deny').onclick = function () { answer(false); };
+        paintTexts();
+        var sm = $('settings-modal');
+        if (sm && window.MutationObserver) new MutationObserver(paintTexts).observe(sm, { attributes: true, attributeFilter: ['style', 'class'] });
+        // Telefonning oddiy kamerasi bilan skanerlansa: bilolsai.uz/?qrl=... ochiladi
+        var qid = null; try { qid = new URLSearchParams(location.search).get('qrl'); } catch (e) {}
+        if (qid) {
+            try { history.replaceState(null, '', location.pathname); } catch (e) {}
+            setTimeout(function () {
+                if (loggedIn()) openScan(qid);
+                else alert(T("QR orqali kirishni tasdiqlash uchun avval shu telefonda saytga kiring, so'ng kodni qayta skanerlang.", 'To approve a QR login, first log in on this phone, then scan the code again.', 'Чтобы подтвердить вход по QR, сначала войдите на этом телефоне и отсканируйте код снова.'));
+            }, 700);
+        }
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            if (!$('qr-login-view').hidden) closeLogin();
+            if (!$('qr-scan-view').hidden) closeScan();
+        });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
 })();
 </script>
 </body>
