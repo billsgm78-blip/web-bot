@@ -78,6 +78,31 @@ async function viaChatEdit(apiKey, instruction, image) {
   return j?.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
 }
 
+// Bepul zaxira: bepul ko'ruvchi model rasmni tasvirlaydi (o'zgarish bilan), keyin Pollinations qaytadan chizadi
+async function describeForEdit(apiKey, image, instruction) {
+  try {
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://bilolsai.uz", "X-Title": "Bilols AI" },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-lite", max_tokens: 300,
+        messages: [{ role: "user", content: [
+          { type: "text", text: "Write a detailed English prompt for an image generator that recreates this image as closely as possible " +
+            "(composition, subjects, background, colors, lighting, style, camera angle), but with this change applied: \"" + instruction + "\". " +
+            "Describe only the final edited image, do not mention the change or the original. Output only the prompt, max 110 words." },
+          { type: "image_url", image_url: { url: image } }
+        ] }]
+      })
+    });
+    if (!r.ok) { lastError += ` | describe ${r.status}`; return ""; }
+    const j = await r.json().catch(() => null);
+    return String(j?.choices?.[0]?.message?.content || "").trim().replace(/^["']|["']$/g, "");
+  } catch (e) {
+    lastError += ` | describe ${e.name || "error"}`;
+    return "";
+  }
+}
+
 // Tahrirlash ko'rsatmasini inglizchaga o'giradi
 async function toEnglishInstruction(apiKey, text) {
   try {
@@ -135,26 +160,42 @@ async function toEnglishViaPollinations(text) {
 }
 
 // 3-usul (zaxira): Pollinations — bepul. POLLINATIONS_TOKEN bo'lsa, cheklov yuqoriroq va suv belgisisiz.
-async function viaPollinations(prompt) {
+// Bepul Pollinations ba'zan "band" (503/429) javob beradi — qisqa kutib qayta uriniladi (Vercel 60 soniya chegarasi ichida)
+async function viaPollinations(prompt, size, deadline = Date.now() + 50000) {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const r = await pollinationsOnce(prompt, size, Math.max(5000, deadline - Date.now()));
+    if (r.image || !r.busy) return r.image;
+    const wait = Math.min(20000, Math.max(3000, (r.retryAfter || 6) * 1000 + 500));
+    if (Date.now() + wait + 8000 > deadline) return null;
+    await new Promise(ok => setTimeout(ok, wait));
+  }
+  return null;
+}
+
+async function pollinationsOnce(prompt, size, timeoutMs) {
   const token = (process.env.POLLINATIONS_TOKEN || "").trim();
-  const params = new URLSearchParams({ width: "1024", height: "1024", model: "flux", referrer: "bilolsai.uz", seed: String(Math.floor(Math.random() * 1e9)) });
-  if (token) params.set("nologo", "true");
+  const params = new URLSearchParams({ width: String(size?.w || 1024), height: String(size?.h || 1024), referrer: "bilolsai.uz", seed: String(Math.floor(Math.random() * 1e9)) });
+  if (token) { params.set("nologo", "true"); params.set("model", "flux"); }
   const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt.slice(0, 900))}?${params}`;
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 45000);
+  const timer = setTimeout(() => ctrl.abort(), Math.min(45000, timeoutMs || 45000));
   try {
     const r = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {}, signal: ctrl.signal });
     const type = r.headers.get("content-type") || "";
     if (!r.ok || !type.startsWith("image/")) {
-      lastError += ` | pollinations ${r.status}`;
-      return null;
+      // Bepul limit: "1 image every 45 seconds per IP. Retry after 8s" — kutib qayta urinish mumkin
+      const body = await r.text().catch(() => "");
+      const freeLimit = /FREE_LIMIT|at its limit|Retry after/i.test(body);
+      const m = body.match(/Retry after (\d+)\s*s/i);
+      lastError += ` | pollinations ${r.status}${freeLimit ? " limit" : ""}`;
+      return { image: null, busy: r.status === 503 || r.status === 429 || freeLimit, retryAfter: m ? +m[1] : 0 };
     }
     const buf = Buffer.from(await r.arrayBuffer());
-    if (buf.length < 1000) return null;
-    return `data:${type.split(";")[0]};base64,${buf.toString("base64")}`;
+    if (buf.length < 1000) return { image: null };
+    return { image: `data:${type.split(";")[0]};base64,${buf.toString("base64")}` };
   } catch (e) {
     lastError += ` | pollinations ${e.name || "error"}`;
-    return null;
+    return { image: null };
   } finally {
     clearTimeout(timer);
   }
@@ -175,7 +216,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const apiKey = (process.env.GEMINI_API_KEY || "").trim();
-  const { phone, password, prompt, image: srcImage } = req.body || {};
+  const { phone, password, prompt, image: srcImage, aspect } = req.body || {};
   const text = String(prompt || "").trim().slice(0, 1500);
   if (!apiKey) return res.status(500).json({ error: "API kaliti sozlanmagan." });
   if (!text) return res.status(400).json({ error: srcImage ? "Rasmni qanday o'zgartirish kerakligini yozing." : "Rasm tavsifini yozing." });
@@ -192,15 +233,27 @@ export default async function handler(req, res) {
 
   let image = null;
   lastError = "";
+  const deadline = Date.now() + 48000;
   if (isEdit) {
     const instr = await toEnglishInstruction(apiKey, text) || text;
     try { image = await viaChatEdit(apiKey, instr, srcImage); } catch (e) { lastError += ` | ${e.message || e}`; }
+    let approx = false;
+    if (!image) {
+      // OpenRouter rasm chiqara olmadi (masalan, balans 1$ dan kam) — bepul usul: tasvirlab, qaytadan chizish
+      const desc = await describeForEdit(apiKey, srcImage, instr);
+      if (desc) {
+        const a = Math.max(0.5, Math.min(2, Number(aspect) || 1));
+        const size = a >= 1 ? { w: 1024, h: Math.round(1024 / a / 64) * 64 } : { w: Math.round(1024 * a / 64) * 64, h: 1024 };
+        image = await viaPollinations(desc, size, deadline);
+        approx = !!image;
+      }
+    }
     if (lastError) console.error("image edit:", lastError);
     if (!image) {
       const refund = await railway("/api/image-refund", { txId: charge.txId, refundToken: charge.refundToken }).catch(() => ({}));
       return res.status(502).json({ error: "Rasmni tahrirlab bo'lmadi. Pul balansingizga qaytarildi.", refunded: !!refund.success, balance: refund.balance });
     }
-    return res.status(200).json({ image, balance: charge.balance });
+    return res.status(200).json({ image, balance: charge.balance, approx });
   }
   const enPrompt = (charge.prompt || "").trim()
     || await toEnglishPrompt(apiKey, text)
@@ -214,7 +267,7 @@ export default async function handler(req, res) {
     lastError += ` | ${e.message || e}`;
     image = null;
   }
-  if (!image) image = await viaPollinations(enPrompt);
+  if (!image) image = await viaPollinations(enPrompt, null, deadline);
   if (lastError) console.error("image:", lastError);
 
   if (!image) {

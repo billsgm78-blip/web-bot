@@ -2158,6 +2158,7 @@ body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
 .gen-bubble { padding: 8px !important; }
 .gen-img { display: block; width: 100%; max-width: 360px; border-radius: 12px; }
 .gen-bubble .msg-actions { margin: 6px 0 -2px; }
+.gen-note { display: block; max-width: 360px; margin: 8px 4px 0; font-size: 12px; line-height: 1.45; opacity: .75; }
 .gen-wait { display: flex; flex-direction: column; gap: 8px; width: 240px; }
 .gen-wait small { color: #94a3b8; font-size: 12px; }
 .gen-skeleton {
@@ -6597,6 +6598,14 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 img.src = src;
             });
         }
+        function imgAspect(src) {
+            return new Promise(function (res) {
+                var i = new Image();
+                i.onload = function () { res(i.naturalHeight ? i.naturalWidth / i.naturalHeight : 1); };
+                i.onerror = function () { res(1); };
+                i.src = src;
+            });
+        }
         function genBubble(src, prompt, full) {
             var div = document.createElement('div');
             div.className = 'msg-bubble msg-ai gen-bubble';
@@ -6629,7 +6638,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             msgBox.scrollTop = msgBox.scrollHeight;
             var c = creds();
             try {
-                var r = await fetch('/api/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: c.phone, password: c.password, prompt: prompt, image: src || undefined }) });
+                var r = await fetch('/api/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: c.phone, password: c.password, prompt: prompt, image: src || undefined, aspect: src ? await imgAspect(src) : undefined }) });
                 var j = {};
                 try { j = await r.json(); } catch (e) {}
                 wait.remove();
@@ -6650,7 +6659,12 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                     return null;
                 }
                 var thumb = await makeThumb(j.image);
-                genBubble(j.image, prompt, j.image);
+                var gb = genBubble(j.image, prompt, j.image);
+                if (j.approx) {
+                    var n = document.createElement('small'); n.className = 'gen-note';
+                    n.textContent = T("ℹ️ Bepul rejim: rasm o'zgarish bilan qaytadan chizildi, asl rasmdan biroz farq qilishi mumkin.", 'ℹ️ Free mode: the image was redrawn with your change and may differ slightly from the original.', 'ℹ️ Бесплатный режим: изображение перерисовано с изменением и может немного отличаться от оригинала.');
+                    gb.insertBefore(n, gb.querySelector('.msg-actions'));
+                }
                 if (typeof refreshBalance === 'function') refreshBalance();
                 return { role: 'gen', prompt: prompt, thumb: thumb || '' };
             } catch (e) {
