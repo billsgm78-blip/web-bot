@@ -7457,8 +7457,15 @@ body.theme-light #app-promo .ap-t b { color: #0f172a; }
 .qrx-frame i { position: absolute; width: 26px; height: 26px; border: 3px solid #fff; border-radius: 4px; }
 .qrx-frame i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; } .qrx-frame i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; }
 .qrx-frame i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; } .qrx-frame i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; }
-.qrx-frame b { position: absolute; left: 6%; right: 6%; height: 2px; top: 50%; background: linear-gradient(90deg, transparent, #22d3ee, transparent); animation: qrxLine 2s ease-in-out infinite alternate; }
-@keyframes qrxLine { from { transform: translateY(-80px); } to { transform: translateY(80px); } }
+/* skaner chizig'i: ramka bo'ylab tepadan pastga va qaytib to'xtovsiz yuradi (yengil rejimda ham) */
+.qrx-frame b { position: absolute; left: 4%; right: 4%; top: 0; height: 3px; border-radius: 3px;
+    background: linear-gradient(90deg, transparent, #22d3ee 20%, #a5f3fc 50%, #22d3ee 80%, transparent);
+    box-shadow: 0 0 12px 2px rgba(34, 211, 238, .75), 0 0 34px 6px rgba(34, 211, 238, .3);
+    animation: qrxLine 1.8s ease-in-out infinite alternate !important; animation-iteration-count: infinite !important; }
+.qrx-frame b::after { content: ""; position: absolute; left: 0; right: 0; bottom: 3px; height: 46px;
+    background: linear-gradient(to top, rgba(34, 211, 238, .28), transparent); }
+@keyframes qrxLine { 0% { top: 0; } 100% { top: calc(100% - 3px); } }
+@media (prefers-reduced-motion: reduce) { .qrx-frame b { animation-duration: 3s !important; } }
 .qrx-cam.off { display: none; }
 .qrx-confirm { text-align: left; }
 .qrx-confirm[hidden] { display: none; }
