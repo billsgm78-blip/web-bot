@@ -3252,6 +3252,14 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 <span class="set-arrow">›</span>
             </div>
 
+            <div class="settings-card clickable" id="sess-entry" style="display:none">
+                <div class="settings-info">
+                    <h4 id="sess-entry-t">📱 Faol qurilmalar</h4>
+                    <p id="sess-entry-s">Hisobingiz ochiq qurilmalar · boshqalaridan chiqish</p>
+                </div>
+                <span class="set-arrow">›</span>
+            </div>
+
             <a class="settings-card clickable" href="/maxfiylik" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
                 <div class="settings-info">
                     <h4>🔒 <span class="lang-privacy">Maxfiylik siyosati</span></h4>
@@ -3843,7 +3851,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
             pStatus.style.color = "#10b981";
             pStatus.innerText = tr("Parol muvaffaqiyatli yangilandi! 🎉", "Password successfully updated! 🎉", "Пароль успешно обновлён! 🎉");
-            localStorage.setItem("bilol_ai_password", newPass);
+            localStorage.setItem("bilol_ai_password", data.token || newPass);
             setTimeout(() => {
                 closePasswordModal();
                 showNotification(tr("Parol muvaffaqiyatli o'zgartirildi!", "Password successfully changed!", "Пароль успешно изменён!"));
@@ -4284,6 +4292,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
     logoutBtn.onclick = async () => {
         if (await bConfirm(tr("Hisobingizdan chiqishni tasdiqlaysizmi?", "Are you sure you want to log out?", "Вы уверены, что хотите выйти из аккаунта?"), { danger: true, icon: '👋', ok: tr("Chiqish", "Log out", "Выйти") })) {
+            await window.__serverLogout();
             localStorage.clear();
             location.reload();
         }
@@ -4296,6 +4305,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 localStorage.removeItem("bilol_ai_history");
                 localStorage.removeItem(CHATS_KEY);
                 localStorage.removeItem(CUR_CHAT_KEY);
+                window.BilolChats.clearAll();
                 newChat();
                 settingsModal.style.display = "none";
                 showNotification(tr("Chat tarixi tozalandi!", "Chat history cleared!", "История чата очищена!"));
@@ -4412,7 +4422,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             currentName = data.name || name || "";
             localStorage.setItem("bilol_ai_phone", phone);
             localStorage.setItem("bilol_ai_name", currentName);
-            localStorage.setItem("bilol_ai_password", password);
+            localStorage.setItem("bilol_ai_password", data.token || password);
 
             await refreshBalance();
             landingScreen.classList.add("hidden");
@@ -4753,7 +4763,80 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         list.unshift(rec);
         storeChats(list);
         if (window.BilolUI) window.BilolUI.chatsChanged();
+        syncPush(rec);
     }
+
+    // ---------- Suhbatlarni qurilmalar orasida sinxronlash (server) ----------
+    function syncCreds() {
+        const phone = (localStorage.getItem("bilol_ai_phone") || "").replace(/[^0-9]/g, "");
+        const password = localStorage.getItem("bilol_ai_password") || "";
+        return phone && password ? { phone, password } : null;
+    }
+    async function syncCall(op, extra) {
+        const c = syncCreds();
+        if (!c) return null;
+        try {
+            const r = await fetch(`${RAILWAY_URL}/api/chats/${op}`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(Object.assign(c, extra || {})), keepalive: op !== "get" && op !== "list"
+            });
+            const j = await r.json();
+            return j && j.success ? j : null;
+        } catch (e) { return null; }
+    }
+    function serverCopy(rec) {
+        // katta rasm eskizlari serverga yuborilmaydi (joy tejash)
+        return Object.assign({}, rec, { messages: (rec.messages || []).map(m => m.role === "gen" && m.thumb && m.thumb.length > 40000 ? { role: "gen", prompt: m.prompt } : m) });
+    }
+    const pushTimers = {};
+    function syncPush(rec) {
+        if (!rec || !syncCreds()) return;
+        clearTimeout(pushTimers[rec.id]);
+        pushTimers[rec.id] = setTimeout(() => { delete pushTimers[rec.id]; syncCall("save", { chat: serverCopy(rec) }); }, 1500);
+    }
+    let pulling = false;
+    async function syncPull() {
+        if (pulling || !syncCreds()) return;
+        pulling = true;
+        try {
+            const res = await syncCall("list");
+            if (!res) return;
+            let local = loadChats();
+            const byId = {};
+            local.forEach(c => { byId[c.id] = c; });
+            const need = [], seen = {};
+            let changed = false, curTouched = false;
+            res.chats.forEach(sc => {
+                seen[sc.id] = 1;
+                const lc = byId[sc.id];
+                if (sc.deleted) {
+                    if (lc && (lc.updated || 0) <= sc.updated) {
+                        local = local.filter(c => c.id !== sc.id); changed = true;
+                        if (sc.id === currentChatId) curTouched = true;
+                    }
+                } else if (!lc || (lc.updated || 0) < sc.updated) need.push(sc.id);
+                else if ((lc.updated || 0) > sc.updated) syncPush(lc);
+            });
+            local.forEach(c => { if (!seen[c.id]) syncPush(c); });   // faqat shu qurilmadagi suhbatlar serverga
+            for (let i = 0; i < need.length; i += 30) {
+                const got = await syncCall("get", { ids: need.slice(i, i + 30) });
+                ((got && got.chats) || []).forEach(sc => {
+                    local = local.filter(c => c.id !== sc.id);
+                    local.push({ id: sc.id, title: sc.title, updated: sc.updated, messages: sc.messages || [] });
+                    changed = true;
+                    if (sc.id === currentChatId) curTouched = true;
+                });
+            }
+            if (!changed) return;
+            local.sort((a, b) => (b.updated || 0) - (a.updated || 0));
+            storeChats(local);
+            if (curTouched && !isBusy) {
+                if (local.some(c => c.id === currentChatId)) openChat(currentChatId); else newChat();
+            } else if (window.BilolUI) window.BilolUI.chatsChanged();
+        } finally { pulling = false; }
+    }
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") syncPull(); });
+    setInterval(() => { if (document.visibilityState === "visible") syncPull(); }, 90000);
 
     function resetMessagesUI() {
         const t = translations[currentLang];
@@ -4816,6 +4899,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
     function deleteChat(id) {
         storeChats(loadChats().filter(c => c.id !== id));
+        clearTimeout(pushTimers[id]);
+        syncCall("delete", { id: id, when: Date.now() });
         if (id === currentChatId) newChat();
         else if (window.BilolUI) window.BilolUI.chatsChanged();
     }
@@ -4837,11 +4922,13 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         const list = loadChats();
         if (currentChatId && list.some(c => c.id === currentChatId)) openChat(currentChatId);
         else { chatHistory = []; currentChatId = null; resetMessagesUI(); }
+        syncPull();
     }
 
     window.BilolChats = {
         list: loadChats, open: openChat, newChat: newChat, remove: deleteChat,
-        current: () => currentChatId, isBusy: () => isBusy
+        current: () => currentChatId, isBusy: () => isBusy, sync: syncPull,
+        clearAll: () => { Object.keys(pushTimers).forEach(k => clearTimeout(pushTimers[k])); return syncCall("clear", { when: Date.now() }); }
     };
 
     function showTyping() {
@@ -8170,7 +8257,7 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         pP.appendChild(me);
         pP.appendChild(group(T('Hisob xavfsizligi', 'Account security', 'Безопасность'), [
             row(T('Parol', 'Password', 'Пароль'), '••••••••', T("Parolni o'zgartirish", 'Change password', 'Сменить пароль'), function () { typeof openPasswordModal === 'function' && openPasswordModal(); }),
-            card('reset-entry'), card('qr-scan-entry')
+            card('reset-entry'), card('qr-scan-entry'), card('sess-entry')
         ]));
         var hidden = card('lang-set-profile'); if (hidden) hidden.style.display = 'none', pP.appendChild(hidden);
         pP.appendChild(group(T('Kirish', 'Sessions', 'Сеансы'), [
@@ -8253,6 +8340,141 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         if (w) { e.stopPropagation(); e.preventDefault(); window.__shOpening = true; open('shop'); setTimeout(function () { window.__shOpening = false; }, 0); return; }
         if (e.target.closest && e.target.closest('#open-settings-btn')) setTimeout(function () { if (window.__shOpening) return; build(); setMode('settings'); select('profile'); }, 0);
     }, true);
+})();
+</script>
+
+<!-- ============ SESSIYALAR: xavfsiz kirish kaliti + faol qurilmalar ============ -->
+<style>
+#sess-modal { position: fixed; inset: 0; z-index: 100001; display: none; align-items: center; justify-content: center; padding: 20px;
+    background: rgba(2, 4, 10, 0.86); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); overflow-y: auto; }
+#sess-modal.open { display: flex; animation: authFade 0.25s ease-out both; }
+#sess-modal .sess-card { position: relative; margin: auto; width: 100%; max-width: 420px; padding: 24px 20px 20px; text-align: left;
+    background: rgba(13, 18, 32, 0.97); border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 24px; box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.85); }
+#sess-modal .auth-close { top: 16px !important; right: 16px !important; width: 34px; height: 34px; border-radius: 11px; }
+.sess-list { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 16px; max-height: 46vh; overflow-y: auto; }
+.sess-item { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.07); }
+.sess-item .sess-ic { width: 36px; height: 36px; flex: 0 0 36px; border-radius: 11px; display: grid; place-items: center; font-size: 18px; background: rgba(255, 255, 255, 0.06); }
+.sess-item b { display: block; font-size: 14px; color: #f1f5f9; font-weight: 700; }
+.sess-item small { display: block; font-size: 12px; color: #94a3b8; margin-top: 2px; }
+.sess-item .sess-now { margin-left: auto; font-size: 11px; font-weight: 700; color: #34d399; background: rgba(52, 211, 153, 0.12); padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
+.sess-empty { font-size: 13.5px; color: #94a3b8; text-align: center; padding: 14px 0; }
+#sess-modal .primary-btn { height: 50px; border-radius: 14px; animation: none; }
+#sess-modal .primary-btn.danger { background: linear-gradient(135deg, #ef4444, #e11d48); }
+#sess-modal .primary-btn:disabled { opacity: 0.6; cursor: progress; }
+.sess-note { margin-top: 10px; font-size: 12.5px; color: #94a3b8; line-height: 1.5; text-align: center; }
+body.theme-light #sess-modal .sess-card { background: #fff; border-color: rgba(15, 23, 42, 0.1); }
+body.theme-light .sess-item { background: #f8fafc; border-color: rgba(15, 23, 42, 0.08); }
+body.theme-light .sess-item b { color: #0f172a; }
+</style>
+<div id="sess-modal">
+    <div class="sess-card">
+        <button class="auth-close" id="sess-close">&times;</button>
+        <div class="reset-ico">📱</div>
+        <h2 class="reset-title" id="sess-title">Faol qurilmalar</h2>
+        <p class="reset-sub" id="sess-sub"></p>
+        <div class="sess-list" id="sess-list"></div>
+        <button type="button" class="primary-btn danger" id="sess-out-others">Boshqa qurilmalardan chiqish</button>
+        <p class="sess-note" id="sess-note"></p>
+    </div>
+</div>
+<script id="sess-script">
+(function () {
+    var API = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://ai2-production-7d7e.up.railway.app';
+    function $(id) { return document.getElementById(id); }
+    function lang() { return (typeof currentLang !== 'undefined' && currentLang) || localStorage.getItem('bilol_ai_lang') || 'uz'; }
+    function T(uz, en, ru) { var l = lang(); return l === 'en' ? en : l === 'ru' ? ru : uz; }
+    function creds() {
+        var ph = (localStorage.getItem('bilol_ai_phone') || '').replace(/[^0-9]/g, ''), pw = localStorage.getItem('bilol_ai_password') || '';
+        return ph && pw ? { phone: ph, password: pw } : null;
+    }
+    function post(path, body, keep) {
+        return fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), keepalive: !!keep })
+            .then(function (r) { return r.json(); }).catch(function () { return {}; });
+    }
+
+    // Shu qurilmada chiqish — server kalitni ham o'chiradi
+    window.__serverLogout = function () {
+        var c = creds();
+        if (!c || c.password.indexOf('st_') !== 0) return Promise.resolve();
+        return Promise.race([post('/api/session/logout', c, true), new Promise(function (r) { setTimeout(r, 1500); })]);
+    };
+
+    // Eski usul: parol saqlangan bo'lsa — jimgina xavfsiz kalitga almashtiriladi
+    function upgrade() {
+        var c = creds();
+        if (!c || c.password.indexOf('st_') === 0) return;
+        post('/api/session/upgrade', c).then(function (j) {
+            if (j && j.success && j.token && creds() && creds().password === c.password) localStorage.setItem('bilol_ai_password', j.token);
+        });
+    }
+    setTimeout(upgrade, 2500);
+
+    function device(ua) {
+        ua = ua || '';
+        var os = /iPhone|iPad/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac OS/.test(ua) ? 'Mac' : /Linux/.test(ua) ? 'Linux' : T('Qurilma', 'Device', 'Устройство');
+        var br = /; wv\)/.test(ua) ? 'Bilols AI ' + T('ilova', 'app', 'приложение') : /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /YaBrowser/.test(ua) ? T('Yandex', 'Yandex', 'Яндекс') :
+            /Firefox\//.test(ua) ? 'Firefox' : /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : '';
+        var ic = /iPhone|iPad|Android/.test(ua) ? '📱' : '💻';
+        return { name: os + (br ? ' · ' + br : ''), icon: ic };
+    }
+    function ago(ts) {
+        var s = Math.max(0, Math.floor(Date.now() / 1000) - ts);
+        if (s < 3600) return T('hozir faol', 'active now', 'активен сейчас');
+        if (s < 86400) return T(Math.floor(s / 3600) + ' soat oldin', Math.floor(s / 3600) + 'h ago', Math.floor(s / 3600) + ' ч назад');
+        var d = new Date(ts * 1000);
+        return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear();
+    }
+    function render(list) {
+        var box = $('sess-list'); box.innerHTML = '';
+        if (!list.length) { box.innerHTML = '<div class="sess-empty"></div>'; box.firstChild.textContent = T("Ma'lumot yo'q", 'No data', 'Нет данных'); return; }
+        list.forEach(function (s) {
+            var d = device(s.ua), it = document.createElement('div'); it.className = 'sess-item';
+            it.innerHTML = '<span class="sess-ic"></span><div><b></b><small></small></div>' + (s.current ? '<span class="sess-now"></span>' : '');
+            it.querySelector('.sess-ic').textContent = d.icon;
+            it.querySelector('b').textContent = d.name;
+            it.querySelector('small').textContent = T('Kirgan: ', 'Signed in: ', 'Вход: ') + ago(s.created).replace(/^(hozir faol|active now|активен сейчас)$/, T('bugun', 'today', 'сегодня')) + ' · ' + ago(s.lastUsed);
+            if (s.current) it.querySelector('.sess-now').textContent = T('Shu qurilma', 'This device', 'Это устройство');
+            box.appendChild(it);
+        });
+    }
+    function load() {
+        var c = creds(); if (!c) return;
+        $('sess-list').innerHTML = '<div class="sess-empty">⏳</div>';
+        post('/api/session/list', c).then(function (j) { render((j && j.sessions) || []); });
+    }
+    function open() {
+        $('sess-title').textContent = T('Faol qurilmalar', 'Active devices', 'Активные устройства');
+        $('sess-sub').textContent = T('Hisobingizga shu qurilmalardan kirilgan.', 'Your account is signed in on these devices.', 'В ваш аккаунт выполнен вход на этих устройствах.');
+        $('sess-out-others').textContent = T('Boshqa qurilmalardan chiqish', 'Log out of other devices', 'Выйти на других устройствах');
+        $('sess-note').textContent = T("Begona qurilma ko'rsangiz — chiqaring va parolni o'zgartiring.", "If you see an unknown device, log it out and change your password.", 'Если видите чужое устройство — выйдите и смените пароль.');
+        $('sess-modal').classList.add('open');
+        var sm = $('settings-modal'); if (sm) sm.style.display = 'none';
+        load();
+    }
+    function close() { $('sess-modal').classList.remove('open'); }
+    $('sess-close').onclick = close;
+    $('sess-modal').addEventListener('click', function (e) { if (e.target === this) close(); });
+    $('sess-entry').onclick = open;
+    $('sess-out-others').onclick = async function () {
+        var c = creds(); if (!c) return;
+        var ok = typeof bConfirm === 'function' ? await bConfirm(T("Shu qurilmadan boshqa barcha qurilmalarda hisobdan chiqilsinmi?", 'Log out on all other devices?', 'Выйти на всех других устройствах?'), { danger: true, icon: '🔒', ok: T('Chiqish', 'Log out', 'Выйти') }) : confirm('?');
+        if (!ok) return;
+        var b = this; b.disabled = true;
+        var j = await post('/api/session/logout-others', c);
+        b.disabled = false;
+        if (j && j.success) {
+            if (typeof showNotification === 'function') showNotification(T('Boshqa qurilmalardan chiqildi: ', 'Logged out devices: ', 'Выход выполнен на устройствах: ') + (j.closed || 0));
+            load();
+        } else if (typeof showNotification === 'function') showNotification(j.error || T('Xatolik', 'Error', 'Ошибка'), 'error');
+    };
+    function sync() {
+        if ($('sess-entry-t')) $('sess-entry-t').textContent = T('📱 Faol qurilmalar', '📱 Active devices', '📱 Активные устройства');
+        if ($('sess-entry-s')) $('sess-entry-s').textContent = T('Hisobingiz ochiq qurilmalar · boshqalaridan chiqish', 'Where you are signed in · log out others', 'Где выполнен вход · выйти на других');
+        $('sess-entry').style.display = creds() ? '' : 'none';
+    }
+    sync();
+    var sm = $('settings-modal');
+    if (sm) new MutationObserver(sync).observe(sm, { attributes: true, attributeFilter: ['style', 'class'] });
 })();
 </script>
 </body>

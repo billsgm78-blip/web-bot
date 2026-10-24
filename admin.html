@@ -86,6 +86,29 @@ input, textarea, select { font-family: inherit; color: var(--text); }
 .chart { width: 100%; height: auto; display: block; }
 .legend { display: flex; gap: 16px; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.st-chart { position: relative; }
+.st-tip { position: absolute; top: 4px; pointer-events: none; opacity: 0; transition: opacity .12s; z-index: 3; min-width: 150px; padding: 9px 11px; border-radius: 12px;
+    background: rgba(12,14,20,0.96); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 12px 30px -8px rgba(0,0,0,0.7); font-size: 12.5px; color: #eef1f7; }
+.st-tip.on { opacity: 1; }
+.st-tip b { display: block; font-size: 11.5px; color: #8a93a8; margin-bottom: 6px; font-weight: 600; }
+.st-tip div { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+.st-tip i { width: 9px; height: 9px; border-radius: 3px; flex: 0 0 9px; }
+.st-tip span { color: #b7bfd0; white-space: nowrap; }
+.st-tip em { margin-left: auto; padding-left: 10px; white-space: nowrap; font-style: normal; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.st-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 760px) { .st-duo { grid-template-columns: 1fr; } }
+.st-mini-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.st-mini-h b { font-size: 13.5px; color: var(--text); font-weight: 700; }
+.st-mini-h span { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+.st-models { display: flex; flex-direction: column; gap: 12px; }
+.st-model { display: grid; grid-template-columns: minmax(110px, 200px) 1fr auto; align-items: center; gap: 12px; }
+.st-model-nm { font-size: 13px; color: var(--text); text-transform: capitalize; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-model-bar { height: 10px; border-radius: 99px; background: rgba(255,255,255,0.05); overflow: hidden; }
+.st-model-bar i { display: block; height: 100%; border-radius: 99px; background: #8b5cf6; }
+.st-model-v { text-align: right; min-width: 110px; }
+.st-model-v b { font-size: 13.5px; font-family: 'JetBrains Mono', monospace; color: var(--text); }
+.st-model-v small { display: block; font-size: 11.5px; color: var(--muted); }
+@media (max-width: 600px) { .st-model { grid-template-columns: 1fr auto; } .st-model-bar { grid-column: 1 / -1; grid-row: 2; } }
 
 .row { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--line); }
 .row.click { cursor: pointer; border-radius: 12px; padding: 12px 8px; }
@@ -1247,45 +1270,94 @@ select.inp option { background: #12151c; color: var(--text); }
         view.innerHTML = '';
         if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
         pendingCount = j.pendingOrders || 0; buildNav();
+        var days = j.days || [];
+        function sum(k) { return days.reduce(function (a, d) { return a + (d[k] || 0); }, 0); }
         if (j.pendingOrders) view.appendChild(h('button', { class: 'alert', onclick: function () { go('orders'); } }, ['⏳ ' + j.pendingOrders + ' ta buyurtma kutilmoqda →']));
         view.appendChild(h('div', { class: 'h', text: 'Bugun' }));
         view.appendChild(h('div', { class: 'grid kpis' }, [
             kpi("Savdo, so'm", money(j.salesToday), true), kpi("To'ldirishlar, so'm", money(j.topupsToday), true),
-            kpi('Yangi foydalanuvchilar', j.newToday || 0), kpi('AI xabarlar', j.messagesToday || 0)
+            kpi('Faol foydalanuvchilar', j.activeToday || 0), kpi('AI xabarlar', j.messagesToday || 0),
+            kpi('Yangi foydalanuvchilar', j.newToday || 0), kpi('Kutilayotgan buyurtmalar', j.pendingOrders || 0)
         ]));
-        var sales = j.days.reduce(function (a, d) { return a + d.sales; }, 0);
-        var tops = j.days.reduce(function (a, d) { return a + d.topups; }, 0);
         view.appendChild(h('div', { class: 'h', text: 'Umumiy' }));
         view.appendChild(h('div', { class: 'grid kpis' }, [
-            kpi('Foydalanuvchilar', j.users), kpi('7 kunda yangi', j.new7d || 0), kpi('Obunachilar', j.activeSubs), kpi("Jami balanslar, so'm", money(j.totalBalance)),
-            kpi("14 kun savdo, so'm", money(sales)), kpi("14 kun to'ldirish, so'm", money(tops)),
-            kpi('14 kun buyurtmalar', j.days.reduce(function (a, d) { return a + d.orders; }, 0)), kpi('Kutilayotgan', j.pendingOrders || 0)
+            kpi('Foydalanuvchilar', j.users), kpi('7 kunda faol', j.activeWeek || 0), kpi('7 kunda yangi', j.new7d || 0), kpi('Obunachilar', j.activeSubs),
+            kpi('Faol qurilmalar (7 kun)', j.webSessions7d || 0), kpi("Jami balanslar, so'm", money(j.totalBalance)),
+            kpi("14 kun savdo, so'm", money(sum('sales'))), kpi("14 kun to'ldirish, so'm", money(sum('topups'))),
+            kpi('14 kun buyurtmalar', sum('orders')), kpi('14 kun AI xabarlar', sum('messages')), kpi('14 kun yangi obunalar', sum('subs'))
         ]));
+        var V = '#8b5cf6', G = '#14a37a';
         view.appendChild(h('div', { class: 'h', text: "Kunlik savdo va to'ldirishlar (so'm)" }));
-        view.appendChild(h('div', { class: 'card' }, [chart(j.days), h('div', { class: 'legend' }, [h('span', {}, [h('i', { style: 'background:#8b5cf6' }), 'Savdo']), h('span', {}, [h('i', { style: 'background:#10b981' }), "To'ldirishlar"])])]));
+        view.appendChild(h('div', { class: 'card' }, [chart(days, [{ k: 'sales', c: V, n: 'Savdo' }, { k: 'topups', c: G, n: "To'ldirishlar" }], money),
+            h('div', { class: 'legend' }, [h('span', {}, [h('i', { style: 'background:' + V }), 'Savdo']), h('span', {}, [h('i', { style: 'background:' + G }), "To'ldirishlar"])])]));
+        var duo = h('div', { class: 'st-duo' });
+        [['active', 'Kunlik faol foydalanuvchilar'], ['messages', 'Kunlik AI xabarlar'], ['newUsers', "Yangi ro'yxatdan o'tganlar"], ['subs', 'Yangi obunalar']].forEach(function (m) {
+            duo.appendChild(h('div', { class: 'card st-mini' }, [h('div', { class: 'st-mini-h' }, [h('b', { text: m[1] }), h('span', { text: String(sum(m[0])) + ' · 14 kun' })]),
+                chart(days, [{ k: m[0], c: V, n: m[1] }], function (v) { return String(v); }, 160, 440)]));
+        });
+        view.appendChild(duo);
+        view.appendChild(h('div', { class: 'h', text: 'AI agentlar (14 kun)' }));
+        var models = j.models || [];
+        if (!models.length) view.appendChild(h('div', { class: 'card empty', text: "Hali ma'lumot yo'q — yangi xabarlar shu yerda hisoblanadi" }));
+        else {
+            var mx = Math.max.apply(null, models.map(function (m) { return m.messages; })), tot = models.reduce(function (a, m) { return a + m.messages; }, 0) || 1;
+            view.appendChild(h('div', { class: 'card st-models' }, models.map(function (m) {
+                var nm = String(m.model || '').split('/').pop().replace(/[-_]/g, ' ');
+                return h('div', { class: 'st-model', title: m.model + ': ' + m.messages + ' xabar, ' + m.users + ' foydalanuvchi' }, [
+                    h('div', { class: 'st-model-nm', text: nm }),
+                    h('div', { class: 'st-model-bar' }, [h('i', { style: 'width:' + Math.max(1.5, 100 * m.messages / mx).toFixed(1) + '%' })]),
+                    h('div', { class: 'st-model-v' }, [h('b', { text: String(m.messages) }), h('small', { text: Math.round(100 * m.messages / tot) + '% · ' + m.users + ' kishi' })])
+                ]);
+            })));
+        }
     }
-    function chart(days) {
-        var NS = 'http://www.w3.org/2000/svg', W = 700, H = 230, pl = 40, n = days.length;
-        var max = Math.max(1, Math.max.apply(null, days.map(function (d) { return Math.max(d.sales, d.topups); })));
+    // series: [{k, c, n}] — bitta o'q, ustunlar; sichqoncha bilan kun bo'yicha qiymat
+    function chart(days, series, fmt, H, W) {
+        series = series || [{ k: 'sales', c: '#8b5cf6', n: 'Savdo' }, { k: 'topups', c: '#14a37a', n: "To'ldirishlar" }];
+        fmt = fmt || money; H = H || 230;
+        W = W || 700;
+        var NS = 'http://www.w3.org/2000/svg', pl = 44, n = days.length || 1, ns = series.length;
+        var max = Math.max(1, Math.max.apply(null, days.map(function (d) { return Math.max.apply(null, series.map(function (s) { return d[s.k] || 0; })); })));
         var bw = (W - pl) / n;
+        var wrap = document.createElement('div'); wrap.className = 'st-chart';
         var svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (H + 24)); svg.setAttribute('class', 'chart');
-        function el(t, a) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; }
+        wrap.appendChild(svg);
+        var tip = document.createElement('div'); tip.className = 'st-tip'; wrap.appendChild(tip);
+        function el(t, a, parent) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); (parent || svg).appendChild(e); return e; }
         [0, 0.5, 1].forEach(function (f) {
             var y = H - (H - 12) * f;
             el('line', { x1: pl, x2: W, y1: y, y2: y, stroke: 'rgba(255,255,255,0.07)' });
-            var t = el('text', { x: pl - 8, y: y + 4, fill: '#5d6680', 'font-size': 11, 'text-anchor': 'end', 'font-family': 'JetBrains Mono' });
-            var v = max * f; t.textContent = v >= 1000 ? Math.round(v / 1000) + 'k' : Math.round(v);
+            var t = el('text', { x: pl - 8, y: y + 4, fill: '#8a93a8', 'font-size': 11, 'text-anchor': 'end', 'font-family': 'JetBrains Mono' });
+            var v = max * f; t.textContent = v >= 1000 ? Math.round(v / 1000) + 'k' : (v % 1 ? '' : Math.round(v));
         });
+        var gap = 2, inner = Math.min(bw - 6, ns * 22), sw = (inner - gap * (ns - 1)) / ns;
         days.forEach(function (d, i) {
-            var x = pl + i * bw;
-            [['sales', '#8b5cf6', 0], ['topups', '#10b981', 1]].forEach(function (s) {
-                var v = d[s[0]], hh = v ? Math.max(2, (H - 12) * v / max) : 0;
-                var r = el('rect', { x: x + 3 + s[2] * (bw - 6) / 2, y: H - hh, width: Math.max(1, (bw - 6) / 2 - 1), height: hh, rx: 3, fill: s[1] });
-                var tt = document.createElementNS(NS, 'title'); tt.textContent = d.day + ': ' + money(v); r.appendChild(tt);
+            var x = pl + i * bw, x0 = x + (bw - inner) / 2;
+            var hl = el('rect', { x: x, y: 0, width: bw, height: H, fill: 'rgba(255,255,255,0.045)', opacity: 0 });
+            series.forEach(function (s, si) {
+                var v = d[s.k] || 0, hh = v ? Math.max(2, (H - 12) * v / max) : 0, r = Math.min(4, sw / 2, hh);
+                var bx = x0 + si * (sw + gap), by = H - hh;
+                // tepasi yumaloq, pastki tomoni to'g'ri (o'qqa tayangan)
+                if (hh) el('path', { d: 'M' + bx + ',' + H + 'V' + (by + r) + 'Q' + bx + ',' + by + ' ' + (bx + r) + ',' + by + 'H' + (bx + sw - r) + 'Q' + (bx + sw) + ',' + by + ' ' + (bx + sw) + ',' + (by + r) + 'V' + H + 'Z', fill: s.c });
             });
-            if ((n - 1 - i) % 2 === 0) { var t = el('text', { x: x + bw / 2, y: H + 17, fill: '#5d6680', 'font-size': 11, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono' }); t.textContent = d.day.slice(8) + '.' + d.day.slice(5, 7); }
+            var hit = el('rect', { x: x, y: 0, width: bw, height: H + 24, fill: 'transparent' });
+            hit.addEventListener('mouseenter', function () {
+                hl.setAttribute('opacity', 1);
+                tip.innerHTML = '';
+                var hd = document.createElement('b'); hd.textContent = d.day.slice(8) + '.' + d.day.slice(5, 7) + '.' + d.day.slice(0, 4); tip.appendChild(hd);
+                series.forEach(function (s) {
+                    var row = document.createElement('div'); row.innerHTML = '<i></i><span></span><em></em>';
+                    row.querySelector('i').style.background = s.c; row.querySelector('span').textContent = s.n; row.querySelector('em').textContent = fmt(d[s.k] || 0);
+                    tip.appendChild(row);
+                });
+                var px = (x + bw / 2) / W * 100;
+                tip.style.left = px + '%'; tip.style.transform = 'translateX(' + (px > 70 ? '-100%' : px < 30 ? '0' : '-50%') + ')';
+                tip.classList.add('on');
+            });
+            hit.addEventListener('mouseleave', function () { hl.setAttribute('opacity', 0); tip.classList.remove('on'); });
+            if ((n - 1 - i) % 2 === 0) { var t = el('text', { x: x + bw / 2, y: H + 17, fill: '#8a93a8', 'font-size': 11, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono' }); t.textContent = d.day.slice(8) + '.' + d.day.slice(5, 7); }
         });
-        return svg;
+        return wrap;
     }
 
 
