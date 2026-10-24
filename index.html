@@ -7977,7 +7977,8 @@ html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background
             '<button type="button" data-k="sup">' + ic('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>') + '<span></span></button>';
         var newBtn = $('new-chat-btn'); newBtn.parentNode.insertBefore(nav, newBtn.nextSibling);
         var foot = document.createElement('div'); foot.className = 'cg-foot cg-only';
-        foot.innerHTML = '<button type="button" data-k="set">' + ic('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>') + '<span></span></button>' +
+        foot.innerHTML = '<button type="button" data-k="shop">' + ic('<path d="M3 7h18l-1.5 11a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2z"/><path d="M8 7a4 4 0 0 1 8 0"/>') + '<span></span></button>' +
+            '<button type="button" data-k="set">' + ic('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>') + '<span></span></button>' +
             '<button type="button" class="cg-user" data-k="me"><span class="cg-ava"></span><div><b></b><small></small></div>' + ic('<path d="m7 15 5 5 5-5M7 9l5-5 5 5"/>') + '</button>';
         panel.appendChild(foot);
         var hero = document.createElement('div'); hero.className = 'cg-hero cg-only'; hero.id = 'cg-hero';
@@ -7990,6 +7991,7 @@ html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background
             else if (k === 'mode') { close(); var mm = $('mode-menu'); if (mm) setTimeout(function () { mm.classList.add('open'); }, 30); }
             else if (k === 'sup') { close(); $('drawer-support') && $('drawer-support').click(); }
             else if (k === 'set') { close(); $('open-settings-btn') && $('open-settings-btn').click(); }
+            else if (k === 'shop') { close(); window.__openSettingsHub ? window.__openSettingsHub('shop') : ($('open-wallet-btn') && $('open-wallet-btn').click()); }
             else if (k === 'me') { close(); $('open-wallet-btn') && $('open-wallet-btn').click(); }
         }
         [nav, foot].forEach(function (box) { box.addEventListener('click', function (e) { var b = e.target.closest('button[data-k]'); if (b) { e.stopPropagation(); act(b.getAttribute('data-k')); } }); });
@@ -8003,8 +8005,8 @@ html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background
     function paint() {
         var nav = $('cg-nav'); if (!nav) return;
         var L = { gen: T('Rasm yaratish', 'Create images', 'Создать изображение'), doc: T('Hujjat tahlili', 'Analyse a document', 'Анализ документа'),
-            mode: T('AI rejimlari', 'AI modes', 'Режимы ИИ'), sup: T('Yordam — admin', 'Support', 'Поддержка'), set: T('Sozlamalar', 'Settings', 'Настройки') };
-        document.querySelectorAll('.cg-nav button, .cg-foot button[data-k="set"]').forEach(function (b) { var s = b.querySelector('span'); if (s) s.textContent = L[b.getAttribute('data-k')] || ''; });
+            mode: T('AI rejimlari', 'AI modes', 'Режимы ИИ'), sup: T('Yordam — admin', 'Support', 'Поддержка'), set: T('Sozlamalar', 'Settings', 'Настройки'), shop: T("Do'kon", 'Shop', 'Магазин') };
+        document.querySelectorAll('.cg-nav button, .cg-foot button[data-k="set"], .cg-foot button[data-k="shop"]').forEach(function (b) { var s = b.querySelector('span'); if (s) s.textContent = L[b.getAttribute('data-k')] || ''; });
         var name = (typeof currentName !== 'undefined' && currentName) || localStorage.getItem('bilol_ai_name') || 'Bilols AI';
         var u = document.querySelector('.cg-user');
         if (u) {
@@ -8202,14 +8204,14 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         Array.prototype.slice.call(scroll.children).forEach(function (n) { if (n !== hub) pA.appendChild(n); });
 
         var sections = [
-            [T("Do'kon", 'Shop', 'Магазин'), [['shop', T("Do'kon", 'Shop', 'Магазин')], ['orders', T('Buyurtmalarim', 'My orders', 'Мои заказы')]]],
-            [T('Hisob', 'Account', 'Аккаунт'), [['profile', T('Profil', 'Profile', 'Профиль')], ['app', T('Ilova', 'App', 'Приложение')]]],
-            [T('Boshqa', 'Other', 'Другое'), [['help', T('Yordam', 'Help', 'Помощь')]]]
+            [T("Do'kon", 'Shop', 'Магазин'), [['shop', T("Do'kon", 'Shop', 'Магазин')], ['orders', T('Buyurtmalarim', 'My orders', 'Мои заказы')]], 'shop'],
+            [T('Hisob', 'Account', 'Аккаунт'), [['profile', T('Profil', 'Profile', 'Профиль')], ['app', T('Ilova', 'App', 'Приложение')]], 'settings'],
+            [T('Boshqa', 'Other', 'Другое'), [['help', T('Yordam', 'Help', 'Помощь')]], 'settings']
         ];
         sections.forEach(function (s) {
-            var sm2 = document.createElement('small'); sm2.textContent = s[0]; nav.appendChild(sm2);
+            var sm2 = document.createElement('small'); sm2.textContent = s[0]; sm2.dataset.mode = s[2]; nav.appendChild(sm2);
             s[1].forEach(function (it) {
-                var b = document.createElement('button'); b.type = 'button'; b.innerHTML = ICON[it[0]] + '<span></span>';
+                var b = document.createElement('button'); b.type = 'button'; b.dataset.mode = s[2]; b.innerHTML = ICON[it[0]] + '<span></span>';
                 b.querySelector('span').textContent = it[1];
                 b.onclick = function () { select(it[0]); };
                 nav.appendChild(b); navBtns[it[0]] = b;
@@ -8218,7 +8220,14 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         ['shop', 'orders', 'profile', 'app', 'help'].forEach(function (k) { main.appendChild(panes[k]); });
         scroll.appendChild(hub);
         sm.classList.add('sh-on');
-        var h2 = header.querySelector('h2'); if (h2) h2.textContent = T('Sozlamalar', 'Settings', 'Настройки');
+    }
+    // Do'kon va Sozlamalar — bitta oynada, lekin alohida: har biri faqat o'z bo'limlarini ko'rsatadi
+    function setMode(mode) {
+        var sm = $('settings-modal'); if (!sm) return;
+        sm.dataset.hub = mode;
+        document.querySelectorAll('.sh-nav [data-mode]').forEach(function (el) { el.style.display = el.dataset.mode === mode ? '' : 'none'; });
+        var h2 = sm.querySelector('.modal-header h2');
+        if (h2) h2.textContent = mode === 'shop' ? T("Do'kon", 'Shop', 'Магазин') : T('Sozlamalar', 'Settings', 'Настройки');
     }
     function select(k) {
         Object.keys(panes).forEach(function (x) { panes[x].classList.toggle('on', x === k); navBtns[x] && navBtns[x].classList.toggle('on', x === k); });
@@ -8233,15 +8242,16 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
     function open(k) {
         var btn = $('open-settings-btn'); if (!btn) return;
         btn.onclick && btn.onclick();
-        build(); select(k || 'shop');
+        k = k || 'shop';
+        build(); setMode(k === 'shop' || k === 'orders' ? 'shop' : 'settings'); select(k);
     }
     window.__openSettingsHub = open;
     // Sozlamalar ochilganda — sahifa quriladi; Hamyon tugmasi -> Do'kon bo'limi
     document.addEventListener('click', function (e) {
         if (!prem()) return;
         var w = e.target.closest && e.target.closest('#open-wallet-btn');
-        if (w) { e.stopPropagation(); e.preventDefault(); open('shop'); return; }
-        if (e.target.closest && e.target.closest('#open-settings-btn')) setTimeout(function () { build(); if (!document.querySelector('.sh-pane.on')) select('shop'); }, 0);
+        if (w) { e.stopPropagation(); e.preventDefault(); window.__shOpening = true; open('shop'); setTimeout(function () { window.__shOpening = false; }, 0); return; }
+        if (e.target.closest && e.target.closest('#open-settings-btn')) setTimeout(function () { if (window.__shOpening) return; build(); setMode('settings'); select('profile'); }, 0);
     }, true);
 })();
 </script>
