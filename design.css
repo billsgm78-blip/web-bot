@@ -900,3 +900,9 @@ html[data-design="axiom"] {
 html[data-design="axiom"] #ds-bg { display: none !important; }
 html[data-design="axiom"] body:not(.theme-light) .msg-user { color: #160a03; font-weight: 500; }
 html[data-design="axiom"] body:not(.theme-light) .msg-ai { border-color: var(--ds-line) !important; box-shadow: none !important; animation: none; }
+/* katta "bilolsai.uz" yozuvi pastki havolalar ustiga chiqib, ularni bosib bo'lmas qilardi */
+.pd-foot-row { position: relative; z-index: 2; }
+.pd-foot-row a { padding: 6px 0; }
+.pd-foot-row a:hover { color: var(--pd-ink); text-decoration: underline; }
+html[data-design="axiom"] .pd-foot-row a:hover { color: #160a03; }
+.pd-word { pointer-events: none; position: relative; z-index: 1; }
