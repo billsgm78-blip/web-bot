@@ -12,8 +12,13 @@
             var weak = (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
             if (app || android || weak) document.documentElement.classList.add('lite');
             if (app) document.documentElement.classList.add('in-app');
+            // Hisobga kirilgan bo'lsa — bosh sahifa umuman chizilmaydi, chat darhol chiqadi
+            if (localStorage.getItem('bilol_ai_phone') && localStorage.getItem('bilol_ai_password')) document.documentElement.classList.add('pre-auth');
         } catch (e) {}
     })();
+    document.write('<style id="pre-auth-css">html.pre-auth #landing-screen{display:none!important}' +
+        'html.pre-auth #chat-screen{opacity:1!important;pointer-events:auto!important;z-index:40;transition:none!important}' +
+        'html.pre-auth #chat-screen .chat-header,html.pre-auth #chat-screen .input-bar{animation:none!important}</style>');
     /* Chiroyli tasdiqlash oynasi (brauzerning "sahifa xabar qilmoqda" oynasi o'rniga) */
     window.bConfirm = function (msg, o) {
         o = o || {};
@@ -117,10 +122,10 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 
