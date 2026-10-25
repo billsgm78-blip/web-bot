@@ -535,6 +535,7 @@
         applyI18n();
         switchTab('chat');
         paintDrawer();
+        setTimeout(function () { syncPull(true); }, 800);
         loadRewards();
         loadHistory();
         peekSupport();
@@ -744,14 +745,111 @@
         }
     }
     function saveChat() {
-        var keep = chat.msgs.slice(-60).map(function (m) { return { r: m.r, t: m.t, img: m.img || undefined, gen: m.gen || undefined, doc: m.doc || undefined, send: m.send ? m.send.slice(0, 15000) : undefined }; });
+        var keep = chat.msgs.filter(function (m) { return !m.err; }).slice(-60).map(function (m) { return { r: m.r, t: m.t, img: m.img || undefined, gen: m.gen || undefined, genQ: m.genQ || undefined, imgTag: m.imgTag || undefined, doc: m.doc || undefined, send: m.send ? m.send.slice(0, 15000) : undefined }; });
         if (!keep.length) return;
         if (!chat.id) { chat.id = newChatId(); ls('ba_chat_cur', chat.id); }
         chats = chats.filter(function (c) { return c.id !== chat.id; });
-        chats.unshift({ id: chat.id, title: chatTitle(keep), u: Date.now(), msgs: keep });
+        var rec = { id: chat.id, title: chatTitle(keep), u: Date.now(), msgs: keep };
+        chats.unshift(rec);
         storeChats();
         paintDrawer();
+        syncPush(rec);
     }
+
+    /* ===== Suhbatlar sayt bilan bir xil (server: /api/chats). Server sayt formatida saqlaydi:
+       user {role, parts, display}, model {role, parts}, gen {role:'gen', prompt, thumb} ===== */
+    function toServer(msgs) {
+        var out = [];
+        msgs.forEach(function (m, i) {
+            if (m.err) return;
+            var nx = msgs[i + 1];
+            if (m.r === 'u') {
+                if (m.genQ || (nx && nx.gen && nx.t === m.t)) return;        // rasm so'rovi — "gen" yozuvining o'zida
+                var parts = [];
+                if (m.img || m.imgTag) parts.push({ text: '[Rasm biriktirildi]' });
+                parts.push({ text: m.send || m.t || '' });
+                var d = { text: m.t || '' };
+                if (m.doc) d.file = m.doc;
+                if (m.img || m.imgTag) d.image = true;
+                out.push({ role: 'user', parts: parts, display: d });
+            } else if (m.gen) {
+                out.push({ role: 'gen', prompt: m.t || '', thumb: m.gen && m.gen.length <= 40000 ? m.gen : '' });
+            } else {
+                out.push({ role: 'model', parts: [{ text: m.t || '' }] });
+            }
+        });
+        return out;
+    }
+    function fromServer(list) {
+        var out = [];
+        (list || []).forEach(function (h) {
+            if (!h) return;
+            if (h.role === 'gen') {
+                out.push({ r: 'u', t: h.prompt || '', genQ: true });
+                out.push(h.thumb ? { r: 'a', t: h.prompt || '', gen: h.thumb } : { r: 'a', t: '🎨 ' + (h.prompt || '') });
+                return;
+            }
+            var texts = (h.parts || []).filter(function (p) { return p && typeof p.text === 'string' && p.text !== '[Rasm biriktirildi]'; }).map(function (p) { return p.text; });
+            var last = texts.length ? texts[texts.length - 1] : '';
+            if (h.role === 'user') {
+                var d = h.display || {};
+                var m = { r: 'u', t: d.text !== undefined ? d.text : last };
+                if (d.file) { m.doc = d.file; m.send = last; }
+                if (d.image || (h.parts || []).some(function (p) { return p && p.text === '[Rasm biriktirildi]'; })) m.imgTag = true;
+                out.push(m);
+            } else out.push({ r: 'a', t: last });
+        });
+        return out;
+    }
+    var pushTimers = {};
+    function syncPush(rec) {
+        if (!rec || !state.phone || !state.pass) return;
+        clearTimeout(pushTimers[rec.id]);
+        pushTimers[rec.id] = setTimeout(function () {
+            delete pushTimers[rec.id];
+            api('/api/chats/save', { chat: { id: rec.id, title: rec.title, updated: rec.u, messages: toServer(rec.msgs) } }).catch(function () {});
+        }, 1500);
+    }
+    var pulling = false, lastPull = 0;
+    async function syncPull(force) {
+        if (pulling || !state.inMain || !state.phone || !state.pass || (!force && Date.now() - lastPull < 5000)) return;
+        pulling = true; lastPull = Date.now();
+        try {
+            var res = await api('/api/chats/list');
+            if (!res || !res.success) return;
+            var byId = {}; chats.forEach(function (c) { byId[c.id] = c; });
+            var need = [], seen = {}, changed = false, curTouched = false;
+            (res.chats || []).forEach(function (sc) {
+                seen[sc.id] = 1;
+                var lc = byId[sc.id];
+                if (sc.deleted) {
+                    if (lc && (lc.u || 0) <= sc.updated) { chats = chats.filter(function (c) { return c.id !== sc.id; }); changed = true; if (sc.id === chat.id) curTouched = true; }
+                } else if (!lc || (lc.u || 0) < sc.updated) need.push(sc.id);
+                else if ((lc.u || 0) > sc.updated) syncPush(lc);
+            });
+            chats.forEach(function (c) { if (!seen[c.id]) syncPush(c); });     // faqat shu telefondagi suhbatlar serverga
+            for (var i = 0; i < need.length; i += 30) {
+                var got = await api('/api/chats/get', { ids: need.slice(i, i + 30) });
+                ((got && got.chats) || []).forEach(function (sc) {
+                    chats = chats.filter(function (c) { return c.id !== sc.id; });
+                    chats.push({ id: sc.id, title: sc.title, u: sc.updated, msgs: fromServer(sc.messages) });
+                    changed = true;
+                    if (sc.id === chat.id) curTouched = true;
+                });
+            }
+            if (!changed) return;
+            chats.sort(function (a, b) { return (b.u || 0) - (a.u || 0); });
+            storeChats();
+            if (curTouched && !chat.busy) {
+                var cur = chats.filter(function (c) { return c.id === chat.id; })[0];
+                if (cur) { chat.msgs = cur.msgs.slice(); } else { chat.id = null; chat.msgs = []; ls('ba_chat_cur', null); }
+                if (state.tab === 'chat') renderChat();
+            }
+            paintDrawer();
+        } catch (e) {} finally { pulling = false; }
+    }
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) syncPull(); });
+    setInterval(function () { if (!document.hidden) syncPull(); }, 90000);
     function openChat(id) {
         if (chat.busy) { toast(L('AI javob yozmoqda — biroz kuting', 'AI отвечает — подождите', 'AI is replying — please wait')); return; }
         var c = chats.filter(function (x) { return x.id === id; })[0];
@@ -769,6 +867,8 @@
         if (!(await ask(L("Suhbatni o'chirish", 'Удалить чат', 'Delete chat'), L("Bu suhbat o'chiriladi.", 'Этот чат будет удалён.', 'This chat will be deleted.'), L("O'chirish", 'Удалить', 'Delete'), true))) return;
         chats = chats.filter(function (c) { return c.id !== id; });
         storeChats();
+        clearTimeout(pushTimers[id]);
+        api('/api/chats/delete', { id: id, when: Date.now() }).catch(function () {});
         if (chat.id === id && !chat.busy) { chat.id = null; chat.msgs = []; ls('ba_chat_cur', null); renderChat(); }
         paintDrawer();
     }
@@ -885,6 +985,7 @@
             return b;
         }
         if (m.doc) { var ft = document.createElement('div'); ft.className = 'file-tag'; ft.textContent = '📄 ' + m.doc; b.appendChild(ft); }
+        if (m.imgTag && !m.img) { var it = document.createElement('div'); it.className = 'file-tag'; it.textContent = '🖼 ' + L('Rasm', 'Фото', 'Image'); b.appendChild(it); }
         var tx = document.createElement('div');
         tx.className = 'tx';
         if (m.r === 'u' || m.err) tx.textContent = m.t || ''; else tx.innerHTML = md(m.t);
@@ -1519,7 +1620,7 @@
         x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>'
     };
     function drawerOpen() { return $('drawer').classList.contains('on'); }
-    function openDrawer() { hideKeyboard(); paintDrawer(); $('drawer').classList.add('on'); $('drawer').setAttribute('aria-hidden', 'false'); haptic(); }
+    function openDrawer() { hideKeyboard(); paintDrawer(); syncPull(); $('drawer').classList.add('on'); $('drawer').setAttribute('aria-hidden', 'false'); haptic(); }
     function closeDrawer() { var d = $('drawer'); if (!d) return; d.classList.remove('on'); d.setAttribute('aria-hidden', 'true'); }
     function drItem(icon, text, onClick, right, cls) {
         var b = document.createElement('button');
