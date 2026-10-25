@@ -48,8 +48,8 @@
         });
     };
     </script>
-<script src="/design.js?v=8"></script>
-<link rel="stylesheet" href="/design.css?v=9">
+<script src="/design.js?v=9"></script>
+<link rel="stylesheet" href="/design.css?v=10">
     <link rel="preload" href="/fonts/twemoji.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/emoji.css">
 <style>
@@ -2143,7 +2143,6 @@ body.ai-busy .msg-ai .act-regen { opacity: 0.35; pointer-events: none; }
 .ref-stat small { font-size: 12px; color: #94a3b8; }
 .ref-share { width: 100%; margin-top: 4px; padding: 13px; }
 
-
 /* ---------- Rasm yaratish ---------- */
 #gen-mode {
     display: flex; align-items: center; gap: 10px; margin: 0 12px 8px; padding: 9px 10px;
@@ -2271,7 +2270,6 @@ body.theme-light .topup-chips button, body.theme-light .topup-input { background
 body.theme-light #gen-mode .doc-meta b { color: #0f172a; }
 body.theme-light #gen-mode .doc-meta small { color: #6d28d9; }
 
-
 .adm-tabs { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .adm-tabs::-webkit-scrollbar { display: none; }
 .adm-tabs button { flex: 0 0 auto; padding: 9px 12px; }
@@ -2297,7 +2295,6 @@ body.theme-light #gen-mode .doc-meta small { color: #6d28d9; }
 .adm-note { font-size: 12px; color: #64748b; margin-top: 12px; line-height: 1.45; }
 body.theme-light .adm-user-head b { color: #0f172a; }
 body.theme-light .adm-act { background: #fff; color: #0f172a; border-color: rgba(15, 23, 42, 0.12); }
-
 
 /* ---------- Parolni tiklash ---------- */
 .auth-forgot {
@@ -2332,7 +2329,6 @@ body.theme-light #reset-modal .reset-card { background: #fff; border-color: rgba
 body.theme-light .reset-title { color: #0f172a; }
 body.theme-light #reset-modal .styled-input { background: #f1f5f9; color: #0f172a; border-color: rgba(15, 23, 42, 0.12); }
 
-
 /* ---------- iPhone: pastdagi chiziq (home indicator) ostida qolmasin ---------- */
 .input-bar { padding-bottom: max(10px, env(safe-area-inset-bottom)) !important; }
 #wallet-modal, #settings-modal, #admin-panel, #wallet-sub { padding-bottom: max(22px, env(safe-area-inset-bottom)) !important; }
@@ -2342,7 +2338,6 @@ body.theme-light #reset-modal .styled-input { background: #f1f5f9; color: #0f172
 /* Safari scroll-konteynerda pastki padding'ni e'tiborsiz qoldiradi — oxirgi element kesilmasin */
 #settings-modal::after, #wallet-modal::after { content: ""; display: block; flex: 0 0 auto; height: calc(28px + env(safe-area-inset-bottom)); }
 #topup-sheet .topup-card { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
-
 
 /* ---------- iPhone ilovasi: butun ekran va soat ostidagi joy ----------
    O'rnatilgan ilovada iPhone ba'zan sahifani soat ostidan boshlaydi va balandlikni kam hisoblaydi.
@@ -2362,7 +2357,6 @@ html, body { height: 100dvh !important; }
 #chats-drawer .drawer-panel { padding-top: calc(16px + env(safe-area-inset-top)); }
 #auth-modal, #password-modal, #reset-modal, #share-view { padding-top: calc(20px + env(safe-area-inset-top)) !important; }
 
-
 /* ---------- Promo-kod ---------- */
 .wx-promo { gap: 10px; padding: 10px 10px 10px 14px; }
 .wx-promo-input {
@@ -2372,7 +2366,6 @@ html, body { height: 100dvh !important; }
 }
 .wx-promo-input::placeholder { text-transform: none; letter-spacing: 0; font-family: 'Twemoji', 'Outfit', sans-serif; color: #64748b; }
 body.theme-light .wx-promo-input { background: #f1f5f9; color: #0f172a; border-color: rgba(15, 23, 42, 0.12); }
-
 
 /* ---------- Sayt holati: to'liq blok, o'chirilgan funksiyalar, e'lon ---------- */
 #site-lock {
@@ -3280,19 +3273,6 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             </a>
 
             <!-- ✨ YANGI SOZLAMALAR -->
-            <div class="settings-card">
-                <div class="settings-info">
-                    <h4 id="lang-set-theme-title">Rang mavzusi</h4>
-                    <p id="lang-set-theme-sub">Tugma va xabarlar rangi</p>
-                </div>
-                <div class="theme-swatches" id="theme-swatches">
-                    <button type="button" class="theme-swatch active" data-theme="violet" title="Violet" style="--sw: linear-gradient(135deg,#4f46e5,#c026d3); --gl: rgba(139,92,246,0.8);"></button>
-                    <button type="button" class="theme-swatch" data-theme="emerald" title="Emerald" style="--sw: linear-gradient(135deg,#059669,#06b6d4); --gl: rgba(16,185,129,0.8);"></button>
-                    <button type="button" class="theme-swatch" data-theme="rose" title="Rose" style="--sw: linear-gradient(135deg,#e11d48,#fb923c); --gl: rgba(244,63,94,0.8);"></button>
-                    <button type="button" class="theme-swatch" data-theme="gold" title="Gold" style="--sw: linear-gradient(135deg,#d97706,#ef4444); --gl: rgba(245,158,11,0.8);"></button>
-                </div>
-            </div>
-
             <div class="settings-card">
                 <div class="settings-info">
                     <h4 id="lang-set-particles-title">Yulduzli zarrachalar</h4>
@@ -4823,7 +4803,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             local.forEach(c => { byId[c.id] = c; });
             const need = [], seen = {};
             let changed = false, curTouched = false;
-            res.chats.forEach(sc => {
+            (res.chats || []).forEach(sc => {
                 seen[sc.id] = 1;
                 const lc = byId[sc.id];
                 if (sc.deleted) {
@@ -5581,7 +5561,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         });
         bindToggle('toggle-click', KEY.click, true, function () {});
 
-        applyTheme(get(KEY.theme, 'violet'), false);
+        applyTheme('violet', false);   // rang mavzusini tanlash olib tashlangan: hamma uchun Premium ranglari
 
         /* Enter bilan yuborishni boshqarish (asl funksiya o'zgarmaydi) */
         var chatInput = document.getElementById('chat-input');

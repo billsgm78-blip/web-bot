@@ -7,26 +7,7 @@
    ===================================================================== */
 
 /* ---------------------------- RANG TOKENLARI ---------------------------- */
-html[data-design="cosmic"] {
-    --ds-bg: #03040c; --ds-s1: rgba(16, 22, 52, 0.74); --ds-s2: rgba(140, 170, 255, 0.07); --ds-bar: rgba(4, 7, 22, 0.86);
-    --ds-modal: linear-gradient(170deg, #0e1538 0%, #060a1d 65%);
-    --ds-line: rgba(140, 170, 255, 0.16); --ds-line2: rgba(125, 211, 252, 0.4);
-    --ds-a: #22d3ee; --ds-b: #6366f1; --ds-c: #c026d3; --ds-btn: #4f7cf5;
-    --ds-grad: linear-gradient(120deg, #0ea5e9 0%, #6366f1 50%, #a855f7 100%);
-    --ds-user: linear-gradient(135deg, #2563eb 0%, #6d28d9 55%, #c026d3 100%);
-    --ds-title: linear-gradient(90deg, #ffffff, #bae6fd, #a5b4fc, #f0abfc, #ffffff);
-    --ds-glow: rgba(56, 189, 248, 0.5); --ds-on: #ffffff; --ds-text: #eef4ff; --ds-muted: #a8b6d8; --ds-soft: rgba(34, 211, 238, 0.1);
-}
-html[data-design="neon"] {
-    --ds-bg: #07030f; --ds-s1: rgba(16, 7, 31, 0.9); --ds-s2: rgba(0, 240, 255, 0.06); --ds-bar: rgba(9, 4, 20, 0.9);
-    --ds-modal: linear-gradient(170deg, #1a0b33 0%, #08030f 70%);
-    --ds-line: rgba(0, 240, 255, 0.18); --ds-line2: rgba(255, 43, 214, 0.6);
-    --ds-a: #00f0ff; --ds-b: #ff2bd6; --ds-c: #8b5cf6; --ds-btn: #ff2bd6;
-    --ds-grad: linear-gradient(110deg, #00f0ff 0%, #8b5cf6 48%, #ff2bd6 100%);
-    --ds-user: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
-    --ds-title: linear-gradient(90deg, #ffffff, #7df9ff, #ffffff, #ff8ae8, #ffffff);
-    --ds-glow: rgba(255, 43, 214, 0.55); --ds-on: #ffffff; --ds-text: #f4f0ff; --ds-muted: #b3a8d1; --ds-soft: rgba(0, 240, 255, 0.1);
-}
+
 /* -------- Sozlamalar → "Rang mavzusi": foydalanuvchi tanlovi dizayn ranglaridan ustun -------- */
 html[data-design][data-accent="emerald"] {
     --ds-a: #2dd4bf; --ds-b: #10b981; --ds-c: #84cc16; --ds-btn: #10b981;
@@ -49,13 +30,7 @@ html[data-design][data-accent="gold"] {
     --ds-title: linear-gradient(90deg, #ffffff, #fde68a, #ffffff, #fdba74, #ffffff);
     --ds-glow: rgba(245, 158, 11, 0.55); --ds-line2: rgba(251, 191, 36, 0.5); --ds-soft: rgba(245, 158, 11, 0.12);
 }
-html[data-design]:not([data-design="premium"]) body:not(.theme-light) {
-    --bg-deep: var(--ds-bg); --border-glass: var(--ds-line); --border-glow: var(--ds-line2);
-    --violet-accent: var(--ds-btn); --violet-glow: var(--ds-glow); --cyan-accent: var(--ds-a);
-    --user-grad: var(--ds-user); --accent-grad: var(--ds-grad); --btn-glow: 0 12px 30px -8px var(--ds-glow);
-    --text-primary: var(--ds-text); --text-secondary: var(--ds-muted);
-    background: var(--ds-bg) !important;
-}
+
 html[data-design] { background: var(--ds-bg); }
 
 /* --------------- Og'ir eski effektlar o'chadi (hamma dizaynda) --------------- */
@@ -82,52 +57,10 @@ html.lite[data-design] #ds-bg *, html.lite[data-design] #ds-bg { animation-itera
 body:has(#orb-1.disabled) #ds-bg * { animation-play-state: paused !important; }
 @media (prefers-reduced-motion: reduce) { html[data-design] #ds-bg * { animation: none !important; } }
 /* Sozlamalar → "Yulduzli zarrachalar" o'chirilsa: neon yomg'ir / uchar yulduzlar / yulduz qatlamlari yashirinadi */
-body.fx-no-particles #ds-bg b, html[data-design="cosmic"] body.fx-no-particles #ds-bg .l1, html[data-design="cosmic"] body.fx-no-particles #ds-bg .l2 { display: none !important; }
+body.fx-no-particles #ds-bg b { display: none !important; }
 
 /* ===== 🌌 KOSMIK: yulduzlar suzadi, miltillaydi, uchar yulduzlar, sayyora nuri ===== */
-html[data-design="cosmic"] #ds-bg .l1, html[data-design="cosmic"] #ds-bg .l2 {
-    left: 0; right: 0; top: -600px; bottom: 0;
-}
-html[data-design="cosmic"] #ds-bg .l1 {
-    background-image:
-        radial-gradient(circle at 12px 18px, #fff 0 0.7px, transparent 1.4px),
-        radial-gradient(circle at 63px 96px, rgba(255,255,255,.7) 0 0.7px, transparent 1.4px),
-        radial-gradient(circle at 118px 41px, rgba(186,230,253,.85) 0 0.7px, transparent 1.4px),
-        radial-gradient(circle at 41px 133px, #fff 0 0.9px, transparent 1.6px),
-        radial-gradient(circle at 152px 57px, rgba(196,181,253,.85) 0 0.8px, transparent 1.5px),
-        radial-gradient(circle at 117px 176px, rgba(255,255,255,.75) 0 0.7px, transparent 1.4px);
-    background-size: 137px 150px, 137px 150px, 137px 150px, 211px 200px, 211px 200px, 211px 200px;
-    animation: dsDrift 240s linear infinite;
-}
-html[data-design="cosmic"] #ds-bg .l2 {
-    background-image:
-        radial-gradient(circle at 233px 91px, #fff 0 1.3px, transparent 2px),
-        radial-gradient(circle at 71px 247px, rgba(165,243,252,.95) 0 1.1px, transparent 1.9px),
-        radial-gradient(circle at 187px 211px, rgba(255,255,255,.9) 0 1.5px, transparent 2.3px),
-        radial-gradient(circle at 20px 40px, rgba(244,208,254,.9) 0 1.1px, transparent 1.9px);
-    background-size: 283px 300px, 283px 300px, 283px 300px, 331px 300px;
-    animation: dsDrift 120s linear infinite, dsTwinkle 3.6s ease-in-out infinite alternate;
-}
-html[data-design="cosmic"] #ds-bg .l3 {
-    inset: -10%;
-    background:
-        radial-gradient(ellipse at 20% 15%, rgba(79,70,229,.36), transparent 46%),
-        radial-gradient(ellipse at 88% 30%, rgba(192,38,211,.18), transparent 42%),
-        radial-gradient(ellipse at 62% 62%, rgba(14,165,233,.14), transparent 46%);
-    animation: dsBreathe 14s ease-in-out infinite alternate;
-}
-html[data-design="cosmic"] #ds-bg .l4 {
-    left: -30%; right: -30%; bottom: -62vh; height: 80vh; border-radius: 50%;
-    background: radial-gradient(ellipse at 50% 0%, #0a1030 0%, #050818 70%);
-    box-shadow: 0 -2px 0 rgba(125,211,252,.55), 0 -14px 40px rgba(56,189,248,.35), 0 -40px 90px rgba(99,102,241,.25);
-    animation: dsPulse 6s ease-in-out infinite alternate;
-}
-html[data-design="cosmic"] #ds-bg b { top: 0; left: 0; width: 130px; height: 1.6px; border-radius: 2px; opacity: 0;
-    background: linear-gradient(90deg, rgba(255,255,255,0), #fff); transform-origin: right center; }
-html[data-design="cosmic"] #ds-bg b:nth-child(5) { top: 12%; left: 55%; animation: dsShoot 9s 1.5s ease-in infinite; }
-html[data-design="cosmic"] #ds-bg b:nth-child(6) { top: 30%; left: 85%; animation: dsShoot 13s 6s ease-in infinite; }
-html[data-design="cosmic"] #ds-bg b:nth-child(7) { top: 5%; left: 30%; animation: dsShoot 17s 11s ease-in infinite; }
-html[data-design="cosmic"] #ds-bg b:nth-child(n+8) { display: none; }
+
 @keyframes dsDrift { from { transform: translate3d(0,0,0); } to { transform: translate3d(0,600px,0); } }
 @keyframes dsTwinkle { from { opacity: .45; } to { opacity: 1; } }
 @keyframes dsBreathe { from { opacity: .7; transform: scale(1); } to { opacity: 1; transform: scale(1.08); } }
@@ -141,51 +74,15 @@ html[data-design="cosmic"] #ds-bg b:nth-child(n+8) { display: none; }
 
 /* ===== ⚡ NEON: neon quyosh, oldinga yuguruvchi 3D to'r, yorug' yomg'iri, skan chiziqlar ===== */
 /* l1 — chiziqli neon quyosh (ufqda nafas oladi) */
-html[data-design="neon"] #ds-bg .l1 {
-    left: 50%; top: 74%; width: 70vmin; height: 70vmin; margin: -35vmin 0 0 -35vmin; border-radius: 50%;
-    background: linear-gradient(180deg, #fff36b 0%, #ff9a3d 32%, var(--ds-b) 68%, var(--ds-c) 100%);
-    -webkit-mask-image: linear-gradient(180deg, #000 0 26%, transparent 26% 28.5%, #000 28.5% 34%, transparent 34% 37%, #000 37% 41.5%, transparent 41.5% 45%, #000 45% 47.5%, transparent 47.5%);
-            mask-image: linear-gradient(180deg, #000 0 26%, transparent 26% 28.5%, #000 28.5% 34%, transparent 34% 37%, #000 37% 41.5%, transparent 41.5% 45%, #000 45% 47.5%, transparent 47.5%);
-    opacity: .5; animation: dsNeonSun 6s ease-in-out infinite alternate;
-}
+
 /* l3 — quyosh atrofidagi nur va ufq chizig'i */
-html[data-design="neon"] #ds-bg .l3 {
-    left: -10%; right: -10%; top: 74%; height: 2px; margin-top: -1px;
-    background: linear-gradient(90deg, transparent, var(--ds-a) 20%, var(--ds-b) 50%, var(--ds-a) 80%, transparent);
-    box-shadow: 0 0 18px 4px color-mix(in srgb, var(--ds-b) 55%, transparent), 0 0 60px 20px rgba(139, 92, 246, .25);
-    animation: dsPulse 2.6s ease-in-out infinite alternate;
-}
+
 /* l2 — perspektivali neon to'r: faqat transform bilan oldinga yuguradi */
-html[data-design="neon"] #ds-bg .l2 {
-    left: -80%; right: -80%; top: 74%; height: 120vh; transform-origin: 50% 0;
-    background-image:
-        linear-gradient(color-mix(in srgb, var(--ds-b) 75%, transparent) 2px, transparent 2px),
-        linear-gradient(90deg, color-mix(in srgb, var(--ds-a) 60%, transparent) 2px, transparent 2px);
-    background-size: 44px 44px;
-    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 100%);
-            mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 100%);
-    opacity: .75; animation: dsGrid 1.6s linear infinite;
-}
+
 /* l4 — skan chiziqlar + chetlari qorong'i (statik, arzon) */
-html[data-design="neon"] #ds-bg .l4 {
-    inset: 0;
-    background:
-        radial-gradient(ellipse at 50% 45%, transparent 45%, rgba(4, 1, 10, .85) 100%),
-        repeating-linear-gradient(180deg, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px);
-}
+
 /* b — tepadan tushuvchi neon yomg'ir chiziqlari */
-html[data-design="neon"] #ds-bg b { top: -30vh; width: 2px; height: 22vh; border-radius: 2px; opacity: 0;
-    background: linear-gradient(180deg, transparent, var(--ds-a)); animation: dsRain 5s linear infinite; }
-html[data-design="neon"] #ds-bg b:nth-child(even) { background: linear-gradient(180deg, transparent, var(--ds-b)); }
-html[data-design="neon"] #ds-bg b:nth-child(5)  { left: 6%;  animation-duration: 4.2s; animation-delay: 0s; }
-html[data-design="neon"] #ds-bg b:nth-child(6)  { left: 17%; animation-duration: 6.1s; animation-delay: 2.1s; height: 14vh; }
-html[data-design="neon"] #ds-bg b:nth-child(7)  { left: 29%; animation-duration: 5.3s; animation-delay: 3.7s; }
-html[data-design="neon"] #ds-bg b:nth-child(8)  { left: 41%; animation-duration: 7.4s; animation-delay: 1.2s; height: 30vh; }
-html[data-design="neon"] #ds-bg b:nth-child(9)  { left: 58%; animation-duration: 4.8s; animation-delay: 4.4s; height: 12vh; }
-html[data-design="neon"] #ds-bg b:nth-child(10) { left: 70%; animation-duration: 6.6s; animation-delay: .6s; }
-html[data-design="neon"] #ds-bg b:nth-child(11) { left: 83%; animation-duration: 5.1s; animation-delay: 2.9s; height: 18vh; }
-html[data-design="neon"] #ds-bg b:nth-child(12) { left: 94%; animation-duration: 7s;   animation-delay: 5.2s; }
-html[data-design="neon"] #ds-bg b:nth-child(n+13) { display: none; }
+
 @keyframes dsNeonSun { from { transform: translate3d(0, 0, 0) scale(1); opacity: .6; } to { transform: translate3d(0, -1.5vh, 0) scale(1.05); opacity: .85; } }
 @keyframes dsGrid { from { transform: perspective(320px) rotateX(68deg) translate3d(0, 0, 0); } to { transform: perspective(320px) rotateX(68deg) translate3d(0, 44px, 0); } }
 @keyframes dsRain {
@@ -282,115 +179,25 @@ html[data-design] body:not(.theme-light) .icon-btn { background: var(--ds-s2); b
 html[data-design] body:not(.theme-light) .model-btn { border-color: var(--ds-line2); background: var(--ds-soft); color: var(--ds-a); }
 
 /* ⚡ Neon: o'tkir burchaklar, neon chegaralar va yorug'lik */
-html[data-design="neon"] body:not(.theme-light) .feature-card,
-html[data-design="neon"] body:not(.theme-light) .suggest-card {
-    border-radius: 14px; border-color: color-mix(in srgb, var(--ds-a) 28%, transparent);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--ds-b) 8%, transparent) inset, 0 0 22px -8px color-mix(in srgb, var(--ds-a) 45%, transparent), 0 10px 26px -14px rgba(0, 0, 0, .8);
-}
-html[data-design="neon"] body:not(.theme-light) .feature-card:hover,
-html[data-design="neon"] body:not(.theme-light) .suggest-card:hover {
-    border-color: var(--ds-b); box-shadow: 0 0 26px -6px var(--ds-glow), 0 0 0 1px color-mix(in srgb, var(--ds-b) 25%, transparent) inset;
-}
-html[data-design="neon"] .feature-card.card-violet::before { box-shadow: 0 0 12px var(--ds-a); }
-html[data-design="neon"] .feature-card.card-emerald::before { box-shadow: 0 0 12px var(--ds-b); }
-html[data-design="neon"] .feature-card.card-amber::before { box-shadow: 0 0 12px var(--ds-c); }
-html[data-design="neon"] body:not(.theme-light) .landing-title {
-    letter-spacing: -.5px; animation: dsNeonFlick 7s steps(1, end) infinite !important;
-}
-html[data-design="neon"] body:not(.theme-light) .landing-chip {
-    border-radius: 8px; text-transform: uppercase; letter-spacing: .8px; font-size: 10.5px;
-    box-shadow: 0 0 16px -4px color-mix(in srgb, var(--ds-a) 60%, transparent), 0 0 0 1px color-mix(in srgb, var(--ds-a) 25%, transparent) inset;
-}
-html[data-design="neon"] body:not(.theme-light) .landing-btn-enhanced {
-    border-radius: 14px; text-transform: uppercase; letter-spacing: 1px; background-size: 100% 100% !important;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, .25) inset, 0 0 26px -2px color-mix(in srgb, var(--ds-b) 60%, transparent), 0 0 50px -10px color-mix(in srgb, var(--ds-a) 60%, transparent) !important;
-    animation: dsNeonBtn 2.4s ease-in-out infinite alternate !important;
-}
-html[data-design="neon"] body:not(.theme-light) .landing-logo { border-radius: 22px; box-shadow: 0 0 30px -4px color-mix(in srgb, var(--ds-b) 55%, transparent), 0 0 0 1px color-mix(in srgb, var(--ds-a) 40%, transparent) inset; }
-html[data-design="neon"] body:not(.theme-light) .msg-ai { border-left: 2px solid var(--ds-a); }
-html[data-design="neon"] body:not(.theme-light) .msg-user { box-shadow: 0 0 22px -6px var(--ds-glow); }
-html[data-design="neon"] body:not(.theme-light) .input-bar input[type="text"]:focus { box-shadow: 0 0 0 2px color-mix(in srgb, var(--ds-a) 25%, transparent), 0 0 18px -4px color-mix(in srgb, var(--ds-a) 60%, transparent) !important; }
+
 /* tugma faqat opacity bilan "yonadi"; sarlavha vaqti-vaqti bilan neon lampadek miltillaydi */
 @keyframes dsNeonBtn { from { opacity: .92; } to { opacity: 1; } }
 @keyframes dsNeonFlick { 0%, 100% { opacity: 1; } 91% { opacity: .55; } 92% { opacity: 1; } 94% { opacity: .7; } 95% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) {
-    html[data-design="neon"] body .landing-title, html[data-design="neon"] body .landing-btn-enhanced { animation: none !important; }
-}
 
 /* ---------- ⚡ Neon: CHAT va BOSHQA OYNALAR ---------- */
 /* chat ochiq bo'lsa quyosh va to'r xiralashadi — xabarlar o'qilishiga xalaqit bermaydi */
-html[data-design="neon"] body:has(#chat-screen.active) #ds-bg .l1 { opacity: .16 !important; animation: none; }
-html[data-design="neon"] body:has(#chat-screen.active) #ds-bg .l2 { opacity: .22; }
-html[data-design="neon"] body:has(#chat-screen.active) #ds-bg .l3 { opacity: .35; animation: none; }
 
 /* chat sarlavhasi va pastki panel: neon chiziq bilan ajraladi */
-html[data-design="neon"] body:not(.theme-light) .chat-header { box-shadow: 0 1px 0 color-mix(in srgb, var(--ds-a) 25%, transparent), 0 10px 30px -18px color-mix(in srgb, var(--ds-b) 60%, transparent) !important; }
-html[data-design="neon"] body:not(.theme-light) .input-bar { box-shadow: 0 -1px 0 color-mix(in srgb, var(--ds-b) 25%, transparent), 0 -10px 30px -18px color-mix(in srgb, var(--ds-a) 50%, transparent) !important; }
-html[data-design="neon"] body:not(.theme-light) .wallet-pill { border-color: color-mix(in srgb, var(--ds-a) 45%, transparent); background: color-mix(in srgb, var(--ds-a) 7%, transparent); box-shadow: 0 0 12px -4px color-mix(in srgb, var(--ds-a) 60%, transparent); }
-html[data-design="neon"] body:not(.theme-light) .msg-ai { border-radius: 4px 16px 16px 16px; box-shadow: 0 0 18px -10px color-mix(in srgb, var(--ds-a) 55%, transparent); }
-html[data-design="neon"] body:not(.theme-light) .msg-user { border-radius: 16px 4px 16px 16px; }
-html[data-design="neon"] body:not(.theme-light) .msg-ai pre, html[data-design="neon"] body:not(.theme-light) .msg-ai code { border-color: color-mix(in srgb, var(--ds-a) 20%, transparent) !important; }
-html[data-design="neon"] body:not(.theme-light) .msg-ai pre { background: rgba(3, 1, 10, .85) !important; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ds-b) 15%, transparent); }
-html[data-design="neon"] body:not(.theme-light) .send-btn { box-shadow: 0 0 18px -2px var(--ds-glow) !important; }
 
 /* oyna fonlari: oddiy qora o'rniga neon qorong'ilik */
-html[data-design="neon"] body:not(.theme-light) #settings-modal, html[data-design="neon"] body:not(.theme-light) #wallet-modal, html[data-design="neon"] body:not(.theme-light) #wallet-sub, html[data-design="neon"] body:not(.theme-light) #support-view, html[data-design="neon"] body:not(.theme-light) #camera-modal {
-    background: radial-gradient(120% 60% at 50% 0%, rgba(139, 92, 246, .16), transparent 60%),
-                radial-gradient(90% 50% at 50% 100%, color-mix(in srgb, var(--ds-b) 10%, transparent), transparent 60%), #07030f !important;
-}
-html[data-design="neon"] body:not(.theme-light) .modal-header h2, html[data-design="neon"] body:not(.theme-light) #wallet-sub h2 {
-    background: var(--ds-title); -webkit-background-clip: text; background-clip: text; color: transparent;
-    text-shadow: none; letter-spacing: .3px;
-}
-html[data-design="neon"] body:not(.theme-light) .modal-close, html[data-design="neon"] body:not(.theme-light) .drawer-close {
-    border-radius: 12px; border-color: color-mix(in srgb, var(--ds-a) 35%, transparent); background: color-mix(in srgb, var(--ds-a) 6%, transparent); color: var(--ds-a);
-    box-shadow: 0 0 12px -4px color-mix(in srgb, var(--ds-a) 60%, transparent);
-}
-html[data-design="neon"] body:not(.theme-light) .settings-card { border-radius: 14px; border-color: color-mix(in srgb, var(--ds-a) 16%, transparent); box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ds-b) 55%, transparent), 0 8px 22px -14px rgba(0, 0, 0, .8); }
-html[data-design="neon"] body:not(.theme-light) .section-label { color: var(--ds-a); text-shadow: 0 0 10px color-mix(in srgb, var(--ds-a) 50%, transparent); letter-spacing: 1.2px; }
 
 /* hamyon */
-html[data-design="neon"] body:not(.theme-light) .balance-badge {
-    background: linear-gradient(160deg, rgba(36, 12, 64, .95), rgba(8, 3, 18, .98)); border-color: color-mix(in srgb, var(--ds-b) 50%, transparent);
-    border-radius: 18px; box-shadow: 0 0 30px -10px var(--ds-glow), inset 0 0 0 1px color-mix(in srgb, var(--ds-a) 12%, transparent); animation: none;
-}
-html[data-design="neon"] body:not(.theme-light) .balance-num, html[data-design="neon"] body:not(.theme-light) .balance-currency { color: color-mix(in srgb, var(--ds-a) 55%, #fff); text-shadow: 0 0 16px color-mix(in srgb, var(--ds-a) 70%, transparent); }
-html[data-design="neon"] body:not(.theme-light) .pack-card, html[data-design="neon"] body:not(.theme-light) .wx-card {
-    background: var(--ds-s1); border-color: color-mix(in srgb, var(--ds-a) 20%, transparent); border-radius: 14px;
-    box-shadow: 0 0 18px -10px color-mix(in srgb, var(--ds-a) 50%, transparent);
-}
-html[data-design="neon"] body:not(.theme-light) .pack-card:hover, html[data-design="neon"] body:not(.theme-light) .wx-small:hover { border-color: var(--ds-b); background: color-mix(in srgb, var(--ds-b) 8%, transparent); box-shadow: 0 0 22px -8px var(--ds-glow); }
-html[data-design="neon"] body:not(.theme-light) .pack-price { color: color-mix(in srgb, var(--ds-b) 55%, #fff); text-shadow: 0 0 10px color-mix(in srgb, var(--ds-b) 50%, transparent); }
-html[data-design="neon"] body:not(.theme-light) .wx-btn { background: var(--ds-grad); box-shadow: 0 0 16px -4px var(--ds-glow); }
 
 /* suhbatlar ro'yxati (chap panel) */
-html[data-design="neon"] body:not(.theme-light) #chats-drawer .drawer-panel {
-    background: linear-gradient(180deg, #12062a 0%, #07030f 100%); border-right: 1px solid color-mix(in srgb, var(--ds-b) 35%, transparent);
-    box-shadow: 1px 0 0 color-mix(in srgb, var(--ds-a) 15%, transparent), 24px 0 60px -10px color-mix(in srgb, var(--ds-b) 25%, transparent);
-}
-html[data-design="neon"] body:not(.theme-light) #chats-drawer .drawer-backdrop { background: rgba(4, 1, 12, .7); }
-html[data-design="neon"] body:not(.theme-light) .drawer-head b { background: var(--ds-title); -webkit-background-clip: text; background-clip: text; color: transparent; }
-html[data-design="neon"] body:not(.theme-light) .new-chat-btn { background: var(--ds-grad); border-radius: 12px; box-shadow: 0 0 22px -6px var(--ds-glow); text-transform: uppercase; letter-spacing: .6px; font-weight: 700; }
-html[data-design="neon"] body:not(.theme-light) .chat-item:hover { background: color-mix(in srgb, var(--ds-a) 6%, transparent); }
-html[data-design="neon"] body:not(.theme-light) .chat-item.active { background: color-mix(in srgb, var(--ds-b) 10%, transparent); border-color: color-mix(in srgb, var(--ds-b) 40%, transparent); box-shadow: inset 2px 0 0 var(--ds-b); }
 
 /* yordam (admin bilan chat) */
-html[data-design="neon"] body:not(.theme-light) .sp-head, html[data-design="neon"] body:not(.theme-light) .sp-bar { border-color: color-mix(in srgb, var(--ds-a) 20%, transparent); }
-html[data-design="neon"] body:not(.theme-light) .sp-ava, html[data-design="neon"] body:not(.theme-light) .auth-logo-mini { background: var(--ds-grad); box-shadow: 0 0 16px -4px var(--ds-glow); }
-html[data-design="neon"] body:not(.theme-light) .sp-ava i { box-shadow: 0 0 0 3px #07030f; }
-html[data-design="neon"] body:not(.theme-light) .sp-msg.me { background: var(--ds-user); box-shadow: 0 0 16px -6px var(--ds-glow); }
-html[data-design="neon"] body:not(.theme-light) .sp-msg.admin { background: var(--ds-s1); border-color: color-mix(in srgb, var(--ds-a) 25%, transparent); }
-html[data-design="neon"] body:not(.theme-light) .sp-msg.admin::before { color: var(--ds-a); }
-html[data-design="neon"] body:not(.theme-light) .sp-quick button { border-color: color-mix(in srgb, var(--ds-a) 40%, transparent); background: color-mix(in srgb, var(--ds-a) 7%, transparent); }
-html[data-design="neon"] body:not(.theme-light) .sp-bar textarea, html[data-design="neon"] body:not(.theme-light) .sp-attach { background: var(--ds-s2); border-color: var(--ds-line); }
-html[data-design="neon"] body:not(.theme-light) .sp-bar textarea:focus { border-color: var(--ds-a); box-shadow: 0 0 14px -4px color-mix(in srgb, var(--ds-a) 60%, transparent); }
 
 /* pastdan chiquvchi oynalar (to'ldirish, ulashish, e'lon) */
-html[data-design="neon"] body:not(.theme-light) .topup-card, html[data-design="neon"] body:not(.theme-light) .share-card, html[data-design="neon"] body:not(.theme-light) .ann-pop-card, html[data-design="neon"] body:not(.theme-light) .lock-card {
-    background: var(--ds-modal) !important; border-color: color-mix(in srgb, var(--ds-b) 35%, transparent) !important;
-    box-shadow: 0 -10px 50px -12px color-mix(in srgb, var(--ds-b) 35%, transparent), inset 0 1px 0 color-mix(in srgb, var(--ds-a) 25%, transparent) !important;
-}
-html[data-design="neon"] body:not(.theme-light) #topup-sheet, html[data-design="neon"] body:not(.theme-light) #share-view { background: rgba(4, 1, 12, .78); }
 
 /* ===================== Qo'shimcha sahifalar (APK, Maxfiylik) ===================== */
 html[data-design][data-page="sub"] body {
@@ -736,24 +543,19 @@ html[data-design="premium"][data-page="sub"] .inapp { background: var(--pm-accen
    Axiom'da qora + to'q sariq bloklar. Boshqa dizaynlarda yashirin.
    ===================================================================== */
 .pd-only { display: none !important; }
-html[data-design="premium"] .pd-only, html[data-design="axiom"] .pd-only { display: block !important; }
-html[data-design="premium"] body div#landing-screen, html[data-design="axiom"] body div#landing-screen {
+html[data-design="premium"] .pd-only { display: block !important; }
+html[data-design="premium"] body div#landing-screen {
     flex-direction: column !important; align-items: stretch !important; justify-content: flex-start !important;
     padding: 0 !important; gap: 0 !important; overflow-y: auto !important; overflow-x: hidden !important; scroll-behavior: smooth;
 }
-html[data-design="premium"] body #landing-screen > .landing-left-col, html[data-design="premium"] body #landing-screen > .landing-right-col, html[data-design="premium"] body #landing-screen > .pm-nav,
-html[data-design="axiom"] body #landing-screen > .landing-left-col, html[data-design="axiom"] body #landing-screen > .landing-right-col { display: none !important; }
+html[data-design="premium"] body #landing-screen > .landing-left-col, html[data-design="premium"] body #landing-screen > .landing-right-col, html[data-design="premium"] body #landing-screen > .pm-nav { display: none !important; }
 
 html[data-design="premium"] .pd-page {
     --pd-bg: #f3f0e8; --pd-ink: #141311; --pd-ink2: #4d4a44; --pd-mute: #8c877d; --pd-line: rgba(20, 19, 17, .1);
     --pd-card: #fbf9f4; --pd-dark: #151413; --pd-dark-ink: #f3f0e8; --pd-acc: #ff5a1f; --pd-stmt-bg: transparent; --pd-stmt-ink: #141311;
     --pd-final-bg: transparent; --pd-final-ink: #141311;
 }
-html[data-design="axiom"] .pd-page {
-    --pd-bg: #0b0b0c; --pd-ink: #f4f2ee; --pd-ink2: #b9b5ad; --pd-mute: #7c7871; --pd-line: rgba(255, 255, 255, .1);
-    --pd-card: #151517; --pd-dark: #1b1b1e; --pd-dark-ink: #f4f2ee; --pd-acc: #ff5a14; --pd-stmt-bg: #ff5a14; --pd-stmt-ink: #160a03;
-    --pd-final-bg: #ff5a14; --pd-final-ink: #160a03;
-}
+
 .pd-page { background: var(--pd-bg); color: var(--pd-ink); min-height: 100%; width: 100%;
     font-family: 'Inter Tight', 'Twemoji', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
 .pd-page em { font-style: normal; color: var(--pd-acc); }
@@ -773,7 +575,6 @@ html[data-design="axiom"] .pd-page {
 .pd-lang button { border: 0; background: transparent; color: var(--pd-mute); font: inherit; font-size: 11.5px; font-weight: 700; padding: 5px 9px; border-radius: 999px; cursor: pointer; }
 html[lang="uz"] .pd-lang [data-lg="uz"], html[lang="ru"] .pd-lang [data-lg="ru"], html[lang="en"] .pd-lang [data-lg="en"] { background: var(--pd-ink); color: var(--pd-bg); }
 .pd-pill { border: 0; border-radius: 999px; background: var(--pd-ink); color: var(--pd-bg); font: inherit; font-size: 13.5px; font-weight: 600; padding: 9px 16px; cursor: pointer; }
-html[data-design="axiom"] .pd-pill { background: var(--pd-acc); color: #160a03; }
 
 /* hero */
 .pd-hero { padding-top: 56px; padding-bottom: 40px; position: relative; }
@@ -787,7 +588,6 @@ html[data-design="axiom"] .pd-pill { background: var(--pd-acc); color: #160a03; 
     background: var(--pd-ink); color: var(--pd-bg) !important; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform .15s ease, opacity .15s; }
 .pd-btn:active { transform: scale(.97); }
 .pd-btn.ghost { background: transparent; color: var(--pd-ink) !important; border-color: var(--pd-line); }
-html[data-design="axiom"] .pd-btn:not(.ghost) { background: var(--pd-acc); border-color: var(--pd-acc); color: #160a03 !important; }
 
 /* demo karta (har ikkala dizaynda qora) */
 .pd-demo { margin: 40px 0 0; max-width: 560px; border-radius: 26px; background: #121212; color: #f2efe8; padding: 16px; box-shadow: 0 40px 80px -40px rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.08); }
@@ -803,8 +603,6 @@ html[data-design="axiom"] .pd-btn:not(.ghost) { background: var(--pd-acc); borde
 /* statement */
 .pd-statement { padding-top: 36px; padding-bottom: 36px; }
 .pd-statement p { margin: 0; font-size: clamp(22px, 3.2vw, 38px); line-height: 1.22; letter-spacing: -.025em; font-weight: 500; color: var(--pd-stmt-ink); }
-html[data-design="axiom"] .pd-statement { background: var(--pd-stmt-bg); margin: 24px max(12px, calc((100% - 1220px) / 2)); border-radius: 6px; padding-top: 48px; padding-bottom: 48px;
-    padding-left: max(20px, 40px); padding-right: 40px; }
 
 /* bo'limlar */
 .pd-sec { padding-top: 72px; padding-bottom: 24px; }
@@ -821,8 +619,6 @@ html[data-design="axiom"] .pd-statement { background: var(--pd-stmt-bg); margin:
 .pd-stat { background: var(--pd-card); padding: 26px 20px; min-height: 170px; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; }
 .pd-stat b { font-size: clamp(54px, 9vw, 96px); line-height: .9; letter-spacing: -.05em; font-weight: 500; }
 .pd-stat span { color: var(--pd-ink2); font-size: 14px; line-height: 1.45; }
-html[data-design="axiom"] .pd-stat b { color: var(--pd-ink); }
-html[data-design="axiom"] .pd-stat:first-child b { color: var(--pd-acc); }
 
 .pd-app { display: grid; gap: 40px; align-items: center; }
 .pd-ticks { list-style: none; margin: 8px 0 28px; padding: 0; display: grid; gap: 12px; }
@@ -857,13 +653,11 @@ html[data-design="premium"] .pd-plan.dark .pd-btn { background: var(--pd-acc); b
 
 .pd-final { padding-top: 90px; padding-bottom: 60px; }
 .pd-final .pd-h2 { margin-bottom: 26px; }
-html[data-design="axiom"] .pd-final { background: var(--pd-final-bg); color: var(--pd-final-ink); margin-top: 80px; padding-top: 70px; }
-html[data-design="axiom"] .pd-final .pd-btn { background: #160a03; border-color: #160a03; color: #ff5a14 !important; }
+
 .pd-foot { padding-top: 24px; padding-bottom: calc(18px + env(safe-area-inset-bottom)); overflow: hidden; }
-html[data-design="axiom"] .pd-foot { background: var(--pd-final-bg); color: var(--pd-final-ink); }
-html[data-design="axiom"] .pd-foot em { color: #160a03; }
+
 .pd-foot-row { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--pd-mute); padding-bottom: 18px; border-bottom: 1px solid var(--pd-line); }
-html[data-design="axiom"] .pd-foot-row { color: rgba(22, 10, 3, .7); border-color: rgba(22, 10, 3, .2); }
+
 .pd-word { font-size: clamp(64px, 20.5vw, 290px); font-weight: 600; letter-spacing: -.065em; line-height: .82; margin-top: 18px; white-space: nowrap; }
 
 @media (min-width: 760px) {
@@ -887,22 +681,10 @@ html[data-design="axiom"] .pd-foot-row { color: rgba(22, 10, 3, .7); border-colo
 /* =====================================================================
    ▲ AXIOM — qora + to'q sariq (4-dizayn). Chat va oynalar umumiy tokenlar orqali.
    ===================================================================== */
-html[data-design="axiom"] {
-    --ds-bg: #0b0b0c; --ds-s1: rgba(24, 24, 27, 0.92); --ds-s2: rgba(255, 255, 255, 0.05); --ds-bar: rgba(12, 12, 13, 0.94);
-    --ds-modal: linear-gradient(170deg, #1a1a1d 0%, #0d0d0e 70%);
-    --ds-line: rgba(255, 255, 255, 0.09); --ds-line2: rgba(255, 90, 20, 0.55);
-    --ds-a: #ff7a3d; --ds-b: #ff5a14; --ds-c: #ffb27a; --ds-btn: #ff5a14;
-    --ds-grad: linear-gradient(120deg, #ff5a14 0%, #ff7a3d 100%);
-    --ds-user: linear-gradient(135deg, #ff5a14 0%, #ff7a3d 100%);
-    --ds-title: linear-gradient(90deg, #ffffff, #ffd2bd, #ffffff);
-    --ds-glow: rgba(255, 90, 20, 0.45); --ds-on: #160a03; --ds-text: #f4f2ee; --ds-muted: #a8a49c; --ds-soft: rgba(255, 90, 20, 0.12);
-}
-html[data-design="axiom"] #ds-bg { display: none !important; }
-html[data-design="axiom"] body:not(.theme-light) .msg-user { color: #160a03; font-weight: 500; }
-html[data-design="axiom"] body:not(.theme-light) .msg-ai { border-color: var(--ds-line) !important; box-shadow: none !important; animation: none; }
+
 /* katta "bilolsai.uz" yozuvi pastki havolalar ustiga chiqib, ularni bosib bo'lmas qilardi */
 .pd-foot-row { position: relative; z-index: 2; }
 .pd-foot-row a { padding: 6px 0; }
 .pd-foot-row a:hover { color: var(--pd-ink); text-decoration: underline; }
-html[data-design="axiom"] .pd-foot-row a:hover { color: #160a03; }
+
 .pd-word { pointer-events: none; position: relative; z-index: 1; }

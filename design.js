@@ -1,25 +1,11 @@
 /* =====================================================================
-   Bilols AI — SAYT DIZAYNI
-   3 ta dizayn: ⚡ Neon · ◐ Premium (och, pipdot uslubi) · ▲ Axiom (qora + to'q sariq)
-   Admin panel → 🎨 Dizayn → bitta tugma: hamma foydalanuvchida avtomat almashadi
-   (tanlov /api/design orqali saqlanadi). Bu fayl faqat ko'rinishni o'zgartiradi.
+   Bilols AI — SAYT DIZAYNI: ◐ Premium (och, oq — pipdot / Cognivo / Crisply uslubi).
+   Boshqa dizaynlar (Neon, Axiom) olib tashlangan; tanlash yo'q.
+   Bu fayl faqat ko'rinishni o'zgartiradi.
    ===================================================================== */
 (function () {
-    var DEFAULT = 'axiom';
-    var LIST = {
-        neon:    { name: 'Neon',    emoji: '⚡' },
-        premium: { name: 'Premium', emoji: '◐' },
-        axiom:   { name: 'Axiom',   emoji: '▲' }
-    };
-    var OLD = { current: 'neon', smooth: 'neon', modern: 'neon', classic: 'premium', cosmic: 'axiom' };   // eski nomlar
-    var CACHE = 'bilols_design_live';
     var root = document.documentElement;
-
-    function norm(d) { d = OLD[d] || d; return LIST[d] ? d : null; }
-    var forced = null;
-    try { forced = norm(new URLSearchParams(location.search).get('design')); } catch (e) {}
-    var cached = null;
-    try { cached = norm(localStorage.getItem(CACHE)); } catch (e) {}
+    try { localStorage.removeItem('bilols_design_live'); } catch (e) {}   // eski tanlov keshi
 
     /* Premium — och dizayn: saytning tayyor "yorug' rejimi" ustiga quriladi,
        shuning uchun barcha oynalar (hamyon, sozlamalar, yordam...) ham och bo'ladi. */
@@ -51,10 +37,9 @@
         syncLight();
     }
 
-    function apply(d) {
-        root.setAttribute('data-design', d);
-        window.BILOLS_DESIGN.current = d;
-        if (d === 'premium' || d === 'axiom') addFont();
+    function apply() {
+        root.setAttribute('data-design', 'premium');
+        addFont();
         syncLight();
     }
 
@@ -72,18 +57,7 @@
         document.body.insertBefore(bg, document.body.firstChild);
     }
 
-    window.BILOLS_DESIGN = {
-        list: LIST, current: null, cacheKey: CACHE, mount: mount,
-        set: function (d) { d = norm(d); if (!d) return; try { localStorage.setItem(CACHE, d); } catch (e) {} if (!forced) apply(d); }
-    };
-    apply(forced || cached || DEFAULT);
+    window.BILOLS_DESIGN = { current: 'premium', mount: mount };
+    apply();
     if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
-
-    // Admin tanlagan dizaynni serverdan olamiz (keyingi ochilishda darhol to'g'ri chiqadi)
-    try {
-        fetch('/api/design', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
-            var d = j && norm(j.design);
-            if (d) window.BILOLS_DESIGN.set(d);
-        }).catch(function () {});
-    } catch (e) {}
 })();
