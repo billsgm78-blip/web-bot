@@ -644,13 +644,13 @@
         for (var tries = 0; tries < 3; tries++) {
             try { localStorage.setItem('ba_chats', JSON.stringify(list)); ls('ba_chat', null); return; }
             catch (e) {
-                if (tries === 0) list = list.map(function (c) { return { id: c.id, title: c.title, u: c.u, msgs: c.msgs.map(function (m) { var o = Object.assign({}, m); delete o.img; return o; }) }; });
+                if (tries === 0) list = list.map(function (c) { return { id: c.id, title: c.title, u: c.u, msgs: c.msgs.map(function (m) { var o = Object.assign({}, m); delete o.img; delete o.gen; return o; }) }; });
                 else list = list.slice(0, Math.max(1, Math.floor(list.length / 2)));   // joy tugasa eski suhbatlar o'chadi
             }
         }
     }
     function saveChat() {
-        var keep = chat.msgs.slice(-60).map(function (m) { return { r: m.r, t: m.t, img: m.img || undefined, doc: m.doc || undefined, send: m.send ? m.send.slice(0, 15000) : undefined }; });
+        var keep = chat.msgs.slice(-60).map(function (m) { return { r: m.r, t: m.t, img: m.img || undefined, gen: m.gen || undefined, doc: m.doc || undefined, send: m.send ? m.send.slice(0, 15000) : undefined }; });
         if (!keep.length) return;
         if (!chat.id) { chat.id = newChatId(); ls('ba_chat_cur', chat.id); }
         chats = chats.filter(function (c) { return c.id !== chat.id; });
@@ -744,7 +744,8 @@
         });
     }
     $('c-mode').onclick = function () { haptic(); modesSheet(); };
-    $('c-img').onclick = function () { haptic(); switchTab('image'); setTimeout(function () { $('i-prompt').focus(); }, 300); };
+    // 🪄 — chat ichida rasm yaratish rejimi (rasm biriktirilsa — tahrirlanadi)
+    $('c-img').onclick = function () { haptic(); setGenMode(!chat.genMode); };
 
     /* Oddiy markdown: kod bloklari, `kod`, **qalin**, sarlavha, ro'yxat */
     function md(src) {
@@ -779,6 +780,16 @@
         var b = document.createElement('div');
         b.className = 'bubble ' + (m.r === 'u' ? 'me' : 'ai') + (m.err ? ' err' : '');
         if (m.img) { var im = document.createElement('img'); im.className = 'att'; im.src = m.img; b.appendChild(im); }
+        if (m.gen) {
+            var gi = document.createElement('img'); gi.className = 'gen-img'; gi.src = m.full || m.gen; gi.alt = m.t || ''; b.appendChild(gi);
+            gi.onclick = function () { openSheet('<img style="width:100%;border-radius:16px;display:block" alt="">', function (s) { s.querySelector('img').src = gi.src; }); };
+            if (m.approx) { var gn = document.createElement('small'); gn.className = 'gen-note'; gn.textContent = L("ℹ️ Bepul rejim: rasm o'zgarish bilan qaytadan chizildi, asl rasmdan biroz farq qilishi mumkin.", 'ℹ️ Бесплатный режим: изображение перерисовано и может немного отличаться.', 'ℹ️ Free mode: the image was redrawn and may differ slightly.'); b.appendChild(gn); }
+            var ga = document.createElement('div'); ga.className = 'b-acts';
+            var sv = document.createElement('button'); sv.textContent = '⬇ ' + L('Saqlash', 'Сохранить', 'Save');
+            sv.onclick = function () { saveImage(m.full || m.gen); };
+            ga.appendChild(sv); b.appendChild(ga);
+            return b;
+        }
         if (m.doc) { var ft = document.createElement('div'); ft.className = 'file-tag'; ft.textContent = '📄 ' + m.doc; b.appendChild(ft); }
         var tx = document.createElement('div');
         tx.className = 'tx';
@@ -862,12 +873,14 @@
         openSheet('<div class="sh-title">' + esc(docs ? L('Fayl biriktirish', 'Прикрепить файл', 'Attach a file') : L('Rasm yuborish', 'Отправить фото', 'Send a photo')) + '</div><div class="menu">' +
             '<button data-k="cam"><span class="m-ico">📷</span>' + esc(L('Kamera', 'Камера', 'Camera')) + '</button>' +
             '<button data-k="gal"><span class="m-ico">🖼</span>' + esc(L('Galereya', 'Галерея', 'Gallery')) + '</button>' +
-            (docs ? '<button data-k="doc"><span class="m-ico">📄</span><span>' + esc(L('Hujjat', 'Документ', 'Document')) + '<br><small style="color:var(--muted);font-weight:500">PDF, Word, TXT</small></span></button>' : '') + '</div>',
+            (docs ? '<button data-k="doc"><span class="m-ico">📄</span><span>' + esc(L('Hujjat', 'Документ', 'Document')) + '<br><small style="color:var(--muted);font-weight:500">PDF, Word, TXT</small></span></button>' : '') +
+            (docs ? '<button data-k="gen"><span class="m-ico">🎨</span><span>' + esc(L('Rasm yaratish', 'Создать изображение', 'Create an image')) + '<br><small style="color:var(--muted);font-weight:500">' + esc(L('Obunachilar uchun bepul', 'Бесплатно для подписчиков', 'Free for subscribers')) + '</small></span></button>' : '') + '</div>',
             function (b) {
                 b.querySelectorAll('[data-k]').forEach(function (x) {
                     x.onclick = function () {
                         var k = x.getAttribute('data-k');
                         closeSheet(true);
+                        if (k === 'gen') { setGenMode(true); return; }
                         if (k === 'doc' && N && verLess(appVer(), '3.2.0')) {
                             ask(L('Yangilash kerak', 'Нужно обновление', 'Update needed'), L("Hujjat yuborish uchun ilovaning yangi versiyasini o'rnating.", 'Чтобы отправлять документы, установите новую версию.', 'Install the new version to send documents.'), L('Yangilash', 'Обновить', 'Update'))
                                 .then(function (ok) { if (ok) openExternal((state.status && state.status.app && state.status.app.url) || 'https://bilolsai.uz/apkyuklash'); });
@@ -950,7 +963,7 @@
     $('c-att-x').onclick = function () { chat.img = null; $('c-att').hidden = true; };
 
     function buildHistory() {
-        var recent = chat.msgs.filter(function (m) { return !m.err; }).slice(-12);
+        var recent = chat.msgs.filter(function (m) { return !m.err && !m.gen && !m.genQ; }).slice(-12);
         return recent.map(function (m, i) {
             var parts = [];
             var isLast = i === recent.length - 1;
@@ -975,6 +988,7 @@
         if (chat.busy) return;
         var ta = $('c-in');
         var text = ta.value.trim();
+        if (chat.genMode) { genInChat(text); return; }
         if ($('c-doc').classList.contains('loading')) { toast(L("Fayl o'qilmoqda, biroz kuting", 'Файл читается, подождите', 'Reading the file, please wait')); return; }
         if (!text && !chat.img && !chat.doc) return;
         var off = feature('chat'); if (off) { toast(off, 'warn'); return; }
@@ -1051,6 +1065,70 @@
     }
     $('c-send').onclick = sendChat;
 
+    /* Chatda rasm yaratish (saytdagidek): 📎 → 🎨 Rasm yaratish. Rasm biriktirilsa — o'sha rasm tahrirlanadi */
+    function setGenMode(on) {
+        chat.genMode = on;
+        $('c-gen').hidden = !on;
+        $('c-img').classList.toggle('on', !!on);
+        $('c-gen-t').textContent = L('Rasm yaratish', 'Создание изображения', 'Image generation');
+        $('c-gen-s').textContent = (hasSub() ? L('Obunangiz bor — bepul', 'Подписка активна — бесплатно', 'Subscribed — free') : L('Obunachilar uchun bepul', 'Бесплатно для подписчиков', 'Free for subscribers'))
+            + ' · ' + L('rasm biriktirsangiz — tahrirlanadi', 'прикрепите фото — отредактирую', 'attach a photo to edit it');
+        $('c-in').placeholder = on ? L("Masalan: tog'lar ortida quyosh botmoqda, akvarel", 'Например: закат за горами, акварель', 'E.g. sunset behind mountains, watercolor') : L('Savolingizni yozing…', 'Напишите вопрос…', 'Ask anything…');
+        if (on) $('c-in').focus();
+    }
+    $('c-gen-x').onclick = function () { setGenMode(false); };
+    function imgAspect(src) {
+        return new Promise(function (res) { var i = new Image(); i.onload = function () { res(i.naturalWidth / (i.naturalHeight || 1)); }; i.onerror = function () { res(1); }; i.src = src; });
+    }
+    async function genInChat(prompt) {
+        var ta = $('c-in');
+        if (!prompt) { ta.focus(); return; }
+        var off = feature('image'); if (off) { toast(off, 'warn'); return; }
+        var src = chat.img ? chat.img.full : null;
+        var q = { r: 'u', t: prompt, genQ: true };
+        if (chat.img) q.img = chat.img.thumb;
+        chat.msgs.push(q);
+        chat.img = null; $('c-att').hidden = true;
+        ta.value = ''; autoGrow(ta);
+        renderChat(); saveChat();
+        chat.busy = true; $('c-send').disabled = true;
+        var box = $('c-msgs');
+        var wait = document.createElement('div'); wait.className = 'bubble ai gen-wait-b';
+        wait.innerHTML = '<div class="gen-wait"></div><div class="tx"></div>';
+        wait.querySelector('.tx').textContent = '🎨 ' + (src ? L('Rasm tahrirlanmoqda… (10–40 soniya)', 'Редактирую… (10–40 сек)', 'Editing… (10–40 s)') : L('Rasm chizilmoqda… (10–30 soniya)', 'Рисую… (10–30 сек)', 'Drawing… (10–30 s)'));
+        box.appendChild(wait); scrollChat(true);
+        try {
+            var r = await fetch(SITE + '/api/image', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: state.phone, password: state.pass, prompt: prompt, image: src || undefined, aspect: src ? await imgAspect(src) : undefined }) });
+            var j = {}; try { j = await r.json(); } catch (e) {}
+            wait.remove();
+            if (j.balance != null) setBalance(j.balance);
+            if (!r.ok || !j.image) {
+                if (j.needLogin) { sessionExpired(); return; }
+                var eb = bubble({ r: 'a', err: true, t: '⚠️ ' + (j.needSub ? L("Rasm yaratish faqat obunachilar uchun — obunada bepul va cheksiz.", 'Создание изображений только для подписчиков — бесплатно и без лимита.', 'Image generation is for subscribers only — free and unlimited with a subscription.')
+                    : j.noMoney ? L('Balans yetarli emas. Rasm narxi: ', 'Недостаточно средств. Цена: ', 'Not enough balance. Price: ') + money(j.price) + ' ' + T('sum')
+                    : (j.error || L("Rasm yaratib bo'lmadi", 'Не удалось создать изображение', 'Could not create the image'))) });
+                if (j.needSub) chatCTA(eb, 'sub'); else if (j.noMoney) chatCTA(eb, 'money');
+                box.appendChild(eb); scrollChat(true);
+                return;
+            }
+            var th = await thumbOf(j.image);
+            var a = { r: 'a', t: prompt, gen: th || j.image, full: j.image, approx: !!j.approx };
+            chat.msgs.push(a); saveChat(); renderChat(); scrollChat(true);
+            if (th) {
+                var g = lsJSON('ba_gal', []);
+                g.unshift({ thumb: th, prompt: prompt });
+                g = g.slice(0, 12);
+                try { ls('ba_gal', JSON.stringify(g)); } catch (e) { ls('ba_gal', JSON.stringify(g.slice(0, 4))); }
+            }
+        } catch (e) {
+            wait.remove();
+            box.appendChild(bubble({ r: 'a', err: true, t: '⚠️ ' + L("Server bilan bog'lanib bo'lmadi.", 'Ошибка соединения с сервером.', 'Server connection error.') })); scrollChat(true);
+        } finally {
+            chat.busy = false; $('c-send').disabled = false;
+        }
+    }
+
     /* ================= RASM YARATISH ================= */
     var IDEAS = [
         ['Kosmosdagi mushuk, multfilm uslubida', 'Кот в космосе, мультяшный стиль', 'A cat in space, cartoon style'],
@@ -1068,8 +1146,11 @@
         });
     }
     function paintImgPrice() {
-        var p = state.rewards && state.rewards.imagePrice;
-        $('i-price').textContent = p ? L('Narxi: ', 'Цена: ', 'Price: ') + money(p) + ' ' + T('sum') + L(' · 10–30 soniya', ' · 10–30 сек', ' · 10–30 s') : L('10–30 soniyada tayyor', 'Готово за 10–30 сек', 'Ready in 10–30 s');
+        // Rasm yaratish — faqat obunachilar uchun va bepul
+        $('i-price').textContent = hasSub()
+            ? L('✅ Obunangiz bor — bepul, cheksiz · 10–30 soniya', '✅ Подписка активна — бесплатно, без лимита · 10–30 сек', '✅ Subscribed — free, unlimited · 10–30 s')
+            : L('⭐ Faqat obunachilar uchun — obunada bepul', '⭐ Только для подписчиков — бесплатно по подписке', '⭐ Subscribers only — free with a subscription');
+        if (typeof chat !== 'undefined' && chat.genMode) setGenMode(true);
     }
     function paintGallery() {
         var g = lsJSON('ba_gal', []), box = $('i-gal');
@@ -1118,9 +1199,10 @@
             if (j.balance != null) setBalance(j.balance);
             if (!r.ok || !j.image) {
                 box.innerHTML = '';
-                var eb = bubble({ r: 'a', err: true, t: '⚠️ ' + (j.noMoney ? L('Balans yetarli emas. Rasm narxi: ', 'Недостаточно средств. Цена: ', 'Not enough balance. Price: ') + money(j.price) + ' ' + T('sum') : (j.error || L("Rasm yaratib bo'lmadi", 'Не удалось создать изображение', 'Could not create the image'))) });
+                var eb = bubble({ r: 'a', err: true, t: '⚠️ ' + (j.needSub ? L("Rasm yaratish faqat obunachilar uchun — obunada bepul va cheksiz.", 'Создание изображений только для подписчиков — бесплатно и без лимита.', 'Image generation is for subscribers only — free and unlimited with a subscription.') : j.noMoney ? L('Balans yetarli emas. Rasm narxi: ', 'Недостаточно средств. Цена: ', 'Not enough balance. Price: ') + money(j.price) + ' ' + T('sum') : (j.error || L("Rasm yaratib bo'lmadi", 'Не удалось создать изображение', 'Could not create the image'))) });
                 eb.style.maxWidth = '100%';
-                if (j.noMoney) chatCTA(eb, 'money');
+                if (j.needSub) chatCTA(eb, 'sub');
+                else if (j.noMoney) chatCTA(eb, 'money');
                 box.appendChild(eb);
                 return;
             }
@@ -1334,6 +1416,7 @@
         chat: '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z"/></svg>',
         mode: '<svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>',
         image: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>',
+        edit: '<svg viewBox="0 0 24 24"><path d="M4 20L15 9"/><path d="M14 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/><path d="M15 9l2-2"/></svg>',
         file: '<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
         gear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
         shop: '<svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>',
@@ -1375,7 +1458,10 @@
         var tools = $('dr-tools'); tools.innerHTML = '';
         var md0 = MODES.filter(function (m) { return m[0] === chat.mode; })[0];
         tools.appendChild(drItem(IC.mode, L('AI rejimi', 'Режим ИИ', 'AI mode'), function () { closeDrawer(); modesSheet(); }, chat.mode && md0 ? { text: md0[1] + ' ' + L(md0[2], md0[3], md0[4]) } : null));
-        tools.appendChild(drItem(IC.image, L('Rasm yaratish', 'Создать изображение', 'Create Image'), function () { closeDrawer(); switchTab('image'); }, null, state.tab === 'image' ? 'on' : ''));
+        tools.appendChild(drItem(IC.image, L('Rasm yaratish', 'Создать изображение', 'Create Image'), function () { closeDrawer(); switchTab('chat'); setGenMode(true); }));
+        tools.appendChild(drItem(IC.edit, L('Rasmni tahrirlash', 'Редактировать фото', 'Edit Image'), function () {
+            closeDrawer(); switchTab('chat'); setGenMode(true); pickTarget = 'chat'; var inp = $('file-img'); inp.value = ''; inp.click();
+        }));
         tools.appendChild(drItem(IC.file, L('Fayl yoki rasm tahlili', 'Анализ файла или фото', 'Analyze a file or photo'), function () { closeDrawer(); switchTab('chat'); $('c-pick').click(); }));
         var acc = $('dr-acc'); acc.innerHTML = '';
         acc.appendChild(drItem(IC.gear, L('Sozlamalar', 'Настройки', 'Preferences'), function () { closeDrawer(); $('tb-me').onclick(); }));
