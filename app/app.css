@@ -643,3 +643,126 @@ body.kb .bm-comp { padding-bottom: calc(8px + env(safe-area-inset-bottom)) !impo
 .bm-glow { top: -10px; }
 .bm-card textarea::placeholder { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bm-card .gen-chip { margin: 0 0 8px; }
+
+/* =====================================================================
+   KIRISH SAHIFASI (landing) — qora + sariq (v3.7)
+   ===================================================================== */
+.lp { --y: #ffe14d; --y2: #f5c400; background: #0b0b0a !important; color: #f4f4f0; }
+.lp-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+.lp-top { position: absolute; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; padding: calc(12px + env(safe-area-inset-top)) 16px 0; pointer-events: none; }
+.lp-top > * { pointer-events: auto; }
+.lp-brand { display: flex; align-items: center; gap: 8px; }
+.lp-brand img { width: 30px; height: 30px; border-radius: 9px; }
+.lp-brand b { font-size: 14px; font-weight: 800; letter-spacing: .12em; color: #f4f4f0; }
+.lp-round { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; background: rgba(40, 39, 34, .85); color: var(--y);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid rgba(255, 225, 77, .08); }
+.lp-round svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.lp-round:active { transform: scale(.93); }
+.lp-hero { position: relative; height: min(330px, 46vh); overflow: hidden; }
+.lp-hero svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.lp-bolt { animation: lpPulse 3.2s ease-in-out infinite; transform-origin: 197px 186px; }
+@keyframes lpPulse { 50% { opacity: .82; transform: scale(1.03); } }
+.lp-sparks circle { animation: lpSpark 4s ease-in-out infinite; }
+.lp-sparks circle:nth-child(2n) { animation-delay: -1.3s; } .lp-sparks circle:nth-child(3n) { animation-delay: -2.6s; }
+@keyframes lpSpark { 0%, 100% { opacity: .2; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-8px); } }
+.lp-h1 { margin: -26px 0 18px; text-align: center; position: relative; z-index: 2; font-size: clamp(44px, 14vw, 64px); line-height: .95; font-weight: 800; letter-spacing: .02em; color: #fafaf5; }
+.lp-h1 span { display: block; }
+.lp-h1 span:last-child { color: var(--y); text-shadow: 0 0 34px rgba(255, 225, 77, .35); }
+.lp-card { position: relative; margin: 0 16px; padding: 18px 18px 18px; border-radius: 16px; background: #1c1b18; overflow: hidden; min-height: 196px; }
+.lp-card p { margin: 0 0 16px; font-size: 14.5px; line-height: 1.55; color: #c9c8c0; max-width: 95%; }
+.lp-chip { display: inline-block; padding: 6px 10px; border-radius: 8px; background: rgba(255, 225, 77, .12); color: var(--y); font-size: 13.5px; font-weight: 600; border: 1px solid rgba(255, 225, 77, .2); }
+.lp-card-t { display: block; margin-top: 16px; font-size: 21px; line-height: 1.05; font-weight: 800; letter-spacing: .02em; color: #fafaf5; }
+.lp-card-art { position: absolute; right: -4px; bottom: -6px; width: 120px; height: 120px; filter: drop-shadow(0 10px 22px rgba(255, 225, 77, .25)); }
+.lp-sec { padding: 34px 16px 0; }
+.lp-sec h2 { margin: 0 0 14px; font-size: 26px; font-weight: 800; letter-spacing: .03em; color: #fafaf5; }
+.lp-sec h2::first-letter { color: var(--y); }
+.lp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lp-feat { background: #161613; border: 1px solid #262520; border-radius: 14px; padding: 14px; }
+.lp-feat em { display: block; font-style: normal; font-size: 22px; margin-bottom: 8px; }
+.lp-feat b { display: block; font-size: 14.5px; color: #f4f4f0; }
+.lp-feat small { display: block; margin-top: 4px; font-size: 12.5px; color: #9a998f; line-height: 1.4; }
+.lp-plans { display: grid; gap: 10px; }
+.lp-plan { border-radius: 16px; padding: 18px; background: #161613; border: 1px solid #262520; }
+.lp-plan.hot { background: var(--y); color: #111; border-color: var(--y); }
+.lp-plan > b { font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.lp-pr { margin: 6px 0 10px; }
+.lp-pr strong { font-size: 32px; font-weight: 800; }
+.lp-pr span { font-size: 14px; opacity: .7; margin-left: 4px; }
+.lp-plan ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; font-size: 14px; }
+.lp-plan li::before { content: "✓"; display: inline-block; width: 22px; font-weight: 800; color: var(--y); }
+.lp-plan.hot li::before { color: #111; }
+.lp-faq details { border-bottom: 1px solid #262520; padding: 14px 2px; }
+.lp-faq summary { list-style: none; font-size: 15.5px; font-weight: 600; color: #f4f4f0; display: flex; justify-content: space-between; gap: 12px; cursor: pointer; }
+.lp-faq summary::-webkit-details-marker { display: none; }
+.lp-faq summary::after { content: "+"; color: var(--y); font-size: 22px; line-height: 1; transition: transform .2s ease; }
+.lp-faq details[open] summary::after { transform: rotate(45deg); }
+.lp-faq p { margin: 10px 0 0; font-size: 14px; line-height: 1.55; color: #a8a79d; }
+.lp-about { margin: 0; font-size: 14.5px; line-height: 1.6; color: #b9b8ae; }
+.lp-priv { color: #8a897f !important; }
+.lp-pad { height: 150px; }
+.lp-cta { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; padding: 26px 16px calc(14px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, #0b0b0a 34%); display: grid; gap: 4px; }
+.lp-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 56px; border-radius: 14px; background: var(--y); color: #111;
+    font-size: 17px; font-weight: 800; box-shadow: 0 14px 34px -14px rgba(255, 225, 77, .7); }
+.lp-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.lp-btn:active { transform: scale(.98); }
+.lp-login { height: 42px; color: #d6d5cc; font-size: 14.5px; font-weight: 600; }
+/* to'liq ekranli menyu */
+.lp-menu { position: absolute; inset: 0; z-index: 10; background: #0b0b0a; display: flex; flex-direction: column; align-items: center; padding: calc(40px + env(safe-area-inset-top)) 20px calc(26px + env(safe-area-inset-bottom));
+    opacity: 0; visibility: hidden; transform: scale(1.03); transition: opacity .22s ease, transform .22s ease, visibility 0s .22s; }
+.lp-menu.on { opacity: 1; visibility: visible; transform: none; transition: opacity .22s ease, transform .22s ease; }
+.lp-x { margin-bottom: 36px; }
+.lp-links { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.lp-links button { font-size: 24px; font-weight: 800; letter-spacing: .04em; color: #fafaf5; padding: 9px 12px; }
+.lp-links button:active { color: var(--y); }
+.lp-menu.on .lp-links button { animation: lpIn .4s cubic-bezier(.2, .8, .2, 1) both; }
+.lp-menu.on .lp-links button:nth-child(2) { animation-delay: .04s; } .lp-menu.on .lp-links button:nth-child(3) { animation-delay: .08s; }
+.lp-menu.on .lp-links button:nth-child(4) { animation-delay: .12s; } .lp-menu.on .lp-links button:nth-child(5) { animation-delay: .16s; } .lp-menu.on .lp-links button:nth-child(6) { animation-delay: .2s; }
+@keyframes lpIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.lp-menu-brand { margin-top: auto; text-align: center; }
+.lp-menu-brand svg { width: 22px; height: 22px; fill: var(--y); }
+.lp-menu-brand b { display: block; font-size: 22px; line-height: 1; font-weight: 800; letter-spacing: .08em; color: #fafaf5; margin-top: 4px; }
+.lp-soc { display: flex; gap: 12px; margin-top: 22px; }
+.lp-soc .lp-round { width: 58px; height: 58px; }
+
+/* =====================================================================
+   KIRISH / RO'YXATDAN O'TISH — oq + marjon (Bookshelf uslubi)
+   ===================================================================== */
+.au { --c: #f45b5b; background: #fff !important; color: #111; overflow-y: auto; padding: calc(14px + env(safe-area-inset-top)) 26px calc(24px + env(safe-area-inset-bottom)) !important; }
+.au-back { width: 40px; height: 40px; margin-left: -8px; display: grid; place-items: center; border-radius: 12px; color: #111; flex-shrink: 0; }
+.au-back svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.au-head { margin: 22px 0 4px; }
+.au-head h1 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 27px; font-weight: 700; color: #111; letter-spacing: -.01em; }
+.au-head p { margin: 4px 0 0; font-size: 13.5px; color: #6b6b6b; }
+.au-art { display: grid; place-items: center; margin: 14px 0 18px; }
+.au-art svg { width: min(220px, 62vw); height: auto; animation: auFloat 4s ease-in-out infinite; }
+@keyframes auFloat { 50% { transform: translateY(-5px); } }
+.au .au-reg-art, .au.reg .au-login-art { display: none; }
+.au.reg .au-reg-art { display: block; }
+.au .auth-card { background: none !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; }
+.au .field > span { color: #6b6b6b; font-size: 12.5px; margin-left: 2px; }
+.au .field input, .au .phone-in, .au .pass-in { background: #f5f5f6 !important; border: 1px solid #ececee !important; border-radius: 10px; color: #111; box-shadow: 0 1px 2px rgba(0, 0, 0, .03); }
+.au .phone-in input, .au .pass-in input { background: none !important; border: 0 !important; box-shadow: none !important; }
+.au .field input:focus, .au .phone-in:focus-within, .au .pass-in:focus-within { border-color: var(--c) !important; background: #fff !important; }
+.au .phone-in em { color: #6b6b6b; }
+.au input::placeholder { color: #a3a3a8; }
+.au .pass-in button { filter: grayscale(1); }
+.au .btn.primary { background: var(--c) !important; color: #fff !important; border-radius: 10px; height: 52px; font-weight: 700; box-shadow: 0 10px 22px -10px rgba(244, 91, 91, .8) !important; }
+.au-forgot { display: block; margin: -4px 0 12px auto; font-size: 13px !important; color: #333 !important; padding: 4px 2px !important; }
+.au .auth-msg { color: #555; }
+.au .auth-msg.err { color: #dc2626; }
+.au .auth-msg.ok { color: #059669; }
+.au-switch { text-align: center; margin: 16px 0 0; font-size: 13.5px; color: #555; }
+.au-switch .link { color: var(--c) !important; font-weight: 700; padding: 4px 2px; font-size: 13.5px; }
+.au .consent { color: #555; }
+.au .consent a, .au .consent button:not(.c-box) { color: var(--c); }
+.au .lang-row button { background: #f4f4f5; color: #555; }
+.au .lang-row button.on { background: #111; color: #fff; }
+.au .privacy-link { color: #888 !important; }
+/* umumiy "svg { stroke }" qoidasi rasmlarga chiziq qo'shmasin */
+.lp-hero svg, svg.lp-card-art, .au-art svg { stroke: none; stroke-width: 0; fill: none; }
+.lp-sparks circle { stroke: none; }
+/* yopiq yon menyuning soyasi boshqa ekranlarda ko'rinmasin */
+.drawer:not(.on) .dr-panel { box-shadow: none; visibility: hidden; transition: transform .28s cubic-bezier(.2, .9, .3, 1), visibility 0s .28s; }
+.au-forgot { width: 100%; text-align: right; }
+.lp-top { transition: background .2s ease, padding .2s ease; }
+.lp-top.solid { background: rgba(11, 11, 10, .92); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); padding-bottom: 10px; border-bottom: 1px solid #1d1c18; }

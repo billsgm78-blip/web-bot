@@ -62,7 +62,7 @@
         $('sp-in').placeholder = L('Xabar yozing…', 'Напишите сообщение…', 'Write a message…');
         $('i-prompt').placeholder = L("Masalan: tog'lar orasida quyosh botishi, akvarel uslubida", 'Например: закат в горах, акварель', 'E.g. a sunset in the mountains, watercolor');
         $('a-name').placeholder = L('Masalan: Bilol', 'Например: Билол', 'e.g. Bilol');
-        paintAuthBtn();
+        paintAuthBtn(); paintAuthHead(); paintLanding();
         if (state.inMain) { paintTitle(); paintModes(); paintModel(); renderChat(); paintIdeas(); paintImgPrice(); paintShop(); paintWalletActs(); paintTpl(); }
     }
 
@@ -199,7 +199,8 @@
 
     /* ================= Ekranlar ================= */
     function show(id) {
-        ['splash', 'lock', 'auth', 'main'].forEach(function (s) { $(s).classList.toggle('on', s === id); });
+        ['splash', 'lock', 'landing', 'auth', 'main'].forEach(function (s) { $(s).classList.toggle('on', s === id); });
+        if (id !== 'landing') closeLpMenu();
     }
 
     /* ================= Sayt holati (blok, e'lon, modellar) ================= */
@@ -239,7 +240,7 @@
         }
         if ($('lock').classList.contains('on') && !state.starting) start();
         paintAnn();
-        if (state.inMain) paintModel();
+        if (state.inMain) paintModel(); else paintLanding();   // narxlar serverdan kelgach yangilanadi
         return st;
     }
     var lockAction = function () { loadStatus(); };
@@ -320,6 +321,7 @@
             $('f-consent').hidden = auth.mode !== 'register'; pvPaint();
             $('a-forgot').hidden = auth.mode !== 'login';
             $('a-pass').autocomplete = auth.mode === 'login' ? 'current-password' : 'new-password';
+            paintAuthHead();
             resetOtp(); authMsg('');
         };
     });
@@ -413,6 +415,98 @@
     }
     function setLang(l) { lang = l; ls('ba_lang', l); applyI18n(); paintLangRow($('auth-lang')); }
 
+    /* ================= Kirish sahifasi (landing) va menyu ================= */
+    var BOT_URL = 'https://t.me/BilolsAIbot';
+    function lpMenuOpen() { return $('lp-menu').classList.contains('on'); }
+    function openLpMenu() { $('lp-menu').classList.add('on'); $('lp-menu').setAttribute('aria-hidden', 'false'); haptic(); }
+    function closeLpMenu() { var m = $('lp-menu'); if (!m) return; m.classList.remove('on'); m.setAttribute('aria-hidden', 'true'); }
+    function openAuth(mode) {
+        var b = document.querySelector('#auth-seg [data-mode="' + mode + '"]');
+        if (b && auth.mode !== mode) b.onclick(); else paintAuthHead();
+        show('auth'); haptic();
+        $('auth').scrollTop = 0;
+    }
+    function paintAuthHead() {
+        var reg = auth.mode === 'register';
+        $('auth').classList.toggle('reg', reg);
+        $('au-title').textContent = reg ? L('Hisob yarating', 'Создайте аккаунт', 'Create Your Account') : L('Xush kelibsiz,', 'С возвращением,', 'Welcome Back,');
+        $('au-sub').textContent = reg ? L("Ro'yxatdan o'ting va boshlang", 'Зарегистрируйтесь и начните', 'Sign up and get started') : L('Davom etish uchun kiring', 'Войдите, чтобы продолжить', 'Log in to continue');
+        $('au-sw-q').textContent = reg ? L('Hisobingiz bormi?', 'Уже есть аккаунт?', 'Already have an account?') : L("Hisobingiz yo'qmi?", 'Нет аккаунта?', "Don't have an account?");
+        $('au-sw').textContent = reg ? L('Kirish', 'Войти', 'Log in') : L("Ro'yxatdan o'tish", 'Регистрация', 'Sign up');
+    }
+    function paintLanding() {
+        $('lp-lead').textContent = L("Savol bering, rasm yuboring yoki hujjat biriktiring — o'zbek tilini tushunadigan AI soniyalar ichida javob beradi.",
+            'Спросите, отправьте фото или документ — ИИ, понимающий узбекский, ответит за секунды.', 'Ask, send a photo or attach a document — an AI that understands Uzbek answers in seconds.');
+        $('lp-chip').textContent = L('Yangi', 'Новое', 'New');
+        $('lp-card-t').innerHTML = esc(L('RASM', 'РЕДАКТОР', 'IMAGE')) + '<br>' + esc(L('TAHRIRLASH', 'ФОТО', 'EDITING'));
+        $('lp-start-t').textContent = L('Bepul boshlash', 'Начать бесплатно', 'Start for free');
+        $('lp-login').textContent = L('Hisobim bor — Kirish', 'Уже есть аккаунт — Войти', 'I have an account — Log in');
+        $('lp-f-h').textContent = L('IMKONIYATLAR', 'ВОЗМОЖНОСТИ', 'FEATURES');
+        var F = [
+            ['💬', L('Aqlli suhbat', 'Умный чат', 'Smart chat'), L("O'zbek, rus va ingliz tilida", 'На узбекском, русском, английском', 'In Uzbek, Russian and English')],
+            ['🎨', L('Rasm yaratish', 'Создание фото', 'Image generation'), L("Tasvirlab bering — AI chizadi", 'Опишите — ИИ нарисует', 'Describe it — AI draws it')],
+            ['🖌️', L('Rasm tahrirlash', 'Редактор фото', 'Photo editing'), L("Fonni olib tashlash, uslub", 'Убрать фон, стиль', 'Remove background, restyle')],
+            ['📄', L('Hujjat tahlili', 'Анализ документов', 'Documents'), L('PDF, Word — qisqacha mazmun', 'PDF, Word — краткий пересказ', 'PDF, Word — summaries')],
+            ['🌐', L('Internetdan qidirish', 'Поиск в интернете', 'Web search'), L('Yangi maʼlumot, manbalar bilan', 'Свежие данные с источниками', 'Fresh info with sources')],
+            ['🎓', L("O'qish rejimlari", 'Режимы учёбы', 'Study modes'), L("O'qituvchi, imtihon, insho", 'Учитель, экзамен, сочинение', 'Teacher, exams, essays')]
+        ];
+        var g = $('lp-f'); g.innerHTML = '';
+        F.forEach(function (f) { var d = document.createElement('div'); d.className = 'lp-feat'; d.innerHTML = '<em></em><b></b><small></small>'; d.querySelector('em').textContent = f[0]; d.querySelector('b').textContent = f[1]; d.querySelector('small').textContent = f[2]; g.appendChild(d); });
+        $('lp-p-h').textContent = L('NARXLAR', 'ЦЕНЫ', 'PRICING');
+        var pr = (state.status && state.status.prices) || {};
+        var pp = $('lp-p'); pp.innerHTML = '';
+        [[L('Bepul', 'Бесплатно', 'Free'), '0', [pr.freeDaily ? L('Kuniga ', 'В день ', '') + pr.freeDaily + L(' ta xabar', ' сообщений', ' messages a day') : L('Kunlik bepul xabarlar', 'Бесплатные сообщения каждый день', 'Free daily messages'),
+            pr.freeWeb ? L('Kuniga ', 'В день ', '') + pr.freeWeb + L(' ta internet qidiruv', ' поисков в интернете', ' web searches a day') : L('Internetdan qidirish', 'Поиск в интернете', 'Web search'),
+            L('Gemini Flash agenti', 'Агент Gemini Flash', 'Gemini Flash agent')], false],
+         [L('Obuna', 'Подписка', 'Pro'), pr.subPrice ? money(pr.subPrice) : '—', [L('Cheksiz xabarlar', 'Безлимитные сообщения', 'Unlimited messages'), L('Barcha kuchli agentlar', 'Все мощные агенты', 'All pro agents'),
+            L('Rasm yaratish bepul', 'Создание фото бесплатно', 'Free image generation'), L('Cheksiz internet qidiruv', 'Безлимитный поиск', 'Unlimited web search')], true]
+        ].forEach(function (p) {
+            var d = document.createElement('div'); d.className = 'lp-plan' + (p[3] ? ' hot' : '');
+            d.innerHTML = '<b></b><div class="lp-pr"><strong></strong><span></span></div><ul></ul>';
+            d.querySelector('b').textContent = p[0]; d.querySelector('strong').textContent = p[1];
+            d.querySelector('span').textContent = p[1] === '0' ? T('sum') : ' ' + T('sum') + (pr.subDays ? ' / ' + pr.subDays + L(' kun', ' дн.', ' days') : '');
+            p[2].forEach(function (t) { var li = document.createElement('li'); li.textContent = t; d.querySelector('ul').appendChild(li); });
+            pp.appendChild(d);
+        });
+        $('lp-q-h').textContent = L('SAVOLLAR', 'ВОПРОСЫ', 'FAQ');
+        var Q = [
+            [L("Bilols AI bepulmi?", 'Bilols AI бесплатный?', 'Is Bilols AI free?'), L("Ha, har kuni bepul xabarlar beriladi. Cheksiz foydalanish va kuchli agentlar uchun obuna bor.", 'Да, каждый день есть бесплатные сообщения. Для безлимита и мощных агентов есть подписка.', 'Yes, you get free messages every day. A subscription unlocks unlimited use and pro agents.')],
+            [L("Qanday ro'yxatdan o'taman?", 'Как зарегистрироваться?', 'How do I sign up?'), L("Telefon raqam va parol kiriting — tasdiqlash kodi Telegram botimizga keladi.", 'Введите номер и пароль — код придёт в наш Telegram-бот.', 'Enter your phone and a password — the code arrives in our Telegram bot.')],
+            [L("Hisobni qanday to'ldiraman?", 'Как пополнить баланс?', 'How do I top up?'), L("Ilovadagi Hamyon bo'limida Click yoki Payme orqali.", 'В разделе Кошелёк через Click или Payme.', 'In the Wallet section via Click or Payme.')],
+            [L("Ma'lumotlarim xavfsizmi?", 'Мои данные в безопасности?', 'Is my data safe?'), L("Ha. Parolingiz shifrlangan holda saqlanadi, suhbatlaringizni boshqalar ko'rmaydi.", 'Да. Пароль хранится в зашифрованном виде, ваши чаты никто не видит.', 'Yes. Your password is stored encrypted and nobody else sees your chats.')]
+        ];
+        var qb = $('lp-q'); qb.innerHTML = '';
+        Q.forEach(function (q) {
+            var d = document.createElement('details'); d.innerHTML = '<summary></summary><p></p>';
+            d.querySelector('summary').textContent = q[0]; d.querySelector('p').textContent = q[1]; qb.appendChild(d);
+        });
+        $('lp-a-h').textContent = L('BIZ HAQIMIZDA', 'О НАС', 'ABOUT US');
+        $('lp-a').textContent = L("Bilols AI — O'zbekistonda yaratilgan shaxsiy AI yordamchi. Maqsadimiz — sun'iy intellektni har bir kishi uchun oddiy, arzon va o'z tilida qulay qilish.",
+            'Bilols AI — персональный ИИ-помощник, созданный в Узбекистане. Наша цель — сделать ИИ простым, доступным и удобным на родном языке.', 'Bilols AI is a personal AI assistant made in Uzbekistan. Our goal is to make AI simple, affordable and native-language friendly for everyone.');
+        var links = $('lp-links'); links.innerHTML = '';
+        [[L('BIZ HAQIMIZDA', 'О НАС', 'ABOUT US'), 'lp-about'], [L('IMKONIYATLAR', 'ВОЗМОЖНОСТИ', 'FEATURES'), 'lp-features'], [L('NARXLAR', 'ЦЕНЫ', 'PRICING'), 'lp-price'],
+         [L('SAVOLLAR', 'ВОПРОСЫ', 'FAQ'), 'lp-faq'], [L('KIRISH', 'ВОЙТИ', 'LOG IN'), '@login'], [L('MAXFIYLIK SIYOSATI', 'КОНФИДЕНЦИАЛЬНОСТЬ', 'PRIVACY POLICY'), '@privacy']].forEach(function (l) {
+            var b = document.createElement('button'); b.textContent = l[0];
+            b.onclick = function () {
+                closeLpMenu();
+                if (l[1] === '@login') { openAuth('login'); return; }
+                if (l[1] === '@privacy') { openPrivacy(); return; }
+                var el = $(l[1]); if (el) setTimeout(function () { $('lp-scroll').scrollTo({ top: el.offsetTop - 70, behavior: 'smooth' }); }, 180);
+            };
+            links.appendChild(b);
+        });
+    }
+    $('lp-menu-btn').onclick = openLpMenu;
+    $('lp-scroll').addEventListener('scroll', function () { document.querySelector('.lp-top').classList.toggle('solid', this.scrollTop > 40); }, { passive: true });
+    $('lp-menu-x').onclick = closeLpMenu;
+    $('lp-start').onclick = function () { openAuth('register'); };
+    $('lp-login').onclick = function () { openAuth('login'); };
+    $('a-back').onclick = function () { if (!auth.busy) show('landing'); };
+    $('au-sw').onclick = function () { openAuth(auth.mode === 'register' ? 'login' : 'register'); };
+    $('lp-tg').onclick = function () { openExternal(BOT_URL); };
+    $('lp-web').onclick = function () { openExternal('https://bilolsai.uz'); };
+    $('lp-lang').onclick = function () { closeLpMenu(); langSheet(); };
+
     function sessionExpired() {
         logout(true);
         toast(L("Parol o'zgargan yoki sessiya tugagan. Qaytadan kiring.", 'Пароль изменён или сессия истекла. Войдите снова.', 'Password changed or session expired. Please log in again.'), 'warn', 4500);
@@ -423,7 +517,7 @@
         chats = []; chat.id = null; chat.msgs = []; closeDrawer();
         state.phone = state.pass = state.name = ''; state.balance = null; state.rewards = null; state.inMain = false; liveId++;
         closeSupport(); closeSheet(false);
-        show('auth');
+        show('landing');
         if (!silent) toast(L('Hisobdan chiqdingiz', 'Вы вышли из аккаунта', 'Logged out'));
     }
 
@@ -1715,6 +1809,8 @@
     window.__back = function () {
         if (sheetClose) { closeSheet(false); return true; }
         if (drawerOpen()) { closeDrawer(); return true; }
+        if (lpMenuOpen()) { closeLpMenu(); return true; }
+        if (!state.inMain && $('auth').classList.contains('on') && !auth.busy) { show('landing'); return true; }
         if ($('privacy').classList.contains('on')) { closePrivacy(); return true; }
         if (sp.open) { closeSupport(); return true; }
         if (state.inMain && state.tab !== 'chat') { switchTab('chat'); return true; }
@@ -1780,7 +1876,12 @@
         ping();
         if (quick) { paintModel(); return; }
         if (st && st.lockAll) { if (state.phone && state.pass) liveBalance(++liveId); return; }
-        if (state.phone && state.pass) enterMain(); else { show('auth'); restoreDraft(); }
+        if (state.phone && state.pass) enterMain();
+        else {
+            var dr = lsJSON('ba_auth_draft', null);
+            if (dr && dr.t && Date.now() - dr.t < DRAFT_TTL) { show('auth'); restoreDraft(); }   // kod kutilayotgan bo'lsa — davom
+            else show('landing');
+        }
         setTimeout(function () { document.body.classList.add('ready'); }, 30);
     }
     // Serverda yangi dizayn yuklandi (Android qobig'i xabar beradi)
