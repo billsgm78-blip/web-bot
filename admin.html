@@ -661,7 +661,7 @@ select.inp option { background: #12151c; color: var(--text); }
     // ================= PANEL =================
     var TABS = [
         ['stats', '📊', 'Statistika'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['aud', '📲', 'Ilova va bot'],
-        ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
+        ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['design', '🎨', 'Dizayn'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
     ];
     var tab = 'stats';
     function buildNav() {
@@ -683,7 +683,7 @@ select.inp option { background: #12151c; color: var(--text); }
         // Kirish animatsiyasi faqat sahifa ochilganda (keyingi avto-yangilanishlarda qayta o'ynamaydi)
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
-        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity, aud: vAud }[t];
+        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, design: vDesign, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity, aud: vAud }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -1041,6 +1041,60 @@ select.inp option { background: #12151c; color: var(--text); }
                 var x = await admin('notify_set', { config: c }); toast(x.success ? '✅ Saqlandi — saytda 15 soniya ichida kuchga kiradi' : (x.error || 'Xato'));
             } })
         ]));
+    }
+
+    // ---------- Dizayn (sayt ko'rinishi) ----------
+    var DESIGNS = [
+        { id: 'neon', emoji: '⚡', name: 'Neon', desc: "Kiberpank uslub: ufqda chiziqli neon quyosh, oldinga yuguruvchi 3D to'r, neon yomg'ir. Chat, hamyon, sozlamalar va hamma oynalar ham neon. Moviy-pushti." },
+        { id: 'premium', emoji: '◐', name: 'Premium', desc: "Och, nafis uslub: krem fon, juda katta qora sarlavhalar, to'q sariq nuqta, uzun kirish sahifasi (imkoniyatlar, narxlar, savollar)." },
+        { id: 'axiom', emoji: '▲', name: 'Axiom', desc: "Qora fon va to'q sariq bloklar, yirik raqamlar, uzun kirish sahifasi. Chat va oynalar ham qora-to'q sariq." }
+    ];
+    async function vDesign(view) {
+        var active = 'axiom';
+        try {
+            var r = await fetch('/api/design', { cache: 'no-store' }).then(function (x) { return x.json(); });
+            if (r && r.design) active = r.design;
+        } catch (e) {}
+        var picked = active;
+        view.innerHTML = '';
+        var grid = h('div', { class: 'ds-grid' });
+        var cards = {};
+        function mark() {
+            DESIGNS.forEach(function (d) { cards[d.id].className = 'ds-card' + (d.id === picked ? ' on' : ''); });
+            btn.textContent = picked === active ? '✓ Hozir saytda shu dizayn' : '🔄 Hamma uchun almashtirish';
+            btn.disabled = picked === active;
+            btn.style.opacity = picked === active ? '.6' : '1';
+        }
+        DESIGNS.forEach(function (d) {
+            var top = h('div', { class: 'ds-top' }, [h('b', { text: d.emoji + ' ' + d.name })]);
+            if (d.id === active) top.appendChild(h('span', { class: 'ds-badge', text: '✓ Saytda' }));
+            cards[d.id] = h('div', { class: 'ds-card', role: 'button', style: 'cursor:pointer', onclick: function () { picked = d.id; mark(); } }, [
+                h('img', { class: 'ds-shot', src: '/icons/design/' + d.id + '.jpg?v=5', alt: d.name, loading: 'lazy' }),
+                top,
+                h('div', { class: 'sum', style: 'margin:0;line-height:1.5', text: d.desc })
+            ]);
+            grid.appendChild(cards[d.id]);
+        });
+        var btn = h('button', { class: 'btn', style: 'margin-top:14px;height:56px;font-size:16px;position:sticky;bottom:calc(12px + env(safe-area-inset-bottom));z-index:5', onclick: async function () {
+            if (picked === active) return;
+            btn.disabled = true; btn.textContent = '⏳ Saqlanmoqda...';
+            var res = null;
+            try {
+                var rr = await fetch('/api/design', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token || '' }, body: JSON.stringify({ design: picked }) });
+                res = await rr.json().catch(function () { return {}; });
+                if (rr.status === 401) { logout(true); return; }
+            } catch (e) { res = { error: 'Internet xatosi' }; }
+            if (res && res.success) {
+                try { localStorage.setItem('bilols_design_live', picked); } catch (e) {}
+                var nm = DESIGNS.filter(function (x) { return x.id === picked; })[0];
+                toast('✅ ' + nm.emoji + ' ' + nm.name + ' — hamma foydalanuvchida yoqildi');
+                vDesign(view);
+            } else { toast('❌ ' + ((res && res.error) || 'Xato')); mark(); }
+        } });
+        view.appendChild(h('div', { class: 'sum', style: 'margin:0 2px 12px', text: "Dizaynni tanlang va pastdagi tugmani bosing — saytdagi hamma foydalanuvchida avtomat almashadi." }));
+        view.appendChild(grid);
+        view.appendChild(btn);
+        mark();
     }
 
     // ---------- AI sozlamalari ----------
