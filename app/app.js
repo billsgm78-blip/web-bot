@@ -419,7 +419,8 @@
     }
     function logout(silent) {
         pushUnregister();
-        ['ba_phone', 'ba_pass', 'ba_name', 'ba_chat'].forEach(function (k) { ls(k, null); });
+        ['ba_phone', 'ba_pass', 'ba_name', 'ba_chat', 'ba_chats', 'ba_chat_cur'].forEach(function (k) { ls(k, null); });
+        chats = []; chat.id = null; chat.msgs = []; closeDrawer();
         state.phone = state.pass = state.name = ''; state.balance = null; state.rewards = null; state.inMain = false; liveId++;
         closeSupport(); closeSheet(false);
         show('auth');
@@ -428,7 +429,10 @@
 
     /* ================= Asosiy ekran ================= */
     var TITLES = { chat: ['Bilols AI', 'Bilols AI', 'Bilols AI'], image: ['Rasm yaratish', 'Изображения', 'Images'], shop: ["Do'kon", 'Магазин', 'Shop'], wallet: ['Hamyon', 'Кошелёк', 'Wallet'] };
-    function paintTitle() { var t = TITLES[state.tab]; $('tb-title').textContent = L(t[0], t[1], t[2]); }
+    function paintTitle() {
+        var t = TITLES[state.tab]; $('tb-title').textContent = L(t[0], t[1], t[2]);
+        $('main').setAttribute('data-tab', state.tab);
+    }
     function enterMain() {
         state.inMain = true;
         show('main');
@@ -436,6 +440,7 @@
         paintBalance();
         applyI18n();
         switchTab('chat');
+        paintDrawer();
         loadRewards();
         loadHistory();
         peekSupport();
@@ -596,6 +601,7 @@
         }
     }
     function paintBalance() {
+        if (drawerOpen()) paintDrawer();
         var v = state.balance == null ? '—' : money(state.balance);
         $('tb-bal-v').textContent = v;
         $('w-bal').textContent = v;
@@ -616,13 +622,64 @@
         ['essay', '✍️', 'Insho', 'Сочинения', 'Essays'],
         ['exam', '📝', 'Imtihon', 'Экзамен', 'Exams']
     ];
-    var chat = { msgs: lsJSON('ba_chat', []), busy: false, img: null, mode: ls('ba_mode') || '', model: ls('ba_model') || '' };
+    /* Suhbatlar ro'yxati (yon menyudagi "So'nggi"): ba_chats = [{id, title, u, msgs}] */
+    function newChatId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+    function chatTitle(msgs) {
+        var f = (msgs || []).filter(function (m) { return m.r === 'u'; })[0];
+        var t = f ? (f.t || (f.doc ? '📄 ' + f.doc : f.img ? '🖼 ' + L('Rasm', 'Фото', 'Image') : '')) : '';
+        return String(t || L('Yangi suhbat', 'Новый чат', 'New chat')).replace(/\s+/g, ' ').slice(0, 48);
+    }
+    var chats = lsJSON('ba_chats', null);
+    if (!Array.isArray(chats)) {
+        chats = [];
+        var oldMsgs = lsJSON('ba_chat', []);                    // eski bitta suhbat — ro'yxatga ko'chiriladi
+        if (oldMsgs.length) { chats.push({ id: newChatId(), title: chatTitle(oldMsgs), u: Date.now(), msgs: oldMsgs }); ls('ba_chat_cur', chats[0].id); storeChats(); }
+    }
+    var curId = ls('ba_chat_cur');
+    var curRec = chats.filter(function (c) { return c.id === curId; })[0];
+    var chat = { id: curRec ? curRec.id : null, msgs: curRec ? curRec.msgs : [], busy: false, img: null, mode: ls('ba_mode') || '', model: ls('ba_model') || '' };
     if (!MODES.some(function (m) { return m[0] === chat.mode; })) chat.mode = '';
+    function storeChats() {
+        var list = chats.slice(0, 40);
+        for (var tries = 0; tries < 3; tries++) {
+            try { localStorage.setItem('ba_chats', JSON.stringify(list)); ls('ba_chat', null); return; }
+            catch (e) {
+                if (tries === 0) list = list.map(function (c) { return { id: c.id, title: c.title, u: c.u, msgs: c.msgs.map(function (m) { var o = Object.assign({}, m); delete o.img; return o; }) }; });
+                else list = list.slice(0, Math.max(1, Math.floor(list.length / 2)));   // joy tugasa eski suhbatlar o'chadi
+            }
+        }
+    }
     function saveChat() {
         var keep = chat.msgs.slice(-60).map(function (m) { return { r: m.r, t: m.t, img: m.img || undefined, doc: m.doc || undefined, send: m.send ? m.send.slice(0, 15000) : undefined }; });
-        try { ls('ba_chat', JSON.stringify(keep)); } catch (e) { keep.forEach(function (m) { delete m.img; }); ls('ba_chat', JSON.stringify(keep)); }
+        if (!keep.length) return;
+        if (!chat.id) { chat.id = newChatId(); ls('ba_chat_cur', chat.id); }
+        chats = chats.filter(function (c) { return c.id !== chat.id; });
+        chats.unshift({ id: chat.id, title: chatTitle(keep), u: Date.now(), msgs: keep });
+        storeChats();
+        paintDrawer();
+    }
+    function openChat(id) {
+        if (chat.busy) { toast(L('AI javob yozmoqda — biroz kuting', 'AI отвечает — подождите', 'AI is replying — please wait')); return; }
+        var c = chats.filter(function (x) { return x.id === id; })[0];
+        if (!c) return;
+        chat.id = c.id; chat.msgs = c.msgs.slice(); ls('ba_chat_cur', c.id);
+        closeDrawer(); switchTab('chat'); renderChat();
+    }
+    function newChat() {
+        if (chat.busy) { toast(L('AI javob yozmoqda — biroz kuting', 'AI отвечает — подождите', 'AI is replying — please wait')); return; }
+        chat.id = null; chat.msgs = []; ls('ba_chat_cur', null);
+        closeDrawer(); switchTab('chat'); renderChat();
+        setTimeout(function () { $('c-in').focus(); }, 250);
+    }
+    async function deleteChat(id) {
+        if (!(await ask(L("Suhbatni o'chirish", 'Удалить чат', 'Delete chat'), L("Bu suhbat o'chiriladi.", 'Этот чат будет удалён.', 'This chat will be deleted.'), L("O'chirish", 'Удалить', 'Delete'), true))) return;
+        chats = chats.filter(function (c) { return c.id !== id; });
+        storeChats();
+        if (chat.id === id && !chat.busy) { chat.id = null; chat.msgs = []; ls('ba_chat_cur', null); renderChat(); }
+        paintDrawer();
     }
     function paintModes() {
+        paintModeBtn();
         var box = $('c-modes'); box.innerHTML = '';
         MODES.forEach(function (m) {
             var b = document.createElement('button');
@@ -639,7 +696,7 @@
         var ms = state.models || [];
         return ms.filter(function (m) { return m.id === chat.model; })[0] || ms.filter(function (m) { return m.def; })[0] || ms[0] || { id: '', name: 'Gemini', emoji: '⚡', price: 0 };
     }
-    function paintModel() { var m = curModel(); $('c-model-t').textContent = (m.emoji || '🤖') + ' ' + m.name; }
+    function paintModel() { var m = curModel(); $('c-model-t').textContent = m.name; }
     $('c-model').onclick = function () {
         var ms = state.models || [];
         if (!ms.length) { loadStatus().then(function () { if ((state.models || []).length) $('c-model').click(); }); return; }
@@ -666,15 +723,28 @@
                 });
             });
     };
-    $('c-new').onclick = async function () {
-        // AI javob yozayotganda yangi suhbat ochilsa, eski javob yangi suhbatga tushib qolardi
-        if (chat.busy) { toast(L('AI javob yozmoqda — biroz kuting', 'AI отвечает — подождите', 'AI is replying — please wait')); return; }
-        if (!chat.msgs.length) return;
-        if (await ask(L('Yangi suhbat', 'Новый чат', 'New chat'), L("Joriy suhbat o'chiriladi.", 'Текущий чат будет удалён.', 'The current chat will be cleared.'), L('Boshlash', 'Начать', 'Start'))) {
-            if (chat.busy) return;
-            chat.msgs = []; saveChat(); renderChat();
-        }
-    };
+    // Yangi suhbat: joriy suhbat yon menyudagi "So'nggi" ro'yxatida saqlanib qoladi
+    $('c-new').onclick = function () { haptic(); newChat(); };
+
+    /* AI rejimi (💡 tugma) — pastki oynada tanlanadi */
+    function paintModeBtn() { var b = $('c-mode'); if (b) b.classList.toggle('on', !!chat.mode); }
+    function modesSheet() {
+        openSheet('<div class="sh-title">' + esc(L('AI rejimi', 'Режим ИИ', 'AI mode')) + '</div><p class="sh-sub">' +
+            esc(L("AI qanday uslubda javob berishini tanlang.", 'Выберите, как ИИ будет отвечать.', 'Choose how the AI should answer.')) + '</p><div class="sh-list" id="mdl"></div>', function (b) {
+            MODES.forEach(function (m) {
+                var o = document.createElement('button'); o.className = 'opt' + (m[0] === chat.mode ? ' on' : '');
+                o.innerHTML = '<span class="o-ico"></span><span class="o-mid"><b></b></span>';
+                o.querySelector('.o-ico').textContent = m[1]; o.querySelector('b').textContent = L(m[2], m[3], m[4]);
+                o.onclick = function () {
+                    chat.mode = m[0]; ls('ba_mode', m[0]); paintModes(); paintModeBtn(); closeSheet(true);
+                    if (m[0]) toast(m[1] + ' ' + L(m[2], m[3], m[4]) + L(' rejimi yoqildi', ' — режим включён', ' mode on'));
+                };
+                b.querySelector('#mdl').appendChild(o);
+            });
+        });
+    }
+    $('c-mode').onclick = function () { haptic(); modesSheet(); };
+    $('c-img').onclick = function () { haptic(); switchTab('image'); setTimeout(function () { $('i-prompt').focus(); }, 300); };
 
     /* Oddiy markdown: kod bloklari, `kod`, **qalin**, sarlavha, ro'yxat */
     function md(src) {
@@ -730,22 +800,30 @@
         ['✍️', 'Mustaqillik haqida insho yoz', 'Напиши сочинение о Родине', 'Write an essay about my homeland'],
         ['💡', "Kichik biznes g'oyalari ber", 'Дай идеи для малого бизнеса', 'Give me small business ideas']
     ];
+    var SUGG_ICO = {
+        '🧮': '<svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>',
+        '🌐': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg>',
+        '✍️': '<svg viewBox="0 0 24 24"><path d="M12 20h8"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+        '💡': '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>'
+    };
     function renderChat() {
         var box = $('c-msgs');
         box.innerHTML = '';
         if (!chat.msgs.length) {
             var e = document.createElement('div');
-            e.className = 'empty-chat';
-            e.innerHTML = '<div class="ec-ico">⚡</div><b></b><span></span><div class="sugg"></div>';
-            e.querySelector('b').textContent = L('Salom', 'Привет', 'Hi') + (state.name ? ', ' + state.name.split(' ')[0] : '') + '!';
-            e.querySelector('span').textContent = L("Savol bering, rasm yuboring yoki rejim tanlang.", 'Спросите что угодно, отправьте фото или выберите режим.', 'Ask anything, send a photo or pick a mode.');
+            e.className = 'empty-chat bm-hero';
+            e.innerHTML = '<div class="bm-glow"><i></i><i></i></div><div class="bm-hero-in"><b></b><span></span></div><div class="sugg"></div>';
+            e.querySelector('b').textContent = L('Kundalik AI yordamchingiz,\nhar narsaga tayyor.', 'Ваш AI на каждый день,\nготов ко всему.', 'Your Everyday AI,\nReady for Anything.');
+            e.querySelector('span').textContent = (state.name ? L('Salom', 'Привет', 'Hi') + ', ' + state.name.split(' ')[0] + '! ' : '') +
+                L("Savolingizni pastga yozing va yuborish tugmasini bosing.", 'Напишите вопрос ниже и нажмите кнопку.', 'Type your prompt below and press the button to start.');
             var sg = e.querySelector('.sugg');
             SUGG.forEach(function (s) {
                 var b = document.createElement('button');
                 b.innerHTML = '<em></em>';
-                b.querySelector('em').textContent = s[0];
+                b.querySelector('em').innerHTML = SUGG_ICO[s[0]] || '';
                 b.appendChild(document.createTextNode(L(s[1], s[2], s[3])));
                 b.onclick = function () { $('c-in').value = L(s[1], s[2], s[3]) + ': '; $('c-in').focus(); autoGrow($('c-in')); };
+                b.className = 'bm-card-s';
                 sg.appendChild(b);
             });
             box.appendChild(e);
@@ -1251,6 +1329,88 @@
             });
     };
 
+    /* ================= YON MENYU ================= */
+    var IC = {
+        chat: '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z"/></svg>',
+        mode: '<svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>',
+        image: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>',
+        file: '<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
+        gear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+        shop: '<svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>',
+        wallet: '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 14h2"/></svg>',
+        help: '<svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/></svg>',
+        x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+    };
+    function drawerOpen() { return $('drawer').classList.contains('on'); }
+    function openDrawer() { hideKeyboard(); paintDrawer(); $('drawer').classList.add('on'); $('drawer').setAttribute('aria-hidden', 'false'); haptic(); }
+    function closeDrawer() { var d = $('drawer'); if (!d) return; d.classList.remove('on'); d.setAttribute('aria-hidden', 'true'); }
+    function drItem(icon, text, onClick, right, cls) {
+        var b = document.createElement('button');
+        b.className = 'dr-item' + (cls ? ' ' + cls : '');
+        b.innerHTML = '<span class="dr-ic">' + icon + '</span><span class="dr-tx"></span>' + (right ? '<span class="dr-r"></span>' : '');
+        b.querySelector('.dr-tx').textContent = text;
+        if (right) { b.querySelector('.dr-r').textContent = right.text; if (right.cls) b.querySelector('.dr-r').className = 'dr-r ' + right.cls; }
+        b.onclick = function () { haptic(); onClick(); };
+        return b;
+    }
+    function paintDrawer() {
+        if (!$('dr-recent')) return;
+        $('dr-new-t').textContent = L('Yangi suhbat', 'Новый чат', 'New Chat');
+        $('dr-recent-h').textContent = L("So'nggi", 'Недавние', 'Recent');
+        $('dr-tools-h').textContent = L('Vositalar', 'Инструменты', 'Tools');
+        $('dr-acc-h').textContent = L('Hisob', 'Аккаунт', 'Account');
+        var rec = $('dr-recent'); rec.innerHTML = '';
+        if (!chats.length) {
+            var em = document.createElement('div'); em.className = 'dr-empty';
+            em.textContent = L("Hali suhbatlar yo'q", 'Пока нет чатов', 'No chats yet');
+            rec.appendChild(em);
+        }
+        chats.slice(0, 30).forEach(function (c) {
+            var it = drItem(IC.chat, c.title || L('Suhbat', 'Чат', 'Chat'), function () { openChat(c.id); }, null, c.id === chat.id && state.tab === 'chat' ? 'on' : '');
+            var del = document.createElement('span'); del.className = 'dr-del'; del.innerHTML = IC.x;
+            del.onclick = function (e) { e.stopPropagation(); deleteChat(c.id); };
+            it.appendChild(del);
+            rec.appendChild(it);
+        });
+        var tools = $('dr-tools'); tools.innerHTML = '';
+        var md0 = MODES.filter(function (m) { return m[0] === chat.mode; })[0];
+        tools.appendChild(drItem(IC.mode, L('AI rejimi', 'Режим ИИ', 'AI mode'), function () { closeDrawer(); modesSheet(); }, chat.mode && md0 ? { text: md0[1] + ' ' + L(md0[2], md0[3], md0[4]) } : null));
+        tools.appendChild(drItem(IC.image, L('Rasm yaratish', 'Создать изображение', 'Create Image'), function () { closeDrawer(); switchTab('image'); }, null, state.tab === 'image' ? 'on' : ''));
+        tools.appendChild(drItem(IC.file, L('Fayl yoki rasm tahlili', 'Анализ файла или фото', 'Analyze a file or photo'), function () { closeDrawer(); switchTab('chat'); $('c-pick').click(); }));
+        var acc = $('dr-acc'); acc.innerHTML = '';
+        acc.appendChild(drItem(IC.gear, L('Sozlamalar', 'Настройки', 'Preferences'), function () { closeDrawer(); $('tb-me').onclick(); }));
+        acc.appendChild(drItem(IC.shop, L("Do'kon", 'Магазин', 'Shop'), function () { closeDrawer(); switchTab('shop'); }, hasSub() ? { text: '⭐', cls: 'gold' } : null, state.tab === 'shop' ? 'on' : ''));
+        acc.appendChild(drItem(IC.wallet, L('Hamyon', 'Кошелёк', 'Wallet'), function () { closeDrawer(); switchTab('wallet'); },
+            { text: state.balance == null ? '—' : money(state.balance) + ' ' + T('sum') }, state.tab === 'wallet' ? 'on' : ''));
+        acc.appendChild(drItem(IC.help, L('Admin bilan chat', 'Чат с админом', 'Chat with admin'), function () { closeDrawer(); openSupport(); },
+            sp.unread > 0 ? { text: String(sp.unread), cls: 'badge' } : null));
+        $('dr-ava').textContent = (state.name || 'B').trim().charAt(0).toUpperCase() || 'B';
+        $('dr-name').textContent = state.name || 'Bilols AI';
+        $('dr-phone').textContent = state.phone ? '+' + state.phone : '';
+    }
+    $('tb-menu').onclick = openDrawer;
+    $('dr-close').onclick = closeDrawer;
+    $('dr-bg').onclick = closeDrawer;
+    $('dr-new').onclick = function () { haptic(); newChat(); };
+    $('dr-me').onclick = function () { closeDrawer(); $('tb-me').onclick(); };
+    // Chap chetdan o'ngga surilsa — menyu ochiladi, menyuda chapga surilsa — yopiladi
+    (function () {
+        var x0 = 0, y0 = 0, edge = false, inDr = false;
+        document.addEventListener('touchstart', function (e) {
+            if (!state.inMain || sheetClose || e.touches.length !== 1) return;
+            x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+            edge = !drawerOpen() && x0 < 24 && $('main').classList.contains('on') && !sp.open;
+            inDr = drawerOpen();
+        }, { passive: true });
+        document.addEventListener('touchend', function (e) {
+            var t = e.changedTouches && e.changedTouches[0]; if (!t) return;
+            var dx = t.clientX - x0, dy = Math.abs(t.clientY - y0);
+            if (edge && dx > 60 && dy < 60) openDrawer();
+            else if (inDr && dx < -60 && dy < 60) closeDrawer();
+            edge = inDr = false;
+        }, { passive: true });
+    })();
+
     /* ================= PROFIL ================= */
     $('tb-me').onclick = function () {
         var r = state.rewards || {};
@@ -1443,7 +1603,7 @@
         } catch (e) { dropTmp(); renderSupport(); ta.value = text; autoGrow(ta); netErr(); }
         finally { btn.disabled = false; }
     };
-    function paintUnread() { $('tb-me').classList.toggle('dot', sp.unread > 0); }
+    function paintUnread() { $('tb-me').classList.toggle('dot', sp.unread > 0); $('tb-menu-dot').hidden = !(sp.unread > 0); paintDrawer(); }
     async function peekSupport() {
         if (!state.inMain) return;
         if (!sp.open) {
@@ -1468,6 +1628,7 @@
     });
     window.__back = function () {
         if (sheetClose) { closeSheet(false); return true; }
+        if (drawerOpen()) { closeDrawer(); return true; }
         if ($('privacy').classList.contains('on')) { closePrivacy(); return true; }
         if (sp.open) { closeSupport(); return true; }
         if (state.inMain && state.tab !== 'chat') { switchTab('chat'); return true; }
