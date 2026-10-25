@@ -1120,7 +1120,7 @@
                     reply += dec.decode(chunk.value, { stream: true });
                     if (!aiB && reply) { typing.remove(); aiB = bubble({ r: 'a', t: '' }); aiB.querySelector('.b-acts') && aiB.querySelector('.b-acts').remove(); box.appendChild(aiB); }
                     var now = Date.now();
-                    if (aiB && now - last > 80) { last = now; var tx = aiB.querySelector('.tx'); tx.innerHTML = md(reply); tx.classList.add('caret'); scrollChat(); }
+                    if (aiB && now - last > (reply.length > 3000 ? 260 : 150)) { last = now; var tx = aiB.querySelector('.tx'); tx.innerHTML = md(reply); tx.classList.add('caret'); scrollChat(); }
                 }
                 reply += dec.decode();
             } else {
