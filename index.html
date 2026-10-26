@@ -9270,7 +9270,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         }
         // derazadan tushgan iliq nur
         [[6, 20], [70, 20]].forEach(function (w) {
-            c.fillStyle = 'rgba(255,190,120,.16)'; c.beginPath();
+            c.fillStyle = 'rgba(255,200,140,.10)'; c.beginPath();
             c.moveTo(w[0] * s, 14 * s); c.lineTo((w[0] + w[1]) * s, 14 * s); c.lineTo((w[0] + w[1] + 10) * s, 34 * s); c.lineTo((w[0] + 10) * s, 34 * s); c.fill();
         });
         // devor + plintus
@@ -9289,7 +9289,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         c.strokeStyle = '#2a1d17'; c.lineWidth = Math.max(1, s * .25); c.beginPath(); c.moveTo(0, 1 * s);
         for (var lx = 0; lx <= W; lx += 6) c.quadraticCurveTo((lx + 3) * s, 2.6 * s, (lx + 6) * s, 1 * s); c.stroke();
         var LC = ['#ffd36b', '#ff8a65', '#9ee37d', '#7cc8ff', '#ff9ad1'];
-        for (var bi = 0, bx = 3; bx < W; bx += 6, bi++) { var on = ((tAll * 1.5 + bi * .7) % 2) < 1.4; var col = LC[bi % 5]; if (on) glow(c, s, bx, 2.2, 2.4, col + '66'); R(c, s, bx - .5, 1.8, 1, 1.2, on ? col : '#6b5a4a'); }
+        for (var bi = 0, bx = 3; bx < W; bx += 6, bi++) { var on = ((tAll * 1.5 + bi * .7) % 2) < 1.4; var col = LC[bi % 5]; if (on) glow(c, s, bx, 2.2, 1.8, col + '55'); R(c, s, bx - .5, 1.8, 1, 1.2, on ? col : '#6b5a4a'); }
         // javon
         O(c, s, 30, 2.5, 14, 10, '#7a4f33');
         ['#c0504d', '#4f81bd', '#9bbb59', '#f2b134', '#8064a2', '#4bacc6'].forEach(function (col, i) { R(c, s, 31 + i * 2.1, 3.4, 1.6, 3.3, col); R(c, s, 31.4 + i * 2.1, 8.2, 1.6, 3.3, ['#4bacc6', '#c0504d', '#f2b134', '#9bbb59', '#4f81bd', '#e0457b'][i]); });
@@ -9316,7 +9316,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var cx = 101, cy = 70; O(c, s, cx, cy, 5, 2.6, '#f0a35e'); R(c, s, cx + 3.6, cy - 1, 2, 2, '#f0a35e'); R(c, s, cx + 3.8, cy - 1.6, .6, .6, '#f0a35e'); R(c, s, cx + 5, cy - 1.6, .6, .6, '#f0a35e');
         R(c, s, cx - 1.6 - Math.sin(tAll * 2) * .5, cy + 1.4, 2, .7, '#d98a45');
         // torsher chiroq
-        glow(c, s, 114.4, 47, 14, 'rgba(255,205,130,.38)');
+        glow(c, s, 114.4, 47, 10, 'rgba(255,205,130,.30)');
         R(c, s, 114, 46, .8, 12, '#2a2a2a'); O(c, s, 112.3, 43.6, 4.2, 2.8, '#ffd88c', '#7a5a2a');
         // server shkafi
         O(c, s, 2, 58, 9, 18, '#1d1d22');
@@ -9366,19 +9366,19 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var stat = a.st === 'work' ? (a.task ? T('javob yozyapti', 'replying', 'пишет ответ') : (a.n === 'Bilol' ? T('vazifa beryapti', 'assigning', 'раздаёт задачи') : T('ishlayapti', 'working', 'работает')))
             : a.st === 'walk' ? '' : T('dam olyapti', 'resting', 'отдыхает');
         if (big && stat) txt += ' · ' + stat;
-        var k = c.canvas.width / (c.canvas.clientWidth || c.canvas.width), fs = Math.max(8.5 * k, s * (big ? 2.1 : 2.4)); c.font = '600 ' + fs + 'px system-ui,-apple-system,sans-serif';
+        var k = c.canvas.width / (c.canvas.clientWidth || c.canvas.width), fs = Math.max(8.5 * k, s * (big ? 2.1 : 2.4)); c.font = '700 ' + fs + 'px system-ui,-apple-system,sans-serif';
         var sit = a.st !== 'walk' && (a.st === 'work' || (a.spot && a.spot.k !== 'coffee' && a.spot.k !== 'plant'));
         var tw = c.measureText(txt).width, px = fs * .5, h = fs * 1.5, bw = tw + px * 2 + fs * .7;
         var bx = a.x * s - bw / 2, top = (a.y - (sit ? 11.5 : 13)) * s - h;
         bx = Math.max(2, Math.min(c.canvas.width - bw - 2, bx));
         // yorliqlar ustma-ust tushmasin — to'qnashsa yuqoriga suriladi
         for (var k = 0; k < taken.length; k++) { var o = taken[k]; if (bx < o.x + o.w + 2 && bx + bw + 2 > o.x && top < o.y + o.h + 1 && top + h + 1 > o.y) { top = o.y - h - 2; k = -1; } }
-        top = Math.max(1, top); taken.push({ x: bx, y: top, w: bw, h: h });
-        c.fillStyle = 'rgba(20,16,14,.82)';
+        top = Math.round(Math.max(1, top)); bx = Math.round(bx); taken.push({ x: bx, y: top, w: bw, h: h });
+        c.fillStyle = 'rgba(20,16,14,.9)';
         if (c.roundRect) { c.beginPath(); c.roundRect(bx, top, bw, h, h / 2); c.fill(); } else c.fillRect(bx, top, bw, h);
         c.fillStyle = a.st === 'work' ? '#3ddc84' : a.st === 'walk' ? '#9aa4b2' : '#f2b134';
         c.beginPath(); c.arc(bx + px + fs * .2, top + h / 2, fs * .22, 0, 7); c.fill();
-        c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(txt, bx + px + fs * .7, top + h / 2 + .5);
+        c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(txt, Math.round(bx + px + fs * .7), Math.round(top + h / 2));
     }
     function render(cv, big) {
         var c = cv.getContext('2d'), s = cv.width / W;
@@ -9391,14 +9391,11 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var taken = [];
         agents.slice().sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, big, taken); });
         // kechki yorug'lik
-        var g = c.createRadialGradient(cv.width / 2, cv.height / 2, cv.height * .3, cv.width / 2, cv.height / 2, cv.width * .75);
-        g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(40,15,5,.28)');   // chetlari biroz qorong'i — iliq, shinam
-        c.fillStyle = g; c.fillRect(0, 0, cv.width, cv.height);
     }
-    // tiniq: kamida 2x o'lchamda chiziladi
+    // tiniq: kamida 3x o'lchamda chiziladi
     function fit(cv) {
         var w = cv.clientWidth; if (!w) return false;
-        var dpr = Math.max(2, Math.min(window.devicePixelRatio || 1, 3)), pw = Math.round(w * dpr);
+        var dpr = Math.max(3, Math.min(window.devicePixelRatio || 1, 4)), pw = Math.round(w * dpr);
         if (cv.width !== pw) { cv.width = pw; cv.height = Math.round(pw * H / W); }
         return true;
     }
