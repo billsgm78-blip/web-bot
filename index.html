@@ -5617,7 +5617,9 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         var audioCtx = null;
         var CLICK_SEL = '.primary-btn,.landing-btn-enhanced,.send-btn,.media-btn,.pack-card,.auth-tab,.segmented-btn,' +
             '.logout-btn,.icon-btn,.wallet-pill,.clear-chat-danger-btn,.cam-tool-btn,.feature-card,.theme-swatch,' +
-            '.toggle-switch,.modal-close,.auth-close,.settings-card.clickable,.remove-img-btn,.capture-btn';
+            '.toggle-switch,.modal-close,.auth-close,.settings-card.clickable,.remove-img-btn,.capture-btn,' +
+            // Premium dizayn: barcha tugmalar, landing havola-tugmalari, taklif kartalari
+            'button,[role="button"],.pd-btn,.pd-pill,.pd-brand,.suggest-card,.pd-faq summary';
         function playPop() {
             if (state[KEY.click] === false) return;
             if (typeof isSoundEnabled !== 'undefined' && !isSoundEnabled) return;
