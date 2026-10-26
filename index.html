@@ -4098,15 +4098,55 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
     let incomeAudio = null;
     try {
         incomeAudio = new Audio("money_2.mp3");
+        incomeAudio.preload = "auto";
     } catch (e) {}
 
+    /* Pul tushgandagi musiqa. Telefon brauzerlari foydalanuvchi bosmagan paytda <audio>ni jim qiladi
+       (pul serverdan keladi — bosish yo'q). Shuning uchun Web Audio: birinchi teginishda "ochiladi",
+       fayl oldindan yuklab qo'yiladi va keyin istalgan paytda chalinadi. Ishlamasa — oddiy <audio>. */
+    const incomeAC = window.AudioContext || window.webkitAudioContext;
+    let incomeCtx = null, incomeBuf = null, incomeLoad = null;
+    function incomeContext() { if (!incomeCtx && incomeAC) { try { incomeCtx = new incomeAC(); } catch (e) { incomeCtx = null; } } return incomeCtx; }
+    function incomeBuffer() {
+        if (incomeBuf) return Promise.resolve(incomeBuf);
+        if (incomeLoad) return incomeLoad;
+        const c = incomeContext();
+        if (!c) return Promise.reject(new Error("no-audio"));
+        incomeLoad = fetch("money_2.mp3").then(r => { if (!r.ok) throw new Error("http"); return r.arrayBuffer(); })
+            .then(ab => new Promise((res, rej) => { const pr = c.decodeAudioData(ab, res, rej); if (pr && pr.then) pr.then(res, rej); }))
+            .then(b => (incomeBuf = b))
+            .catch(e => { incomeLoad = null; throw e; });
+        return incomeLoad;
+    }
+    function unlockIncome() {
+        const c = incomeContext();
+        if (!c) return;
+        if (c.state === "suspended") { try { c.resume(); } catch (e) {} }
+        incomeBuffer().catch(() => {});
+        if (c.state === "running") {
+            ["touchend", "click", "keydown"].forEach(ev => document.removeEventListener(ev, unlockIncome, true));
+        }
+    }
+    ["touchend", "click", "keydown"].forEach(ev => document.addEventListener(ev, unlockIncome, true));
+
+    function playIncomeFallback() {
+        if (!incomeAudio) return;
+        try { incomeAudio.currentTime = 0; incomeAudio.play().catch(() => {}); } catch (e) {}
+    }
     function playIncomeMusic() {
-        if (!isSoundEnabled || !incomeAudio) return;
+        if (!isSoundEnabled) return;
         try { var nc = window.BilolNotify && window.BilolNotify.config(); if (nc && (nc.money === false || nc.sounds === false)) return; } catch (e) {}
-        try {
-            incomeAudio.currentTime = 0;
-            incomeAudio.play().catch(() => {});
-        } catch (e) {}
+        const c = incomeContext();
+        if (!c) return playIncomeFallback();
+        if (c.state === "suspended") { try { c.resume(); } catch (e) {} }
+        incomeBuffer().then(b => {
+            if (c.state !== "running") return playIncomeFallback();
+            const src = c.createBufferSource(), g = c.createGain();
+            src.buffer = b;
+            g.gain.value = incomeAudio && incomeAudio.volume != null ? incomeAudio.volume : 1;   // sozlamadagi ovoz balandligi
+            src.connect(g); g.connect(c.destination);
+            src.start(0);
+        }).catch(playIncomeFallback);
     }
 
     function showNotification(text, type) {
