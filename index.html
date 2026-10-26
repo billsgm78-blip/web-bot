@@ -8971,5 +8971,83 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     if (gm) new MutationObserver(function () { if (gm.classList.contains('open')) paintLang(); }).observe(gm, { attributes: true, attributeFilter: ['class'] });
 })();
 </script>
+
+<!-- ============ LANDING: pastga surilganda bloklar animatsiya bilan chiqadi ============ -->
+<style id="rv-style">
+.pd-page .rv { opacity: 0; transform: translate3d(0, 34px, 0); transition: opacity .75s cubic-bezier(.2, .8, .2, 1), transform .75s cubic-bezier(.2, .8, .2, 1); transition-delay: var(--d, 0s); will-change: opacity, transform; }
+.pd-page .rv.rv-left { transform: translate3d(-36px, 0, 0); }
+.pd-page .rv.rv-zoom { transform: translate3d(0, 40px, 0) scale(.92) rotate(-3deg); }
+.pd-page .rv.rv-fade { transform: none; }
+.pd-page .rv.in { opacity: 1; transform: none; }
+.pd-page .pd-h2 + .pd-p { margin-top: 26px !important; }   /* sarlavhadagi y/g dumlari matnga tegmasin */
+.pd-page .pd-h2.rv { transform: translate3d(0, 48px, 0) skewY(2deg); transition-duration: .9s; }
+.pd-page .pd-word.rv { letter-spacing: .2em; transition: opacity 1s ease, transform 1s cubic-bezier(.2, .8, .2, 1), letter-spacing 1.2s cubic-bezier(.2, .8, .2, 1); }
+.pd-page .pd-word.rv.in { letter-spacing: normal; }
+@media (prefers-reduced-motion: reduce) { .pd-page .rv { opacity: 1 !important; transform: none !important; transition: none !important; } }
+</style>
+<script id="rv-script">
+(function () {
+    if (!('IntersectionObserver' in window)) return;
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    function run() {
+        var page = document.querySelector('.pd-page');
+        if (!page) return;
+        // [selektor, uslub, ketma-ketlik oralig'i (soniya)]
+        var groups = [
+            ['.pd-statement p', 'rv-fade', 0],
+            ['.pd-kicker', 'rv-left', 0],
+            ['.pd-h2', '', 0],
+            ['.pd-p', '', 0],
+            ['.pd-rows li', 'rv-left', 0.07],
+            ['.pd-stat', '', 0.09],
+            ['.pd-ticks li', 'rv-left', 0.08],
+            ['.pd-app .pd-cta', '', 0],
+            ['.pd-phone', 'rv-zoom', 0],
+            ['.pd-plan', '', 0.12],
+            ['.pd-faq details', '', 0.06],
+            ['.pd-final .pd-btn', '', 0],
+            ['.pd-foot-row', 'rv-fade', 0],
+            ['.pd-word', '', 0]
+        ];
+        var items = [];
+        groups.forEach(function (g) {
+            page.querySelectorAll(g[0]).forEach(function (el, i) {
+                if (el.closest('.pd-hero')) return;                 // birinchi ekran — darhol ko'rinadi
+                el.classList.add('rv');
+                if (g[1]) el.classList.add(g[1]);
+                if (g[2]) el.style.setProperty('--d', Math.min(i * g[2], 0.6) + 's');
+                items.push(el);
+            });
+        });
+        // raqamlar 0 dan sanab chiqadi (5, 3, 1)
+        function countUp(b) {
+            var to = parseInt(b.textContent, 10);
+            if (!/^\d+$/.test(b.textContent.trim()) || !to) return;
+            var t0 = performance.now(), dur = 900;
+            (function step(t) {
+                var k = Math.min(1, (t - t0) / dur);
+                b.textContent = Math.round(to * (1 - Math.pow(1 - k, 3)));
+                if (k < 1) requestAnimationFrame(step);
+            })(t0);
+        }
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+                if (!e.isIntersecting) return;
+                e.target.classList.add('in');
+                if (e.target.classList.contains('pd-stat')) { var b = e.target.querySelector('b'); if (b) countUp(b); }
+                io.unobserve(e.target);
+            });
+        }, { threshold: 0.01, rootMargin: '0px 0px -40px 0px' });
+        items.forEach(function (el) { io.observe(el); });
+        // sahifa oxiriga yetganda — qolgan bloklar ham chiqadi (eng pastdagilar chegaraga yetmasligi mumkin)
+        var sc = document.getElementById('landing-screen');
+        if (sc) sc.addEventListener('scroll', function () {
+            if (sc.scrollTop + sc.clientHeight < sc.scrollHeight - 8) return;
+            page.querySelectorAll('.rv:not(.in)').forEach(function (el) { el.classList.add('in'); io.unobserve(el); });
+        }, { passive: true });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
+</script>
 </body>
 </html>
