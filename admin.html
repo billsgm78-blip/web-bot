@@ -1348,6 +1348,24 @@ select.inp option { background: #12151c; color: var(--text); }
             h('div', {}, [h('div', { class: 'sum', text: "Ko'rinishi:" }), h('div', { class: 'pv-phone' }, [pvLock])])
         ]));
 
+        // ===== 1a. Hozir onlayn (saytdagi chap panelda) =====
+        var ol = j.online || { on: true, msg: '', count: 0 };
+        var olSw = h('div', { class: 'switch' + (ol.on ? ' ok' : ''), role: 'switch' });
+        olSw.onclick = function () { olSw.classList.toggle('ok'); };
+        var olMsg = h('input', { class: 'inp', maxlength: 60, placeholder: 'Texnik ishlar' }); olMsg.value = ol.msg && ol.msg !== 'Texnik ishlar' ? ol.msg : '';
+        view.appendChild(h('div', { class: 'h', text: '🟢 Hozir onlayn' }));
+        view.appendChild(h('div', { class: 'form', style: 'max-width:560px' }, [
+            h('div', { class: 'lock-hero' + (ol.on ? '' : ' on') }, [h('div', { class: 'big', text: ol.on ? '🟢' : '🛠' }),
+                h('div', { class: 'grow' }, [h('b', { text: 'Saytda "Hozir onlayn" soni' }),
+                    h('small', { text: ol.on ? 'Yoqilgan — hozir haqiqatan onlayn: ' + (ol.count || 0) + ' ta qurilma' : "O'chirilgan — o'rnida \"🛠 " + (ol.msg || 'Texnik ishlar') + '" yozuvi turibdi' })]), olSw]),
+            h('label', { class: 'lb' }, ["O'chirilganda ko'rinadigan yozuv", olMsg]),
+            h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+                var on = olSw.classList.contains('ok');
+                var x = await admin('control_set', { onlineOn: on, onlineMsg: olMsg.value });
+                if (x.success) { toast(on ? '🟢 Onlayn soni yoqildi' : "🛠 Onlayn soni o'chirildi"); vControl(view); } else toast(x.error || 'Xato');
+            } })
+        ]));
+
         // ===== 1b. Android ilova (APK) =====
         var apk = st.apk || { on: false, msg: '' }, app = st.app || {}, ast = j.appStats || {};
         view.appendChild(h('div', { class: 'h', text: '📱 Android ilova' }));

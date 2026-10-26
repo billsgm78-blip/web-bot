@@ -9049,5 +9049,59 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 </script>
+
+<!-- ============ 🟢 HOZIR ONLAYN (haqiqiy son; admin paneldan o'chiriladi) ============ -->
+<style id="online-style">
+.ol-box { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; padding: 10px 12px; border-radius: 12px; background: rgba(16, 185, 129, .07); border: 1px solid rgba(16, 185, 129, .18); }
+.ol-box.off { background: rgba(0, 0, 0, .035); border-color: rgba(0, 0, 0, .07); }
+.ol-dot { position: relative; width: 9px; height: 9px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
+.ol-dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #10b981; opacity: 0; animation: olPing 2s ease-out infinite; }
+@keyframes olPing { 0% { transform: scale(.5); opacity: .8; } 100% { transform: scale(1.6); opacity: 0; } }
+.ol-box.off .ol-dot { background: #f59e0b; } .ol-box.off .ol-dot::after { display: none; }
+.ol-t { flex: 1; min-width: 0; font-size: 13px; color: var(--cg-ink2, #555); }
+.ol-n { font-weight: 700; font-size: 15px; color: var(--cg-ink, #111); font-variant-numeric: tabular-nums; display: inline-block; transition: transform .25s ease, opacity .25s ease; }
+.ol-n.bump { transform: translateY(-6px); opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .ol-dot::after { animation: none; } .ol-n { transition: none; } }
+</style>
+<script id="online-script">
+(function () {
+    var API = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://ai2-production-7d7e.up.railway.app';
+    var cid = '';
+    try { cid = localStorage.getItem('bl_cid') || ''; if (!/^[a-z0-9]{8,40}$/.test(cid)) { cid = (Date.now().toString(36) + Math.random().toString(36).slice(2, 12)).toLowerCase(); localStorage.setItem('bl_cid', cid); } } catch (e) { cid = Math.random().toString(36).slice(2, 14); }
+    function T(uz, en, ru) { var l = (typeof currentLang !== 'undefined' && currentLang) || 'uz'; return l === 'en' ? en : l === 'ru' ? ru : uz; }
+    var box = null, last = null;
+    function mount() {
+        if (box && document.body.contains(box)) return box;
+        var foot = document.querySelector('.cg-foot');
+        if (!foot) return null;
+        box = document.createElement('div'); box.className = 'ol-box'; box.hidden = true;
+        box.innerHTML = '<span class="ol-dot"></span><span class="ol-t"></span><b class="ol-n"></b>';
+        foot.insertBefore(box, foot.firstChild);
+        return box;
+    }
+    function paint(j, tries) {
+        if (!j || !j.success) return;
+        var b = mount();
+        if (!b) { if ((tries || 0) < 20) setTimeout(function () { paint(j, (tries || 0) + 1); }, 500); return; }   // chap panel hali qurilmagan
+        b.hidden = false;
+        b.classList.toggle('off', !j.on);
+        var n = b.querySelector('.ol-n');
+        if (!j.on) { b.querySelector('.ol-t').textContent = '🛠 ' + (j.msg || T('Texnik ishlar', 'Maintenance', 'Технические работы')); n.textContent = ''; last = null; return; }
+        b.querySelector('.ol-t').textContent = T('Hozir onlayn', 'Online now', 'Сейчас онлайн');
+        var v = Math.max(1, Number(j.count) || 1);     // kamida o'zingiz onlaynsiz
+        if (last === null) { n.textContent = v; }
+        else if (v !== last) { n.classList.add('bump'); setTimeout(function () { n.textContent = v; n.classList.remove('bump'); }, 250); }
+        last = v;
+    }
+    function ping() {
+        if (document.hidden) return;
+        fetch(API + '/api/online', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cid: cid }) })
+            .then(function (r) { return r.json(); }).then(paint).catch(function () {});
+    }
+    ping();
+    setInterval(ping, 20000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) ping(); });
+})();
+</script>
 </body>
 </html>

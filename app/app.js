@@ -849,6 +849,15 @@
         } catch (e) {} finally { pulling = false; }
     }
     document.addEventListener('visibilitychange', function () { if (!document.hidden) syncPull(); });
+    // "Hozir onlayn" hisoblagichi uchun (saytdagi bilan bir xil): ilova ochiq turganda har 20 soniyada
+    var onlineCid = ls('ba_cid');
+    if (!/^[a-z0-9]{8,40}$/.test(onlineCid || '')) { onlineCid = (Date.now().toString(36) + Math.random().toString(36).slice(2, 12)).toLowerCase(); ls('ba_cid', onlineCid); }
+    function onlinePing() {
+        if (document.hidden) return;
+        try { fetch(RAIL + '/api/online', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cid: onlineCid }) }).catch(function () {}); } catch (e) {}
+    }
+    onlinePing(); setInterval(onlinePing, 20000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) onlinePing(); });
     setInterval(function () { if (!document.hidden) syncPull(); }, 90000);
     function openChat(id) {
         if (chat.busy) { toast(L('AI javob yozmoqda — biroz kuting', 'AI отвечает — подождите', 'AI is replying — please wait')); return; }
