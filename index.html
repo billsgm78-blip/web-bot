@@ -9258,63 +9258,107 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     /* ---------- chizish ---------- */
     function R(c, s, x, y, w, h, col) { c.fillStyle = col; var X = Math.round(x * s), Y = Math.round(y * s); c.fillRect(X, Y, Math.round((x + w) * s) - X, Math.round((y + h) * s) - Y); }
     var tAll = 0;
+    function O(c, s, x, y, w, h, col, out) { R(c, s, x - .5, y - .5, w + 1, h + 1, out || '#2a1d17'); R(c, s, x, y, w, h, col); }   // konturli to'rtburchak — tiniq piksel uslub
+    function glow(c, s, x, y, r, col) { var g = c.createRadialGradient(x * s, y * s, 0, x * s, y * s, r * s); g.addColorStop(0, col); g.addColorStop(1, 'rgba(255,200,120,0)'); c.fillStyle = g; c.fillRect((x - r) * s, (y - r) * s, 2 * r * s, 2 * r * s); }
     function drawRoom(c, s) {
-        // pol
-        R(c, s, 0, 14, W, H - 14, '#e8d3b2');
-        for (var gx = 0; gx < W; gx += 10) R(c, s, gx, 14, .35, H - 14, '#dcc29c');
-        for (var gy = 14; gy < H; gy += 10) R(c, s, 0, gy, W, .35, '#dcc29c');
-        // devor
-        R(c, s, 0, 0, W, 14, '#4a3a33'); R(c, s, 0, 13, W, 1.2, '#2f2420');
+        // yog'och pol (taxtalar)
+        R(c, s, 0, 14, W, H - 14, '#d9a978');
+        for (var py = 14, row = 0; py < H; py += 4, row++) {
+            R(c, s, 0, py, W, 4, row % 2 ? '#d4a272' : '#dcae7e');
+            R(c, s, 0, py + 3.6, W, .4, '#b98557');
+            for (var px = (row % 3) * 9; px < W; px += 26) R(c, s, px, py, .4, 3.6, '#c08d5e');
+        }
+        // derazadan tushgan iliq nur
         [[6, 20], [70, 20]].forEach(function (w) {
-            var g = c.createLinearGradient(0, 2 * s, 0, 11 * s); g.addColorStop(0, '#7d6bc9'); g.addColorStop(.55, '#f08a5d'); g.addColorStop(1, '#ffc98a');
-            R(c, s, w[0] - .8, 1.2, w[1] + 1.6, 10.6, '#2a201c');
-            c.fillStyle = g; c.fillRect(Math.round(w[0] * s), Math.round(2 * s), Math.round(w[1] * s), Math.round(9 * s));
-            R(c, s, w[0] + w[1] / 2 - .3, 2, .6, 9, '#2a201c');
+            c.fillStyle = 'rgba(255,190,120,.16)'; c.beginPath();
+            c.moveTo(w[0] * s, 14 * s); c.lineTo((w[0] + w[1]) * s, 14 * s); c.lineTo((w[0] + w[1] + 10) * s, 34 * s); c.lineTo((w[0] + 10) * s, 34 * s); c.fill();
         });
+        // devor + plintus
+        R(c, s, 0, 0, W, 14, '#6b4a3a'); for (var wx = 0; wx < W; wx += 6) R(c, s, wx, 0, .4, 13, '#5f4133');
+        R(c, s, 0, 12.6, W, 1.4, '#3b271e');
+        // derazalar (quyosh botishi)
+        [[6, 20], [70, 20]].forEach(function (w) {
+            O(c, s, w[0], 1.6, w[1], 9.6, '#f3d3a6', '#3b271e');
+            var g = c.createLinearGradient(0, 2 * s, 0, 11 * s); g.addColorStop(0, '#6c5bb8'); g.addColorStop(.5, '#ee8459'); g.addColorStop(1, '#ffd08c');
+            c.fillStyle = g; c.fillRect(Math.round((w[0] + .5) * s), Math.round(2.1 * s), Math.round((w[1] - 1) * s), Math.round(8.6 * s));
+            c.fillStyle = '#ffe7b0'; c.beginPath(); c.arc((w[0] + w[1] * .7) * s, 8.6 * s, 1.6 * s, 0, 7); c.fill();       // quyosh
+            R(c, s, w[0] + w[1] / 2 - .3, 2, .6, 9, '#3b271e');
+            R(c, s, w[0] - 1, 10.8, w[1] + 2, 1, '#8a5a3c');                                                            // tokcha
+        });
+        // gulchambar chiroqlar (miltillaydi)
+        c.strokeStyle = '#2a1d17'; c.lineWidth = Math.max(1, s * .25); c.beginPath(); c.moveTo(0, 1 * s);
+        for (var lx = 0; lx <= W; lx += 6) c.quadraticCurveTo((lx + 3) * s, 2.6 * s, (lx + 6) * s, 1 * s); c.stroke();
+        var LC = ['#ffd36b', '#ff8a65', '#9ee37d', '#7cc8ff', '#ff9ad1'];
+        for (var bi = 0, bx = 3; bx < W; bx += 6, bi++) { var on = ((tAll * 1.5 + bi * .7) % 2) < 1.4; var col = LC[bi % 5]; if (on) glow(c, s, bx, 2.2, 2.4, col + '66'); R(c, s, bx - .5, 1.8, 1, 1.2, on ? col : '#6b5a4a'); }
         // javon
-        R(c, s, 30, 2, 14, 11, '#5b3b28');
-        ['#c0504d', '#4f81bd', '#9bbb59', '#f2b134', '#8064a2', '#4bacc6'].forEach(function (col, i) { R(c, s, 31 + i * 2.1, 3, 1.6, 3.6, col); R(c, s, 31.4 + i * 2.1, 8, 1.6, 3.6, ['#4bacc6', '#c0504d', '#f2b134', '#9bbb59', '#4f81bd', '#e0457b'][i]); });
-        R(c, s, 30, 7, 14, .7, '#3d271a');
+        O(c, s, 30, 2.5, 14, 10, '#7a4f33');
+        ['#c0504d', '#4f81bd', '#9bbb59', '#f2b134', '#8064a2', '#4bacc6'].forEach(function (col, i) { R(c, s, 31 + i * 2.1, 3.4, 1.6, 3.3, col); R(c, s, 31.4 + i * 2.1, 8.2, 1.6, 3.3, ['#4bacc6', '#c0504d', '#f2b134', '#9bbb59', '#4f81bd', '#e0457b'][i]); });
+        R(c, s, 30, 7.2, 14, .7, '#4a2f1f');
+        // rasm (ramkada tog')
+        O(c, s, 47, 3, 6, 5, '#9ed0e6', '#5a3a26'); c.fillStyle = '#5f8f5a'; c.beginPath(); c.moveTo(47 * s, 8 * s); c.lineTo(49.5 * s, 4.6 * s); c.lineTo(51 * s, 6.4 * s); c.lineTo(52 * s, 5.4 * s); c.lineTo(53 * s, 8 * s); c.fill();
         // soat
-        c.fillStyle = '#efe6d8'; c.beginPath(); c.arc(56 * s, 6 * s, 3 * s, 0, 7); c.fill();
-        var ang = tAll / 6; c.strokeStyle = '#2a201c'; c.lineWidth = Math.max(1, s * .4); c.beginPath(); c.moveTo(56 * s, 6 * s); c.lineTo((56 + Math.sin(ang) * 2.2) * s, (6 - Math.cos(ang) * 2.2) * s); c.stroke();
-        // kofe apparati
-        R(c, s, 99, 15, 8, 7, '#3a3a40'); R(c, s, 100, 16, 6, 2, '#5a5a62'); R(c, s, 102, 19, 2, 2, '#fff');
-        // dam olish burchagi — gilam, divan, kreslolar, chiroq
-        R(c, s, 80, 44, 36, 33, '#5f7d3e'); R(c, s, 81, 45, 34, 31, '#6b8a45');
-        R(c, s, 85, 48, 20, 5, '#44444d'); R(c, s, 85, 52, 20, 3, '#55555f'); R(c, s, 84, 48, 1.5, 7, '#3a3a42'); R(c, s, 104.5, 48, 1.5, 7, '#3a3a42');
-        R(c, s, 92, 61, 8, 4, '#b5835a');
-        [[80, 66], [104, 66]].forEach(function (p) { R(c, s, p[0], p[1], 7, 6, '#44444d'); R(c, s, p[0] + 1, p[1] + 1, 5, 3, '#55555f'); });
-        R(c, s, 114, 46, .8, 12, '#2a2a2a'); c.fillStyle = 'rgba(255,214,140,.25)'; c.beginPath(); c.arc(114.4 * s, 46 * s, 7 * s, 0, 7); c.fill(); R(c, s, 112.5, 44, 4, 2.5, '#ffd88c');
-        // server shkafi (lampochkalar miltillaydi)
-        R(c, s, 2, 58, 9, 18, '#1d1d22');
+        c.fillStyle = '#2a1d17'; c.beginPath(); c.arc(60 * s, 6 * s, 3.2 * s, 0, 7); c.fill();
+        c.fillStyle = '#f6eddc'; c.beginPath(); c.arc(60 * s, 6 * s, 2.6 * s, 0, 7); c.fill();
+        var ang = tAll / 6; c.strokeStyle = '#2a1d17'; c.lineWidth = Math.max(1, s * .35); c.beginPath(); c.moveTo(60 * s, 6 * s); c.lineTo((60 + Math.sin(ang) * 2) * s, (6 - Math.cos(ang) * 2) * s); c.stroke();
+        // kofe apparati + bug'
+        O(c, s, 99, 15, 8, 7, '#3a3a40'); R(c, s, 100, 16, 6, 2, '#5a5a62'); R(c, s, 101.6, 19.4, 2.4, 2.2, '#fff'); R(c, s, 105, 16.5, .8, .8, '#ff6b6b');
+        // dam olish burchagi — naqshli gilam
+        O(c, s, 80, 44, 36, 33, '#a8553b', '#6e3424'); R(c, s, 82, 46, 32, 29, '#c46a48'); R(c, s, 84, 48, 28, 25, '#a8553b');
+        for (var gx2 = 86; gx2 < 112; gx2 += 5) R(c, s, gx2, 72.6, 1.2, 1.2, '#f2c98a');
+        // divan va yostiqlar
+        O(c, s, 85, 48, 20, 5, '#3f5e7a'); R(c, s, 85, 52, 20, 3, '#4d7194'); R(c, s, 84, 48, 1.5, 7, '#33506a'); R(c, s, 104.5, 48, 1.5, 7, '#33506a');
+        R(c, s, 87, 49, 3, 2.4, '#f2b134'); R(c, s, 100, 49, 3, 2.4, '#e0457b');
+        // stolcha va choynak
+        O(c, s, 92, 61, 8, 4, '#8a5a3c'); R(c, s, 94.4, 61.6, 2, 1.6, '#f6eddc'); R(c, s, 97, 61.8, 1.4, 1.4, '#f6eddc');
+        // kreslolar
+        [[80, 66], [104, 66]].forEach(function (p) { O(c, s, p[0], p[1], 7, 6, '#7a5a9e'); R(c, s, p[0] + 1, p[1] + 1, 5, 3, '#9474bd'); });
+        // mushuk gilamda uxlayapti (dumi qimirlaydi)
+        var cx = 101, cy = 70; O(c, s, cx, cy, 5, 2.6, '#f0a35e'); R(c, s, cx + 3.6, cy - 1, 2, 2, '#f0a35e'); R(c, s, cx + 3.8, cy - 1.6, .6, .6, '#f0a35e'); R(c, s, cx + 5, cy - 1.6, .6, .6, '#f0a35e');
+        R(c, s, cx - 1.6 - Math.sin(tAll * 2) * .5, cy + 1.4, 2, .7, '#d98a45');
+        // torsher chiroq
+        glow(c, s, 114.4, 47, 14, 'rgba(255,205,130,.38)');
+        R(c, s, 114, 46, .8, 12, '#2a2a2a'); O(c, s, 112.3, 43.6, 4.2, 2.8, '#ffd88c', '#7a5a2a');
+        // server shkafi
+        O(c, s, 2, 58, 9, 18, '#1d1d22');
         for (var i = 0; i < 6; i++) { R(c, s, 3, 59.5 + i * 2.7, 7, 1.8, '#2c2c34'); R(c, s, 8.6, 60 + i * 2.7, .8, .8, ((tAll * 3 + i * 1.7) % 3) < 1.5 ? '#3ddc84' : '#1f5e3c'); }
         // o'simliklar
-        [[64, 18], [112, 16], [14, 68], [74, 72]].forEach(function (p) {
-            R(c, s, p[0] - 2, p[1] + 3, 4, 3, '#c9c1b5');
-            c.fillStyle = '#4c8a3f'; c.beginPath(); c.arc(p[0] * s, (p[1] + 1) * s, 3.2 * s, 0, 7); c.fill();
-            c.fillStyle = '#5fa34f'; c.beginPath(); c.arc((p[0] - 1) * s, p[1] * s, 1.8 * s, 0, 7); c.fill();
+        [[64, 18], [112, 16], [16, 68], [74, 72]].forEach(function (p) {
+            O(c, s, p[0] - 2, p[1] + 3, 4, 3, '#c97b4f');
+            c.fillStyle = '#2f6b33'; c.beginPath(); c.arc(p[0] * s, (p[1] + 1) * s, 3.4 * s, 0, 7); c.fill();
+            c.fillStyle = '#4c9a45'; c.beginPath(); c.arc(p[0] * s, (p[1] + .8) * s, 2.9 * s, 0, 7); c.fill();
+            c.fillStyle = '#6cbf5c'; c.beginPath(); c.arc((p[0] - 1) * s, p[1] * s, 1.5 * s, 0, 7); c.fill();
         });
     }
     function drawDesk(c, s, d) {
         var on = d.by && d.by.st === 'work';
-        R(c, s, d.x, d.y, 16, 6, '#8a5a3c'); R(c, s, d.x, d.y, 16, 1, '#a46c47');
+        O(c, s, d.x, d.y, 16, 6, '#9a6440'); R(c, s, d.x, d.y, 16, 1, '#b97a50');
         var my = d.face === 'up' ? d.y + .6 : d.y + 2.2;
-        R(c, s, d.x + 5, my, 6, 3.4, '#22252b');
+        O(c, s, d.x + 5, my, 6, 3.4, '#22252b', '#111');
         R(c, s, d.x + 5.6, my + .5, 4.8, 2.3, on ? (((tAll * 4) | 0) % 2 ? '#9ee3ff' : '#7fd0f2') : '#3a3f48');
-        if (on) { c.fillStyle = 'rgba(158,227,255,.18)'; c.beginPath(); c.arc((d.x + 8) * s, (my + 1.5) * s, 6 * s, 0, 7); c.fill(); }
-        R(c, s, d.x + 12.5, d.y + 2, 2, 2, '#f1efe9');             // krujka
+        if (on) glow(c, s, d.x + 8, my + 1.5, 7, 'rgba(158,227,255,.30)');
+        // stol chirog'i
+        R(c, s, d.x + 1.4, d.y + .6, .5, 3, '#333'); O(c, s, d.x + .6, d.y + .2, 2.2, 1.2, '#f2b134', '#7a5a2a');
+        glow(c, s, d.x + 1.8, d.y + 2.5, 5, 'rgba(255,214,140,.35)');
+        // krujka va bug'i
+        O(c, s, d.x + 12.5, d.y + 2, 2, 2, '#f1efe9', '#8a7a6a');
+        if (on) { var k = (tAll * 1.2) % 1; c.fillStyle = 'rgba(255,255,255,' + (.55 * (1 - k)) + ')'; c.fillRect((d.x + 13.2 + Math.sin(tAll * 3) * .4) * s, (d.y + 1.4 - k * 3) * s, .6 * s, .9 * s); }
     }
-    function drawChair(c, s, d) { var y = d.seat.y + (d.face === 'up' ? -1 : -3.5); R(c, s, d.seat.x - 3, y, 6, 4.5, '#2f2f36'); }
+    function drawChair(c, s, d) { var y = d.seat.y + (d.face === 'up' ? -1 : -3.5); O(c, s, d.seat.x - 3, y, 6, 4.5, '#3a3a44'); }
     function drawAgent(c, s, a) {
         var x = a.x, y = a.y, walking = a.st === 'walk', sit = !walking && (a.st === 'work' || (a.spot && a.spot.k !== 'coffee' && a.spot.k !== 'plant'));
         var leg = walking ? (((a.step * 8) | 0) % 2) : 0;
-        c.fillStyle = 'rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(x * s, y * s, 3 * s, 1 * s, 0, 0, 7); c.fill();
-        if (!sit) { R(c, s, x - 2, y - 2.5, 1.6, 2.5 - leg, '#2d2f3a'); R(c, s, x + .4, y - 2.5, 1.6, 2.5 - (1 - leg) * (walking ? 1 : 0), '#2d2f3a'); }
+        c.fillStyle = 'rgba(40,20,10,.22)'; c.beginPath(); c.ellipse(x * s, y * s, 3.2 * s, 1.1 * s, 0, 0, 7); c.fill();
+        if (!sit) { O(c, s, x - 2, y - 2.5, 1.5, 2.5 - leg * .8, '#2d2f3a', '#15161c'); O(c, s, x + .5, y - 2.5, 1.5, 2.5 - (walking ? (1 - leg) * .8 : 0), '#2d2f3a', '#15161c'); }
         var by = sit ? y - 6 : y - 7.5;
-        R(c, s, x - 2.6, by, 5.2, 5, a.shirt);
-        R(c, s, x - 2, by - 4, 4, 4, a.skin);
-        R(c, s, x - 2.2, by - 4.4, 4.4, 1.6, a.hair);
+        O(c, s, x - 2.6, by, 5.2, 5, a.shirt, '#2a1d17');
+        R(c, s, x - 2.6, by + 3.8, 5.2, 1.2, 'rgba(0,0,0,.15)');
+        O(c, s, x - 2.2, by - 4.4, 4.4, 4.4, a.skin, '#2a1d17');
+        R(c, s, x - 2.2, by - 4.4, 4.4, 1.4, a.hair); R(c, s, x - 2.2, by - 3.2, .7, 1, a.hair);
+        // ko'zlar (nuqta) — vaqti-vaqti bilan pirpiratadi
+        var blink = ((tAll + a.x * .37) % 4) < .14, look = walking ? (a.path[0] && a.path[0].x < x ? -.35 : a.path[0] && a.path[0].x > x ? .35 : 0) : 0;
+        if (blink) { R(c, s, x - 1.3 + look, by - 2.1, 1, .3, '#1a1210'); R(c, s, x + .4 + look, by - 2.1, 1, .3, '#1a1210'); }
+        else { R(c, s, x - 1.2 + look, by - 2.5, .8, .9, '#1a1210'); R(c, s, x + .5 + look, by - 2.5, .8, .9, '#1a1210'); }
+        R(c, s, x - 1.6 + look, by - 1.2, .7, .4, 'rgba(240,120,110,.55)'); R(c, s, x + 1 + look, by - 1.2, .7, .4, 'rgba(240,120,110,.55)');   // yonoqlar
         if (a.st === 'work' && ((tAll * 6) | 0) % 2) R(c, s, x - 3.4, by + 1.5, 1, 1, a.skin);   // klaviaturada yozyapti
     }
     function label(c, s, a, big, taken) {
@@ -9322,7 +9366,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var stat = a.st === 'work' ? (a.task ? T('javob yozyapti', 'replying', 'пишет ответ') : (a.n === 'Bilol' ? T('vazifa beryapti', 'assigning', 'раздаёт задачи') : T('ishlayapti', 'working', 'работает')))
             : a.st === 'walk' ? '' : T('dam olyapti', 'resting', 'отдыхает');
         if (big && stat) txt += ' · ' + stat;
-        var fs = Math.max(9, s * (big ? 2.1 : 2.4)); c.font = '600 ' + fs + 'px system-ui,-apple-system,sans-serif';
+        var k = c.canvas.width / (c.canvas.clientWidth || c.canvas.width), fs = Math.max(8.5 * k, s * (big ? 2.1 : 2.4)); c.font = '600 ' + fs + 'px system-ui,-apple-system,sans-serif';
         var sit = a.st !== 'walk' && (a.st === 'work' || (a.spot && a.spot.k !== 'coffee' && a.spot.k !== 'plant'));
         var tw = c.measureText(txt).width, px = fs * .5, h = fs * 1.5, bw = tw + px * 2 + fs * .7;
         var bx = a.x * s - bw / 2, top = (a.y - (sit ? 11.5 : 13)) * s - h;
@@ -9347,12 +9391,14 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var taken = [];
         agents.slice().sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, big, taken); });
         // kechki yorug'lik
-        var g = c.createLinearGradient(0, 0, 0, cv.height); g.addColorStop(0, 'rgba(255,170,90,.10)'); g.addColorStop(1, 'rgba(60,30,90,.10)');
+        var g = c.createRadialGradient(cv.width / 2, cv.height / 2, cv.height * .3, cv.width / 2, cv.height / 2, cv.width * .75);
+        g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(40,15,5,.28)');   // chetlari biroz qorong'i — iliq, shinam
         c.fillStyle = g; c.fillRect(0, 0, cv.width, cv.height);
     }
+    // tiniq: kamida 2x o'lchamda chiziladi
     function fit(cv) {
         var w = cv.clientWidth; if (!w) return false;
-        var dpr = Math.min(window.devicePixelRatio || 1, 2), pw = Math.round(w * dpr);
+        var dpr = Math.max(2, Math.min(window.devicePixelRatio || 1, 3)), pw = Math.round(w * dpr);
         if (cv.width !== pw) { cv.width = pw; cv.height = Math.round(pw * H / W); }
         return true;
     }
