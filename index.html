@@ -9203,7 +9203,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     var rest = [
         { x: 90, y: 55, k: 'sofa' }, { x: 99, y: 55, k: 'sofa' }, { x: 108, y: 69, k: 'chair' },
         { x: 103, y: 24, k: 'coffee' }, { x: 66, y: 28, k: 'plant' }, { x: 84, y: 69, k: 'chair' },
-        { x: 94, y: 48, k: 'sofa' }, { x: 112, y: 55, k: 'chair' }
+        { x: 18, y: 62, k: 'chair' }, { x: 48, y: 70, k: 'plant' }
     ];
 
     /* ---------- agentlar ---------- */
@@ -9619,7 +9619,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var bx = a.x * s - bw / 2, top = (a.y - (sit ? 11.5 : 13)) * s - h;
         bx = Math.max(2, Math.min(c.canvas.width - bw - 2, bx));
         // yorliqlar ustma-ust tushmasin — to'qnashsa yuqoriga suriladi
-        for (var k = 0; k < taken.length; k++) { var o = taken[k]; if (bx < o.x + o.w + 2 && bx + bw + 2 > o.x && top < o.y + o.h + 1 && top + h + 1 > o.y) { top = o.y - h - 2; k = -1; } }
+        for (var k = 0, guard = 0; k < taken.length && guard < 40; k++, guard++) { var o = taken[k]; if (bx < o.x + o.w + 2 && bx + bw + 2 > o.x && top < o.y + o.h + 1 && top + h + 1 > o.y) { top = o.y - h - 2; k = -1; } }
         top = Math.max(1, top); taken.push({ x: bx, y: top, w: bw, h: h });
         // yorliq sakramasin: joyiga yumshoq suzib boradi (kadrga bog'liq emas)
         var key = big ? '_lb' : '_ls', k2 = Math.min(1, frameDt * 12), cur = a[key];
@@ -9632,10 +9632,17 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         c.beginPath(); c.arc(bx + px + fs * .2, top + h / 2, fs * .22, 0, 7); c.fill();
         c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(txt, Math.round(bx + px + fs * .7), Math.round(top + h / 2));
     }
+    var roomCache = {};
+    function cachedRoom(c, s, cv) {                 // og'ir xona foni oldindan chizilib saqlanadi — har kadrda qayta chizilmaydi
+        var key = cv.width, e = roomCache[key];
+        if (!e || e.cvs.height !== cv.height) { e = roomCache[key] = { cvs: document.createElement('canvas'), t: -9 }; e.cvs.width = cv.width; e.cvs.height = cv.height; }
+        if (tAll - e.t > .2) { var cc = e.cvs.getContext('2d'); cc.clearRect(0, 0, cv.width, cv.height); cc.imageSmoothingEnabled = false; drawRoom(cc, s); e.t = tAll; }
+        c.drawImage(e.cvs, 0, 0);
+    }
     function render(cv, big) {
         var c = cv.getContext('2d'), s = cv.width / W;
         c.imageSmoothingEnabled = false;
-        drawRoom(c, s);
+        cachedRoom(c, s, cv);
         drawDoor(c, s, big);
         var here = agents.filter(function (a) { return a.scene === 'office'; });
         var list = [];
@@ -9924,14 +9931,13 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     function openDb() {
         if (!dbp) {
             dbp = document.createElement('div'); dbp.className = 'ag-dbp'; dbp.hidden = true;
-            dbp.innerHTML = '<div class="ag-dbcard"><div class="ag-head"><b></b><span><small></small><button class="ag-btn ag-atk"></button><button class="ag-btn ag-pwr"></button><button class="ag-btn ag-call"></button><button class="ag-x" aria-label="close">✕</button></span></div>' +
+            dbp.innerHTML = '<div class="ag-dbcard"><div class="ag-head"><b></b><span><small></small><button class="ag-btn ag-pwr"></button><button class="ag-btn ag-call"></button><button class="ag-x" aria-label="close">✕</button></span></div>' +
                 '<canvas></canvas><div class="ag-dbfoot"></div></div>';
             document.body.appendChild(dbp);
             dcv = dbp.querySelector('canvas');
             dbp.addEventListener('click', function (e) {
                 if (e.target === dbp || e.target.closest('.ag-x')) { dbp.hidden = true; return; }
                 if (dbPower !== 'on' || attack) return;
-                if (e.target.closest('.ag-atk')) { cyberAttack(); return; }
                 if (e.target.closest('.ag-pwr')) { powerOff(); return; }
                 if (e.target.closest('.ag-call')) { if (inDb()) returnAll(); else callToDb(); }
             });
@@ -9951,11 +9957,6 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         if (pw.textContent !== pt) pw.textContent = pt;
         pw.classList.toggle('red', dbPower === 'on'); pw.disabled = dbPower !== 'on' || !!attack;
         b.disabled = b.disabled || !!attack;
-        var ak = dbp.querySelector('.ag-atk'), at = !attack ? '☠ ' + T('Kiber hujum', 'Cyber attack', 'Кибератака')
-            : attack.phase === 'incoming' ? '🏃 ' + T('Mutaxassis yugurib kelyapti…', 'Specialist running…', 'Специалист бежит…')
-            : attack.phase === 'defend' ? '🛡 ' + T('Qaytarilmoqda…', 'Blocking…', 'Отражение…') : '✅ ' + T('Qaytarildi', 'Blocked', 'Отражено');
-        if (ak.textContent !== at) ak.textContent = at;
-        ak.classList.toggle('red', !attack); ak.disabled = !!attack || dbPower !== 'on'; ak.hidden = dbPower !== 'on';
         var f = dbp.querySelector('.ag-dbfoot'), ft = TABLES.length + ' ' + T('jadval', 'tables', 'таблиц') + ' · ' + (ROWS.length * RACKS) + ' ' + T('server javoni', 'server racks', 'стоек') + ' · ' + T('holat', 'status', 'статус') + ': ';
         var stt = dbPower === 'on' ? '● ' + T('ishlayapti', 'online', 'работает') : dbPower === 'boot' ? '● ' + T('yoqilmoqda', 'booting', 'загрузка') : '● ' + T("o'chiq", 'offline', 'отключена');
         if (f.dataset.t !== ft + stt) {
