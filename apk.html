@@ -89,6 +89,8 @@ html.in-app .inapp { display: block; }
 .ios-note { display: none; text-align: center; padding: 14px; border-radius: 16px; background: rgba(59, 130, 246, .1); border: 1px solid rgba(59, 130, 246, .45); color: #bfdbfe; font-weight: 600; margin-bottom: 14px; line-height: 1.5; }
 .ios-note a { color: #fff; }
 html.is-ios .ios-note { display: block; }
+html[data-design="premium"][data-page="sub"] .ios-note { color: #1e3a8a !important; border-color: rgba(37, 99, 235, .4) !important; }
+html[data-design="premium"][data-page="sub"] .ios-note a { color: var(--pm-accent) !important; }
 </style>
 <script>if (/BilolsAIApp/.test(navigator.userAgent)) document.documentElement.classList.add('in-app');
 if (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) document.documentElement.classList.add('is-ios');</script>

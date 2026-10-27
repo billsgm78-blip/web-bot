@@ -17,6 +17,13 @@
 <meta name="theme-color" content="#03060d">
 <link rel="icon" href="/icons/icon-192.png">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bilols AI">
+<script>
+// bosh ekrandan ochilgan bo'lsa — yo'riqnoma emas, saytning o'zi ochilsin
+if (window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)) location.replace('/?source=pwa');
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="/fonts/twemoji.woff2" as="font" type="font/woff2" crossorigin>
@@ -82,6 +89,15 @@ h1 span { background: var(--g); -webkit-background-clip: text; background-clip: 
 .pointer svg { width: 26px; height: 26px; fill: none; stroke: var(--ios); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; animation: nudge 1.1s ease-in-out infinite; }
 @keyframes nudge { 50% { transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) { .pointer svg { animation: none; } }
+.q { color: #fff; }
+/* saytning yorug' "premium" mavzusi (sub sahifalar) — ranglar o'qiladigan bo'lsin */
+html[data-design="premium"][data-page="sub"] .q { color: var(--pm-ink) !important; }
+html[data-design="premium"][data-page="sub"] .alert.ok { background: rgba(16, 185, 129, .1) !important; border-color: rgba(16, 185, 129, .45) !important; color: #065f46 !important; }
+html[data-design="premium"][data-page="sub"] .alert.warn { background: rgba(245, 158, 11, .12) !important; border-color: rgba(217, 119, 6, .45) !important; color: #92400e !important; }
+html[data-design="premium"][data-page="sub"] .alert.info { background: rgba(59, 130, 246, .1) !important; border-color: rgba(37, 99, 235, .4) !important; color: #1e3a8a !important; }
+html[data-design="premium"][data-page="sub"] .alert a { color: var(--pm-accent) !important; }
+html[data-design="premium"][data-page="sub"] .copy { background: rgba(245, 158, 11, .16) !important; border-color: rgba(217, 119, 6, .5) !important; color: #92400e !important; }
+html[data-design="premium"][data-page="sub"] .note { color: var(--pm-ink2) !important; }
 [hidden] { display: none !important; }
 </style>
 <script src="/design.js?v=9"></script>
@@ -100,7 +116,7 @@ h1 span { background: var(--g); -webkit-background-clip: text; background-clip: 
     <!-- holatga qarab bittasi ko'rinadi -->
     <div class="alert ok" id="st-installed" hidden><b>✅ Ilova o'rnatilgan</b>Siz Bilols AI'ni bosh ekrandan ochgansiz. Hammasi joyida!</div>
     <div class="alert warn" id="st-browser" hidden>
-        <b>🧭 Safari'da oching</b>Bosh ekranga qo'shish faqat <b style="display:inline;font-size:inherit">Safari</b> brauzerida ishlaydi. Havolani nusxalab, Safari'ga qo'ying.
+        <b>🧭 Safari'da oching</b>Bosh ekranga qo'shish faqat <b style="display:inline;font-size:inherit;color:inherit">Safari</b> brauzerida ishlaydi. Havolani nusxalab, Safari'ga qo'ying.
         <br><button class="copy" id="copy" type="button">🔗 Havolani nusxalash</button>
     </div>
     <div class="alert info" id="st-android" hidden><b>🤖 Sizda Android</b>Android uchun alohida ilova bor: <a href="/apkyuklash">APK'ni yuklab olish →</a></div>
@@ -138,9 +154,9 @@ h1 span { background: var(--g); -webkit-background-clip: text; background-clip: 
 
     <section class="card">
         <h2>❓ Savollar</h2>
-        <p class="note"><b style="color:#fff">App Store'da nega yo'q?</b> Bilols AI hozircha sayt orqali tarqatiladi. Bosh ekrandagi versiya App Store ilovasi bilan bir xil ishlaydi va xavfsiz — u Apple'ning o'z Safari brauzerida ochiladi.</p>
-        <p class="note" style="margin-top:10px"><b style="color:#fff">"Sertifikatli" ilovalar haqida:</b> Bilols AI uchun sertifikat yoki ESign/Scarlet kerak emas. Ularni o'rnatmang — bunday sertifikatlar tez-tez bekor qilinadi.</p>
-        <p class="note" style="margin-top:10px"><b style="color:#fff">"Bosh ekranga qo'shish" ko'rinmayaptimi?</b> Ulashish ro'yxatining eng pastida <b style="color:#fff">"Amallarni tahrirlash"</b> (Edit Actions) ni bosib, uni qo'shing. Yoki sahifa Safari'da emas, boshqa brauzerda ochilgan bo'lishi mumkin.</p>
+        <p class="note"><b class="q">App Store'da nega yo'q?</b> Bilols AI hozircha sayt orqali tarqatiladi. Bosh ekrandagi versiya App Store ilovasi bilan bir xil ishlaydi va xavfsiz — u Apple'ning o'z Safari brauzerida ochiladi.</p>
+        <p class="note" style="margin-top:10px"><b class="q">"Sertifikatli" ilovalar haqida:</b> Bilols AI uchun sertifikat yoki ESign/Scarlet kerak emas. Ularni o'rnatmang — bunday sertifikatlar tez-tez bekor qilinadi.</p>
+        <p class="note" style="margin-top:10px"><b class="q">"Bosh ekranga qo'shish" ko'rinmayaptimi?</b> Ulashish ro'yxatining eng pastida <b class="q">"Amallarni tahrirlash"</b> (Edit Actions) ni bosib, uni qo'shing. Yoki sahifa Safari'da emas, boshqa brauzerda ochilgan bo'lishi mumkin.</p>
     </section>
 </main>
 
@@ -157,7 +173,7 @@ h1 span { background: var(--g); -webkit-background-clip: text; background-clip: 
     var standalone = window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
     var otherBrowser = /CriOS|FxiOS|EdgiOS|OPiOS|YaBrowser|GSA\/|Instagram|FBAN|FBAV|Telegram|Line\//.test(ua);   // iOS'dagi Safari bo'lmagan brauzerlar
     var $ = function (id) { return document.getElementById(id); };
-    if (standalone) { $('st-installed').hidden = false; $('go').hidden = true; return; }
+    if (standalone) { $('st-installed').hidden = false; $('go').hidden = true; return; }   // (odatda bunga yetmaydi — tepada saytga o'tiladi)
     if (android) { $('st-android').hidden = false; return; }
     if (iOS && otherBrowser) { $('st-browser').hidden = false; }
     // iPhone Safari'da: pastdagi Ulashish tugmasini ko'rsatamiz (iPad'da u tepada — ko'rsatkich kerak emas)
