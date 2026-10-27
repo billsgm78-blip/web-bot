@@ -3004,7 +3004,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
             <div class="header-actions">
                 <div class="wallet-pill" id="open-wallet-btn" title="Hamyonni ko'rish">
-                    <span><span class="animated-emoji">👛</span> <span id="header-balance">0</span> <span id="fx-pill-cur">so'm</span></span>
+                    <span><span class="animated-emoji">👛</span> <span id="header-balance">…</span> <span id="fx-pill-cur">so'm</span></span>
                 </div>
                 <button class="icon-btn" id="open-settings-btn" title="Sozlamalar" aria-label="Sozlamalar"><svg class="gear-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
                 <button class="logout-btn" id="logout-btn">Chiqish</button>
@@ -3371,7 +3371,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         <div class="balance-badge">
             <div class="balance-title" id="lang-wallet-cur">Joriy hisobingiz:</div>
             <div>
-                <span class="balance-num" id="modal-balance">0</span>
+                <span class="balance-num" id="modal-balance">…</span>
                 <span class="balance-currency" id="lang-wallet-curr">so'm</span>
             </div>
             <button type="button" class="uid-chip" id="uid-chip" style="display:none" title="Nusxa olish">🆔 ID: <b class="uid-val"></b></button>
@@ -4210,12 +4210,24 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
     let lastKnownBalance = null;
     let isInitialLoad = true;
 
+    // Oxirgi ma'lum balans telefonda saqlanadi — sahifa ochilishi bilan darhol ko'rinadi ("0" ko'rinib turmasin)
+    const BAL_CACHE = "bilol_bal_cache";
+    function paintCachedBalance(cleanPhone) {
+        if (lastKnownBalance !== null) return;
+        try {
+            const c = JSON.parse(localStorage.getItem(BAL_CACHE) || "null");
+            if (c && c.p === cleanPhone) { const v = Number(c.b || 0).toLocaleString(); headerBalance.innerText = v; modalBalance.innerText = v; }
+        } catch (e) {}
+    }
+
     async function refreshBalance() {
         if (!currentPhone) return;
         try {
             const cleanPhone = currentPhone.replace(/[^0-9]/g, "");
+            paintCachedBalance(cleanPhone);
             const res = await fetch(`${RAILWAY_URL}/api/balance?phone=${cleanPhone}`);
             const data = await res.json();
+            if (data.balance === undefined || data.balance === null) return;   // server xatosi — balans 0 deb ko'rsatilmaydi
             const currentBal = Number(data.balance || 0);
 
             if (!isInitialLoad && lastKnownBalance !== null && currentBal > lastKnownBalance) {
@@ -4226,6 +4238,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 
             lastKnownBalance = currentBal;
             isInitialLoad = false;
+            try { localStorage.setItem(BAL_CACHE, JSON.stringify({ p: cleanPhone, b: currentBal })); } catch (e) {}
 
             const bal = currentBal.toLocaleString();
             headerBalance.innerText = bal;
