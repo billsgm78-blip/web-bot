@@ -9169,6 +9169,22 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 .ag-card .ag-head { padding: 10px 14px; font-size: 14px; }
 .ag-card .ag-head b { font-size: 15px; }
 .ag-x { border: 0; background: rgba(255, 255, 255, .1); color: #fff; width: 30px; height: 30px; border-radius: 50%; font-size: 16px; cursor: pointer; margin-left: 8px; }
+.ag-head span { display: flex; align-items: center; gap: 8px; }
+.ag-btn { border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .08); color: #fff; height: 30px; padding: 0 12px; border-radius: 15px; font: 600 12.5px system-ui, -apple-system, sans-serif; cursor: pointer; white-space: nowrap; }
+.ag-btn:hover { background: rgba(255, 255, 255, .16); }
+.ag-btn.hot { background: #1f6feb; border-color: #388bfd; }
+/* 🗄 Ma'lumotlar bazasi zali */
+.ag-dbp { position: fixed; inset: 0; z-index: 2147482600; display: flex; align-items: center; justify-content: center; padding: 14px; background: rgba(1, 4, 9, .78); }
+.ag-dbp[hidden] { display: none; }
+.ag-dbcard { width: min(100%, 1180px); border-radius: 16px; overflow: hidden; background: #0d1117; border: 1px solid #30363d; box-shadow: 0 30px 80px rgba(0, 0, 0, .65), 0 0 0 1px rgba(56, 139, 253, .15); animation: agDbIn .35s cubic-bezier(.16, 1, .3, 1); }
+@keyframes agDbIn { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+.ag-dbcard .ag-head { background: #010409; color: #c9d1d9; padding: 10px 14px; font-size: 14px; border-bottom: 1px solid #21262d; }
+.ag-dbcard .ag-head b { font-size: 15px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .02em; }
+.ag-dbcard canvas { display: block; width: 100%; height: auto; }
+.ag-dbfoot { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 8px 14px; background: #010409; color: #8b949e; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; border-top: 1px solid #21262d; }
+.ag-dbfoot i { font-style: normal; color: #3fb950; }
+@media (max-width: 600px) { .ag-btn { padding: 0 9px; font-size: 11.5px; } .ag-head small { display: none; } }
+@media (prefers-reduced-motion: reduce) { .ag-dbcard { animation: none; } }
 </style>
 <script id="office-script">
 (function () {
@@ -9200,8 +9216,55 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     }
     var agents = roles().map(function (a, i) {
         var s = rest[i % rest.length];
-        return Object.assign(a, { x: s.x, y: s.y, path: [], st: 'rest', spot: s, desk: null, until: 1 + Math.random() * 6, step: 0, task: false });
+        return Object.assign(a, { x: s.x, y: s.y, path: [], st: 'rest', spot: s, desk: null, until: 1 + Math.random() * 6, step: 0, task: false, scene: 'office' });
     });
+
+    /* ---------- 🗄 MA'LUMOTLAR BAZASI ZALI (alohida, uzun sahna) ---------- */
+    var DW = 200, DH = 80, DCORR = 50;
+    var DOOR = { x: 0, y: 35, w: 4.5, h: 13 };          // ofisdagi bazaga eshik
+    var dbSpots = [                                     // konsollar (o'tirib) va javonlar oldi (tik turib)
+        { x: 47, y: 46, sit: true }, { x: 87, y: 46, sit: true }, { x: 127, y: 46, sit: true }, { x: 167, y: 46, sit: true },
+        { x: 104, y: 33, sit: false }, { x: 186, y: 53, sit: false }
+    ];
+    var consoles = [40, 80, 120, 160];
+    var TABLES = ['users', 'chats', 'messages', 'payments', 'sessions', 'web_usage', 'settings', 'promo', 'chat_daily'];
+    function guardsInit() {
+        var loop = [{ x: 8, y: 33 }, { x: 195, y: 33 }, { x: 195, y: 73 }, { x: 8, y: 73 }];
+        return [
+            { n: 'Rustam', loop: loop, i: 1, x: 8, y: 33, wait: 0, step: 0, dir: 1 },
+            { n: 'Akmal', loop: loop, i: 3, x: 195, y: 73, wait: 0, step: 0, dir: 1 }
+        ];
+    }
+    var guards = guardsInit();
+    var dbUntil = 0;
+    function inDb() { return agents.filter(function (a) { return a.scene === 'db' || a.toDb; }).length; }
+    function callToDb() {
+        agents.forEach(function (a, i) {
+            if (a.scene === 'db' || a.toDb) return;
+            leave(a); a.task = false; a.toDb = true; a.wait = i * .45; a.until = 1e9;
+            a.path = [{ x: a.x, y: CORR }, { x: 3, y: CORR }]; a.st = 'walk';
+            a.arrive = function () {                      // eshikdan kirdi — endi baza zalida
+                var sp = dbSpots[i];
+                a.scene = 'db'; a.toDb = false; a.dbs = sp; a.x = 2; a.y = 41;
+                a.path = [{ x: 6, y: DCORR }, { x: sp.x, y: DCORR }, { x: sp.x, y: sp.y }]; a.st = 'walk'; a.next = 'dbwork';
+            };
+        });
+        dbUntil = 150;                                     // 2,5 daqiqadan keyin o'zlari qaytadi
+    }
+    function returnAll() {
+        agents.forEach(function (a, i) {
+            if (a.scene !== 'db') { if (a.toDb) { a.toDb = false; a.arrive = null; a.st = 'idle'; a.until = .1; } return; }
+            a.wait = i * .35;
+            a.path = [{ x: a.x, y: DCORR }, { x: 6, y: DCORR }, { x: 2, y: 41 }]; a.st = 'walk';
+            a.arrive = function () { a.scene = 'office'; a.dbs = null; a.x = 2; a.y = CORR; a.st = 'idle'; a.until = .1; };
+        });
+        dbUntil = 0;
+    }
+    function isSit(a) {
+        if (a.st === 'walk' || a.st === 'idle') return false;
+        if (a.st === 'dbwork') return !!(a.dbs && a.dbs.sit);
+        return a.st === 'work' || !!(a.spot && a.spot.k !== 'coffee' && a.spot.k !== 'plant');
+    }
     function relabel() { var R = roles(); agents.forEach(function (a, i) { a.r = R[i].r; }); }
 
     function freeDesk() { var f = desks.filter(function (d) { return !d.by; }); return f.length ? f[(Math.random() * f.length) | 0] : null; }
@@ -9215,7 +9278,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     function sendToDesk(a, task) {
         var d = a.desk || freeDesk();
         if (!d) {   // hammasi band — dam olishga eng uzoq ishlagan (vazifasizi) bo'shatadi
-            var other = agents.filter(function (o) { return o.desk && !o.task && o !== a; })[0];
+            var other = agents.filter(function (o) { return o.desk && !o.task && o !== a && o.scene === 'office' && !o.toDb; })[0];
             if (!other) return;
             d = other.desk; leave(other); var r = freeRest(); if (r) { other.spot = r; other.next = 'rest'; goTo(other, r); }
         }
@@ -9228,21 +9291,36 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     }
     function tick(dt) {
         agents.forEach(function (a) {
+            if (a.wait > 0) { a.wait -= dt; return; }
             if (a.st === 'walk') {
-                var p = a.path[0], dx = p.x - a.x, dy = p.y - a.y, d = Math.hypot(dx, dy), v = 14 * dt;
+                var p = a.path[0], dx = p.x - a.x, dy = p.y - a.y, d = Math.hypot(dx, dy), v = (a.scene === 'db' || a.toDb ? 22 : 14) * dt;   // bazaga shoshib boradi
                 a.step += dt;
-                if (d <= v) { a.x = p.x; a.y = p.y; a.path.shift(); if (!a.path.length) a.st = a.next || 'rest'; }
+                if (d <= v) {
+                    a.x = p.x; a.y = p.y; a.path.shift();
+                    if (!a.path.length) { if (a.arrive) { var f = a.arrive; a.arrive = null; f(); } else a.st = a.next || 'rest'; }
+                }
                 else { a.x += dx / d * v; a.y += dy / d * v; }
                 return;
             }
+            if (a.scene === 'db' || a.toDb) return;        // bazada — chaqirilguncha ishlaydi
             a.until -= dt;
             if (a.until > 0) return;
             if (a.task) { a.task = false; }
             if (a.st === 'work') sendToRest(a); else if (Math.random() < .6) sendToDesk(a, false); else sendToRest(a);
         });
+        // qo'riqchilar zal bo'ylab aylanadi, burchaklarda to'xtab atrofga qaraydi
+        guards.forEach(function (g) {
+            if (g.wait > 0) { g.wait -= dt; return; }
+            var p = g.loop[g.i], dx = p.x - g.x, dy = p.y - g.y, d = Math.hypot(dx, dy), v = 8 * dt;
+            g.step += dt;
+            if (Math.abs(dx) > .01) g.dir = dx > 0 ? 1 : -1;
+            if (d <= v) { g.x = p.x; g.y = p.y; g.i = (g.i + 1) % g.loop.length; g.wait = .8 + Math.random() * 1.2; }
+            else { g.x += dx / d * v; g.y += dy / d * v; }
+        });
+        if (dbUntil > 0) { dbUntil -= dt; if (dbUntil <= 0 && inDb()) returnAll(); }
     }
     // haqiqiy faollik: xabar yuborilsa Malika (matn) yoki Sardor (rasm) stolga borib ishlaydi
-    function busy(ix) { var a = agents[ix]; if (a) sendToDesk(a, true); }
+    function busy(ix) { var a = agents[ix]; if (a && a.scene === 'office' && !a.toDb) sendToDesk(a, true); }
     document.addEventListener('click', function (e) {
         var b = e.target && e.target.closest && e.target.closest('#send-btn');
         if (!b) return;
@@ -9329,6 +9407,21 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             c.fillStyle = '#6cbf5c'; c.beginPath(); c.arc((p[0] - 1) * s, p[1] * s, 1.5 * s, 0, 7); c.fill();
         });
     }
+    var doorHot = false;
+    function drawDoor(c, s, big) {
+        // og'ir metall eshik "BAZA" — ustiga olib borilsa yonadi
+        if (doorHot) { c.fillStyle = 'rgba(56,139,253,.35)'; c.fillRect((DOOR.x) * s, (DOOR.y - 2) * s, (DOOR.w + 3) * s, (DOOR.h + 4) * s); }
+        O(c, s, DOOR.x, DOOR.y, DOOR.w, DOOR.h, '#5b6472', '#1c2128');
+        R(c, s, DOOR.x + .6, DOOR.y + 1, DOOR.w - 1.2, DOOR.h - 2, '#6e7781');
+        R(c, s, DOOR.x + 1, DOOR.y + 2, DOOR.w - 2, 3, '#1c2b3a'); R(c, s, DOOR.x + 1.3, DOOR.y + 2.3, DOOR.w - 2.6, 2.4, 'rgba(56,139,253,.55)');
+        R(c, s, DOOR.x + DOOR.w - 1.4, DOOR.y + 6.5, .8, 2, '#c9d1d9');                                   // tutqich
+        O(c, s, DOOR.x + DOOR.w + .8, DOOR.y + 5, 1.6, 2.4, '#1c2128', '#0d1117');                          // kod paneli
+        R(c, s, DOOR.x + DOOR.w + 1.2, DOOR.y + 5.5, .8, .6, ((tAll * 2) | 0) % 2 ? '#3fb950' : '#1a4d2a');
+        for (var i = 0; i < 6; i++) R(c, s, DOOR.x + i * .9, DOOR.y + DOOR.h + .2, .45, .8, i % 2 ? '#111' : '#f2cc2f');   // ogohlantiruvchi chiziq
+        O(c, s, DOOR.x, DOOR.y - 3.2, 7.5, 2.4, '#0d1117', '#0d1117');
+        var fs = Math.max(6, s * 1.8); c.font = '800 ' + fs + 'px ui-monospace,Menlo,monospace'; c.fillStyle = '#58a6ff'; c.textBaseline = 'middle';
+        c.fillText(big ? T('BAZA', 'DB', 'БАЗА') : 'DB', (DOOR.x + .6) * s, (DOOR.y - 2) * s);
+    }
     function drawDesk(c, s, d) {
         var on = d.by && d.by.st === 'work';
         O(c, s, d.x, d.y, 16, 6, '#9a6440'); R(c, s, d.x, d.y, 16, 1, '#b97a50');
@@ -9345,7 +9438,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     }
     function drawChair(c, s, d) { var y = d.seat.y + (d.face === 'up' ? -1 : -3.5); O(c, s, d.seat.x - 3, y, 6, 4.5, '#3a3a44'); }
     function drawAgent(c, s, a) {
-        var x = a.x, y = a.y, walking = a.st === 'walk', sit = !walking && (a.st === 'work' || (a.spot && a.spot.k !== 'coffee' && a.spot.k !== 'plant'));
+        var x = a.x, y = a.y, walking = a.st === 'walk', sit = isSit(a);
         var leg = walking ? (((a.step * 8) | 0) % 2) : 0;
         c.fillStyle = 'rgba(40,20,10,.22)'; c.beginPath(); c.ellipse(x * s, y * s, 3.2 * s, 1.1 * s, 0, 0, 7); c.fill();
         if (!sit) { O(c, s, x - 2, y - 2.5, 1.5, 2.5 - leg * .8, '#2d2f3a', '#15161c'); O(c, s, x + .5, y - 2.5, 1.5, 2.5 - (walking ? (1 - leg) * .8 : 0), '#2d2f3a', '#15161c'); }
@@ -9359,15 +9452,17 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         if (blink) { R(c, s, x - 1.3 + look, by - 2.1, 1, .3, '#1a1210'); R(c, s, x + .4 + look, by - 2.1, 1, .3, '#1a1210'); }
         else { R(c, s, x - 1.2 + look, by - 2.5, .8, .9, '#1a1210'); R(c, s, x + .5 + look, by - 2.5, .8, .9, '#1a1210'); }
         R(c, s, x - 1.6 + look, by - 1.2, .7, .4, 'rgba(240,120,110,.55)'); R(c, s, x + 1 + look, by - 1.2, .7, .4, 'rgba(240,120,110,.55)');   // yonoqlar
-        if (a.st === 'work' && ((tAll * 6) | 0) % 2) R(c, s, x - 3.4, by + 1.5, 1, 1, a.skin);   // klaviaturada yozyapti
+        if ((a.st === 'work' || (a.st === 'dbwork' && sit)) && ((tAll * 6) | 0) % 2) R(c, s, x - 3.4, by + 1.5, 1, 1, a.skin);   // klaviaturada yozyapti
     }
     function label(c, s, a, big, taken) {
         var txt = big ? a.n + ' — ' + a.r : a.n;
         var stat = a.st === 'work' ? (a.task ? T('javob yozyapti', 'replying', 'пишет ответ') : (a.n === 'Bilol' ? T('vazifa beryapti', 'assigning', 'раздаёт задачи') : T('ishlayapti', 'working', 'работает')))
-            : a.st === 'walk' ? '' : T('dam olyapti', 'resting', 'отдыхает');
+            : a.st === 'dbwork' ? (a.dbs && a.dbs.sit ? T("so'rov yozyapti", 'running queries', 'пишет запросы') : T('serverni tekshiryapti', 'checking servers', 'проверяет сервер'))
+            : a.st === 'guard' ? T('navbatchilikda', 'on patrol', 'на посту')
+            : a.st === 'walk' ? (a.toDb ? T('bazaga ketyapti', 'going to DB', 'идёт в базу') : '') : T('dam olyapti', 'resting', 'отдыхает');
         if (big && stat) txt += ' · ' + stat;
         var k = c.canvas.width / (c.canvas.clientWidth || c.canvas.width), fs = Math.max(8.5 * k, s * (big ? 2.1 : 2.4)); c.font = '700 ' + fs + 'px system-ui,-apple-system,sans-serif';
-        var sit = a.st !== 'walk' && (a.st === 'work' || (a.spot && a.spot.k !== 'coffee' && a.spot.k !== 'plant'));
+        var sit = isSit(a);
         var tw = c.measureText(txt).width, px = fs * .5, h = fs * 1.5, bw = tw + px * 2 + fs * .7;
         var bx = a.x * s - bw / 2, top = (a.y - (sit ? 11.5 : 13)) * s - h;
         bx = Math.max(2, Math.min(c.canvas.width - bw - 2, bx));
@@ -9376,7 +9471,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         top = Math.round(Math.max(1, top)); bx = Math.round(bx); taken.push({ x: bx, y: top, w: bw, h: h });
         c.fillStyle = 'rgba(20,16,14,.9)';
         if (c.roundRect) { c.beginPath(); c.roundRect(bx, top, bw, h, h / 2); c.fill(); } else c.fillRect(bx, top, bw, h);
-        c.fillStyle = a.st === 'work' ? '#3ddc84' : a.st === 'walk' ? '#9aa4b2' : '#f2b134';
+        c.fillStyle = a.st === 'work' ? '#3ddc84' : a.st === 'dbwork' ? '#58a6ff' : a.st === 'guard' ? '#f85149' : a.st === 'walk' ? '#9aa4b2' : '#f2b134';
         c.beginPath(); c.arc(bx + px + fs * .2, top + h / 2, fs * .22, 0, 7); c.fill();
         c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(txt, Math.round(bx + px + fs * .7), Math.round(top + h / 2));
     }
@@ -9384,13 +9479,123 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var c = cv.getContext('2d'), s = cv.width / W;
         c.imageSmoothingEnabled = false;
         drawRoom(c, s);
+        drawDoor(c, s, big);
+        var here = agents.filter(function (a) { return a.scene === 'office'; });
         var list = [];
         desks.forEach(function (d) { list.push({ y: d.y + 6, f: function () { drawDesk(c, s, d); } }); list.push({ y: d.seat.y - .5, f: function () { drawChair(c, s, d); } }); });
-        agents.forEach(function (a) { list.push({ y: a.y, f: function () { drawAgent(c, s, a); } }); });
+        here.forEach(function (a) { list.push({ y: a.y, f: function () { drawAgent(c, s, a); } }); });
         list.sort(function (p, q) { return p.y - q.y; }).forEach(function (o) { o.f(); });
         var taken = [];
-        agents.slice().sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, big, taken); });
+        here.slice().sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, big, taken); });
         // kechki yorug'lik
+    }
+    /* ---------- baza zali chizmasi ---------- */
+    function hash(n) { n = Math.sin(n * 127.1) * 43758.5453; return n - Math.floor(n); }
+    function drawRack(c, s, x, y, h, ix, big) {
+        c.fillStyle = 'rgba(0,0,0,.45)'; c.fillRect((x + .6) * s, (y + h) * s, 9 * s, 1.2 * s);           // soya
+        O(c, s, x, y, 9, h, '#161b22', '#05070a');
+        R(c, s, x + .4, y + .4, 8.2, 1, '#21262d');
+        var rows = Math.floor((h - 2) / 1.35);
+        for (var r = 0; r < rows; r++) {
+            var yy = y + 1.8 + r * 1.35;
+            R(c, s, x + .7, yy, 7.6, 1.05, '#0b0f14');
+            for (var l = 0; l < 3; l++) {
+                var on = hash(ix * 31 + r * 7 + l * 3 + Math.floor(tAll * (2 + l) + hash(ix + r) * 5)) > .35;
+                var col = l === 2 ? (hash(ix + r) > .85 ? '#d29922' : '#58a6ff') : '#3fb950';
+                R(c, s, x + 5.6 + l * .9, yy + .3, .45, .45, on ? col : '#1b2a1f');
+            }
+            R(c, s, x + 1, yy + .35, 3.4, .35, '#30363d');
+        }
+        if (big && ix % 2 === 0) {                                                                           // jadval nomi
+            var fs = Math.max(7, s * 1.25); c.font = '700 ' + fs + 'px ui-monospace,Menlo,monospace'; c.fillStyle = '#7d8590'; c.textBaseline = 'middle';
+            c.fillText(TABLES[(ix / 2 | 0) % TABLES.length], (x + .4) * s, (y - .9) * s);
+        }
+    }
+    function drawConsole(c, s, x, on) {
+        O(c, s, x, 37, 14, 4, '#1f2630', '#05070a'); R(c, s, x, 37, 14, .8, '#2d3643');
+        O(c, s, x + 3, 37.4, 8, 3, '#05070a', '#000');
+        if (on) {
+            for (var i = 0; i < 4; i++) { var w = 2 + hash(i + Math.floor(tAll * 3) + x) * 5; R(c, s, x + 3.5, 37.8 + i * .6, w, .3, i === 0 ? '#58a6ff' : '#3fb950'); }
+            var g = c.createRadialGradient((x + 7) * s, 39 * s, 0, (x + 7) * s, 39 * s, 9 * s); g.addColorStop(0, 'rgba(63,185,80,.22)'); g.addColorStop(1, 'rgba(63,185,80,0)'); c.fillStyle = g; c.fillRect((x - 2) * s, 30 * s, 18 * s, 18 * s);
+        } else R(c, s, x + 3.5, 37.9, 7, 2, '#0d1520');
+        O(c, s, x + 5, 44.5, 4, 3, '#30363d', '#05070a');                                                  // stul
+    }
+    function drawGuard(c, s, g) {
+        var x = g.x, y = g.y, walking = g.wait <= 0, leg = walking ? (((g.step * 7) | 0) % 2) : 0;
+        // fonar nuri — yurgan tomoniga
+        var p = g.loop[g.i], ang = g.wait > 0 ? Math.sin(tAll * 1.5 + x) * 1.2 + (g.dir > 0 ? 0 : Math.PI) : Math.atan2(p.y - y, p.x - x);
+        c.fillStyle = 'rgba(255,236,170,.16)'; c.beginPath(); c.moveTo(x * s, (y - 4) * s);
+        c.arc(x * s, (y - 4) * s, 16 * s, ang - .35, ang + .35); c.closePath(); c.fill();
+        c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(x * s, y * s, 3.2 * s, 1.1 * s, 0, 0, 7); c.fill();
+        O(c, s, x - 2, y - 2.5, 1.5, 2.5 - leg * .8, '#111827', '#000'); O(c, s, x + .5, y - 2.5, 1.5, 2.5 - (1 - leg) * .8 * (walking ? 1 : 0), '#111827', '#000');
+        var by = y - 7.5;
+        O(c, s, x - 2.8, by, 5.6, 5.2, '#1e2a44', '#05070a');
+        R(c, s, x - 2.8, by + 3.4, 5.6, .7, '#0b1220'); R(c, s, x - .4, by + 3.4, .8, .7, '#d4a72c');           // kamar
+        R(c, s, x + 1.1, by + 1, .9, .9, '#d4a72c');                                                         // nishon
+        O(c, s, x - 2.2, by - 4.4, 4.4, 4.4, '#e0b48c', '#05070a');
+        R(c, s, x - 2.6, by - 4.9, 5.2, 1.6, '#0b1220'); R(c, s, x - 2.6 + (g.dir > 0 ? 2.6 : 0), by - 3.5, 2.6, .5, '#0b1220'); R(c, s, x - .3, by - 4.6, .6, .6, '#d4a72c');   // furajka
+        var blink = ((tAll + x * .21) % 3.5) < .14, look = g.dir * .35;
+        if (blink) { R(c, s, x - 1.3 + look, by - 2.1, 1, .3, '#1a1210'); R(c, s, x + .4 + look, by - 2.1, 1, .3, '#1a1210'); }
+        else { R(c, s, x - 1.2 + look, by - 2.5, .8, .9, '#1a1210'); R(c, s, x + .5 + look, by - 2.5, .8, .9, '#1a1210'); }
+        R(c, s, x + (g.dir > 0 ? 2.4 : -3.4), by + 2, 1, 1.4, '#30363d');                                  // fonar
+    }
+    function renderDb(cv) {
+        var c = cv.getContext('2d'), s = cv.width / DW;
+        c.imageSmoothingEnabled = false;
+        // pol (ko'tarilgan, teshikli plitkalar) va devor
+        R(c, s, 0, 12, DW, DH - 12, '#0e131a');
+        for (var gx = 0; gx < DW; gx += 6) R(c, s, gx, 12, .3, DH - 12, '#161d27');
+        for (var gy = 12; gy < DH; gy += 6) R(c, s, 0, gy, DW, .3, '#161d27');
+        for (var px = 3; px < DW; px += 12) R(c, s, px, DCORR - 1, 1.2, 1.2, '#1b2633');
+        R(c, s, 0, 0, DW, 12, '#090d12'); for (var wx = 0; wx < DW; wx += 8) R(c, s, wx, 0, .3, 11, '#111821');
+        R(c, s, 0, 11.4, DW, .6, '#1f6feb');                                                                 // ko'k neon chiziq
+        // kabel lotoklari
+        R(c, s, 0, 13, DW, .8, '#21262d'); R(c, s, 0, 13.2, DW, .25, '#1f6feb'); R(c, s, 0, 13.55, DW, .2, '#d29922');
+        // katta ekran
+        O(c, s, 70, 1.4, 60, 9, '#03070c', '#1f6feb');
+        var fs = Math.max(8, s * 2); c.font = '800 ' + fs + 'px ui-monospace,Menlo,monospace'; c.fillStyle = '#58a6ff'; c.textBaseline = 'middle';
+        c.fillText("BILOLS AI · " + T("MA'LUMOTLAR BAZASI", 'DATABASE', 'БАЗА ДАННЫХ'), 72 * s, 3.6 * s);
+        for (var b = 0; b < 26; b++) { var hh = 1 + hash(b + Math.floor(tAll * 2)) * 3.6; R(c, s, 72 + b * 2.2, 9.6 - hh, 1.4, hh, b % 5 === 0 ? '#d29922' : '#3fb950'); }
+        // kichik ekranlar — oqib turgan qatorlar
+        [[10, 3], [160, 3]].forEach(function (m, k) {
+            O(c, s, m[0], m[1], 26, 6.5, '#03070c', '#30363d');
+            for (var i = 0; i < 5; i++) { var w = 6 + hash(i * 3 + k + Math.floor(tAll * 4 + i)) * 16; R(c, s, m[0] + 1, m[1] + .8 + i * 1.1, w, .45, i % 2 ? '#3fb950' : '#7d8590'); }
+        });
+        // sovutgichlar
+        [[46, 4], [140, 4]].forEach(function (m) { O(c, s, m[0], m[1], 12, 5, '#c9d1d9', '#30363d'); for (var i = 0; i < 4; i++) R(c, s, m[0] + 1, m[1] + 1 + i * 1, 10, .3, '#8b949e'); });
+        // sovuq yo'lak nuri
+        var gl = c.createLinearGradient(0, 30 * s, 0, 54 * s); gl.addColorStop(0, 'rgba(56,139,253,0)'); gl.addColorStop(.5, 'rgba(56,139,253,.10)'); gl.addColorStop(1, 'rgba(56,139,253,0)');
+        c.fillStyle = gl; c.fillRect(0, 30 * s, DW * s, 24 * s);
+        // eshik (kirish)
+        O(c, s, 0, 34, 4, 14, '#5b6472', '#1c2128'); R(c, s, .6, 35, 2.8, 3, 'rgba(56,139,253,.55)');
+        for (var i = 0; i < 7; i++) R(c, s, 4.4, 34 + i * 2, .8, 1, i % 2 ? '#111' : '#f2cc2f');
+        // o't o'chirgich
+        O(c, s, 196, 15, 2, 4, '#da3633', '#5a1210');
+        var list = [];
+        for (var r = 0; r < 18; r++) {
+            (function (r) {
+                var x = 12 + r * 10;
+                list.push({ y: 29, f: function () { drawRack(c, s, x, 16, 13, r, true); } });
+                list.push({ y: 67, f: function () { drawRack(c, s, x, 54, 13, r + 18, true); } });
+            })(r);
+        }
+        consoles.forEach(function (x, k) {
+            var on = agents.some(function (a) { return a.scene === 'db' && a.st === 'dbwork' && a.dbs === dbSpots[k]; });
+            list.push({ y: 41, f: function () { drawConsole(c, s, x, on); } });
+        });
+        var here = agents.filter(function (a) { return a.scene === 'db'; });
+        here.forEach(function (a) { list.push({ y: a.y + .1, f: function () { drawAgent(c, s, a); } }); });
+        guards.forEach(function (g) { list.push({ y: g.y + .1, f: function () { drawGuard(c, s, g); } }); });
+        list.sort(function (p, q) { return p.y - q.y; }).forEach(function (o) { o.f(); });
+        var taken = [];
+        guards.forEach(function (g) { g.r = T("Qo'riqchi", 'Guard', 'Охранник'); g.st = 'guard'; });
+        here.concat(guards).sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, true, taken); });
+    }
+    function fitDb(cv) {
+        var w = cv.clientWidth; if (!w) return false;
+        var dpr = Math.max(2, Math.min(window.devicePixelRatio || 1, 3)), pw = Math.round(w * dpr);
+        if (cv.width !== pw) { cv.width = pw; cv.height = Math.round(pw * DH / DW); }
+        return true;
     }
     // tiniq: kamida 3x o'lchamda chiziladi
     function fit(cv) {
@@ -9399,7 +9604,10 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         if (cv.width !== pw) { cv.width = pw; cv.height = Math.round(pw * H / W); }
         return true;
     }
-    function counts() { var w = agents.filter(function (a) { return a.st === 'work'; }).length; return T('Ishlayapti: ', 'Working: ', 'Работают: ') + w + ' · ' + T('Dam: ', 'Resting: ', 'Отдыхают: ') + (agents.length - w); }
+    function counts() {
+        var w = agents.filter(function (a) { return a.st === 'work'; }).length, d = inDb();
+        return T('Ishlayapti: ', 'Working: ', 'Работают: ') + w + ' · ' + T('Dam: ', 'Resting: ', 'Отдыхают: ') + (agents.length - w - d) + (d ? ' · ' + T('Bazada: ', 'In DB: ', 'В базе: ') + d : '');
+    }
 
     /* ---------- joylash ---------- */
     var box = null, cv = null, modal = null, mcv = null, visible = true;
@@ -9411,18 +9619,68 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         box.innerHTML = '<div class="ag-head"><b></b><small></small></div><canvas aria-hidden="true"></canvas>';
         foot.insertBefore(box, foot.firstChild);   // onlayn sonining tepasida
         cv = box.querySelector('canvas');
-        box.addEventListener('click', openModal);
+        hookDoor(cv, false);
+        box.addEventListener('click', function (e) { if (overDoor(cv, e)) { openDb(); return; } openModal(); });
         if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }).observe(box);
         return true;
+    }
+    function overDoor(canvas, e) {
+        var r = canvas.getBoundingClientRect(); if (!r.width) return false;
+        var wx = (e.clientX - r.left) / r.width * W, wy = (e.clientY - r.top) / r.height * H;
+        return wx >= DOOR.x - 1 && wx <= DOOR.x + DOOR.w + 3.5 && wy >= DOOR.y - 4 && wy <= DOOR.y + DOOR.h + 1.5;
+    }
+    // eshik ustiga sichqoncha olib borilsa — yonadi va bir lahzada baza zali ochiladi
+    function hookDoor(canvas, big) {
+        var timer = null;
+        canvas.addEventListener('mousemove', function (e) {
+            var on = overDoor(canvas, e);
+            canvas.style.cursor = on ? 'pointer' : '';
+            if (on !== doorHot) doorHot = on;
+            if (on && !timer && !(dbp && !dbp.hidden)) timer = setTimeout(function () { timer = null; if (doorHot) openDb(); }, big ? 350 : 600);
+            if (!on && timer) { clearTimeout(timer); timer = null; }
+        });
+        canvas.addEventListener('mouseleave', function () { doorHot = false; if (timer) { clearTimeout(timer); timer = null; } });
+        if (big) canvas.addEventListener('click', function (e) { if (overDoor(canvas, e)) openDb(); });
+    }
+    var dbp = null, dcv = null;
+    function openDb() {
+        if (!dbp) {
+            dbp = document.createElement('div'); dbp.className = 'ag-dbp'; dbp.hidden = true;
+            dbp.innerHTML = '<div class="ag-dbcard"><div class="ag-head"><b></b><span><small></small><button class="ag-btn ag-call"></button><button class="ag-x" aria-label="close">✕</button></span></div>' +
+                '<canvas></canvas><div class="ag-dbfoot"></div></div>';
+            document.body.appendChild(dbp);
+            dcv = dbp.querySelector('canvas');
+            dbp.addEventListener('click', function (e) {
+                if (e.target === dbp || e.target.closest('.ag-x')) { dbp.hidden = true; return; }
+                if (e.target.closest('.ag-call')) { if (inDb()) returnAll(); else callToDb(); }
+            });
+        }
+        doorHot = false;
+        dbp.hidden = false;
+    }
+    function paintDbUi() {
+        var n = inDb();
+        dbp.querySelector('.ag-head b').textContent = "🗄 " + T("Ma'lumotlar bazasi", 'Database', 'База данных');
+        dbp.querySelector('.ag-head small').textContent = T('Bazada: ', 'In DB: ', 'В базе: ') + n + ' · ' + T("Qo'riqchilar: 2", 'Guards: 2', 'Охрана: 2');
+        var b = dbp.querySelector('.ag-call'), t = n ? '↩ ' + T('Ofisga qaytarish', 'Back to office', 'Вернуть в офис') : '📣 ' + T('Agentlarni chaqirish', 'Call agents', 'Позвать агентов');
+        if (b.textContent !== t) b.textContent = t;
+        b.classList.toggle('hot', !n);
+        var f = dbp.querySelector('.ag-dbfoot'), ft = TABLES.length + ' ' + T('jadval', 'tables', 'таблиц') + ' · 36 ' + T('server javoni', 'server racks', 'стоек') + ' · ' + T('holat', 'status', 'статус') + ': ';
+        if (f.dataset.t !== ft) { f.dataset.t = ft; f.innerHTML = ''; f.appendChild(document.createTextNode(ft)); var i = document.createElement('i'); i.textContent = '● ' + T('ishlayapti', 'online', 'работает'); f.appendChild(i); }
     }
     function openModal() {
         if (!modal) {
             modal = document.createElement('div'); modal.className = 'ag-modal'; modal.hidden = true;
-            modal.innerHTML = '<div class="ag-card"><div class="ag-head"><b></b><span><small></small><button class="ag-x" aria-label="close">✕</button></span></div><canvas></canvas></div>';
+            modal.innerHTML = '<div class="ag-card"><div class="ag-head"><b></b><span><small></small><button class="ag-btn ag-open-db"></button><button class="ag-x" aria-label="close">✕</button></span></div><canvas></canvas></div>';
             document.body.appendChild(modal);
             mcv = modal.querySelector('canvas');
-            modal.addEventListener('click', function (e) { if (e.target === modal || e.target.closest('.ag-x')) modal.hidden = true; });
+            hookDoor(mcv, true);
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal || e.target.closest('.ag-x')) { modal.hidden = true; return; }
+                if (e.target.closest('.ag-open-db')) openDb();
+            });
         }
+        modal.querySelector('.ag-open-db').textContent = '🗄 ' + T('Baza', 'Database', 'База');
         modal.hidden = false;
     }
     var last = 0, acc = 0;
@@ -9438,10 +9696,11 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var showSmall = visible && box.offsetParent !== null, showBig = modal && !modal.hidden;
         if (showSmall) { box.querySelector('.ag-head b').textContent = '🏢 ' + T('Agentlar ofisi', 'Agents office', 'Офис агентов'); box.querySelector('.ag-head small').textContent = counts(); if (fit(cv)) render(cv, false); }
         if (showBig) { modal.querySelector('.ag-head b').textContent = '🏢 ' + T('Agentlar ofisi', 'Agents office', 'Офис агентов'); modal.querySelector('.ag-head small').textContent = counts(); if (fit(mcv)) render(mcv, true); }
+        if (dbp && !dbp.hidden) { paintDbUi(); if (fitDb(dcv)) renderDb(dcv); }
     }
     var lastLang = null;
     setInterval(function () { var l = typeof currentLang !== 'undefined' ? currentLang : 'uz'; if (l !== lastLang) { lastLang = l; relabel(); } }, 1000);
-    if (reduce) { agents.forEach(function (a) { a.until = 1e9; }); }
+    if (reduce) { agents.forEach(function (a) { a.until = 1e9; }); guards.forEach(function (g) { g.wait = 1e9; }); }
     requestAnimationFrame(frame);
 })();
 </script>
