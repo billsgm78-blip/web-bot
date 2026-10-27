@@ -482,7 +482,7 @@ select.inp option { background: #12151c; color: var(--text); }
 (function () {
     'use strict';
     // Bot serveri manzili. Har oy Railway almashsa, index.html dagi RAILWAY_URL o'qiladi (bitta joyda o'zgartirish yetarli).
-    var API = 'https://ai2-production-7d7e.up.railway.app';
+    var API = 'https://bilolsai-api.onrender.com';
     var apiReady = fetch('/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
         var m = t.match(/const\s+RAILWAY_URL\s*=\s*"([^"]+)"/);
         if (m) API = m[1].replace(/\/$/, '');

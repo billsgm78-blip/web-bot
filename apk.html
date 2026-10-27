@@ -147,7 +147,7 @@ html.in-app .inapp { display: block; }
 </main>
 <script>
 (function () {
-    var API = 'https://ai2-production-7d7e.up.railway.app/api/site-status';
+    var API = 'https://bilolsai-api.onrender.com/api/site-status';
     var dl = document.getElementById('dl'), mt = document.getElementById('maint'), ld = document.getElementById('maint-load');
     function show(on, msg) {
         ld.hidden = true;
@@ -174,7 +174,7 @@ html.in-app .inapp { display: block; }
         });
     });
     dl.addEventListener('click', function () {
-        try { fetch('https://ai2-production-7d7e.up.railway.app/api/apk/hit', { method: 'POST', keepalive: true, body: '{}' }); } catch (e) {}
+        try { fetch('https://bilolsai-api.onrender.com/api/apk/hit', { method: 'POST', keepalive: true, body: '{}' }); } catch (e) {}
     });
     fetch(API, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
         clearTimeout(t);

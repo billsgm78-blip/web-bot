@@ -2,7 +2,7 @@
    Sayt bilan bir xil API: Railway (hisob, hamyon, do'kon, yordam) va bilolsai.uz (AI chat, rasm). */
 (function () {
     'use strict';
-    var RAIL = 'https://ai2-production-7d7e.up.railway.app';
+    var RAIL = 'https://bilolsai-api.onrender.com';
     var SITE = 'https://www.bilolsai.uz';
     var VERSION = (window.BilolsNative && BilolsNative.version && BilolsNative.version()) || '3.1.0';
     var N = window.BilolsNative || null;

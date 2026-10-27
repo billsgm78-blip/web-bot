@@ -42,7 +42,7 @@ export default async function handler(req, res) {
   const cleanPhone = String(phone).replace(/[^0-9]/g, "");
   
   // Railway backend manzili
-  const backendUrl = "https://ai2-production-7d7e.up.railway.app";
+  const backendUrl = "https://bilolsai-api.onrender.com";
 
   try {
     // 1. Railway'dagi backend serverga parolni yangilash uchun so'rov yuboramiz

@@ -26,7 +26,7 @@ export default async function handler(req, res) {
   }
 
   // Railway backend manzili
-  const backendUrl = "https://ai2-production-7d7e.up.railway.app"; 
+  const backendUrl = "https://bilolsai-api.onrender.com"; 
 
   try {
     // Vercel'ga kelgan barcha ma'lumotlarni (telefon, parol, ism, kod, action) 

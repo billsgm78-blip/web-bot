@@ -1,5 +1,5 @@
 // Точный URL бэкенда Railway
-const API_BASE_URL = "https://ai2-production-80d2.up.railway.app";
+const API_BASE_URL = "https://bilolsai-api.onrender.com";
 
 // Конфигурация тарифов
 const STARS_PACKS = [

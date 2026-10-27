@@ -1,7 +1,7 @@
 export const maxDuration = 60;
 
 // Botning serveri (balans, obuna va kunlik limit shu yerda hisoblanadi)
-const RAILWAY_URL = (process.env.RAILWAY_URL || "https://ai2-production-7d7e.up.railway.app").replace(/\/$/, "");
+const RAILWAY_URL = (process.env.RAILWAY_URL || "https://bilolsai-api.onrender.com").replace(/\/$/, "");
 
 const QUOTA_MSG = {
   uz: (n) => `Bugungi ${n} ta bepul xabar tugadi. Cheksiz yozish uchun obuna oling yoki ertaga qayting.`,

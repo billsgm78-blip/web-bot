@@ -3451,7 +3451,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 </div>
 
 <script>
-    const RAILWAY_URL = "https://ai2-production-7d7e.up.railway.app";
+    const RAILWAY_URL = "https://bilolsai-api.onrender.com";
 
     const landingScreen = document.getElementById("landing-screen");
     const authModal = document.getElementById("auth-modal");
@@ -7637,7 +7637,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 <!-- 📱 Android ilova taklifi -->
 <script>
 (function () {
-    fetch('https://ai2-production-7d7e.up.railway.app/api/site-status', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (st) {
+    fetch('https://bilolsai-api.onrender.com/api/site-status', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (st) {
         var el = document.getElementById('drawer-app-sub');
         if (el && st && st.apk && st.apk.on) el.textContent = 'Yuklab olish — tezroq va qulayroq';
     }).catch(function () {});
@@ -7721,7 +7721,7 @@ body.theme-light #app-promo .ap-t b { color: #0f172a; }
         setTimeout(async function () {
             if (!onLanding()) return;
             try {   // admin "texnik ishlar" qo'ygan bo'lsa — taklif chiqmaydi
-                var st = await fetch('https://ai2-production-7d7e.up.railway.app/api/site-status', { cache: 'no-store' }).then(function (r) { return r.json(); });
+                var st = await fetch('https://bilolsai-api.onrender.com/api/site-status', { cache: 'no-store' }).then(function (r) { return r.json(); });
                 if (!st || !st.apk || !st.apk.on) return;
             } catch (e) { return; }
             if (!onLanding()) return;
@@ -7902,7 +7902,7 @@ body.theme-light .qrx-dev { background: #f3f4f6; }
 <script id="qr-login-script">
 (function () {
     'use strict';
-    var RAIL = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://ai2-production-7d7e.up.railway.app';
+    var RAIL = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://bilolsai-api.onrender.com';
     var $ = function (id) { return document.getElementById(id); };
     function T(uz, en, ru) { return typeof tr === 'function' ? tr(uz, en, ru) : uz; }
     function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
@@ -8479,13 +8479,13 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         if (ios) hero.appendChild(el('div', 'apk-warn', T("📱 Siz iPhone'dasiz — APK faqat Android'da ishlaydi. Pastdagi \"iPhone uchun\" bo'limini o'qing.", '📱 You are on iPhone — APK works only on Android. See "For iPhone" below.', '📱 Вы на iPhone — APK работает только на Android. Смотрите «Для iPhone» ниже.')));
         var dl = el('a', 'apk-dl'); dl.href = '/download/bilols-ai.apk'; dl.setAttribute('download', 'Bilols-AI.apk');
         dl.textContent = '⬇️ ' + T('Yuklab olish', 'Download', 'Скачать') + ' · APK';
-        dl.onclick = function () { try { fetch('https://ai2-production-7d7e.up.railway.app/api/apk/hit', { method: 'POST', keepalive: true, body: '{}' }); } catch (e) {} };
+        dl.onclick = function () { try { fetch('https://bilolsai-api.onrender.com/api/apk/hit', { method: 'POST', keepalive: true, body: '{}' }); } catch (e) {} };
         hero.appendChild(dl);
         var mt = el('div', 'apk-warn'); mt.hidden = true; hero.appendChild(mt);
         var pg = el('a', 'apk-page', T("Saytdagi yuklash sahifasini ochish →", 'Open the download page →', 'Открыть страницу загрузки →')); pg.href = '/apkyuklash'; hero.appendChild(pg);
         w.appendChild(hero);
         // admin APK'ni o'chirib qo'ygan bo'lsa — tugma o'rniga xabar
-        fetch('https://ai2-production-7d7e.up.railway.app/api/site-status', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
+        fetch('https://bilolsai-api.onrender.com/api/site-status', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
             var a = j && j.apk; if (a && a.on === false) { dl.hidden = true; mt.hidden = false; mt.textContent = '🛠 ' + (a.msg || T('Android ilovada texnik ishlar olib borilmoqda.', 'The Android app is under maintenance.', 'В приложении идут технические работы.')); }
         }).catch(function () {});
 
@@ -8714,7 +8714,7 @@ body.theme-light .sess-item b { color: #0f172a; }
 </div>
 <script id="sess-script">
 (function () {
-    var API = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://ai2-production-7d7e.up.railway.app';
+    var API = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://bilolsai-api.onrender.com';
     function $(id) { return document.getElementById(id); }
     function lang() { return (typeof currentLang !== 'undefined' && currentLang) || localStorage.getItem('bilol_ai_lang') || 'uz'; }
     function T(uz, en, ru) { var l = lang(); return l === 'en' ? en : l === 'ru' ? ru : uz; }
@@ -9117,7 +9117,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 </style>
 <script id="online-script">
 (function () {
-    var API = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://ai2-production-7d7e.up.railway.app';
+    var API = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://bilolsai-api.onrender.com';
     var cid = '';
     try { cid = localStorage.getItem('bl_cid') || ''; if (!/^[a-z0-9]{8,40}$/.test(cid)) { cid = (Date.now().toString(36) + Math.random().toString(36).slice(2, 12)).toLowerCase(); localStorage.setItem('bl_cid', cid); } } catch (e) { cid = Math.random().toString(36).slice(2, 14); }
     function T(uz, en, ru) { var l = (typeof currentLang !== 'undefined' && currentLang) || 'uz'; return l === 'en' ? en : l === 'ru' ? ru : uz; }

@@ -1,7 +1,7 @@
 export const maxDuration = 60;
 
 // Rasm yaratish: faqat obunachilar uchun va bepul. Obuna bot serverida tekshiriladi.
-const RAILWAY_URL = (process.env.RAILWAY_URL || "https://ai2-production-7d7e.up.railway.app").replace(/\/$/, "");
+const RAILWAY_URL = (process.env.RAILWAY_URL || "https://bilolsai-api.onrender.com").replace(/\/$/, "");
 const IMAGE_MODELS = ["google/gemini-2.5-flash-image", "google/gemini-2.5-flash-image-preview"];
 
 async function railway(path, body, client) {
