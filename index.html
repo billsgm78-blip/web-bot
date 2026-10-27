@@ -9311,21 +9311,25 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var lane = a.y > 70 ? 97 : DCORR, tl = t.y > 70 ? 97 : t.y === 41 ? 41 : DCORR;
         return [{ x: a.x, y: lane }, { x: LANE, y: lane }, { x: LANE, y: tl }, { x: t.x, y: tl }, { x: t.x, y: t.y }];
     }
-    /* ⏻ Baza o'chirildi — hamma agent yugurib kelib quvvat shkafidan yoqadi */
+    /* ⏻ Baza o'chirildi — faqat Sapyor (texnik) yugurib kelib quvvat shkafidan yoqadi; boshqa agentlar joyida qoladi */
+    var sapper = null;
     function powerOff() {
         if (dbPower !== 'on') return;
-        dbPower = 'off'; bootT = 0; dbUntil = 0;
-        agents.forEach(function (a, i) {
-            var sp = powerSpots[i];
-            a.run = true; a.task = false; a.wait = i * .12; a.until = 1e9; a.next = null;
-            var atPanel = function () { a.st = 'fix'; a.run = false; a.face = -1; if (agents.every(function (o) { return o.st === 'fix'; })) { dbPower = 'boot'; bootT = 0; } };
-            if (a.scene === 'db') { a.path = dbPathTo(a, sp); a.st = 'walk'; a.arrive = atPanel; }
-            else {
-                leave(a); a.toDb = true; a.st = 'walk';
-                a.path = [{ x: a.x, y: CORR }, { x: ADOOR, y: CORR }, { x: ADOOR, y: OH + 3 }];
-                a.arrive = function () { a.scene = 'db'; a.toDb = false; a.x = 2; a.y = 41; a.path = [{ x: LANE, y: 41 }, { x: LANE, y: sp.y }, { x: sp.x, y: sp.y }]; a.st = 'walk'; a.arrive = atPanel; };
-            }
-        });
+        dbPower = 'off'; bootT = 0;
+        sapper = { n: 'Sapyor', r: T('Texnik', 'Technician', 'Техник'), shirt: '#f97316', hair: '#1a1a1a', skin: '#e2b48f', helmet: true,
+            x: 2, y: 41, st: 'walk', run: true, step: 0, wait: .6, scene: 'db' };
+        sapper.path = [{ x: LANE, y: 41 }, { x: LANE, y: 97 }, { x: powerSpots[0].x, y: 97 }];
+        sapper.arrive = function () { sapper.st = 'fix'; sapper.run = false; dbPower = 'boot'; bootT = 0; };
+    }
+    function tickSapper(dt) {
+        var a = sapper; if (!a) return;
+        if (a.wait > 0) { a.wait -= dt; return; }
+        if (a.st === 'cheer') { a.cheer -= dt; if (a.cheer <= 0) { a.st = 'walk'; a.path = dbPathTo(a, { x: 2, y: 41 }); a.arrive = function () { sapper = null; }; } return; }
+        if (a.st !== 'walk') return;
+        var p = a.path[0], dx = p.x - a.x, dy = p.y - a.y, d = Math.hypot(dx, dy), v = (a.run ? 34 : 20) * dt;
+        a.step += dt;
+        if (d <= v) { a.x = p.x; a.y = p.y; a.path.shift(); if (!a.path.length) { var f = a.arrive; a.arrive = null; if (f) f(); } }
+        else { a.x += dx / d * v; a.y += dy / d * v; }
     }
     function isSit(a) {
         if (a.st === 'walk' || a.st === 'idle' || a.st === 'fix' || a.st === 'cheer') return false;
@@ -9391,9 +9395,10 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             if (d <= v) { g.x = p.x; g.y = p.y; g.i = (g.i + 1) % g.loop.length; g.wait = 1.2 + Math.random() * 1.5; }
             else { g.x += dx / d * v; g.y += dy / d * v; if (Math.random() < dt * .08) g.wait = 1 + Math.random(); }
         });
+        tickSapper(dt);
         if (dbPower === 'boot') {
             bootT += dt;
-            if (bootT >= BOOT) { dbPower = 'on'; agents.forEach(function (a, i) { a.st = 'cheer'; a.cheer = 2.2 + i * .15; }); dbUntil = 75; }
+            if (bootT >= BOOT) { dbPower = 'on'; if (sapper) { sapper.st = 'cheer'; sapper.cheer = 2.2; } }
         }
         if (dbUntil > 0 && dbPower === 'on') { dbUntil -= dt; if (dbUntil <= 0 && inDb()) returnAll(); }
     }
@@ -9598,6 +9603,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         R(c, s, x - 2.6, by + 3.8, 5.2, 1.2, 'rgba(0,0,0,.15)');
         O(c, s, x - 2.2, by - 4.4, 4.4, 4.4, a.skin, '#2a1d17');
         R(c, s, x - 2.2, by - 4.4, 4.4, 1.4, a.hair); R(c, s, x - 2.2, by - 3.2, .7, 1, a.hair);
+        if (a.helmet) { O(c, s, x - 2.6, by - 5.4, 5.2, 1.8, '#f2cc2f', '#7a5a0a'); R(c, s, x - 3, by - 3.8, 6, .5, '#d4a72c'); R(c, s, x - 2.6, by + 1.6, 5.2, .6, '#f2cc2f'); }   // kaska va nur qaytaruvchi chiziq
         // ko'zlar (nuqta) — vaqti-vaqti bilan pirpiratadi
         var blink = ((tAll + a.x * .37) % 4) < .14;
         var look = walking ? (a.path[0] && a.path[0].x < x ? -.35 : a.path[0] && a.path[0].x > x ? .35 : 0)
@@ -9852,6 +9858,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         list.push({ y: PANEL.y + PANEL.h, f: function () { drawPanel(c, s); } });
         var here = agents.filter(function (a) { return a.scene === 'db'; });
         here.forEach(function (a) { list.push({ y: a.y + .1, f: function () { drawAgent(c, s, a); } }); });
+        if (sapper) list.push({ y: sapper.y + .1, f: function () { drawAgent(c, s, sapper); } });
         guards.forEach(function (g) { list.push({ y: g.y + .1, f: function () { drawGuard(c, s, g); } }); });
         list.sort(function (p, q) { return p.y - q.y; }).forEach(function (o) { o.f(); });
         if (!on) {
@@ -9866,7 +9873,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         }
         var taken = [];
         guards.forEach(function (g) { g.r = T("Qo'riqchi", 'Guard', 'Охранник'); g.st = 'guard'; });
-        here.concat(guards).sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, true, taken); });
+        here.concat(guards, sapper ? [sapper] : []).sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, true, taken); });
     }
     function fitDb(cv) {
         var w = cv.clientWidth; if (!w) return false;
@@ -9883,7 +9890,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     }
     function counts() {
         var w = agents.filter(function (a) { return a.st === 'work'; }).length, d = inDb();
-        if (dbPower !== 'on') return '⚠ ' + T("Baza o'chdi — agentlar yugurmoqda", 'DB down — agents running', 'База упала — агенты бегут');
+        if (dbPower !== 'on') return '⚠ ' + T("Baza o'chdi — Sapyor yugurib kelyapti", 'DB down — technician on the way', 'База упала — техник бежит');
         return T('Ishlayapti: ', 'Working: ', 'Работают: ') + w + ' · ' + T('Dam: ', 'Resting: ', 'Отдыхают: ') + (agents.length - w - d) + (d ? ' · ' + T('Bazada: ', 'In DB: ', 'В базе: ') + d : '');
     }
 
@@ -9950,7 +9957,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         if (b.textContent !== t) b.textContent = t;
         b.classList.toggle('hot', !n); b.disabled = dbPower !== 'on'; b.hidden = dbPower !== 'on';
         var pw = dbp.querySelector('.ag-pwr'), pt = dbPower === 'on' ? '⏻ ' + T("Bazani o'chirish", 'Power off', 'Выключить базу')
-            : dbPower === 'off' ? '🏃 ' + T('Agentlar yugurib kelyapti…', 'Agents are running…', 'Агенты бегут…') : '⚡ ' + T('Yoqilmoqda…', 'Powering on…', 'Включается…');
+            : dbPower === 'off' ? '🏃 ' + T('Sapyor yugurib kelyapti…', 'Technician is coming…', 'Техник бежит…') : '⚡ ' + T('Yoqilmoqda…', 'Powering on…', 'Включается…');
         if (pw.textContent !== pt) pw.textContent = pt;
         pw.classList.toggle('red', dbPower === 'on'); pw.disabled = dbPower !== 'on';
         var f = dbp.querySelector('.ag-dbfoot'), ft = TABLES.length + ' ' + T('jadval', 'tables', 'таблиц') + ' · ' + (ROWS.length * RACKS) + ' ' + T('server javoni', 'server racks', 'стоек') + ' · ' + T('holat', 'status', 'статус') + ': ';
