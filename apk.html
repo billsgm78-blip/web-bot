@@ -86,14 +86,19 @@ html.in-app .inapp { display: block; }
 .hash code { display: block; font: 600 12.5px/1.5 'Twemoji',ui-monospace, Menlo, monospace; color: #a7f3d0; word-break: break-all; }
 .hash.ok small::after { content: ' — nusxa olindi ✓'; color: #a7f3d0; }
 [hidden] { display: none !important; }
+.ios-note { display: none; text-align: center; padding: 14px; border-radius: 16px; background: rgba(59, 130, 246, .1); border: 1px solid rgba(59, 130, 246, .45); color: #bfdbfe; font-weight: 600; margin-bottom: 14px; line-height: 1.5; }
+.ios-note a { color: #fff; }
+html.is-ios .ios-note { display: block; }
 </style>
-<script>if (/BilolsAIApp/.test(navigator.userAgent)) document.documentElement.classList.add('in-app');</script>
+<script>if (/BilolsAIApp/.test(navigator.userAgent)) document.documentElement.classList.add('in-app');
+if (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) document.documentElement.classList.add('is-ios');</script>
 <script src="/design.js?v=9"></script>
 <link rel="stylesheet" href="/design.css?v=10">
 </head>
 <body>
 <script>window.BILOLS_DESIGN&&BILOLS_DESIGN.mount()</script>
 <main class="wrap">
+    <div class="ios-note">🍎 Sizda iPhone — APK unga o'rnatilmaydi.<br><a href="/iphone">iPhone'ga o'rnatish yo'riqnomasi →</a></div>
     <section class="hero">
         <img class="logo" src="/icons/icon-192.png" alt="Bilols AI" width="96" height="96">
         <h1>Bilols AI <span>ilovasi</span></h1>

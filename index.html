@@ -7637,6 +7637,14 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
 <!-- 📱 Android ilova taklifi -->
 <script>
 (function () {
+    // iPhone/iPad: APK o'rnatilmaydi — "iPhone'ga o'rnatish" sahifasiga yo'naltiriladi
+    var ua = navigator.userAgent || '';
+    window.__isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (window.__isIOS) {
+        var a = document.getElementById('drawer-app');
+        if (a) { a.href = '/iphone'; a.querySelector('.ds-text b').textContent = 'iPhone ilova'; a.querySelector('#drawer-app-sub').textContent = "Bosh ekranga qo'shish — bepul"; }
+        return;
+    }
     fetch('https://bilolsai-api.onrender.com/api/site-status', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (st) {
         var el = document.getElementById('drawer-app-sub');
         if (el && st && st.apk && st.apk.on) el.textContent = 'Yuklab olish — tezroq va qulayroq';
@@ -8281,7 +8289,7 @@ html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background
             else if (k === 'sup') { close(); $('drawer-support') && $('drawer-support').click(); }
             else if (k === 'set') { close(); $('open-settings-btn') && $('open-settings-btn').click(); }
             else if (k === 'shop') { close(); window.__openSettingsHub ? window.__openSettingsHub('shop') : ($('open-wallet-btn') && $('open-wallet-btn').click()); }
-            else if (k === 'apk') { close(); window.__openSettingsHub ? window.__openSettingsHub('apk') : (location.href = '/apkyuklash'); }
+            else if (k === 'apk') { close(); if (window.__isIOS) { location.href = '/iphone'; return; } window.__openSettingsHub ? window.__openSettingsHub('apk') : (location.href = '/apkyuklash'); }
             else if (k === 'me') { close(); $('open-wallet-btn') && $('open-wallet-btn').click(); }
         }
         [nav, foot].forEach(function (box) { box.addEventListener('click', function (e) { var b = e.target.closest('button[data-k]'); if (b) { e.stopPropagation(); act(b.getAttribute('data-k')); } }); });
