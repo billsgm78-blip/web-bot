@@ -9173,10 +9173,12 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 .ag-btn { border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .08); color: #fff; height: 30px; padding: 0 12px; border-radius: 15px; font: 600 12.5px system-ui, -apple-system, sans-serif; cursor: pointer; white-space: nowrap; }
 .ag-btn:hover { background: rgba(255, 255, 255, .16); }
 .ag-btn.hot { background: #1f6feb; border-color: #388bfd; }
+.ag-btn.red { background: #b62324; border-color: #f85149; }
+.ag-btn:disabled { opacity: .55; cursor: default; }
 /* 🗄 Ma'lumotlar bazasi zali */
-.ag-dbp { position: fixed; inset: 0; z-index: 2147482600; display: flex; align-items: center; justify-content: center; padding: 14px; background: rgba(1, 4, 9, .78); }
+.ag-dbp { position: fixed; inset: 0; z-index: 2147482600; display: flex; align-items: center; justify-content: center; padding: 10px; background: rgba(1, 4, 9, .78); }
 .ag-dbp[hidden] { display: none; }
-.ag-dbcard { width: min(100%, 1180px); border-radius: 16px; overflow: hidden; background: #0d1117; border: 1px solid #30363d; box-shadow: 0 30px 80px rgba(0, 0, 0, .65), 0 0 0 1px rgba(56, 139, 253, .15); animation: agDbIn .35s cubic-bezier(.16, 1, .3, 1); }
+.ag-dbcard { width: min(100%, 1680px, calc((100vh - 120px) * 2.4)); max-height: calc(100vh - 20px); overflow: auto; border-radius: 16px; overflow: hidden; background: #0d1117; border: 1px solid #30363d; box-shadow: 0 30px 80px rgba(0, 0, 0, .65), 0 0 0 1px rgba(56, 139, 253, .15); animation: agDbIn .35s cubic-bezier(.16, 1, .3, 1); }
 @keyframes agDbIn { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
 .ag-dbcard .ag-head { background: #010409; color: #c9d1d9; padding: 10px 14px; font-size: 14px; border-bottom: 1px solid #21262d; }
 .ag-dbcard .ag-head b { font-size: 15px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .02em; }
@@ -9220,19 +9222,23 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     });
 
     /* ---------- 🗄 MA'LUMOTLAR BAZASI ZALI (alohida, uzun sahna) ---------- */
-    var DW = 200, DH = 80, DCORR = 50;
+    var DW = 240, DH = 100, DCORR = 50, LANE = 7;      // kattaroq zal: 3 qator javon; LANE — chapdagi o'tish yo'li
     var DOOR = { x: 0, y: 35, w: 4.5, h: 13 };          // ofisdagi bazaga eshik
+    var ROWS = [16, 54, 72], RACKS = 22;
     var dbSpots = [                                     // konsollar (o'tirib) va javonlar oldi (tik turib)
-        { x: 47, y: 46, sit: true }, { x: 87, y: 46, sit: true }, { x: 127, y: 46, sit: true }, { x: 167, y: 46, sit: true },
-        { x: 104, y: 33, sit: false }, { x: 186, y: 53, sit: false }
+        { x: 47, y: 46, sit: true }, { x: 97, y: 46, sit: true }, { x: 147, y: 46, sit: true }, { x: 197, y: 46, sit: true },
+        { x: 124, y: 33, sit: false }, { x: 226, y: 53, sit: false }
     ];
-    var consoles = [40, 80, 120, 160];
-    var TABLES = ['users', 'chats', 'messages', 'payments', 'sessions', 'web_usage', 'settings', 'promo', 'chat_daily'];
+    var consoles = [40, 90, 140, 190];
+    var TABLES = ['users', 'chats', 'messages', 'payments', 'sessions', 'web_usage', 'settings', 'promo', 'chat_daily', 'orders', 'support', 'logs'];
+    var PANEL = { x: 2, y: 87, w: 9, h: 11 };            // asosiy quvvat shkafi (chap pastda)
+    var powerSpots = [{ x: 16, y: 97 }, { x: 22, y: 97 }, { x: 28, y: 97 }, { x: 34, y: 97 }, { x: 40, y: 97 }, { x: 46, y: 97 }];
+    var dbPower = 'on', bootT = 0, BOOT = 4.5;           // on | off | boot
     function guardsInit() {
-        var loop = [{ x: 8, y: 33 }, { x: 195, y: 33 }, { x: 195, y: 73 }, { x: 8, y: 73 }];
+        var loop = [{ x: 8, y: 33 }, { x: 235, y: 33 }, { x: 235, y: 90 }, { x: 52, y: 90 }, { x: 8, y: 90 }];
         return [
-            { n: 'Rustam', loop: loop, i: 1, x: 8, y: 33, wait: 0, step: 0, dir: 1 },
-            { n: 'Akmal', loop: loop, i: 3, x: 195, y: 73, wait: 0, step: 0, dir: 1 }
+            { n: 'Rustam', loop: loop, i: 1, x: 8, y: 33, wait: 0, step: 0, dir: 1, ph: 0 },
+            { n: 'Akmal', loop: loop, i: 3, x: 235, y: 90, wait: 0, step: 0, dir: -1, ph: 2.1 }
         ];
     }
     var guards = guardsInit();
@@ -9246,7 +9252,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             a.arrive = function () {                      // eshikdan kirdi — endi baza zalida
                 var sp = dbSpots[i];
                 a.scene = 'db'; a.toDb = false; a.dbs = sp; a.x = 2; a.y = 41;
-                a.path = [{ x: 6, y: DCORR }, { x: sp.x, y: DCORR }, { x: sp.x, y: sp.y }]; a.st = 'walk'; a.next = 'dbwork';
+                a.path = [{ x: LANE, y: 41 }, { x: LANE, y: DCORR }, { x: sp.x, y: DCORR }, { x: sp.x, y: sp.y }]; a.st = 'walk'; a.next = 'dbwork';
             };
         });
         dbUntil = 150;                                     // 2,5 daqiqadan keyin o'zlari qaytadi
@@ -9255,13 +9261,34 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         agents.forEach(function (a, i) {
             if (a.scene !== 'db') { if (a.toDb) { a.toDb = false; a.arrive = null; a.st = 'idle'; a.until = .1; } return; }
             a.wait = i * .35;
-            a.path = [{ x: a.x, y: DCORR }, { x: 6, y: DCORR }, { x: 2, y: 41 }]; a.st = 'walk';
+            a.path = dbPathTo(a, { x: 2, y: 41 }); a.st = 'walk';
             a.arrive = function () { a.scene = 'office'; a.dbs = null; a.x = 2; a.y = CORR; a.st = 'idle'; a.until = .1; };
         });
         dbUntil = 0;
     }
+    // zal ichida yo'l: yo'lakka chiqib, chapdagi o'tish yo'li orqali (javonlar ustidan yurmaydi)
+    function dbPathTo(a, t) {
+        var lane = a.y > 70 ? 97 : DCORR, tl = t.y > 70 ? 97 : t.y === 41 ? 41 : DCORR;
+        return [{ x: a.x, y: lane }, { x: LANE, y: lane }, { x: LANE, y: tl }, { x: t.x, y: tl }, { x: t.x, y: t.y }];
+    }
+    /* ⏻ Baza o'chirildi — hamma agent yugurib kelib quvvat shkafidan yoqadi */
+    function powerOff() {
+        if (dbPower !== 'on') return;
+        dbPower = 'off'; bootT = 0; dbUntil = 0;
+        agents.forEach(function (a, i) {
+            var sp = powerSpots[i];
+            a.run = true; a.task = false; a.wait = i * .12; a.until = 1e9; a.next = null;
+            var atPanel = function () { a.st = 'fix'; a.run = false; a.face = -1; if (agents.every(function (o) { return o.st === 'fix'; })) { dbPower = 'boot'; bootT = 0; } };
+            if (a.scene === 'db') { a.path = dbPathTo(a, sp); a.st = 'walk'; a.arrive = atPanel; }
+            else {
+                leave(a); a.toDb = true; a.st = 'walk';
+                a.path = [{ x: a.x, y: CORR }, { x: 3, y: CORR }];
+                a.arrive = function () { a.scene = 'db'; a.toDb = false; a.x = 2; a.y = 41; a.path = [{ x: LANE, y: 41 }, { x: LANE, y: sp.y }, { x: sp.x, y: sp.y }]; a.st = 'walk'; a.arrive = atPanel; };
+            }
+        });
+    }
     function isSit(a) {
-        if (a.st === 'walk' || a.st === 'idle') return false;
+        if (a.st === 'walk' || a.st === 'idle' || a.st === 'fix' || a.st === 'cheer') return false;
         if (a.st === 'dbwork') return !!(a.dbs && a.dbs.sit);
         return a.st === 'work' || !!(a.spot && a.spot.k !== 'coffee' && a.spot.k !== 'plant');
     }
@@ -9292,8 +9319,13 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     function tick(dt) {
         agents.forEach(function (a) {
             if (a.wait > 0) { a.wait -= dt; return; }
+            if (a.st === 'cheer') {                         // baza yondi — xursand sakraydi, keyin ish joyiga
+                a.cheer -= dt;
+                if (a.cheer <= 0) { var sp = dbSpots[agents.indexOf(a)]; a.dbs = sp; a.path = dbPathTo(a, sp); a.st = 'walk'; a.next = 'dbwork'; }
+                return;
+            }
             if (a.st === 'walk') {
-                var p = a.path[0], dx = p.x - a.x, dy = p.y - a.y, d = Math.hypot(dx, dy), v = (a.scene === 'db' || a.toDb ? 22 : 14) * dt;   // bazaga shoshib boradi
+                var p = a.path[0], dx = p.x - a.x, dy = p.y - a.y, d = Math.hypot(dx, dy), v = (a.run ? 34 : a.scene === 'db' || a.toDb ? 22 : 14) * dt;   // o'chganda yugurib keladi
                 a.step += dt;
                 if (d <= v) {
                     a.x = p.x; a.y = p.y; a.path.shift();
@@ -9308,16 +9340,22 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             if (a.task) { a.task = false; }
             if (a.st === 'work') sendToRest(a); else if (Math.random() < .6) sendToDesk(a, false); else sendToRest(a);
         });
-        // qo'riqchilar zal bo'ylab aylanadi, burchaklarda to'xtab atrofga qaraydi
+        // qo'riqchilar zal bo'ylab aylanadi; ba'zan to'xtab, boshini burib atrofga qaraydi; chiroq o'chsa — joyida fonar bilan qidiradi
         guards.forEach(function (g) {
+            if (dbPower !== 'on') { g.alarm = true; return; }
+            g.alarm = false;
             if (g.wait > 0) { g.wait -= dt; return; }
             var p = g.loop[g.i], dx = p.x - g.x, dy = p.y - g.y, d = Math.hypot(dx, dy), v = 8 * dt;
             g.step += dt;
             if (Math.abs(dx) > .01) g.dir = dx > 0 ? 1 : -1;
-            if (d <= v) { g.x = p.x; g.y = p.y; g.i = (g.i + 1) % g.loop.length; g.wait = .8 + Math.random() * 1.2; }
-            else { g.x += dx / d * v; g.y += dy / d * v; }
+            if (d <= v) { g.x = p.x; g.y = p.y; g.i = (g.i + 1) % g.loop.length; g.wait = 1.2 + Math.random() * 1.5; }
+            else { g.x += dx / d * v; g.y += dy / d * v; if (Math.random() < dt * .08) g.wait = 1 + Math.random(); }
         });
-        if (dbUntil > 0) { dbUntil -= dt; if (dbUntil <= 0 && inDb()) returnAll(); }
+        if (dbPower === 'boot') {
+            bootT += dt;
+            if (bootT >= BOOT) { dbPower = 'on'; agents.forEach(function (a, i) { a.st = 'cheer'; a.cheer = 2.2 + i * .15; }); dbUntil = 75; }
+        }
+        if (dbUntil > 0 && dbPower === 'on') { dbUntil -= dt; if (dbUntil <= 0 && inDb()) returnAll(); }
     }
     // haqiqiy faollik: xabar yuborilsa Malika (matn) yoki Sardor (rasm) stolga borib ishlaydi
     function busy(ix) { var a = agents[ix]; if (a && a.scene === 'office' && !a.toDb) sendToDesk(a, true); }
@@ -9416,7 +9454,8 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         R(c, s, DOOR.x + 1, DOOR.y + 2, DOOR.w - 2, 3, '#1c2b3a'); R(c, s, DOOR.x + 1.3, DOOR.y + 2.3, DOOR.w - 2.6, 2.4, 'rgba(56,139,253,.55)');
         R(c, s, DOOR.x + DOOR.w - 1.4, DOOR.y + 6.5, .8, 2, '#c9d1d9');                                   // tutqich
         O(c, s, DOOR.x + DOOR.w + .8, DOOR.y + 5, 1.6, 2.4, '#1c2128', '#0d1117');                          // kod paneli
-        R(c, s, DOOR.x + DOOR.w + 1.2, DOOR.y + 5.5, .8, .6, ((tAll * 2) | 0) % 2 ? '#3fb950' : '#1a4d2a');
+        R(c, s, DOOR.x + DOOR.w + 1.2, DOOR.y + 5.5, .8, .6, dbPower !== 'on' ? (((tAll * 4) | 0) % 2 ? '#f85149' : '#3a1414') : ((tAll * 2) | 0) % 2 ? '#3fb950' : '#1a4d2a');
+        if (dbPower !== 'on') { c.fillStyle = 'rgba(248,81,73,' + (.25 + .2 * Math.sin(tAll * 6)) + ')'; c.fillRect(DOOR.x * s, (DOOR.y - 3) * s, (DOOR.w + 3) * s, (DOOR.h + 4) * s); }
         for (var i = 0; i < 6; i++) R(c, s, DOOR.x + i * .9, DOOR.y + DOOR.h + .2, .45, .8, i % 2 ? '#111' : '#f2cc2f');   // ogohlantiruvchi chiziq
         O(c, s, DOOR.x, DOOR.y - 3.2, 7.5, 2.4, '#0d1117', '#0d1117');
         var fs = Math.max(6, s * 1.8); c.font = '800 ' + fs + 'px ui-monospace,Menlo,monospace'; c.fillStyle = '#58a6ff'; c.textBaseline = 'middle';
@@ -9439,7 +9478,9 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     function drawChair(c, s, d) { var y = d.seat.y + (d.face === 'up' ? -1 : -3.5); O(c, s, d.seat.x - 3, y, 6, 4.5, '#3a3a44'); }
     function drawAgent(c, s, a) {
         var x = a.x, y = a.y, walking = a.st === 'walk', sit = isSit(a);
-        var leg = walking ? (((a.step * 8) | 0) % 2) : 0;
+        var leg = walking ? (((a.step * (a.run ? 15 : 8)) | 0) % 2) : 0;
+        if (a.st === 'cheer') y -= Math.abs(Math.sin(tAll * 9 + x)) * 1.8;            // sakraydi
+        else if (a.run && walking) y -= Math.abs(Math.sin(a.step * 15)) * .7;        // yugurganda silkinadi
         c.fillStyle = 'rgba(40,20,10,.22)'; c.beginPath(); c.ellipse(x * s, y * s, 3.2 * s, 1.1 * s, 0, 0, 7); c.fill();
         if (!sit) { O(c, s, x - 2, y - 2.5, 1.5, 2.5 - leg * .8, '#2d2f3a', '#15161c'); O(c, s, x + .5, y - 2.5, 1.5, 2.5 - (walking ? (1 - leg) * .8 : 0), '#2d2f3a', '#15161c'); }
         var by = sit ? y - 6 : y - 7.5;
@@ -9453,13 +9494,20 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         else { R(c, s, x - 1.2 + look, by - 2.5, .8, .9, '#1a1210'); R(c, s, x + .5 + look, by - 2.5, .8, .9, '#1a1210'); }
         R(c, s, x - 1.6 + look, by - 1.2, .7, .4, 'rgba(240,120,110,.55)'); R(c, s, x + 1 + look, by - 1.2, .7, .4, 'rgba(240,120,110,.55)');   // yonoqlar
         if ((a.st === 'work' || (a.st === 'dbwork' && sit)) && ((tAll * 6) | 0) % 2) R(c, s, x - 3.4, by + 1.5, 1, 1, a.skin);   // klaviaturada yozyapti
+        if (a.st === 'cheer' || (a.st === 'fix' && dbPower === 'boot')) {           // qo'llar tepada
+            var up = ((tAll * 6) | 0) % 2 ? .6 : 0;
+            O(c, s, x - 3.9, by - 3 - up, 1.2, 3.2, a.shirt, '#2a1d17'); O(c, s, x + 2.7, by - 3 - (.6 - up), 1.2, 3.2, a.shirt, '#2a1d17');
+            R(c, s, x - 3.9, by - 4 - up, 1.2, 1, a.skin); R(c, s, x + 2.7, by - 4 - (.6 - up), 1.2, 1, a.skin);
+        }
     }
     function label(c, s, a, big, taken) {
         var txt = big ? a.n + ' — ' + a.r : a.n;
         var stat = a.st === 'work' ? (a.task ? T('javob yozyapti', 'replying', 'пишет ответ') : (a.n === 'Bilol' ? T('vazifa beryapti', 'assigning', 'раздаёт задачи') : T('ishlayapti', 'working', 'работает')))
             : a.st === 'dbwork' ? (a.dbs && a.dbs.sit ? T("so'rov yozyapti", 'running queries', 'пишет запросы') : T('serverni tekshiryapti', 'checking servers', 'проверяет сервер'))
-            : a.st === 'guard' ? T('navbatchilikda', 'on patrol', 'на посту')
-            : a.st === 'walk' ? (a.toDb ? T('bazaga ketyapti', 'going to DB', 'идёт в базу') : '') : T('dam olyapti', 'resting', 'отдыхает');
+            : a.st === 'guard' ? (a.alarm ? T('qidiryapti!', 'searching!', 'ищет!') : T('navbatchilikda', 'on patrol', 'на посту'))
+            : a.st === 'fix' ? (dbPower === 'boot' ? T('yoqyapti ⚡', 'powering on ⚡', 'включает ⚡') : T('kutyapti', 'waiting', 'ждёт'))
+            : a.st === 'cheer' ? T('yoqildi! 🎉', 'back online! 🎉', 'включили! 🎉')
+            : a.st === 'walk' ? (a.run ? T('yugurib kelyapti!', 'running!', 'бежит!') : a.toDb ? T('bazaga ketyapti', 'going to DB', 'идёт в базу') : '') : T('dam olyapti', 'resting', 'отдыхает');
         if (big && stat) txt += ' · ' + stat;
         var k = c.canvas.width / (c.canvas.clientWidth || c.canvas.width), fs = Math.max(8.5 * k, s * (big ? 2.1 : 2.4)); c.font = '700 ' + fs + 'px system-ui,-apple-system,sans-serif';
         var sit = isSit(a);
@@ -9471,7 +9519,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         top = Math.round(Math.max(1, top)); bx = Math.round(bx); taken.push({ x: bx, y: top, w: bw, h: h });
         c.fillStyle = 'rgba(20,16,14,.9)';
         if (c.roundRect) { c.beginPath(); c.roundRect(bx, top, bw, h, h / 2); c.fill(); } else c.fillRect(bx, top, bw, h);
-        c.fillStyle = a.st === 'work' ? '#3ddc84' : a.st === 'dbwork' ? '#58a6ff' : a.st === 'guard' ? '#f85149' : a.st === 'walk' ? '#9aa4b2' : '#f2b134';
+        c.fillStyle = a.st === 'work' || a.st === 'cheer' ? '#3ddc84' : a.st === 'dbwork' ? '#58a6ff' : a.st === 'guard' || a.run ? '#f85149' : a.st === 'fix' ? '#d29922' : a.st === 'walk' ? '#9aa4b2' : '#f2b134';
         c.beginPath(); c.arc(bx + px + fs * .2, top + h / 2, fs * .22, 0, 7); c.fill();
         c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(txt, Math.round(bx + px + fs * .7), Math.round(top + h / 2));
     }
@@ -9491,7 +9539,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     }
     /* ---------- baza zali chizmasi ---------- */
     function hash(n) { n = Math.sin(n * 127.1) * 43758.5453; return n - Math.floor(n); }
-    function drawRack(c, s, x, y, h, ix, big) {
+    function drawRack(c, s, x, y, h, ix, lit) {
         c.fillStyle = 'rgba(0,0,0,.45)'; c.fillRect((x + .6) * s, (y + h) * s, 9 * s, 1.2 * s);           // soya
         O(c, s, x, y, 9, h, '#161b22', '#05070a');
         R(c, s, x + .4, y + .4, 8.2, 1, '#21262d');
@@ -9500,14 +9548,15 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             var yy = y + 1.8 + r * 1.35;
             R(c, s, x + .7, yy, 7.6, 1.05, '#0b0f14');
             for (var l = 0; l < 3; l++) {
-                var on = hash(ix * 31 + r * 7 + l * 3 + Math.floor(tAll * (2 + l) + hash(ix + r) * 5)) > .35;
+                var on = lit && hash(ix * 31 + r * 7 + l * 3 + Math.floor(tAll * (2 + l) + hash(ix + r) * 5)) > .35;
                 var col = l === 2 ? (hash(ix + r) > .85 ? '#d29922' : '#58a6ff') : '#3fb950';
-                R(c, s, x + 5.6 + l * .9, yy + .3, .45, .45, on ? col : '#1b2a1f');
+                R(c, s, x + 5.6 + l * .9, yy + .3, .45, .45, on ? col : '#141c17');
             }
             R(c, s, x + 1, yy + .35, 3.4, .35, '#30363d');
         }
-        if (big && ix % 2 === 0) {                                                                           // jadval nomi
-            var fs = Math.max(7, s * 1.25); c.font = '700 ' + fs + 'px ui-monospace,Menlo,monospace'; c.fillStyle = '#7d8590'; c.textBaseline = 'middle';
+        if (!lit && r % 1 === 0) R(c, s, x + 7.6, y + 1.9, .45, .45, ((tAll * 2 + ix) | 0) % 2 ? '#f85149' : '#3a1414');   // qizil "o'chiq" chirog'i
+        if (ix % 2 === 0) {                                                                                 // jadval nomi
+            var fs = Math.max(7, s * 1.2); c.font = '700 ' + fs + 'px ui-monospace,Menlo,monospace'; c.fillStyle = lit ? '#7d8590' : '#3d444d'; c.textBaseline = 'middle';
             c.fillText(TABLES[(ix / 2 | 0) % TABLES.length], (x + .4) * s, (y - .9) * s);
         }
     }
@@ -9520,73 +9569,118 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         } else R(c, s, x + 3.5, 37.9, 7, 2, '#0d1520');
         O(c, s, x + 5, 44.5, 4, 3, '#30363d', '#05070a');                                                  // stul
     }
+    function drawPanel(c, s) {
+        var P = PANEL, st = dbPower;
+        O(c, s, P.x, P.y, P.w, P.h, '#2d333b', '#05070a');
+        R(c, s, P.x + .6, P.y + .6, P.w - 1.2, 2, '#0d1117');
+        var fs = Math.max(6.5, s * 1.1); c.font = '800 ' + fs + 'px ui-monospace,Menlo,monospace'; c.textBaseline = 'middle';
+        c.fillStyle = st === 'on' ? '#3fb950' : st === 'boot' ? '#d29922' : '#f85149';
+        c.fillText(T('QUVVAT', 'POWER', 'ПИТАНИЕ'), (P.x + .9) * s, (P.y + 1.6) * s);
+        // katta richag: o'chiq — pastda, yoqilganda — tepada
+        R(c, s, P.x + 3.6, P.y + 3.6, 1.8, 6, '#0d1117');
+        var ly = st === 'on' ? P.y + 3.8 : st === 'boot' ? P.y + 3.8 + 3 * Math.max(0, 1 - bootT * 2) : P.y + 7.4;
+        O(c, s, P.x + 2.6, ly, 3.8, 1.6, st === 'off' ? '#da3633' : '#d29922', '#05070a');
+        [0, 1, 2].forEach(function (i) { R(c, s, P.x + 1, P.y + 4 + i * 2, .9, .9, st === 'on' ? '#3fb950' : st === 'boot' && bootT > i * 1.2 ? '#d29922' : ((tAll * 3 + i) | 0) % 2 && st === 'off' ? '#f85149' : '#2a1010'); });
+        for (var i = 0; i < 5; i++) R(c, s, P.x + i * 1.8, P.y + P.h + .2, .9, .7, i % 2 ? '#111' : '#f2cc2f');
+    }
+    function drawGuardBeam(c, s, g, strong) {
+        var by = g.y - 4, look = guardLook(g);
+        var ang = g.alarm ? Math.sin(tAll * 1.7 + g.ph) * 1.4 + (g.dir > 0 ? 0 : Math.PI)
+            : g.wait > 0 ? look * 1.1 + (g.dir > 0 ? 0 : Math.PI) : Math.atan2(g.loop[g.i].y - g.y, g.loop[g.i].x - g.x) + look * .25;
+        var len = strong ? 26 : 16, gr = c.createRadialGradient(g.x * s, by * s, 0, g.x * s, by * s, len * s);
+        gr.addColorStop(0, strong ? 'rgba(255,240,180,.55)' : 'rgba(255,236,170,.24)'); gr.addColorStop(1, 'rgba(255,236,170,0)');
+        c.fillStyle = gr; c.beginPath(); c.moveTo(g.x * s, by * s); c.arc(g.x * s, by * s, len * s, ang - .33, ang + .33); c.closePath(); c.fill();
+    }
+    function guardLook(g) {                                       // boshini u yoq-bu yoqqa buradi
+        if (g.alarm) return Math.sin(tAll * 1.7 + g.ph);
+        if (g.wait > 0) return Math.sin(tAll * 2.2 + g.ph);
+        return Math.sin(tAll * .9 + g.ph) > .7 ? .8 : Math.sin(tAll * .9 + g.ph) < -.85 ? -.8 : 0;   // yurganda ham vaqti-vaqti bilan qarab qo'yadi
+    }
     function drawGuard(c, s, g) {
-        var x = g.x, y = g.y, walking = g.wait <= 0, leg = walking ? (((g.step * 7) | 0) % 2) : 0;
-        // fonar nuri — yurgan tomoniga
-        var p = g.loop[g.i], ang = g.wait > 0 ? Math.sin(tAll * 1.5 + x) * 1.2 + (g.dir > 0 ? 0 : Math.PI) : Math.atan2(p.y - y, p.x - x);
-        c.fillStyle = 'rgba(255,236,170,.16)'; c.beginPath(); c.moveTo(x * s, (y - 4) * s);
-        c.arc(x * s, (y - 4) * s, 16 * s, ang - .35, ang + .35); c.closePath(); c.fill();
+        var x = g.x, y = g.y, walking = g.wait <= 0 && !g.alarm, sp = g.step * 7, leg = walking ? ((sp | 0) % 2) : 0;
+        var bob = walking ? Math.abs(Math.sin(g.step * 7 * Math.PI / 2)) * .5 : Math.sin(tAll * 2 + g.ph) * .12;   // yurganda silkinadi, turganda nafas oladi
+        var look = guardLook(g), eye = look * .55 + (walking ? g.dir * .2 : 0);
         c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(x * s, y * s, 3.2 * s, 1.1 * s, 0, 0, 7); c.fill();
         O(c, s, x - 2, y - 2.5, 1.5, 2.5 - leg * .8, '#111827', '#000'); O(c, s, x + .5, y - 2.5, 1.5, 2.5 - (1 - leg) * .8 * (walking ? 1 : 0), '#111827', '#000');
-        var by = y - 7.5;
+        var by = y - 7.5 - bob;
+        // qo'llar — yurganda silkinadi; bitta qo'lda fonar
+        var sw = walking ? Math.sin(g.step * 7 * Math.PI / 2) * .9 : 0;
+        O(c, s, x - 3.8, by + .6 + sw, 1.1, 3.4, '#1e2a44', '#05070a'); R(c, s, x - 3.8, by + 3.8 + sw, 1.1, .8, '#e0b48c');
+        O(c, s, x + 2.7, by + .6 - sw, 1.1, 3.4, '#1e2a44', '#05070a'); R(c, s, x + 2.7, by + 3.8 - sw, 1.1, .8, '#e0b48c');
+        R(c, s, x + (g.dir > 0 ? 3.7 : -4.6), by + 3.4 - (g.dir > 0 ? sw : -sw), 1.1, 1.5, '#30363d');      // fonar
         O(c, s, x - 2.8, by, 5.6, 5.2, '#1e2a44', '#05070a');
         R(c, s, x - 2.8, by + 3.4, 5.6, .7, '#0b1220'); R(c, s, x - .4, by + 3.4, .8, .7, '#d4a72c');           // kamar
         R(c, s, x + 1.1, by + 1, .9, .9, '#d4a72c');                                                         // nishon
-        O(c, s, x - 2.2, by - 4.4, 4.4, 4.4, '#e0b48c', '#05070a');
-        R(c, s, x - 2.6, by - 4.9, 5.2, 1.6, '#0b1220'); R(c, s, x - 2.6 + (g.dir > 0 ? 2.6 : 0), by - 3.5, 2.6, .5, '#0b1220'); R(c, s, x - .3, by - 4.6, .6, .6, '#d4a72c');   // furajka
-        var blink = ((tAll + x * .21) % 3.5) < .14, look = g.dir * .35;
-        if (blink) { R(c, s, x - 1.3 + look, by - 2.1, 1, .3, '#1a1210'); R(c, s, x + .4 + look, by - 2.1, 1, .3, '#1a1210'); }
-        else { R(c, s, x - 1.2 + look, by - 2.5, .8, .9, '#1a1210'); R(c, s, x + .5 + look, by - 2.5, .8, .9, '#1a1210'); }
-        R(c, s, x + (g.dir > 0 ? 2.4 : -3.4), by + 2, 1, 1.4, '#30363d');                                  // fonar
+        R(c, s, x - 1.6, by + .4, .5, 1.6, '#0b1220');                                                       // ratsiya
+        var hx = look * .35;                                                                                 // bosh biroz buriladi
+        O(c, s, x - 2.2 + hx, by - 4.4, 4.4, 4.4, '#e0b48c', '#05070a');
+        R(c, s, x - 2.6 + hx, by - 4.9, 5.2, 1.6, '#0b1220'); R(c, s, x - 2.6 + hx + (look >= 0 ? 2.6 : 0), by - 3.5, 2.6, .5, '#0b1220'); R(c, s, x - .3 + hx, by - 4.6, .6, .6, '#d4a72c');   // furajka
+        // ko'zlar: yumib-ochadi, atrofga qaraydi; xavotirda — kattaroq
+        var blink = ((tAll + g.ph * 1.7) % 3.2) < .16 || (g.alarm && ((tAll * 1.3 + g.ph) % 2.4) < .1);
+        var ew = g.alarm ? 1 : .8, eh = g.alarm ? 1.1 : .9;
+        if (blink) { R(c, s, x - 1.3 + hx + eye, by - 2.1, 1, .3, '#1a1210'); R(c, s, x + .4 + hx + eye, by - 2.1, 1, .3, '#1a1210'); }
+        else { R(c, s, x - 1.2 + hx + eye, by - 2.6, ew, eh, '#1a1210'); R(c, s, x + .5 + hx + eye, by - 2.6, ew, eh, '#1a1210'); }
+        R(c, s, x - .9 + hx, by - 3.2, 1, .25, 'rgba(60,30,20,.6)'); R(c, s, x + .6 + hx, by - 3.2, 1, .25, 'rgba(60,30,20,.6)');   // qoshlar
+        if (!g.alarm) R(c, s, x - .5 + hx + eye * .5, by - 1, 1, .25, 'rgba(120,50,40,.6)');                 // og'iz
+        else R(c, s, x - .3 + hx, by - 1.2, .6, .6, 'rgba(60,20,20,.8)');                                     // "o!"
     }
     function renderDb(cv) {
-        var c = cv.getContext('2d'), s = cv.width / DW;
+        var c = cv.getContext('2d'), s = cv.width / DW, on = dbPower === 'on', boot = dbPower === 'boot', prog = boot ? Math.min(1, bootT / BOOT) : on ? 1 : 0;
         c.imageSmoothingEnabled = false;
-        // pol (ko'tarilgan, teshikli plitkalar) va devor
+        // pol va devor
         R(c, s, 0, 12, DW, DH - 12, '#0e131a');
         for (var gx = 0; gx < DW; gx += 6) R(c, s, gx, 12, .3, DH - 12, '#161d27');
         for (var gy = 12; gy < DH; gy += 6) R(c, s, 0, gy, DW, .3, '#161d27');
-        for (var px = 3; px < DW; px += 12) R(c, s, px, DCORR - 1, 1.2, 1.2, '#1b2633');
+        for (var px = 3; px < DW; px += 12) { R(c, s, px, DCORR - 1, 1.2, 1.2, '#1b2633'); R(c, s, px, 96, 1.2, 1.2, '#1b2633'); }
         R(c, s, 0, 0, DW, 12, '#090d12'); for (var wx = 0; wx < DW; wx += 8) R(c, s, wx, 0, .3, 11, '#111821');
-        R(c, s, 0, 11.4, DW, .6, '#1f6feb');                                                                 // ko'k neon chiziq
-        // kabel lotoklari
-        R(c, s, 0, 13, DW, .8, '#21262d'); R(c, s, 0, 13.2, DW, .25, '#1f6feb'); R(c, s, 0, 13.55, DW, .2, '#d29922');
+        R(c, s, 0, 11.4, DW, .6, on ? '#1f6feb' : boot ? '#9e6a03' : (((tAll * 2) | 0) % 2 ? '#da3633' : '#3a1414'));
+        R(c, s, 0, 13, DW, .8, '#21262d'); R(c, s, 0, 13.2, DW, .25, on ? '#1f6feb' : '#30363d'); R(c, s, 0, 13.55, DW, .2, '#d29922');
         // katta ekran
-        O(c, s, 70, 1.4, 60, 9, '#03070c', '#1f6feb');
-        var fs = Math.max(8, s * 2); c.font = '800 ' + fs + 'px ui-monospace,Menlo,monospace'; c.fillStyle = '#58a6ff'; c.textBaseline = 'middle';
-        c.fillText("BILOLS AI · " + T("MA'LUMOTLAR BAZASI", 'DATABASE', 'БАЗА ДАННЫХ'), 72 * s, 3.6 * s);
-        for (var b = 0; b < 26; b++) { var hh = 1 + hash(b + Math.floor(tAll * 2)) * 3.6; R(c, s, 72 + b * 2.2, 9.6 - hh, 1.4, hh, b % 5 === 0 ? '#d29922' : '#3fb950'); }
-        // kichik ekranlar — oqib turgan qatorlar
-        [[10, 3], [160, 3]].forEach(function (m, k) {
-            O(c, s, m[0], m[1], 26, 6.5, '#03070c', '#30363d');
-            for (var i = 0; i < 5; i++) { var w = 6 + hash(i * 3 + k + Math.floor(tAll * 4 + i)) * 16; R(c, s, m[0] + 1, m[1] + .8 + i * 1.1, w, .45, i % 2 ? '#3fb950' : '#7d8590'); }
+        O(c, s, 85, 1.4, 70, 9, '#03070c', on ? '#1f6feb' : boot ? '#d29922' : '#da3633');
+        var fs = Math.max(8, s * 2); c.font = '800 ' + fs + 'px ui-monospace,Menlo,monospace'; c.textBaseline = 'middle';
+        if (on) {
+            c.fillStyle = '#58a6ff'; c.fillText("BILOLS AI · " + T("MA'LUMOTLAR BAZASI", 'DATABASE', 'БАЗА ДАННЫХ'), 87 * s, 3.6 * s);
+            for (var b = 0; b < 30; b++) { var hh = 1 + hash(b + Math.floor(tAll * 2)) * 3.6; R(c, s, 87 + b * 2.2, 9.6 - hh, 1.4, hh, b % 5 === 0 ? '#d29922' : '#3fb950'); }
+        } else if (boot) {
+            c.fillStyle = '#d29922'; c.fillText(T('YUKLANMOQDA', 'BOOTING', 'ЗАГРУЗКА') + ' ' + Math.round(prog * 100) + '%', 87 * s, 3.6 * s);
+            R(c, s, 87, 7, 66, 2, '#161b22'); R(c, s, 87, 7, 66 * prog, 2, '#d29922');
+        } else if (((tAll * 2) | 0) % 2) { c.fillStyle = '#f85149'; c.fillText('⚠ ' + T("QUVVAT YO'Q — BAZA O'CHDI", 'NO POWER — DATABASE DOWN', 'НЕТ ПИТАНИЯ — БАЗА ОТКЛЮЧЕНА'), 87 * s, 5.5 * s); }
+        [[10, 3], [200, 3]].forEach(function (m, k) {
+            O(c, s, m[0], m[1], 30, 6.5, '#03070c', '#30363d');
+            if (on) for (var i = 0; i < 5; i++) { var w = 6 + hash(i * 3 + k + Math.floor(tAll * 4 + i)) * 20; R(c, s, m[0] + 1, m[1] + .8 + i * 1.1, w, .45, i % 2 ? '#3fb950' : '#7d8590'); }
         });
-        // sovutgichlar
-        [[46, 4], [140, 4]].forEach(function (m) { O(c, s, m[0], m[1], 12, 5, '#c9d1d9', '#30363d'); for (var i = 0; i < 4; i++) R(c, s, m[0] + 1, m[1] + 1 + i * 1, 10, .3, '#8b949e'); });
-        // sovuq yo'lak nuri
-        var gl = c.createLinearGradient(0, 30 * s, 0, 54 * s); gl.addColorStop(0, 'rgba(56,139,253,0)'); gl.addColorStop(.5, 'rgba(56,139,253,.10)'); gl.addColorStop(1, 'rgba(56,139,253,0)');
-        c.fillStyle = gl; c.fillRect(0, 30 * s, DW * s, 24 * s);
-        // eshik (kirish)
+        [[56, 4], [168, 4]].forEach(function (m) { O(c, s, m[0], m[1], 12, 5, '#c9d1d9', '#30363d'); for (var i = 0; i < 4; i++) R(c, s, m[0] + 1, m[1] + 1 + i * 1, 10, .3, '#8b949e'); });
+        if (on) { var gl = c.createLinearGradient(0, 30 * s, 0, 54 * s); gl.addColorStop(0, 'rgba(56,139,253,0)'); gl.addColorStop(.5, 'rgba(56,139,253,.10)'); gl.addColorStop(1, 'rgba(56,139,253,0)'); c.fillStyle = gl; c.fillRect(0, 30 * s, DW * s, 24 * s); }
         O(c, s, 0, 34, 4, 14, '#5b6472', '#1c2128'); R(c, s, .6, 35, 2.8, 3, 'rgba(56,139,253,.55)');
         for (var i = 0; i < 7; i++) R(c, s, 4.4, 34 + i * 2, .8, 1, i % 2 ? '#111' : '#f2cc2f');
-        // o't o'chirgich
-        O(c, s, 196, 15, 2, 4, '#da3633', '#5a1210');
+        O(c, s, 236, 15, 2, 4, '#da3633', '#5a1210');
+        if (on) guards.forEach(function (g) { drawGuardBeam(c, s, g, false); });
         var list = [];
-        for (var r = 0; r < 18; r++) {
-            (function (r) {
-                var x = 12 + r * 10;
-                list.push({ y: 29, f: function () { drawRack(c, s, x, 16, 13, r, true); } });
-                list.push({ y: 67, f: function () { drawRack(c, s, x, 54, 13, r + 18, true); } });
+        ROWS.forEach(function (ry, k) {
+            for (var r = 0; r < RACKS; r++) (function (r) {
+                var x = 12 + r * 10, lit = on || (boot && (r + k * 3) / (RACKS + 6) < prog);
+                list.push({ y: ry + 13, f: function () { drawRack(c, s, x, ry, 13, r + k * RACKS, lit); } });
             })(r);
-        }
-        consoles.forEach(function (x, k) {
-            var on = agents.some(function (a) { return a.scene === 'db' && a.st === 'dbwork' && a.dbs === dbSpots[k]; });
-            list.push({ y: 41, f: function () { drawConsole(c, s, x, on); } });
         });
+        consoles.forEach(function (x, k) {
+            var busy = on && agents.some(function (a) { return a.scene === 'db' && a.st === 'dbwork' && a.dbs === dbSpots[k]; });
+            list.push({ y: 41, f: function () { drawConsole(c, s, x, busy); } });
+        });
+        list.push({ y: PANEL.y + PANEL.h, f: function () { drawPanel(c, s); } });
         var here = agents.filter(function (a) { return a.scene === 'db'; });
         here.forEach(function (a) { list.push({ y: a.y + .1, f: function () { drawAgent(c, s, a); } }); });
         guards.forEach(function (g) { list.push({ y: g.y + .1, f: function () { drawGuard(c, s, g); } }); });
         list.sort(function (p, q) { return p.y - q.y; }).forEach(function (o) { o.f(); });
+        if (!on) {
+            // qorong'ilik + qizil avariya chirog'i; fonarlar kuchliroq ko'rinadi
+            c.fillStyle = 'rgba(0,0,0,' + (boot ? .55 * (1 - prog) : .6) + ')'; c.fillRect(0, 0, cv.width, cv.height);
+            if (!boot || prog < .6) {
+                var pulse = (Math.sin(tAll * 5) + 1) / 2;
+                [[6, 6], [DW - 6, 6], [DW / 2, 96]].forEach(function (p) { var g = c.createRadialGradient(p[0] * s, p[1] * s, 0, p[0] * s, p[1] * s, 40 * s); g.addColorStop(0, 'rgba(248,81,73,' + (.35 * pulse) + ')'); g.addColorStop(1, 'rgba(248,81,73,0)'); c.fillStyle = g; c.fillRect(0, 0, cv.width, cv.height); });
+            }
+            guards.forEach(function (g) { drawGuardBeam(c, s, g, true); });
+            drawPanel(c, s);                                                                                  // shkaf qorong'ida ham ko'rinsin
+        }
         var taken = [];
         guards.forEach(function (g) { g.r = T("Qo'riqchi", 'Guard', 'Охранник'); g.st = 'guard'; });
         here.concat(guards).sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, true, taken); });
@@ -9606,6 +9700,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     }
     function counts() {
         var w = agents.filter(function (a) { return a.st === 'work'; }).length, d = inDb();
+        if (dbPower !== 'on') return '⚠ ' + T("Baza o'chdi — agentlar yugurmoqda", 'DB down — agents running', 'База упала — агенты бегут');
         return T('Ishlayapti: ', 'Working: ', 'Работают: ') + w + ' · ' + T('Dam: ', 'Resting: ', 'Отдыхают: ') + (agents.length - w - d) + (d ? ' · ' + T('Bazada: ', 'In DB: ', 'В базе: ') + d : '');
     }
 
@@ -9646,12 +9741,14 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     function openDb() {
         if (!dbp) {
             dbp = document.createElement('div'); dbp.className = 'ag-dbp'; dbp.hidden = true;
-            dbp.innerHTML = '<div class="ag-dbcard"><div class="ag-head"><b></b><span><small></small><button class="ag-btn ag-call"></button><button class="ag-x" aria-label="close">✕</button></span></div>' +
+            dbp.innerHTML = '<div class="ag-dbcard"><div class="ag-head"><b></b><span><small></small><button class="ag-btn ag-pwr"></button><button class="ag-btn ag-call"></button><button class="ag-x" aria-label="close">✕</button></span></div>' +
                 '<canvas></canvas><div class="ag-dbfoot"></div></div>';
             document.body.appendChild(dbp);
             dcv = dbp.querySelector('canvas');
             dbp.addEventListener('click', function (e) {
                 if (e.target === dbp || e.target.closest('.ag-x')) { dbp.hidden = true; return; }
+                if (dbPower !== 'on') return;
+                if (e.target.closest('.ag-pwr')) { powerOff(); return; }
                 if (e.target.closest('.ag-call')) { if (inDb()) returnAll(); else callToDb(); }
             });
         }
@@ -9664,9 +9761,17 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         dbp.querySelector('.ag-head small').textContent = T('Bazada: ', 'In DB: ', 'В базе: ') + n + ' · ' + T("Qo'riqchilar: 2", 'Guards: 2', 'Охрана: 2');
         var b = dbp.querySelector('.ag-call'), t = n ? '↩ ' + T('Ofisga qaytarish', 'Back to office', 'Вернуть в офис') : '📣 ' + T('Agentlarni chaqirish', 'Call agents', 'Позвать агентов');
         if (b.textContent !== t) b.textContent = t;
-        b.classList.toggle('hot', !n);
-        var f = dbp.querySelector('.ag-dbfoot'), ft = TABLES.length + ' ' + T('jadval', 'tables', 'таблиц') + ' · 36 ' + T('server javoni', 'server racks', 'стоек') + ' · ' + T('holat', 'status', 'статус') + ': ';
-        if (f.dataset.t !== ft) { f.dataset.t = ft; f.innerHTML = ''; f.appendChild(document.createTextNode(ft)); var i = document.createElement('i'); i.textContent = '● ' + T('ishlayapti', 'online', 'работает'); f.appendChild(i); }
+        b.classList.toggle('hot', !n); b.disabled = dbPower !== 'on'; b.hidden = dbPower !== 'on';
+        var pw = dbp.querySelector('.ag-pwr'), pt = dbPower === 'on' ? '⏻ ' + T("Bazani o'chirish", 'Power off', 'Выключить базу')
+            : dbPower === 'off' ? '🏃 ' + T('Agentlar yugurib kelyapti…', 'Agents are running…', 'Агенты бегут…') : '⚡ ' + T('Yoqilmoqda…', 'Powering on…', 'Включается…');
+        if (pw.textContent !== pt) pw.textContent = pt;
+        pw.classList.toggle('red', dbPower === 'on'); pw.disabled = dbPower !== 'on';
+        var f = dbp.querySelector('.ag-dbfoot'), ft = TABLES.length + ' ' + T('jadval', 'tables', 'таблиц') + ' · ' + (ROWS.length * RACKS) + ' ' + T('server javoni', 'server racks', 'стоек') + ' · ' + T('holat', 'status', 'статус') + ': ';
+        var stt = dbPower === 'on' ? '● ' + T('ishlayapti', 'online', 'работает') : dbPower === 'boot' ? '● ' + T('yoqilmoqda', 'booting', 'загрузка') : '● ' + T("o'chiq", 'offline', 'отключена');
+        if (f.dataset.t !== ft + stt) {
+            f.dataset.t = ft + stt; f.innerHTML = ''; f.appendChild(document.createTextNode(ft));
+            var i = document.createElement('i'); i.textContent = stt; i.style.color = dbPower === 'on' ? '#3fb950' : dbPower === 'boot' ? '#d29922' : '#f85149'; f.appendChild(i);
+        }
     }
     function openModal() {
         if (!modal) {
