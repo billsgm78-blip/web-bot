@@ -9165,7 +9165,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 .ag-box canvas, .ag-modal canvas { display: block; width: 100%; height: auto; }
 .ag-modal { position: fixed; inset: 0; z-index: 2147482500; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(10, 8, 6, .72); }
 .ag-modal[hidden] { display: none; }
-.ag-card { width: min(100%, 1240px, calc((100vh - 120px) * 1.5)); border-radius: 18px; overflow: hidden; background: #2a211d; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
+.ag-card { width: min(100%, 1100px, calc((100vh - 120px) * 1.05)); border-radius: 18px; overflow: hidden; background: #2a211d; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
 .ag-card .ag-head { padding: 10px 14px; font-size: 14px; }
 .ag-card .ag-head b { font-size: 15px; }
 .ag-x { border: 0; background: rgba(255, 255, 255, .1); color: #fff; width: 30px; height: 30px; border-radius: 50%; font-size: 16px; cursor: pointer; margin-left: 8px; }
@@ -9191,7 +9191,8 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 <script id="office-script">
 (function () {
     function T(uz, en, ru) { var l = (typeof currentLang !== 'undefined' && currentLang) || 'uz'; return l === 'en' ? en : l === 'ru' ? ru : uz; }
-    var W = 120, H = 80, CORR = 42;           // dunyo o'lchami (piksel-katak), o'tish yo'lagi
+    var W = 120, H = 114, CORR = 42, OH = 78;  // dunyo o'lchami (piksel-katak), o'tish yo'lagi; OH — ofis poli tugaydi, pastda baza xonasi
+    var ADOOR = 62;                             // ofisdan baza xonasiga eshik (x)
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     /* ---------- jihozlar ---------- */
@@ -9226,7 +9227,13 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 
     /* ---------- 🗄 MA'LUMOTLAR BAZASI ZALI (alohida, uzun sahna) ---------- */
     var DW = 280, DH = 100, DCORR = 50, LANE = 7;      // kattaroq zal: 3 qator javon; LANE — chapdagi o'tish yo'li
-    var DOOR = { x: 0, y: 35, w: 4.5, h: 13 };          // ofisdagi bazaga eshik
+    var DOOR = { x: 56, y: OH, w: 12, h: 6 };           // ofis va baza xonasi orasidagi siljuvchi eshik
+    var ARACKS = [3, 10, 17, 24, 31, 38, 45, 75, 82, 89, 96, 103, 110];
+    var ACONS = [17, 38, 72, 96];                       // ofisdagi baza xonasi konsollari
+    var ASLOT = [                                       // har bir agentning baza xonasidagi joyi
+        { x: 23, y: 110, sit: true }, { x: 13, y: 99, sit: false }, { x: 78, y: 110, sit: true }, { x: 112, y: 99, sit: false },
+        { x: 33, y: 99, sit: false }, { x: 44, y: 110, sit: true }, { x: 102, y: 110, sit: true }, { x: 88, y: 99, sit: false }
+    ];
     var ROWS = [16, 54, 72], RACKS = 26;
     var dbSpots = [                                     // konsollar (o'tirib) va javonlar oldi (tik turib)
         { x: 47, y: 46, sit: true }, { x: 107, y: 46, sit: true }, { x: 167, y: 46, sit: true }, { x: 227, y: 46, sit: true },
@@ -9274,7 +9281,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         agents.forEach(function (a, i) {
             if (a.scene === 'db' || a.toDb) return;
             leave(a); a.task = false; a.toDb = true; a.wait = i * .45; a.until = 1e9;
-            a.path = [{ x: a.x, y: CORR }, { x: 3, y: CORR }]; a.st = 'walk';
+            a.path = [{ x: a.x, y: CORR }, { x: ADOOR, y: CORR }, { x: ADOOR, y: OH + 3 }]; a.st = 'walk';
             a.arrive = function () {                      // eshikdan kirdi — endi baza zalida
                 var sp = dbSpots[i];
                 a.scene = 'db'; a.toDb = false; a.dbs = sp; a.x = 2; a.y = 41;
@@ -9288,7 +9295,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             if (a.scene !== 'db') { if (a.toDb) { a.toDb = false; a.arrive = null; a.st = 'idle'; a.until = .1; } return; }
             a.wait = i * .35;
             a.path = dbPathTo(a, { x: 2, y: 41 }); a.st = 'walk';
-            a.arrive = function () { a.scene = 'office'; a.dbs = null; a.x = 2; a.y = CORR; a.st = 'idle'; a.until = .1; };
+            a.arrive = function () { a.scene = 'office'; a.dbs = null; a.run = false; a.x = ADOOR; a.y = OH + 3; a.path = [{ x: ADOOR, y: CORR }]; a.st = 'walk'; a.next = 'idle'; a.until = .1; };
         });
         dbUntil = 0;
     }
@@ -9308,7 +9315,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             if (a.scene === 'db') { a.path = dbPathTo(a, sp); a.st = 'walk'; a.arrive = atPanel; }
             else {
                 leave(a); a.toDb = true; a.st = 'walk';
-                a.path = [{ x: a.x, y: CORR }, { x: 3, y: CORR }];
+                a.path = [{ x: a.x, y: CORR }, { x: ADOOR, y: CORR }, { x: ADOOR, y: OH + 3 }];
                 a.arrive = function () { a.scene = 'db'; a.toDb = false; a.x = 2; a.y = 41; a.path = [{ x: LANE, y: 41 }, { x: LANE, y: sp.y }, { x: sp.x, y: sp.y }]; a.st = 'walk'; a.arrive = atPanel; };
             }
         });
@@ -9404,8 +9411,8 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     function glow(c, s, x, y, r, col) { var g = c.createRadialGradient(x * s, y * s, 0, x * s, y * s, r * s); g.addColorStop(0, col); g.addColorStop(1, 'rgba(255,200,120,0)'); c.fillStyle = g; c.fillRect((x - r) * s, (y - r) * s, 2 * r * s, 2 * r * s); }
     function drawRoom(c, s) {
         // yog'och pol (taxtalar)
-        R(c, s, 0, 14, W, H - 14, '#d9a978');
-        for (var py = 14, row = 0; py < H; py += 4, row++) {
+        R(c, s, 0, 14, W, OH - 14, '#d9a978');
+        for (var py = 14, row = 0; py < OH; py += 4, row++) {
             R(c, s, 0, py, W, 4, row % 2 ? '#d4a272' : '#dcae7e');
             R(c, s, 0, py + 3.6, W, .4, '#b98557');
             for (var px = (row % 3) * 9; px < W; px += 26) R(c, s, px, py, .4, 3.6, '#c08d5e');
@@ -9470,22 +9477,58 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             c.fillStyle = '#4c9a45'; c.beginPath(); c.arc(p[0] * s, (p[1] + .8) * s, 2.9 * s, 0, 7); c.fill();
             c.fillStyle = '#6cbf5c'; c.beginPath(); c.arc((p[0] - 1) * s, p[1] * s, 1.5 * s, 0, 7); c.fill();
         });
+        drawAnnex(c, s);
+    }
+    /* 🗄 ofis ichidagi baza xonasi (pastda) — agentlar shu eshikdan bazaga kiradi */
+    function drawAnnex(c, s) {
+        var on = dbPower === 'on', boot = dbPower === 'boot', prog = boot ? Math.min(1, bootT / BOOT) : on ? 1 : 0;
+        R(c, s, 0, OH, W, H - OH, '#0e131a');
+        for (var gx = 0; gx < W; gx += 6) R(c, s, gx, OH, .3, H - OH, '#18202b');
+        for (var gy = OH; gy < H; gy += 6) R(c, s, 0, gy, W, .3, '#18202b');
+        if (on) { var gl = c.createLinearGradient(0, (OH + 6) * s, 0, H * s); gl.addColorStop(0, 'rgba(56,139,253,.12)'); gl.addColorStop(1, 'rgba(56,139,253,0)'); c.fillStyle = gl; c.fillRect(0, (OH + 6) * s, W * s, (H - OH - 6) * s); }
+        // devor: ofis va baza orasida, shisha derazali
+        R(c, s, 0, OH, W, 6, '#2a3340'); R(c, s, 0, OH, W, .8, '#3b4656');
+        R(c, s, 0, OH + 5.4, W, .6, on ? '#1f6feb' : boot ? '#9e6a03' : (((tAll * 2) | 0) % 2 ? '#da3633' : '#3a1414'));
+        [[3, 18], [24, 19], [74, 20], [97, 20]].forEach(function (w) { O(c, s, w[0], OH + 1.3, w[1], 3, 'rgba(88,166,255,.28)', '#1c2128'); R(c, s, w[0] + 1, OH + 1.6, w[1] * .3, .5, 'rgba(255,255,255,.35)'); });
+        O(c, s, 44.5, OH + 1.2, 10, 3.4, '#0d1117', '#0d1117');
+        var fs = Math.max(6, s * 2.2); c.font = '800 ' + fs + 'px ui-monospace,Menlo,monospace'; c.fillStyle = on ? '#58a6ff' : '#f85149'; c.textBaseline = 'middle';
+        c.fillText(T('BAZA', 'DB', 'БАЗА'), 45.3 * s, (OH + 3) * s);
+        // server javonlari
+        ARACKS.forEach(function (x, ix) {
+            var lit = on || (boot && ix / ARACKS.length < prog);
+            c.fillStyle = 'rgba(0,0,0,.45)'; c.fillRect((x + .5) * s, (OH + 16) * s, 6 * s, 1 * s);
+            O(c, s, x, OH + 7, 6, 9, '#161b22', '#05070a');
+            for (var r = 0; r < 5; r++) {
+                var yy = OH + 8.2 + r * 1.5;
+                R(c, s, x + .6, yy, 4.8, 1, '#0b0f14');
+                for (var l = 0; l < 2; l++) { var lon = lit && hash(ix * 31 + r * 7 + l * 3 + Math.floor(tAll * (2 + l) + hash(ix + r) * 5)) > .35; R(c, s, x + 3.8 + l * .9, yy + .3, .45, .45, lon ? (l ? '#58a6ff' : '#3fb950') : '#141c17'); }
+            }
+            if (!lit) R(c, s, x + 4.8, OH + 7.6, .5, .5, ((tAll * 2 + ix) | 0) % 2 ? '#f85149' : '#3a1414');
+        });
+        // konsollar va stullar
+        ACONS.forEach(function (x, k) {
+            var busy = on && agents.some(function (a) { return a.scene === 'db' && ASLOT[agents.indexOf(a)].x === x + 6; });
+            O(c, s, x + 3, H - 5, 6, 4.5, '#30363d', '#05070a');
+            O(c, s, x, OH + 23, 12, 4, '#1f2630', '#05070a'); R(c, s, x, OH + 23, 12, .7, '#2d3643');
+            O(c, s, x + 2.5, OH + 23.3, 7, 2.6, '#05070a', '#000');
+            if (busy) for (var i = 0; i < 3; i++) R(c, s, x + 3, OH + 23.7 + i * .7, 1.5 + hash(i + k + Math.floor(tAll * 3)) * 4.5, .3, i ? '#3fb950' : '#58a6ff');
+            else R(c, s, x + 3, OH + 23.8, 6, 1.8, on ? '#0f2a44' : '#0d1520');
+        });
     }
     var doorHot = false, officeLight = true;
+    var doorAmt = 0;
     function drawDoor(c, s, big) {
-        // og'ir metall eshik "BAZA" — ustiga olib borilsa yonadi
-        if (doorHot) { c.fillStyle = 'rgba(56,139,253,.35)'; c.fillRect((DOOR.x) * s, (DOOR.y - 2) * s, (DOOR.w + 3) * s, (DOOR.h + 4) * s); }
-        O(c, s, DOOR.x, DOOR.y, DOOR.w, DOOR.h, '#5b6472', '#1c2128');
-        R(c, s, DOOR.x + .6, DOOR.y + 1, DOOR.w - 1.2, DOOR.h - 2, '#6e7781');
-        R(c, s, DOOR.x + 1, DOOR.y + 2, DOOR.w - 2, 3, '#1c2b3a'); R(c, s, DOOR.x + 1.3, DOOR.y + 2.3, DOOR.w - 2.6, 2.4, 'rgba(56,139,253,.55)');
-        R(c, s, DOOR.x + DOOR.w - 1.4, DOOR.y + 6.5, .8, 2, '#c9d1d9');                                   // tutqich
-        O(c, s, DOOR.x + DOOR.w + .8, DOOR.y + 5, 1.6, 2.4, '#1c2128', '#0d1117');                          // kod paneli
-        R(c, s, DOOR.x + DOOR.w + 1.2, DOOR.y + 5.5, .8, .6, dbPower !== 'on' ? (((tAll * 4) | 0) % 2 ? '#f85149' : '#3a1414') : ((tAll * 2) | 0) % 2 ? '#3fb950' : '#1a4d2a');
-        if (dbPower !== 'on') { c.fillStyle = 'rgba(248,81,73,' + (.25 + .2 * Math.sin(tAll * 6)) + ')'; c.fillRect(DOOR.x * s, (DOOR.y - 3) * s, (DOOR.w + 3) * s, (DOOR.h + 4) * s); }
-        for (var i = 0; i < 6; i++) R(c, s, DOOR.x + i * .9, DOOR.y + DOOR.h + .2, .45, .8, i % 2 ? '#111' : '#f2cc2f');   // ogohlantiruvchi chiziq
-        O(c, s, DOOR.x, DOOR.y - 3.2, 7.5, 2.4, '#0d1117', '#0d1117');
-        var fs = Math.max(6, s * 1.8); c.font = '800 ' + fs + 'px ui-monospace,Menlo,monospace'; c.fillStyle = '#58a6ff'; c.textBaseline = 'middle';
-        c.fillText(big ? T('BAZA', 'DB', 'БАЗА') : 'DB', (DOOR.x + .6) * s, (DOOR.y - 2) * s);
+        // siljuvchi metall eshik — agent yaqinlashsa ochiladi; ustiga olib borilsa yonadi
+        var near = agents.some(function (a) { return a.scene === 'office' && Math.abs(a.x - ADOOR) < 6 && a.y > OH - 14; });
+        doorAmt += ((near ? 1 : 0) - doorAmt) * Math.min(1, frameDt * 8);
+        var D = DOOR, o = doorAmt * 5;
+        if (doorHot) { c.fillStyle = 'rgba(56,139,253,.35)'; c.fillRect((D.x - 2) * s, (D.y - 2) * s, (D.w + 4) * s, (D.h + 3) * s); }
+        O(c, s, D.x, D.y, D.w, D.h, '#05070a', '#1c2128');
+        R(c, s, D.x + .5, D.y + .5, 5.5 - o, D.h - 1, '#6e7781'); R(c, s, D.x + 6 + o, D.y + .5, 5.5 - o, D.h - 1, '#6e7781');
+        if (o < 5) { R(c, s, D.x + 5.6 - o, D.y + 2, .4, 2, '#c9d1d9'); R(c, s, D.x + 6 + o, D.y + 2, .4, 2, '#c9d1d9'); }
+        R(c, s, D.x + D.w + 1, D.y + 2, .9, .9, dbPower !== 'on' ? (((tAll * 4) | 0) % 2 ? '#f85149' : '#3a1414') : ((tAll * 2) | 0) % 2 ? '#3fb950' : '#1a4d2a');
+        if (dbPower !== 'on') { c.fillStyle = 'rgba(248,81,73,' + (.25 + .2 * Math.sin(tAll * 6)) + ')'; c.fillRect((D.x - 1) * s, (D.y - 1) * s, (D.w + 2) * s, (D.h + 2) * s); }
+        for (var i = 0; i < 6; i++) R(c, s, D.x + i * 2, D.y - .9, 1, .7, i % 2 ? '#111' : '#f2cc2f');   // ogohlantiruvchi chiziq
     }
     function drawDesk(c, s, d) {
         var on = d.by && d.by.st === 'work';
@@ -9575,6 +9618,12 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         cachedRoom(c, s, cv);
         drawDoor(c, s, big);
         var here = agents.filter(function (a) { return a.scene === 'office'; });
+        agents.forEach(function (a, i) {                       // bazadagi agentlar ofis ichidagi baza xonasida ko'rinadi
+            if (a.scene !== 'db') return;
+            var sl = ASLOT[i], p = a._px || (a._px = Object.create(a));
+            p.x = sl.x; p.y = sl.y; p.st = a.st === 'walk' ? 'dbwork' : a.st; p.run = false; p.dbs = sl; p.path = [];
+            here.push(p);
+        });
         var list = [];
         desks.forEach(function (d) { list.push({ y: d.y + 6, f: function () { drawDesk(c, s, d); } }); list.push({ y: d.seat.y - .5, f: function () { drawChair(c, s, d); } }); });
         here.forEach(function (a) { list.push({ y: a.y, f: function () { drawAgent(c, s, a); } }); });
@@ -9586,6 +9635,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             [[6, 20], [70, 20]].forEach(function (w) { glow(c, s, w[0] + w[1] / 2, 6, 11, 'rgba(120,150,255,.22)'); });   // oy nuri
             var LC = ['#ffd36b', '#ff8a65', '#9ee37d', '#7cc8ff', '#ff9ad1'];
             for (var bi = 0, bx = 3; bx < W; bx += 6, bi++) { if (((tAll * 1.5 + bi * .7) % 2) < 1.4) glow(c, s, bx, 2.2, 2.4, LC[bi % 5] + '88'); }   // gulchambar chiroqlari
+            if (dbPower === 'on') ARACKS.forEach(function (x) { glow(c, s, x + 3, OH + 11, 5, 'rgba(63,185,80,.22)'); });   // baza javonlari
         }
         var taken = [];
         here.slice().sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, big, taken); });
@@ -9803,27 +9853,31 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         foot.insertBefore(box, foot.firstChild);   // onlayn sonining tepasida
         cv = box.querySelector('canvas');
         hookDoor(cv, false);
-        box.addEventListener('click', function (e) { if (overDoor(cv, e)) { openDb(); return; } openModal(); });
+        box.addEventListener('click', function (e) { if (overDb(cv, e)) { openDb(); return; } openModal(); });
         if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }).observe(box);
         return true;
     }
     function overDoor(canvas, e) {
         var r = canvas.getBoundingClientRect(); if (!r.width) return false;
         var wx = (e.clientX - r.left) / r.width * W, wy = (e.clientY - r.top) / r.height * H;
-        return wx >= DOOR.x - 1 && wx <= DOOR.x + DOOR.w + 3.5 && wy >= DOOR.y - 4 && wy <= DOOR.y + DOOR.h + 1.5;
+        return wx >= DOOR.x - 2 && wx <= DOOR.x + DOOR.w + 2 && wy >= DOOR.y - 3 && wy <= DOOR.y + DOOR.h + 2;
+    }
+    function overDb(canvas, e) {                    // pastdagi baza xonasi — bosilsa katta baza zali ochiladi
+        var r = canvas.getBoundingClientRect(); if (!r.height) return false;
+        return (e.clientY - r.top) / r.height * H >= OH - 3;
     }
     // eshik ustiga sichqoncha olib borilsa — yonadi va bir lahzada baza zali ochiladi
     function hookDoor(canvas, big) {
         var timer = null;
         canvas.addEventListener('mousemove', function (e) {
             var on = overDoor(canvas, e);
-            canvas.style.cursor = on ? 'pointer' : '';
+            canvas.style.cursor = on || overDb(canvas, e) ? 'pointer' : '';
             if (on !== doorHot) doorHot = on;
             if (on && !timer && !(dbp && !dbp.hidden)) timer = setTimeout(function () { timer = null; if (doorHot) openDb(); }, big ? 350 : 600);
             if (!on && timer) { clearTimeout(timer); timer = null; }
         });
         canvas.addEventListener('mouseleave', function () { doorHot = false; if (timer) { clearTimeout(timer); timer = null; } });
-        if (big) canvas.addEventListener('click', function (e) { if (overDoor(canvas, e)) openDb(); });
+        if (big) canvas.addEventListener('click', function (e) { if (overDb(canvas, e)) openDb(); });
     }
     var dbp = null, dcv = null;
     function openDb() {
