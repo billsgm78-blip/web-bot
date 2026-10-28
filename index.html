@@ -9796,6 +9796,9 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 .ag-dbfoot { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 8px 14px; background: #010409; color: #8b949e; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; border-top: 1px solid #21262d; }
 .ag-dbfoot i { font-style: normal; color: #3fb950; }
 @media (max-width: 600px) { .ag-btn { padding: 0 9px; font-size: 11.5px; } .ag-head small { display: none; } }
+.ag-card .ag-head { flex-wrap: wrap; row-gap: 6px; }
+.ag-card .ag-head span { flex-wrap: wrap; justify-content: flex-end; row-gap: 6px; }
+@media (max-width: 600px) { .ag-card .ag-head span { gap: 5px; } .ag-card .ag-btn { height: 28px; padding: 0 8px; } }
 @media (prefers-reduced-motion: reduce) { .ag-dbcard { animation: none; } }
 </style>
 <script id="office-script">
@@ -10099,10 +10102,11 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         { x: 178, y: 25, via: TOPV(178) }, { x: 186, y: 25, via: TOPV(186) }, { x: 194, y: 25, via: TOPV(194) },
         { x: 204, y: 32, via: [{ x: 204, y: 44 }] }];
     function roomPath(sp) { return [{ x: 166, y: 44 }].concat(sp.via, [{ x: sp.x, y: sp.y }]); }   // eshikdan kirgandan keyingi yo'l
-    function startMeeting() {
+    function startMeeting(force) {
         var boss = agents[0];
-        if (dbPower !== 'on' || reduce || boss.scene !== 'office' || boss.toDb || boss.arrive) return;
-        var who = agents.filter(function (a) { return a.scene === 'office' && !a.toDb && !a.task && !a.arrive; });
+        if (force && boss.arrive) { boss.arrive = null; boss.run = false; }               // tugma bosilsa — Bilol hozirgi ishini qoldiradi
+        if (dbPower !== 'on' || (reduce && !force) || boss.scene !== 'office' || boss.toDb || boss.arrive) return;
+        var who = agents.filter(function (a) { return a.scene === 'office' && !a.toDb && (force || !a.task) && !a.arrive; });
         if (who.length < 3 || who.indexOf(boss) < 0) return;
         meet = { t: 0, phase: 'gather', list: who, said: 0 };
         var k = 0;
@@ -10113,6 +10117,20 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             a.mspot = sp; a.path = pre.concat([{ x: MW - 3, y: CORR }], roomPath(sp)); a.st = 'walk'; a.next = 'meet';
         });
         say(boss, T("Hamma majlisga! 📣", 'Meeting, everyone! 📣', 'Все на собрание! 📣'), 3.5);
+    }
+    // 🍵 tugma: bo'sh agentlar choyxonaga boradi
+    function teaBreak() {
+        if (meet) endMeeting();
+        var free = agents.filter(function (a) { return a.scene === 'office' && !a.toDb && !a.meet && !a.arrive && !(a.spot && a.spot.k === 'tea'); });
+        free.sort(function () { return Math.random() - .5; });
+        var boss = agents[0], went = 0;
+        free.forEach(function (a, k) {
+            var sp = freeTea(); if (!sp) return;
+            leave(a); a.task = false; a.spot = sp; a.next = 'rest'; a.wait = k * .25; goTo(a, sp); a.until = 30 + Math.random() * 20; went++;
+            say(a, [T('Choy! 🍵', 'Tea! 🍵', 'Чай! 🍵'), T('Ketdik! ☕', "Let's go! ☕", 'Пошли! ☕'), T('Zo\'r g\'oya 😋', 'Great idea 😋', 'Отличная идея 😋')][k % 3], 3);
+        });
+        if (went) { headline('🍵 ' + T('Choy vaqti — agentlar choyxonada', 'Tea time — agents in the tea house', 'Время чая — агенты в чайхане')); if (boss.scene === 'office' && !saying(boss)) say(boss, T('Choy vaqti! 🍵', 'Tea time! 🍵', 'Время чая! 🍵'), 3); }
+        return went;
     }
     function endMeeting() {
         meet.list.forEach(function (a, k) {
@@ -10873,7 +10891,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     function openModal() {
         if (!modal) {
             modal = document.createElement('div'); modal.className = 'ag-modal'; modal.hidden = true;
-            modal.innerHTML = '<div class="ag-card"><div class="ag-head"><b></b><span><small></small><button class="ag-btn ag-light"></button><button class="ag-btn ag-open-db"></button><button class="ag-x" aria-label="close">✕</button></span></div><canvas></canvas><div class="ag-pop" hidden></div></div>';
+            modal.innerHTML = '<div class="ag-card"><div class="ag-head"><b></b><span><small></small><button class="ag-btn ag-light"></button><button class="ag-btn ag-tea"></button><button class="ag-btn ag-meet"></button><button class="ag-btn ag-open-db"></button><button class="ag-x" aria-label="close">✕</button></span></div><canvas></canvas><div class="ag-pop" hidden></div></div>';
             document.body.appendChild(modal);
             mcv = modal.querySelector('canvas');
             hookDoor(mcv, true);
@@ -10882,11 +10900,23 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
                 if (e.target === modal || e.target.closest('.ag-x')) { modal.hidden = true; hidePop(); return; }
                 if (e.target.closest('.ag-light')) { officeLight = !officeLight; return; }
                 if (e.target.closest('.ag-open-db')) openDb();
+                if (e.target.closest('.ag-tea')) teaBreak();
+                if (e.target.closest('.ag-meet')) { if (meet) { say(agents[0], T('Majlis tugadi! 🚀', 'Meeting over! 🚀', 'Собрание окончено! 🚀'), 3); endMeeting(); } else startMeeting(true); }
             });
         }
         modal.querySelector('.ag-light').textContent = officeLight ? '🌙 ' + T("Chiroqni o'chirish", 'Lights off', 'Выключить свет') : '💡 ' + T('Chiroqni yoqish', 'Lights on', 'Включить свет');
         modal.querySelector('.ag-open-db').textContent = '🗄 ' + T('Baza', 'Database', 'База');
+        paintBtns();
         modal.hidden = false;
+    }
+    function paintBtns() {
+        if (!modal) return;
+        var tb = modal.querySelector('.ag-tea'), mb = modal.querySelector('.ag-meet');
+        var tt = '🍵 ' + T('Choyxona', 'Tea break', 'Чайхана'), mt = meet ? '⏹ ' + T('Majlisni tugatish', 'End meeting', 'Завершить') : '📋 ' + T('Majlis', 'Meeting', 'Собрание');
+        if (tb.textContent !== tt) tb.textContent = tt;
+        if (mb.textContent !== mt) mb.textContent = mt;
+        mb.classList.toggle('hot', !!meet);
+        var off = dbPower !== 'on'; tb.disabled = off; mb.disabled = off;
     }
     /* ---------- 👆 agentni bossa — nima qilayotganini aytadi ---------- */
     var bigHere = [], pop = null, popT = 0;
@@ -10941,7 +10971,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var head = (typeof currentLang !== 'undefined' ? currentLang : '') + counts();
         var showSmall = visible && box.offsetParent !== null, showBig = modal && !modal.hidden;
         if (showSmall) { box.querySelector('.ag-head b').textContent = '🏢 ' + T('Agentlar ofisi', 'Agents office', 'Офис агентов'); box.querySelector('.ag-head small').textContent = counts(); if (fit(cv)) render(cv, false); }
-        if (showBig) { modal.querySelector('.ag-head b').textContent = '🏢 ' + T('Agentlar ofisi', 'Agents office', 'Офис агентов'); modal.querySelector('.ag-head small').textContent = counts(); var lb = modal.querySelector('.ag-light'), lt = officeLight ? '🌙 ' + T("Chiroqni o'chirish", 'Lights off', 'Выключить свет') : '💡 ' + T('Chiroqni yoqish', 'Lights on', 'Включить свет'); if (lb.textContent !== lt) lb.textContent = lt; if (fit(mcv)) render(mcv, true); }
+        if (showBig) { modal.querySelector('.ag-head b').textContent = '🏢 ' + T('Agentlar ofisi', 'Agents office', 'Офис агентов'); modal.querySelector('.ag-head small').textContent = counts(); var lb = modal.querySelector('.ag-light'), lt = officeLight ? '🌙 ' + T("Chiroqni o'chirish", 'Lights off', 'Выключить свет') : '💡 ' + T('Chiroqni yoqish', 'Lights on', 'Включить свет'); if (lb.textContent !== lt) lb.textContent = lt; paintBtns(); if (fit(mcv)) render(mcv, true); }
         if (dbp && !dbp.hidden) { paintDbUi(); if (fitDb(dcv)) renderDb(dcv); }
         if (pop) { if (!showBig || tAll > popT || (pop.a.guest && !fx.guest)) hidePop(); else paintPop(); }
     }
