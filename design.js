@@ -14,7 +14,7 @@
         if (fontAdded) return; fontAdded = true;
         var l = document.createElement('link');
         l.rel = 'stylesheet';
-        l.href = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&display=swap';
+        l.href = 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter+Tight:wght@400;500;600;700&display=swap';
         document.head.appendChild(l);
     }
     function userWantsLight() { try { return localStorage.getItem('bilol_ai_light') === '1'; } catch (e) { return false; } }

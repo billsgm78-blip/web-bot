@@ -2686,6 +2686,215 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
     </figure>
   </section>
   <section class="pd-statement"><p><span class="pm-t" data-l="uz">Bilols AI uy vazifasi, ish, o'qish va kundalik savollar uchun yaratilgan. Matn yozadi, rasmni o'qiydi, hujjatni tahlil qiladi, rasm chizadi va uch tilda gaplashadi — bitta hisob bilan saytda, Android ilovada va Telegram botda.</span><span class="pm-t" data-l="ru">Bilols AI создан для учёбы, работы и повседневных вопросов. Пишет тексты, читает фото, анализирует документы, рисует и говорит на трёх языках — один аккаунт на сайте, в Android-приложении и Telegram-боте.</span><span class="pm-t" data-l="en">Bilols AI is built for homework, work, study and everyday questions. It writes, reads photos, analyses documents, draws images and speaks three languages — one account across the web, the Android app and the Telegram bot.</span></p></section>
+  <!-- ===== 🎬 Scroll-hikoya: pastga surganda telefon aylanadi, imkoniyatlar ketma-ket ochiladi ===== -->
+  <style id="story-style">
+  .pd-page > .pd-story { padding: 0; }
+  .pd-story { position: relative; height: 560vh; background: #0b0709; color: #f6efe9; }
+  .pd-st-stick { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; isolation: isolate; }
+  .pd-st-bg { position: absolute; inset: 0; opacity: 0; transition: opacity .9s ease; z-index: -1; }
+  .pd-st-bg.on { opacity: 1; }
+  .pd-st-bg i { position: absolute; left: -10%; right: -10%; bottom: 17%; height: 4px; border-radius: 4px; filter: blur(1px); }
+  .pd-st-bg[data-i="-1"] { background: radial-gradient(70% 60% at 62% 55%, #3a1830 0%, #0b0709 70%); }
+  .pd-st-bg[data-i="0"] { background: radial-gradient(75% 65% at 64% 52%, #c04a86 0%, #5a1648 42%, #12060f 85%); }
+  .pd-st-bg[data-i="0"] i { background: #ff4fb0; box-shadow: 0 0 40px 10px rgba(255, 79, 176, .55); }
+  .pd-st-bg[data-i="1"] { background: radial-gradient(75% 65% at 64% 52%, #ff7a2a 0%, #8a2c08 45%, #140703 88%); }
+  .pd-st-bg[data-i="1"] i { background: #ff8a2a; box-shadow: 0 0 40px 10px rgba(255, 138, 42, .55); }
+  .pd-st-bg[data-i="2"] { background: radial-gradient(75% 65% at 64% 52%, #2fa5a0 0%, #0d4a4f 45%, #03100f 88%); }
+  .pd-st-bg[data-i="2"] i { background: #3fe0d0; box-shadow: 0 0 40px 10px rgba(63, 224, 208, .45); }
+  .pd-st-bg[data-i="3"] { background: radial-gradient(75% 65% at 64% 52%, #7b5cff 0%, #2f1a74 45%, #07051a 88%); }
+  .pd-st-bg[data-i="3"] i { background: #a98bff; box-shadow: 0 0 40px 10px rgba(169, 139, 255, .5); }
+  .pd-st-grain { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .25; background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px); background-size: 3px 3px; mix-blend-mode: overlay; }
+  /* matnlar */
+  .pd-st-ch { position: absolute; left: max(24px, calc((100% - 1180px) / 2)); top: 50%; width: min(440px, 40%); transform: translate3d(0, -40%, 0); opacity: 0; transition: opacity .8s cubic-bezier(.16, 1, .3, 1), transform 1s cubic-bezier(.16, 1, .3, 1); pointer-events: none; }
+  .pd-st-ch.on { opacity: 1; transform: translate3d(0, -50%, 0); pointer-events: auto; }
+  .pd-st-ch.up { transform: translate3d(0, -62%, 0); }
+  .pd-st-k { font: 600 12px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; opacity: .65; display: flex; align-items: center; gap: 10px; }
+  .pd-st-k::after { content: ""; width: 42px; height: 1px; background: currentColor; opacity: .6; }
+  .pd-st-h { margin: 16px 0 14px; font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-style: italic; font-size: clamp(52px, 7.4vw, 108px); line-height: .92; letter-spacing: -.035em; }
+  .pd-st-h em { color: #fff; font-style: normal; opacity: .55; }
+  .pd-st-p { margin: 0; font-size: 17px; line-height: 1.55; opacity: .78; max-width: 36ch; }
+  .pd-st-intro .pd-st-h { font-size: clamp(56px, 8.4vw, 124px); }
+  .pd-st-hint { margin-top: 26px; display: inline-flex; align-items: center; gap: 10px; font-size: 13px; opacity: .7; }
+  .pd-st-hint b { width: 22px; height: 34px; border: 1.5px solid currentColor; border-radius: 12px; position: relative; }
+  .pd-st-hint b::after { content: ""; position: absolute; left: 50%; top: 7px; width: 3px; height: 7px; margin-left: -1.5px; border-radius: 2px; background: currentColor; animation: stWheel 1.6s ease-in-out infinite; }
+  @keyframes stWheel { 0% { opacity: 0; transform: translateY(-3px); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateY(9px); } }
+  /* sahna va telefon */
+  .pd-st-scene { position: absolute; inset: 0; perspective: 1500px; perspective-origin: 64% 45%; }
+  .pd-st-rig { position: absolute; left: 64%; top: 52%; width: clamp(210px, 21vw, 300px); aspect-ratio: 9 / 19; margin-left: calc(clamp(210px, 21vw, 300px) / -2); transform: translateY(-50%); transform-style: preserve-3d; }
+  .pd-st-phone { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+  .pd-st-face, .pd-st-back { position: absolute; inset: 0; border-radius: 15% / 7.2%; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+  .pd-st-face { background: linear-gradient(150deg, #3a3a40, #0d0d10 60%); padding: 4.2%; box-shadow: inset 0 0 0 1.5px #55555c, inset 0 0 0 4px #121214; transform: translateZ(6px); }
+  .pd-st-back { transform: rotateY(180deg) translateZ(6px); background: linear-gradient(160deg, #2a2a30, #121215 55%, #1d1d22); box-shadow: inset 0 0 0 1.5px #55555c; }
+  .pd-st-back::before { content: ""; position: absolute; left: 8%; top: 4%; width: 38%; aspect-ratio: 1; border-radius: 28%; background: #1a1a1e; box-shadow: inset 0 0 0 1.5px #3c3c44, 0 6px 18px rgba(0,0,0,.5); }
+  .pd-st-back::after { content: "B"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 600 46px/1 'Fraunces', Georgia, serif; color: rgba(255,255,255,.18); }
+  .pd-st-edge { position: absolute; inset: 0; border-radius: 15% / 7.2%; background: #1b1b1f; }
+  .pd-st-edge.e1 { transform: translateZ(2px); } .pd-st-edge.e2 { transform: translateZ(-2px); } .pd-st-edge.e3 { transform: translateZ(4px); } .pd-st-edge.e4 { transform: translateZ(-4px); }
+  .pd-st-screen { position: relative; height: 100%; border-radius: 12% / 5.8%; overflow: hidden; background: #0e0e10; }
+  .pd-st-screen::before { content: ""; position: absolute; z-index: 3; top: 2.4%; left: 50%; width: 30%; height: 3.4%; margin-left: -15%; border-radius: 99px; background: #000; }
+  .pd-st-screen::after { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(115deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 32%, rgba(255,255,255,0) 70%, rgba(255,255,255,.06) 100%); }
+  .pd-st-dim { position: absolute; inset: 0; z-index: 5; background: #000; pointer-events: none; }
+  .pd-st-scr { position: absolute; inset: 0; padding: 18% 7% 7%; display: flex; flex-direction: column; gap: 7px; font-size: 11.5px; line-height: 1.4; opacity: 0; transition: opacity .35s ease; }
+  .pd-st-scr.on { opacity: 1; }
+  .pd-st-bar { display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .pd-st-bar small { font-weight: 600; opacity: .55; font-size: 10px; }
+  .pd-st-u { align-self: flex-end; max-width: 85%; padding: 7px 10px; border-radius: 13px 13px 4px 13px; background: #f6efe9; color: #141311; font-weight: 600; }
+  .pd-st-a { align-self: flex-start; max-width: 90%; padding: 8px 10px; border-radius: 13px 13px 13px 4px; background: #1f1f24; display: flex; flex-direction: column; gap: 3px; }
+  .pd-st-a b { color: #ff7ac4; }
+  .pd-st-line { height: 6px; border-radius: 4px; background: linear-gradient(90deg, #2c2c33 0%, #4a4a55 50%, #2c2c33 100%); background-size: 200% 100%; animation: stShim 1.4s linear infinite; }
+  @keyframes stShim { to { background-position: -200% 0; } }
+  .pd-st-cam { flex: 1; position: relative; border-radius: 14px; background: radial-gradient(80% 60% at 50% 45%, #3b2a20, #0c0807); overflow: hidden; }
+  .pd-st-paper { position: absolute; left: 14%; right: 14%; top: 22%; bottom: 26%; background: #f4ecdc; border-radius: 4px; transform: rotate(-5deg); box-shadow: 0 10px 24px rgba(0,0,0,.5); color: #233; display: grid; place-items: center; font: 600 19px/1 'Fraunces', Georgia, serif; font-style: italic; background-image: repeating-linear-gradient(transparent 0 15px, rgba(70,110,170,.25) 15px 16px); }
+  .pd-st-cam i { position: absolute; width: 16px; height: 16px; border: 2px solid #ffb36b; }
+  .pd-st-cam i:nth-of-type(1) { left: 9%; top: 15%; border-right: 0; border-bottom: 0; } .pd-st-cam i:nth-of-type(2) { right: 9%; top: 15%; border-left: 0; border-bottom: 0; }
+  .pd-st-cam i:nth-of-type(3) { left: 9%; bottom: 20%; border-right: 0; border-top: 0; } .pd-st-cam i:nth-of-type(4) { right: 9%; bottom: 20%; border-left: 0; border-top: 0; }
+  .pd-st-scan { position: absolute; left: 10%; right: 10%; height: 2px; background: #ffb36b; box-shadow: 0 0 14px 3px rgba(255, 150, 60, .7); animation: stScan 2.2s ease-in-out infinite; }
+  @keyframes stScan { 0%, 100% { top: 18%; } 50% { top: 76%; } }
+  .pd-st-shut { align-self: center; width: 42px; height: 42px; border-radius: 50%; border: 3px solid #f6efe9; box-shadow: inset 0 0 0 3px #0e0e10, inset 0 0 0 20px #f6efe9; }
+  .pd-st-file { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 12px; background: #16201f; border: 1px solid rgba(63, 224, 208, .25); }
+  .pd-st-file b { width: 30px; height: 36px; border-radius: 5px; background: #e5484d; color: #fff; font-size: 8.5px; display: grid; place-items: center; letter-spacing: .04em; }
+  .pd-st-file small { display: block; opacity: .55; font-size: 9.5px; }
+  .pd-st-ok { color: #3fe0d0; font-weight: 700; }
+  .pd-st-art { flex: 1; border-radius: 14px; overflow: hidden; position: relative; background: linear-gradient(180deg, #3a2a8a 0%, #b7509a 45%, #ffb36b 72%, #ffd9a0 100%); }
+  .pd-st-art::before { content: ""; position: absolute; left: 58%; top: 46%; width: 22%; aspect-ratio: 1; border-radius: 50%; background: #fff1c9; box-shadow: 0 0 30px 10px rgba(255, 225, 160, .6); }
+  .pd-st-art::after { content: ""; position: absolute; left: -5%; right: -5%; bottom: 0; height: 52%; background: linear-gradient(160deg, transparent 0 30%, #2b1e5a 30.5%) , linear-gradient(200deg, transparent 0 40%, #4a2f7a 40.5%); clip-path: polygon(0 60%, 18% 22%, 34% 52%, 52% 8%, 72% 50%, 86% 28%, 100% 48%, 100% 100%, 0 100%); background: linear-gradient(180deg, #5a3c98, #1e1440); }
+  .pd-st-tag { font-size: 10px; opacity: .6; text-align: center; }
+  /* ekrandan "chiqib keladigan" kartalar */
+  .pd-st-pop { position: absolute; left: 50%; top: 42%; opacity: 0; will-change: transform, opacity; pointer-events: none; transform-style: preserve-3d; }
+  .pd-st-card { padding: 16px 18px; border-radius: 18px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .22); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 30px 60px -20px rgba(0,0,0,.6); min-width: 190px; font-size: 14px; line-height: 1.5; }
+  .pd-st-card b { display: block; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 500; font-size: 22px; margin-bottom: 4px; }
+  .pd-st-card .big { font-size: 34px; }
+  .pd-st-frame { width: 200px; aspect-ratio: 1; border-radius: 8px; padding: 10px; background: #f6efe9; box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); }
+  .pd-st-frame > div { height: 100%; border-radius: 3px; }
+  .pd-st-pages { position: relative; width: 170px; height: 210px; }
+  .pd-st-pages span { position: absolute; inset: 0; border-radius: 8px; background: #f6efe9; box-shadow: 0 20px 40px -14px rgba(0,0,0,.6); padding: 18px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .pd-st-pages span i { height: 6px; border-radius: 3px; background: #d6d0c6; }
+  .pd-st-pages span i.hl { background: #3fe0d0; }
+  /* jarayon nuqtalari */
+  .pd-st-dots { position: absolute; right: max(18px, calc((100% - 1240px) / 2)); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; }
+  .pd-st-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.3); transition: background .4s, transform .4s; }
+  .pd-st-dots i.on { background: #fff; transform: scale(1.5); }
+  .pd-st-floor { position: absolute; left: 64%; top: 86%; width: 340px; height: 50px; margin-left: -170px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.65), transparent); filter: blur(4px); }
+  @media (max-width: 760px) {
+    .pd-story { height: 520vh; }
+    .pd-st-ch { left: 22px; right: 22px; width: auto; top: calc(78px + env(safe-area-inset-top)); transform: translate3d(0, 14px, 0); }
+    .pd-st-ch.on { transform: none; } .pd-st-ch.up { transform: translate3d(0, -14px, 0); }
+    .pd-st-h, .pd-st-intro .pd-st-h { font-size: clamp(44px, 13vw, 64px); margin: 10px 0 8px; }
+    .pd-st-p { font-size: 15px; }
+    .pd-st-hint { margin-top: 14px; }
+    .pd-st-scene { perspective-origin: 50% 70%; }
+    .pd-st-rig { left: 50%; top: 70%; width: min(46vw, 210px); margin-left: calc(min(46vw, 210px) / -2); }
+    .pd-st-floor { left: 50%; top: 95%; width: 240px; margin-left: -120px; }
+    .pd-st-card { min-width: 150px; padding: 12px 14px; font-size: 12.5px; } .pd-st-card b { font-size: 18px; } .pd-st-card .big { font-size: 26px; }
+    .pd-st-frame { width: 130px; } .pd-st-pages { width: 120px; height: 150px; }
+    .pd-st-dots { right: 10px; top: auto; bottom: 22px; transform: none; flex-direction: row; left: 50%; margin-left: -40px; }
+    .pd-st-scr { font-size: 9.5px; gap: 5px; } .pd-st-paper { font-size: 14px; }
+  }
+  </style>
+  <section class="pd-story" id="pd-story" aria-label="Bilols AI">
+    <div class="pd-st-stick" data-ch="-1">
+      <div class="pd-st-bg on" data-i="-1"></div><div class="pd-st-bg" data-i="0"><i></i></div><div class="pd-st-bg" data-i="1"><i></i></div><div class="pd-st-bg" data-i="2"><i></i></div><div class="pd-st-bg" data-i="3"><i></i></div>
+      <div class="pd-st-grain"></div>
+      <div class="pd-st-ch pd-st-intro on" data-i="-1">
+        <div class="pd-st-k">Bilols AI</div>
+        <h2 class="pd-st-h"><span class="pm-t" data-l="uz">Yaqindan<br>tanishing<em>.</em></span><span class="pm-t" data-l="ru">Знакомьтесь<br>ближе<em>.</em></span><span class="pm-t" data-l="en">Up<br>close<em>.</em></span></h2>
+        <p class="pd-st-p"><span class="pm-t" data-l="uz">Bitta ilova — to'rtta kuch. Pastga suring.</span><span class="pm-t" data-l="ru">Одно приложение — четыре суперсилы. Листайте вниз.</span><span class="pm-t" data-l="en">One app, four superpowers. Scroll down.</span></p>
+        <div class="pd-st-hint"><b></b><span class="pm-t" data-l="uz">Suring</span><span class="pm-t" data-l="ru">Листайте</span><span class="pm-t" data-l="en">Scroll</span></div>
+      </div>
+      <div class="pd-st-ch" data-i="0"><div class="pd-st-k">01 / 04</div>
+        <h2 class="pd-st-h"><span class="pm-t" data-l="uz">Yozing<em>.</em></span><span class="pm-t" data-l="ru">Пишите<em>.</em></span><span class="pm-t" data-l="en">Write<em>.</em></span></h2>
+        <p class="pd-st-p"><span class="pm-t" data-l="uz">Savolingizni oddiy tilda yozing — Bilols AI soniyalarda tushunarli javob beradi.</span><span class="pm-t" data-l="ru">Пишите вопрос обычным языком — Bilols AI ответит понятно за секунды.</span><span class="pm-t" data-l="en">Ask in plain words — Bilols AI answers clearly in seconds.</span></p></div>
+      <div class="pd-st-ch" data-i="1"><div class="pd-st-k">02 / 04</div>
+        <h2 class="pd-st-h"><span class="pm-t" data-l="uz">Suratga<br>oling<em>.</em></span><span class="pm-t" data-l="ru">Снимайте<em>.</em></span><span class="pm-t" data-l="en">Snap<em>.</em></span></h2>
+        <p class="pd-st-p"><span class="pm-t" data-l="uz">Masala, matn yoki chekni kameraga tuting — o'qiydi, yechadi, tarjima qiladi.</span><span class="pm-t" data-l="ru">Наведите камеру на задачу, текст или чек — прочитает, решит, переведёт.</span><span class="pm-t" data-l="en">Point the camera at a problem, text or receipt — it reads, solves, translates.</span></p></div>
+      <div class="pd-st-ch" data-i="2"><div class="pd-st-k">03 / 04</div>
+        <h2 class="pd-st-h"><span class="pm-t" data-l="uz">Hujjat<br>yuklang<em>.</em></span><span class="pm-t" data-l="ru">Загружайте<em>.</em></span><span class="pm-t" data-l="en">Upload<em>.</em></span></h2>
+        <p class="pd-st-p"><span class="pm-t" data-l="uz">PDF yoki Word faylni biriktiring — asosiy fikrlarni bir zumda ajratib beradi.</span><span class="pm-t" data-l="ru">Прикрепите PDF или Word — главное будет выделено мгновенно.</span><span class="pm-t" data-l="en">Attach a PDF or Word file — get the key points instantly.</span></p></div>
+      <div class="pd-st-ch" data-i="3"><div class="pd-st-k">04 / 04</div>
+        <h2 class="pd-st-h"><span class="pm-t" data-l="uz">Rasm<br>chizdiring<em>.</em></span><span class="pm-t" data-l="ru">Рисуйте<em>.</em></span><span class="pm-t" data-l="en">Imagine<em>.</em></span></h2>
+        <p class="pd-st-p"><span class="pm-t" data-l="uz">Tasavvuringizni so'z bilan ayting — Bilols AI uni rasmga aylantiradi.</span><span class="pm-t" data-l="ru">Опишите идею словами — Bilols AI превратит её в картинку.</span><span class="pm-t" data-l="en">Describe it in words — Bilols AI turns it into an image.</span></p></div>
+      <div class="pd-st-scene" aria-hidden="true">
+        <div class="pd-st-floor"></div>
+        <div class="pd-st-rig">
+          <div class="pd-st-phone">
+            <div class="pd-st-edge e4"></div><div class="pd-st-edge e2"></div><div class="pd-st-edge e1"></div><div class="pd-st-edge e3"></div>
+            <div class="pd-st-back"></div>
+            <div class="pd-st-face"><div class="pd-st-screen">
+              <div class="pd-st-scr on" data-i="0"><div class="pd-st-bar">Bilols AI<small>⚡ Flash</small></div>
+                <div class="pd-st-u"><span class="pm-t" data-l="uz">Insho uchun reja tuzib ber</span><span class="pm-t" data-l="ru">Составь план эссе</span><span class="pm-t" data-l="en">Outline my essay</span></div>
+                <div class="pd-st-a"><b><span class="pm-t" data-l="uz">Reja</span><span class="pm-t" data-l="ru">План</span><span class="pm-t" data-l="en">Outline</span></b><span>1. <span class="pm-t" data-l="uz">Kirish</span><span class="pm-t" data-l="ru">Введение</span><span class="pm-t" data-l="en">Intro</span></span><span>2. <span class="pm-t" data-l="uz">Asosiy qism</span><span class="pm-t" data-l="ru">Основная часть</span><span class="pm-t" data-l="en">Body</span></span><span>3. <span class="pm-t" data-l="uz">Xulosa</span><span class="pm-t" data-l="ru">Вывод</span><span class="pm-t" data-l="en">Conclusion</span></span></div>
+                <div class="pd-st-line" style="width:70%"></div><div class="pd-st-line" style="width:52%"></div></div>
+              <div class="pd-st-scr" data-i="1"><div class="pd-st-bar"><span class="pm-t" data-l="uz">Kamera</span><span class="pm-t" data-l="ru">Камера</span><span class="pm-t" data-l="en">Camera</span><small>AI</small></div>
+                <div class="pd-st-cam"><div class="pd-st-paper">2x + 6 = 14</div><i></i><i></i><i></i><i></i><div class="pd-st-scan"></div></div><div class="pd-st-shut"></div></div>
+              <div class="pd-st-scr" data-i="2"><div class="pd-st-bar"><span class="pm-t" data-l="uz">Hujjat</span><span class="pm-t" data-l="ru">Документ</span><span class="pm-t" data-l="en">Document</span><small>PDF</small></div>
+                <div class="pd-st-file"><b>PDF</b><span>referat.pdf<small>12 <span class="pm-t" data-l="uz">bet</span><span class="pm-t" data-l="ru">стр.</span><span class="pm-t" data-l="en">pages</span></small></span></div>
+                <div class="pd-st-a"><span class="pd-st-ok">✓ <span class="pm-t" data-l="uz">3 ta asosiy fikr</span><span class="pm-t" data-l="ru">3 главные мысли</span><span class="pm-t" data-l="en">3 key points</span></span><div class="pd-st-line" style="width:120px"></div><div class="pd-st-line" style="width:96px"></div><div class="pd-st-line" style="width:110px"></div></div></div>
+              <div class="pd-st-scr" data-i="3"><div class="pd-st-bar"><span class="pm-t" data-l="uz">Rasm</span><span class="pm-t" data-l="ru">Рисунок</span><span class="pm-t" data-l="en">Image</span><small>1024²</small></div>
+                <div class="pd-st-art"></div><div class="pd-st-tag"><span class="pm-t" data-l="uz">«Tog'larda shom, akvarel»</span><span class="pm-t" data-l="ru">«Закат в горах, акварель»</span><span class="pm-t" data-l="en">“Mountain sunset, watercolor”</span></div></div>
+              <div class="pd-st-dim"></div>
+            </div></div>
+          </div>
+          <div class="pd-st-pop" data-i="0"><div class="pd-st-card"><b><span class="pm-t" data-l="uz">Reja tayyor</span><span class="pm-t" data-l="ru">План готов</span><span class="pm-t" data-l="en">Outline ready</span></b>1. <span class="pm-t" data-l="uz">Kirish — kitob va inson</span><span class="pm-t" data-l="ru">Введение — книга и человек</span><span class="pm-t" data-l="en">Intro — books and people</span><br>2. <span class="pm-t" data-l="uz">Bilim manbai</span><span class="pm-t" data-l="ru">Источник знаний</span><span class="pm-t" data-l="en">A source of knowledge</span><br>3. <span class="pm-t" data-l="uz">Xulosa</span><span class="pm-t" data-l="ru">Вывод</span><span class="pm-t" data-l="en">Conclusion</span></div></div>
+          <div class="pd-st-pop" data-i="1"><div class="pd-st-card"><b class="big">x = 4 ✓</b>2x = 14 − 6<br>2x = 8 → x = 4</div></div>
+          <div class="pd-st-pop" data-i="2"><div class="pd-st-pages"><span style="transform:rotate(-8deg) translate(-14px,6px)"><i></i><i></i><i></i></span><span style="transform:rotate(-3deg) translate(-6px,2px)"><i></i><i></i><i></i></span><span><i class="hl" style="width:80%"></i><i></i><i class="hl" style="width:60%"></i><i></i><i style="width:70%"></i><i class="hl" style="width:74%"></i><i></i></span></div></div>
+          <div class="pd-st-pop" data-i="3"><div class="pd-st-frame"><div class="pd-st-art"></div></div></div>
+        </div>
+      </div>
+      <div class="pd-st-dots" aria-hidden="true"><i data-i="0"></i><i data-i="1"></i><i data-i="2"></i><i data-i="3"></i></div>
+    </div>
+  </section>
+  <script id="story-script">
+  (function () {
+      var sec = document.getElementById('pd-story'); if (!sec) return;
+      var stick = sec.querySelector('.pd-st-stick'), phone = sec.querySelector('.pd-st-phone'), dim = sec.querySelector('.pd-st-dim');
+      var chs = sec.querySelectorAll('.pd-st-ch'), bgs = sec.querySelectorAll('.pd-st-bg'), scrs = sec.querySelectorAll('.pd-st-scr'), pops = sec.querySelectorAll('.pd-st-pop'), dots = sec.querySelectorAll('.pd-st-dots i');
+      var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var INTRO = .12, SEG = (1 - INTRO) / 4, BOUND = [INTRO + SEG, INTRO + 2 * SEG, INTRO + 3 * SEG];
+      function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+      function ease(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
+      function scroller() { var p = sec.parentElement; while (p && p !== document.body) { var o = getComputedStyle(p).overflowY; if ((o === 'auto' || o === 'scroll') && p.scrollHeight > p.clientHeight) return p; p = p.parentElement; } return window; }
+      var sc = null, cur = null, ticking = false;
+      // ekrandan chiqadigan kartalarning yo'nalishi (telefon markaziga nisbatan, px)
+      var POP = [{ x: -240, y: -90, r: -6 }, { x: 210, y: -110, r: 5 }, { x: -250, y: 10, r: -4 }, { x: 190, y: -60, r: 4 }];
+      function set(ch) {
+          if (ch === cur) return; cur = ch; stick.setAttribute('data-ch', ch);
+          chs.forEach(function (e) { var i = +e.dataset.i; e.classList.toggle('on', i === ch); e.classList.toggle('up', i < ch); });
+          bgs.forEach(function (e) { e.classList.toggle('on', +e.dataset.i === ch); });
+          scrs.forEach(function (e) { e.classList.toggle('on', +e.dataset.i === Math.max(0, ch)); });
+          dots.forEach(function (e) { e.classList.toggle('on', +e.dataset.i === ch); });
+      }
+      function update() {
+          ticking = false;
+          if (!sc) sc = scroller();
+          var top = sec.getBoundingClientRect().top - (sc === window ? 0 : sc.getBoundingClientRect().top);
+          var vh = sc === window ? innerHeight : sc.clientHeight, total = sec.offsetHeight - vh;
+          if (total <= 0) return;
+          if (top > vh || top < -sec.offsetHeight) return;              // ko'rinmayapti
+          var p = clamp(-top / total, 0, 1), mob = innerWidth <= 760;
+          var ch = p < INTRO ? -1 : Math.min(3, Math.floor((p - INTRO) / SEG)), t = ch < 0 ? p / INTRO : (p - INTRO - ch * SEG) / SEG;
+          set(ch);
+          // telefon: boshida yotgan holda turadi va ekrani yonadi; keyin chayqaladi, bo'limlar orasida bir marta aylanadi
+          var k = ease(p / INTRO), spin = 0;
+          if (!reduce) BOUND.forEach(function (b) { spin += 360 * ease((p - b + .035) / .07); });
+          var rx = 62 * (1 - k) + 8 * k, rz = -14 * (1 - k), ry = (reduce ? 0 : -18 * Math.sin(p * Math.PI * 4.6)) + spin;
+          var ty = (1 - k) * 22, sc2 = .78 + .22 * k + (ch >= 0 ? .04 * Math.sin(t * Math.PI) : 0);
+          phone.style.transform = 'translateY(' + ty + '%) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) rotateZ(' + rz.toFixed(2) + 'deg) scale(' + sc2.toFixed(3) + ')';
+          dim.style.opacity = (0.92 * (1 - ease(p / (INTRO * .8)))).toFixed(3);
+          // karta ekrandan ko'tarilib chiqadi (videodagi qopqoq ochilishi kabi), bo'lim oxirida yo'qoladi
+          pops.forEach(function (e) {
+              var i = +e.dataset.i, d = POP[i], m = mob ? .45 : 1;
+              if (i !== ch) { e.style.opacity = 0; return; }
+              var u = ease((t - .06) / .4), out = ease((t - .82) / .12);
+              e.style.opacity = (u * (1 - out)).toFixed(3);
+              e.style.transform = 'translate(-50%,-50%) translate3d(' + (d.x * m * u).toFixed(1) + 'px,' + (d.y * m * u + (1 - u) * 120).toFixed(1) + 'px,' + (40 + 160 * u).toFixed(1) + 'px) rotate(' + (d.r * u).toFixed(2) + 'deg) scale(' + (.6 + .4 * u).toFixed(3) + ')';
+          });
+      }
+      function req() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+      function hook() { sc = scroller(); (sc === window ? window : sc).addEventListener('scroll', req, { passive: true }); req(); }
+      window.addEventListener('resize', function () { sc = null; req(); });
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
+      setTimeout(hook, 1500);   // landing keyinroq ko'rinishi mumkin — scroller qayta aniqlanadi
+  })();
+  </script>
   <section class="pd-sec" id="pd-features">
     <div class="pd-kicker">01 — <span class="pm-t" data-l="uz">Imkoniyatlar</span><span class="pm-t" data-l="ru">Возможности</span><span class="pm-t" data-l="en">Features</span></div>
     <h2 class="pd-h2"><span class="pm-t" data-l="uz">Chat, rasm, hujjat —<br>bitta oynada.</span><span class="pm-t" data-l="ru">Чат, фото, документы —<br>в одном окне.</span><span class="pm-t" data-l="en">Chat, photos, documents —<br>one window.</span></h2>
