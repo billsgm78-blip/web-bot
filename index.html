@@ -9187,7 +9187,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 .ag-box canvas, .ag-modal canvas { display: block; width: 100%; height: auto; }
 .ag-modal { position: fixed; inset: 0; z-index: 2147482500; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(10, 8, 6, .72); }
 .ag-modal[hidden] { display: none; }
-.ag-card { width: min(100%, 1560px, calc((100vh - 96px) * 1.68)); border-radius: 18px; overflow: hidden; background: #2a211d; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
+.ag-card { width: min(100%, 1560px, calc((100vh - 96px) * 1.82)); border-radius: 18px; overflow: hidden; background: #2a211d; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
 .ag-card { position: relative; }
 .ag-card .ag-head { padding: 10px 14px; font-size: 14px; }
 .ag-pop { position: absolute; z-index: 2; min-width: 190px; max-width: 260px; padding: 10px 12px; border-radius: 12px; background: rgba(20, 16, 14, .95); color: #f3e6d6; font: 12.5px/1.45 system-ui, -apple-system, sans-serif; box-shadow: 0 10px 30px rgba(0, 0, 0, .45); border: 1px solid rgba(255, 255, 255, .12); pointer-events: none; animation: agPop .18s ease-out; }
@@ -9221,8 +9221,8 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 <script id="office-script">
 (function () {
     function T(uz, en, ru) { var l = (typeof currentLang !== 'undefined' && currentLang) || 'uz'; return l === 'en' ? en : l === 'ru' ? ru : uz; }
-    var W = 192, H = 114, CORR = 42, OH = 78;  // dunyo o'lchami (piksel-katak), o'tish yo'lagi; OH — ofis poli tugaydi, pastda baza xonasi
-    var MW = 160, MDOOR = 42;                   // 📋 majlislar zali: x > MW (alohida xona), eshik yo'lak balandligida
+    var W = 208, H = 114, CORR = 42, OH = 78;  // dunyo o'lchami (piksel-katak), o'tish yo'lagi; OH — ofis poli tugaydi, pastda baza xonasi
+    var MW = 160, MDOOR = 42, TDOOR = 64, MSPLIT = 50;   // o'ng qanot: tepada 📋 majlislar zali, pastda 🍵 choyxona — har biriga ofisdan alohida eshik
     var ADOOR = 62;                             // ofisdan baza xonasiga eshik (x)
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -9240,7 +9240,11 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         { x: 103, y: 24, k: 'coffee' }, { x: 66, y: 28, k: 'plant' }, { x: 84, y: 69, k: 'chair' },
         { x: 18, y: 62, k: 'chair' }, { x: 48, y: 70, k: 'plant' },
         { x: 125, y: 75, k: 'chair' }, { x: 135, y: 75, k: 'chair' }, { x: 156, y: 22, k: 'coffee' },
-        { x: 63.5, y: 64, k: 'tea' }, { x: 79.5, y: 64, k: 'tea' }, { x: 71.5, y: 70, k: 'tea' }      // 🍵 choyxona burchagi
+        // 🍵 choyxona (alohida xona): tapchanda o'tirish joylari; via — eshikdan keyingi yo'l
+        { x: 179, y: 66, k: 'tea', via: [{ x: 166, y: 56 }, { x: 179, y: 56 }] }, { x: 201, y: 66, k: 'tea', via: [{ x: 166, y: 56 }, { x: 201, y: 56 }] },
+        { x: 190, y: 61, k: 'tea', via: [{ x: 166, y: 56 }, { x: 190, y: 56 }] },
+        { x: 186, y: 75, k: 'tea', via: [{ x: 174, y: TDOOR }, { x: 174, y: 76.5 }, { x: 186, y: 76.5 }] },
+        { x: 194, y: 75, k: 'tea', via: [{ x: 174, y: TDOOR }, { x: 174, y: 76.5 }, { x: 194, y: 76.5 }] }
     ];
     /* ---------- 🕐 Toshkent vaqti: kun/tun va kayfiyat ---------- */
     function tkHour() {
@@ -9300,7 +9304,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     /* ---------- 🗄 MA'LUMOTLAR BAZASI ZALI (alohida, uzun sahna) ---------- */
     var DW = 320, DH = 132, DCORR = 50, LANE = 7;      // kattaroq zal: 3 qator javon; LANE — chapdagi o'tish yo'li
     var DOOR = { x: 56, y: OH, w: 12, h: 6 };           // ofis va baza xonasi orasidagi siljuvchi eshik
-    var ARACKS = [3, 10, 17, 24, 31, 38, 45, 75, 82, 89, 96, 103, 110, 117, 124, 131, 138, 145, 152, 159, 166, 173, 180];
+    var ARACKS = [3, 10, 17, 24, 31, 38, 45, 75, 82, 89, 96, 103, 110, 117, 124, 131, 138, 145, 152, 159, 166, 173, 180, 187, 194, 201];
     var ACONS = [14, 36, 76, 100, 124, 144];            // ofisdagi baza xonasi konsollari
     var ASLOT = [                                       // har bir agentning baza xonasidagi joyi
         { x: 20, y: 110, sit: true }, { x: 30, y: 99, sit: false }, { x: 82, y: 110, sit: true }, { x: 150, y: 110, sit: true },
@@ -9356,7 +9360,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         meet = null;
         agents.forEach(function (a, i) {
             if (a.scene === 'db' || a.toDb) return;
-            var out = a.x > MW && a.mspot ? roomPath(a.mspot).reverse().slice(1).concat([{ x: 166, y: MDOOR }]) : [];
+            var out = inTea(a) ? teaOut(a) : a.x > MW && a.mspot ? roomPath(a.mspot).reverse().slice(1).concat([{ x: 166, y: MDOOR }]) : [];
             leave(a); a.task = false; a.meet = false; a.evBusy = false; a.toDb = true; a.wait = i * .45; a.until = 1e9;
             a.path = out.concat([{ x: a.x > MW ? 166 : a.x, y: CORR }, { x: ADOOR, y: CORR }, { x: ADOOR, y: OH + 3 }]); a.st = 'walk';
             a.arrive = function () {                      // eshikdan kirdi — endi baza zalida
@@ -9411,9 +9415,17 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 
     function freeDesk() { var f = desks.filter(function (d) { return !d.by; }); return f.length ? f[(Math.random() * f.length) | 0] : null; }
     function freeRest() { var f = rest.filter(function (r) { return !agents.some(function (a) { return a.spot === r; }); }); return f.length ? f[(Math.random() * f.length) | 0] : null; }
+    function inTea(a) { return a.x > MW && a.y > MSPLIT; }
+    function teaIn(sp) { return [{ x: MW - 2, y: CORR }, { x: MW - 2, y: TDOOR }, { x: 166, y: TDOOR }].concat(sp.via, [{ x: sp.x, y: sp.y }]); }
+    function teaOut(a) {                                   // choyxonadan eshik orqali yo'lakka chiqish
+        var sp = a.troom; a.troom = null;
+        return (sp ? sp.via.slice().reverse() : []).concat([{ x: 166, y: TDOOR }, { x: MW - 2, y: TDOOR }, { x: MW - 2, y: CORR }]);
+    }
     function goTo(a, p) {
-        // yo'lak orqali: avval yo'lakka, keyin gorizontal, keyin manzilga (stollar ustidan yurmaydi)
-        a.path = [{ x: a.x, y: CORR }, { x: p.x, y: CORR }, { x: p.x, y: p.y }];
+        // yo'lak orqali: avval yo'lakka, keyin gorizontal, keyin manzilga (stollar ustidan yurmaydi); choyxonaga — eshikdan
+        var pre = inTea(a) ? teaOut(a) : [], start = pre.length ? [] : [{ x: a.x, y: CORR }];
+        if (p.k === 'tea') { a.path = pre.concat(start, teaIn(p)); a.troom = p; }
+        else a.path = pre.concat(start, [{ x: pre.length ? MW - 2 : a.x, y: CORR }, { x: p.x, y: CORR }, { x: p.x, y: p.y }]);
         a.st = 'walk';
     }
     function leave(a) { if (a.desk) { a.desk.by = null; a.desk = null; } a.spot = null; }
@@ -9500,13 +9512,13 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 
     /* ---------- 📋 majlis: Bilol vaqti-vaqti bilan hammani ekran oldiga yig'adi ---------- */
     var meet = null, meetT = 80 + Math.random() * 50;
-    // zal ichida: eshik (x≈163, y=42) → chap qator stullar x=166, o'ng qator x=187 (stol ustidan emas, tepadan aylanib)
-    var BOSS_SPOT = { x: 177, y: 24, side: 'top' }, MEET_SPOTS = [
-        { x: 166, y: 36, side: 'l' }, { x: 187, y: 36, side: 'r' }, { x: 166, y: 52, side: 'l' }, { x: 187, y: 52, side: 'r' },
-        { x: 166, y: 60, side: 'l' }, { x: 187, y: 44, side: 'r' }, { x: 187, y: 60, side: 'r' }];
-    function roomPath(sp) {                              // eshikdan kirgandan keyingi yo'l
-        return sp.side === 'l' ? [{ x: 166, y: MDOOR }, { x: sp.x, y: sp.y }] : [{ x: 166, y: MDOOR }, { x: 166, y: 26 }, { x: sp.x, y: 26 }, { x: sp.x, y: sp.y }];
-    }
+    // zal ichida: gorizontal stol (x 174–200, y 26–34); pastki qator to'g'ri, yuqori qator stol tepasidan aylanib
+    var TOPV = function (x) { return [{ x: 166, y: 22 }, { x: x, y: 22 }]; }, BOTV = function (x) { return [{ x: x, y: 44 }]; };
+    var BOSS_SPOT = { x: 169, y: 31, via: [] }, MEET_SPOTS = [
+        { x: 178, y: 41, via: BOTV(178) }, { x: 186, y: 41, via: BOTV(186) }, { x: 194, y: 41, via: BOTV(194) },
+        { x: 178, y: 25, via: TOPV(178) }, { x: 186, y: 25, via: TOPV(186) }, { x: 194, y: 25, via: TOPV(194) },
+        { x: 204, y: 32, via: [{ x: 204, y: 44 }] }];
+    function roomPath(sp) { return [{ x: 166, y: 44 }].concat(sp.via, [{ x: sp.x, y: sp.y }]); }   // eshikdan kirgandan keyingi yo'l
     function startMeeting() {
         var boss = agents[0];
         if (dbPower !== 'on' || reduce || boss.scene !== 'office' || boss.toDb || boss.arrive) return;
@@ -9517,7 +9529,8 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         who.forEach(function (a) {
             var sp = a === boss ? BOSS_SPOT : MEET_SPOTS[k++ % MEET_SPOTS.length];
             leave(a); a.meet = true; a.say = null; a.sayNext = null; a.wait = a === boss ? 0 : k * .3; a.until = 1e9;
-            a.mspot = sp; a.path = [{ x: a.x, y: CORR }, { x: MW - 3, y: CORR }].concat(roomPath(sp)); a.st = 'walk'; a.next = 'meet';
+            var pre = inTea(a) ? teaOut(a) : [{ x: a.x, y: CORR }];
+            a.mspot = sp; a.path = pre.concat([{ x: MW - 3, y: CORR }], roomPath(sp)); a.st = 'walk'; a.next = 'meet';
         });
         say(boss, T("Hamma majlisga! 📣", 'Meeting, everyone! 📣', 'Все на собрание! 📣'), 3.5);
     }
@@ -9690,13 +9703,6 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     }
     /* 🍵 choyxona, 💰 seyf, 🚪 kirish eshigi, 📮 pochta qutisi */
     function drawKitchen(c, s) {
-        // dastarxonli past stol
-        O(c, s, 66.5, 59.4, 10, 5, '#8a5a3c'); R(c, s, 67, 59.8, 9, 4.2, '#c0392b'); R(c, s, 67, 59.8, 9, .5, '#e9c46a'); R(c, s, 67, 63.5, 9, .5, '#e9c46a');
-        for (var k = 0; k < 4; k++) R(c, s, 68 + k * 2.2, 61.5, .7, .7, '#f2c98a');
-        O(c, s, 67.8, 60.6, 2.4, 2.2, '#2f7fbf', '#1d3f5e'); R(c, s, 70.2, 61, .9, .5, '#2f7fbf'); R(c, s, 68.4, 60.2, 1.2, .5, '#1d3f5e');   // choynak
-        O(c, s, 71.6, 61.2, 1.3, 1.1, '#f6eddc', '#8a7a6a'); O(c, s, 73.4, 61.6, 1.3, 1.1, '#f6eddc', '#8a7a6a');                     // piyolalar
-        c.fillStyle = '#c98b3e'; c.beginPath(); c.arc(75.3 * s, 61.3 * s, 1.1 * s, 0, 7); c.fill(); c.fillStyle = '#e8b56a'; c.beginPath(); c.arc(75.3 * s, 61.3 * s, .6 * s, 0, 7); c.fill();   // non
-        [[63.5, 64], [79.5, 64], [71.5, 70]].forEach(function (p) { O(c, s, p[0] - 2.4, p[1] - 2.2, 4.8, 2.2, '#9a6440'); });                // kursichalar
         // seyf (devor yonida)
         O(c, s, 84, 14.4, 6, 6.6, '#4a5160', '#1c2128'); R(c, s, 84.6, 15, 4.8, 5.4, '#59606f');
         c.fillStyle = '#c9d1d9'; c.beginPath(); c.arc(86.4 * s, 17.6 * s, 1 * s, 0, 7); c.fill(); R(c, s, 88.4, 16.8, .6, 1.8, '#d4a72c');
@@ -9708,42 +9714,65 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     }
     function drawMeetRoom(c, s) {
         var X = MW + 2.5;
-        R(c, s, X, 14, W - X, OH - 14, '#3d4a63');                                   // gilam pol
-        for (var gy = 16; gy < OH; gy += 4) R(c, s, X, gy, W - X, .3, '#36425a');
+        // 📋 majlislar zali (tepada)
+        R(c, s, X, 14, W - X, MSPLIT - 14, '#3d4a63');
+        for (var gy = 16; gy < MSPLIT; gy += 4) R(c, s, X, gy, W - X, .3, '#36425a');
         R(c, s, MW, 0, W - MW, 14, '#55606f'); for (var wx = MW; wx < W; wx += 6) R(c, s, wx, 0, .4, 13, '#4b5564');
         R(c, s, MW, 12.6, W - MW, 1.4, '#2a3340');
-        // oq doska (reja va grafik)
-        O(c, s, 166, 2.2, 22, 9.6, '#f6f8fa', '#30363d');
+        O(c, s, 175, 2.2, 24, 9.6, '#f6f8fa', '#30363d');                                              // oq doska
         var fs = Math.max(6, s * 1.6); c.font = '800 ' + fs + 'px system-ui,-apple-system,sans-serif'; c.fillStyle = '#1f6feb'; c.textBaseline = 'middle';
-        c.fillText(T('REJA', 'PLAN', 'ПЛАН'), 167.4 * s, 4.2 * s);
-        [3.2, 5, 4.2, 6.4, 7.2].forEach(function (h, i) { R(c, s, 178 + i * 1.8, 10.8 - h, 1.1, h, i === 4 ? '#3fb950' : '#58a6ff'); });
-        for (var i = 0; i < 3; i++) { R(c, s, 167.4, 6.2 + i * 1.4, .6, .6, '#3fb950'); R(c, s, 168.6, 6.3 + i * 1.4, 4 + hash(i) * 3, .4, '#57606a'); }
-        R(c, s, 166, 11.8, 22, .6, '#8b949e');
-        // uzun stol va stullar
-        [36, 44, 52, 60].forEach(function (y) { O(c, s, 163.6, y - 3.2, 4.8, 3.2, '#2d333b'); O(c, s, 184.6, y - 3.2, 4.8, 3.2, '#2d333b'); });
-        O(c, s, 170, 30, 13, 33, '#6b4a3a', '#2a1d17'); R(c, s, 170.6, 30.6, 11.8, 31.8, '#7d5643'); R(c, s, 170.6, 30.6, 11.8, .8, '#946650');
-        [36, 44, 52, 60].forEach(function (y) { O(c, s, 171.2, y - 2.4, 2.4, 1.6, '#f6f8fa', '#8b949e'); O(c, s, 179.4, y - 2.4, 2.4, 1.6, '#f6f8fa', '#8b949e'); });   // bloknotlar
-        O(c, s, 175.4, 45, 2.4, 2.4, '#f1efe9', '#8a7a6a');                                             // grafin
-        [[189, 18], [189, 72]].forEach(function (p) {                                                   // o'simliklar
-            O(c, s, p[0] - 2, p[1] + 3, 4, 3, '#c97b4f'); c.fillStyle = '#4c9a45'; c.beginPath(); c.arc(p[0] * s, (p[1] + .8) * s, 2.8 * s, 0, 7); c.fill();
-        });
-        // devor (ofis bilan zal orasida), eshik o'rni ochiq — eshik har kadrda chiziladi
-        R(c, s, MW, 14, 2.5, MDOOR - 5 - 14, '#5a4033'); R(c, s, MW, MDOOR + 5, 2.5, OH - MDOOR - 5, '#5a4033');
+        c.fillText(T('REJA', 'PLAN', 'ПЛАН'), 176.4 * s, 4.2 * s);
+        [3.2, 5, 4.2, 6.4, 7.2].forEach(function (h, i) { R(c, s, 188.5 + i * 1.8, 10.8 - h, 1.1, h, i === 4 ? '#3fb950' : '#58a6ff'); });
+        for (var i = 0; i < 3; i++) { R(c, s, 176.4, 6.2 + i * 1.4, .6, .6, '#3fb950'); R(c, s, 177.6, 6.3 + i * 1.4, 4 + hash(i) * 3, .4, '#57606a'); }
+        R(c, s, 175, 11.8, 24, .6, '#8b949e');
+        [178, 186, 194].forEach(function (x) { O(c, s, x - 2.4, 21.8, 4.8, 3.2, '#2d333b'); O(c, s, x - 2.4, 37.8, 4.8, 3.2, '#2d333b'); });
+        O(c, s, 201.6, 28.8, 4.8, 3.2, '#2d333b');
+        O(c, s, 174, 26, 26, 8, '#6b4a3a', '#2a1d17'); R(c, s, 174.6, 26.6, 24.8, 6.8, '#7d5643'); R(c, s, 174.6, 26.6, 24.8, .8, '#946650');
+        [178, 186, 194].forEach(function (x) { O(c, s, x - 1.2, 27.4, 2.4, 1.6, '#f6f8fa', '#8b949e'); O(c, s, x - 1.2, 31, 2.4, 1.6, '#f6f8fa', '#8b949e'); });   // bloknotlar
+        O(c, s, 197, 28.6, 1.8, 2.4, '#cfe8ff', '#5b7a99');                                            // grafin
+        O(c, s, 203, 17, 4, 3, '#c97b4f'); c.fillStyle = '#4c9a45'; c.beginPath(); c.arc(205 * s, 15.8 * s, 2.8 * s, 0, 7); c.fill();
+        // ajratuvchi devor (zal | choyxona)
+        R(c, s, MW, MSPLIT, W - MW, 2.5, '#5a4033'); R(c, s, MW, MSPLIT + 2.1, W - MW, .4, '#3b271e');
+        // 🍵 choyxona (pastda): issiq pol, gilam, samovar, tapchan
+        R(c, s, X, MSPLIT + 2.5, W - X, OH - MSPLIT - 2.5, '#c9935f');
+        for (var ty = MSPLIT + 4; ty < OH; ty += 3.5) R(c, s, X, ty, W - X, .3, '#b17e4e');
+        O(c, s, 165, 56.5, 7, 4, '#6b4a3a'); O(c, s, 166.4, 52.4, 4.2, 4.4, '#d4a72c', '#7a5a0a'); R(c, s, 167.6, 51.6, 1.8, .9, '#7a5a0a'); R(c, s, 170.6, 54.6, 1.2, .6, '#7a5a0a');   // samovar
+        O(c, s, 176, 58, 28, 18, '#8a5a3c', '#3b271e'); R(c, s, 176.6, 58.6, 26.8, 16.8, '#a0683f');      // tapchan
+        for (var k = 0; k < 7; k++) R(c, s, 177 + k * 4, 75.4, 2, .6, '#3b271e');
+        O(c, s, 177.4, 59.4, 25.2, 15.2, '#a8362b', '#6e2018'); R(c, s, 178.4, 60.4, 23.2, 13.2, '#c0473a');   // ko'rpacha (qizil)
+        for (var gx2 = 179; gx2 < 202; gx2 += 3) { R(c, s, gx2, 60.6, 1, 1, '#f2c98a'); R(c, s, gx2, 72.4, 1, 1, '#f2c98a'); }
+        O(c, s, 182.5, 63, 15, 8, '#f6eddc', '#c9a87a'); R(c, s, 182.5, 63, 15, .6, '#2f7fbf'); R(c, s, 182.5, 70.4, 15, .6, '#2f7fbf');   // dastarxon
+        O(c, s, 184, 64.4, 2.6, 2.4, '#2f7fbf', '#1d3f5e'); R(c, s, 186.6, 64.9, 1, .5, '#2f7fbf'); R(c, s, 184.6, 64, 1.4, .5, '#1d3f5e');   // choynak
+        [[188.4, 65.4], [190.6, 66.6], [188.8, 68.4]].forEach(function (q) { O(c, s, q[0], q[1], 1.3, 1.1, '#f6eddc', '#2f7fbf'); });         // piyolalar
+        c.fillStyle = '#c98b3e'; c.beginPath(); c.arc(194 * s, 66.6 * s, 1.5 * s, 0, 7); c.fill(); c.fillStyle = '#e8b56a'; c.beginPath(); c.arc(194 * s, 66.6 * s, .8 * s, 0, 7); c.fill();   // non
+        [['#e0457b', 185.2, 68.6], ['#f2b134', 196, 64.4], ['#9bbb59', 196.6, 68.8]].forEach(function (f) { c.fillStyle = f[0]; c.beginPath(); c.arc(f[1] * s, f[2] * s, .7 * s, 0, 7); c.fill(); });   // mevalar
+        O(c, s, 203.5, 54, 3.4, 3, '#c97b4f'); c.fillStyle = '#4c9a45'; c.beginPath(); c.arc(205.2 * s, 53.4 * s, 2.4 * s, 0, 7); c.fill();
+        O(c, s, 178, 53, 10, 1.2, '#7a4f33'); [179, 181.5, 184, 186.5].forEach(function (x) { O(c, s, x, 51.4 - .2, 1.3, 1.4, '#f6eddc', '#2f7fbf'); });   // tokchada piyolalar
+        // ofis bilan qanot orasidagi devor (eshik o'rinlari ochiq — eshiklar har kadrda chiziladi)
+        R(c, s, MW, 14, 2.5, MDOOR - 5 - 14, '#5a4033'); R(c, s, MW, MDOOR + 5, 2.5, TDOOR - 5 - MDOOR - 5, '#5a4033'); R(c, s, MW, TDOOR + 5, 2.5, OH - TDOOR - 5, '#5a4033');
         R(c, s, MW + 2.1, 14, .4, OH - 14, '#3b271e');
-        O(c, s, MW - 1, 16, 4.5, 3.4, '#1f6feb', '#0b1f3a'); var f2 = Math.max(5, s * 1.1); c.font = '800 ' + f2 + 'px system-ui'; c.fillStyle = '#fff'; c.fillText('📋', (MW - .6) * s, 17.8 * s);
+        var f2 = Math.max(5, s * 1.1); c.font = '800 ' + f2 + 'px system-ui';
+        O(c, s, MW - 1, MDOOR - 9.5, 4.5, 3.4, '#1f6feb', '#0b1f3a'); c.fillStyle = '#fff'; c.fillText('📋', (MW - .6) * s, (MDOOR - 7.7) * s);
+        O(c, s, MW - 1, TDOOR - 9.5, 4.5, 3.4, '#a8362b', '#5a1210'); c.fillText('🍵', (MW - .6) * s, (TDOOR - 7.7) * s);
     }
-    var mdoorAmt = 0;
-    function drawMeetDoor(c, s) {
-        var near = agents.some(function (a) { return a.scene === 'office' && Math.abs(a.x - MW - 1) < 7 && Math.abs(a.y - MDOOR) < 6; });
-        mdoorAmt += ((near ? 1 : 0) - mdoorAmt) * Math.min(1, frameDt * 8);
-        var o = mdoorAmt * 4.4, top = MDOOR - 5;
+    var doorAmts = {};
+    function drawSlide(c, s, y, light) {                 // ofisdan qanotga siljuvchi eshik — agent yaqinlashsa ochiladi
+        var near = agents.some(function (a) { return a.scene === 'office' && Math.abs(a.x - MW - 1) < 7 && Math.abs(a.y - y) < 6; });
+        var am = doorAmts[y] || 0; am += ((near ? 1 : 0) - am) * Math.min(1, frameDt * 8); doorAmts[y] = am;
+        var o = am * 4.4, top = y - 5;
         R(c, s, MW, top, 2.5, 10, '#2a1d17');
-        R(c, s, MW + .3, top + .2, 1.9, 4.6 - o, '#a87850'); R(c, s, MW + .3, top + 5.2 + o, 1.9, 4.6 - o, '#a87850');   // ikki tabaqa yonga suriladi
+        R(c, s, MW + .3, top + .2, 1.9, 4.6 - o, '#a87850'); R(c, s, MW + .3, top + 5.2 + o, 1.9, 4.6 - o, '#a87850');
         if (o < 4) { R(c, s, MW + .9, top + 4.2 - o, .7, .5, '#f2cc2f'); R(c, s, MW + .9, top + 5.4 + o, .7, .5, '#f2cc2f'); }
-        if (meet) R(c, s, MW - 1.4, top - 1.2, 1, 1, ((tAll * 2) | 0) % 2 ? '#f85149' : '#5a1a18');                 // "majlis ketyapti" chirog'i
+        if (light) R(c, s, MW - 1.4, top - 1.2, 1, 1, ((tAll * 2) | 0) % 2 ? '#f85149' : '#5a1a18');
     }
+    function drawMeetDoor(c, s) { drawSlide(c, s, MDOOR, !!meet); drawSlide(c, s, TDOOR, false); }
     function drawLive(c, s) {                          // har kadrda: bug', qo'ng'iroq, seyf tangalari, pochta chirog'i
-        for (var k = 0; k < 3; k++) { var u = (tAll * .7 + k / 3) % 1; c.fillStyle = 'rgba(255,255,255,' + (.6 * (1 - u)) + ')'; c.fillRect((68.8 + Math.sin(tAll * 2 + k * 2) * .6) * s, (60 - u * 5) * s, .7 * s, .9 * s); }
+        for (var k = 0; k < 3; k++) {                      // samovar va choynakdan bug'
+            var u = (tAll * .7 + k / 3) % 1; c.fillStyle = 'rgba(255,255,255,' + (.6 * (1 - u)) + ')';
+            c.fillRect((168.2 + Math.sin(tAll * 2 + k * 2) * .6) * s, (51.4 - u * 5) * s, .7 * s, .9 * s);
+            var u2 = (tAll * .6 + k / 3 + .4) % 1; c.fillStyle = 'rgba(255,255,255,' + (.55 * (1 - u2)) + ')';
+            c.fillRect((185 + Math.sin(tAll * 2.4 + k) * .5) * s, (64 - u2 * 4.5) * s, .6 * s, .8 * s);
+        }
         var bt = tAll - fx.bell, swing = bt < 3 ? Math.sin(bt * 18) * (1 - bt / 3) * .9 : 0;
         if (fx.guest || bt < 3) R(c, s, 92.6, 5, 4.8, 7.8, '#1a120d');            // eshik ochiq
         c.save(); c.translate(95 * s, 2.6 * s); c.rotate(swing); c.fillStyle = '#f2cc2f'; c.beginPath(); c.moveTo(-1 * s, 1.4 * s); c.lineTo(1 * s, 1.4 * s); c.lineTo(.6 * s, 0); c.lineTo(-.6 * s, 0); c.fill(); c.restore();
@@ -9794,7 +9823,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         // devor: ofis va baza orasida, shisha derazali
         R(c, s, 0, OH, W, 6, '#2a3340'); R(c, s, 0, OH, W, .8, '#3b4656');
         R(c, s, 0, OH + 5.4, W, .6, on ? '#1f6feb' : boot ? '#9e6a03' : (((tAll * 2) | 0) % 2 ? '#da3633' : '#3a1414'));
-        [[3, 18], [24, 19], [74, 20], [97, 20], [120, 18], [141, 17], [162, 26]].forEach(function (w) { O(c, s, w[0], OH + 1.3, w[1], 3, 'rgba(88,166,255,.28)', '#1c2128'); R(c, s, w[0] + 1, OH + 1.6, w[1] * .3, .5, 'rgba(255,255,255,.35)'); });
+        [[3, 18], [24, 19], [74, 20], [97, 20], [120, 18], [141, 17], [162, 20], [185, 20]].forEach(function (w) { O(c, s, w[0], OH + 1.3, w[1], 3, 'rgba(88,166,255,.28)', '#1c2128'); R(c, s, w[0] + 1, OH + 1.6, w[1] * .3, .5, 'rgba(255,255,255,.35)'); });
         O(c, s, 44.5, OH + 1.2, 10, 3.4, '#0d1117', '#0d1117');
         var fs = Math.max(6, s * 2.2); c.font = '800 ' + fs + 'px ui-monospace,Menlo,monospace'; c.fillStyle = on ? '#58a6ff' : '#f85149'; c.textBaseline = 'middle';
         c.fillText(T('BAZA', 'DB', 'БАЗА'), 45.3 * s, (OH + 3) * s);
@@ -9973,8 +10002,8 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             var LC = ['#ffd36b', '#ff8a65', '#9ee37d', '#7cc8ff', '#ff9ad1'];
             for (var bi = 0, bx = 3; bx < W; bx += 6, bi++) { if (((tAll * 1.5 + bi * .7) % 2) < 1.4) glow(c, s, bx, 2.2, 2.4, LC[bi % 5] + '88'); }   // gulchambar chiroqlari
             if (dbPower === 'on') ARACKS.forEach(function (x) { glow(c, s, x + 3, OH + 11, 5, 'rgba(63,185,80,.22)'); });   // baza javonlari
-            glow(c, s, 71.5, 61, 7, 'rgba(255,190,120,.35)');                                    // choyxona
-            if (meet) glow(c, s, 177, 40, 16, 'rgba(255,230,180,.45)');                         // majlislar zalida chiroq yoniq
+            glow(c, s, 190, 66, 16, 'rgba(255,190,120,.4)');                                     // choyxona
+            if (meet) glow(c, s, 187, 30, 16, 'rgba(255,230,180,.45)');                         // majlislar zalida chiroq yoniq
             c.globalAlpha = 1;
         }
         var taken = [];
