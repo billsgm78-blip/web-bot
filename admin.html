@@ -415,7 +415,7 @@ select.inp option { background: #12151c; color: var(--text); }
 .ds-top b { font-size: 16px; }
 .ds-badge { font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: rgba(56, 189, 248, .15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, .35); }
 /* ---------- 🤖 Yordamchi (admin agent) ---------- */
-.ag-wrap { display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 16px; align-items: start; }
+.ag-wrap { display: grid; grid-template-columns: minmax(300px, 480px) 1fr; gap: 16px; align-items: start; }
 @media (max-width: 900px) { .ag-wrap { grid-template-columns: 1fr; } .ag-office { position: static; } }
 .ag-office { border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: #0d1117; position: sticky; top: 12px; }
 .ag-office canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; }
@@ -437,6 +437,13 @@ select.inp option { background: #12151c; color: var(--text); }
 .ag-acts button { flex: 1; height: 38px; border-radius: 12px; border: 1px solid var(--line2); background: rgba(255,255,255,.06); color: var(--text); font-weight: 700; font-size: 14px; cursor: pointer; }
 .ag-acts .yes { background: rgba(16,185,129,.18); border-color: rgba(16,185,129,.5); color: #a7f3d0; }
 .ag-acts .no { background: rgba(244,63,94,.12); border-color: rgba(244,63,94,.4); color: #fda4af; }
+.ag-acts-log { padding: 10px 14px 14px; border-top: 1px solid var(--line); font-size: 12.5px; }
+.ag-acts-log b { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; font-weight: 700; }
+.ag-al { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-top: 1px dashed var(--line); color: #cbd5e1; }
+.ag-al span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ag-al small { color: var(--dim); flex: none; }
+.ag-al.bad span { color: #fda4af; }
+.ag-al-empty { color: var(--dim); }
 .ag-typing { align-self: flex-start; color: var(--muted); font-size: 13px; padding: 4px 6px; }
 .ag-chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 10px; }
 .ag-chips button { border: 1px solid var(--line2); background: rgba(255,255,255,.04); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size: 12.5px; cursor: pointer; }
@@ -1882,6 +1889,7 @@ select.inp option { background: #12151c; color: var(--text); }
         view.innerHTML = '';
         var office = agOffice();
         var stEl = h('div', { class: 'ag-status' }, [h('i'), h('span', { text: "Yordamchi tayyor" })]);
+        var actsEl = h('div', { class: 'ag-acts-log' });
         var msgs = h('div', { class: 'ag-msgs' });
         var ta = h('textarea', { placeholder: "Yordamchiga yozing… masalan: bugun qancha pul tushdi?", rows: 1 });
         var sendBtn = h('button', { title: 'Yuborish', text: '➤' });
@@ -1891,8 +1899,8 @@ select.inp option { background: #12151c; color: var(--text); }
             await admin('agent_clear'); items = []; render();
         } });
         view.appendChild(h('div', { class: 'ag-wrap' }, [
-            h('div', { class: 'ag-office' }, [office.canvas, stEl]),
-            h('div', { class: 'ag-chat' }, [h('div', { class: 'ag-head' }, [h('span', { text: "🤖 Admin yordamchi · Gemini · Telegram bilan umumiy" }), clearBtn]), msgs, chips, h('div', { class: 'ag-input' }, [ta, sendBtn])])
+            h('div', { class: 'ag-office' }, [office.canvas, stEl, actsEl]),
+            h('div', { class: 'ag-chat' }, [h('div', { class: 'ag-head' }, [h('span', { text: "🤖 Admin yordamchi · to'liq ruxsat · Telegram bilan umumiy" }), clearBtn]), msgs, chips, h('div', { class: 'ag-input' }, [ta, sendBtn])])
         ]));
         var items = [], pending = [], busy = false, sver = -1;
         function setStatus(st) {
@@ -1904,7 +1912,7 @@ select.inp option { background: #12151c; color: var(--text); }
             var atBottom = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 80;
             msgs.innerHTML = '';
             if (!items.length) msgs.appendChild(h('div', { class: 'ag-empty' }, [h('div', { text: '🤖', style: 'font-size:40px;margin-bottom:8px' }),
-                "Salom! Men admin yordamchingizman. Statistika, foydalanuvchilar, to'lovlar va murojaatlar bo'yicha so'rang — pul qo'shish yoki xabar yuborishdan oldin tasdiq so'rayman."]));
+                "Salom! Men admin yordamchingizman. Admin paneldagi hamma ishni qila olaman: statistika, pul va obuna, murojaatlarga javob, e'lonlar, narxlar, promo-kodlar, sayt va ilova sozlamalari. Nima qilay?"]));
             items.forEach(function (it) {
                 var me = it.role === 'admin';
                 var b = h('div', { class: 'ag-m ' + (me ? 'me' : 'bot') + (it.pending ? ' pend' : '') }, [it.text]);
@@ -1919,6 +1927,12 @@ select.inp option { background: #12151c; color: var(--text); }
                 msgs.appendChild(b);
             });
             if (busy) msgs.appendChild(h('div', { class: 'ag-typing', text: '🤖 yozyapti…' }));
+            // ofis ostida: oxirgi bajarilgan amallar
+            var acts = items.filter(function (x) { return x.act; }).slice(-5).reverse();
+            actsEl.innerHTML = '';
+            actsEl.appendChild(h('b', { text: '🗂 Oxirgi amallar' }));
+            if (!acts.length) actsEl.appendChild(h('div', { class: 'ag-al-empty', text: "Hali amal bajarilmagan" }));
+            acts.forEach(function (x) { actsEl.appendChild(h('div', { class: 'ag-al' + (x.ok ? '' : ' bad') }, [h('span', { text: (x.ok ? '✅ ' : '⚠️ ') + x.text.split('\n')[0].replace(/^(✅|⚠️)\s*/, '') }), h('small', { text: fmtDate(x.at) })])); });
             if (atBottom || busy) msgs.scrollTop = msgs.scrollHeight;
         }
         async function reload() {
@@ -1962,79 +1976,117 @@ select.inp option { background: #12151c; color: var(--text); }
         })();
     }
 
-    // Piksel ofis: agent ishiga qarab stol, server javoni, pochta, seyf yoki boshqaruv paneliga yuradi
+    // Piksel ofis: agent ishiga qarab stol, server, pochta, seyf, panel, printer, do'kon javoniga yuradi; bo'sh qolsa divanda dam oladi
     function agOffice() {
-        var W = 128, H = 80, S = 4;
+        var W = 160, H = 100, S = 4;
         var cv = h('canvas', { width: W * S, height: H * S });
         var c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
-        var SPOT = { idle: [34, 62], think: [34, 62], db: [100, 58], mail: [70, 70], safe: [18, 70], panel: [64, 40], wait: [42, 64] };
-        var bot = { x: 34, y: 62, tx: 34, ty: 62, step: 0, state: 'idle' }, t = 0, last = 0, raf = 0, alive = true;
+        var SPOT = { think: [36, 72], db: [128, 64], mail: [92, 84], safe: [18, 86], panel: [70, 50], promo: [112, 86], shop: [150, 74], wait: [44, 74], rest: [62, 90], idle: [36, 72] };
+        var bot = { x: 36, y: 72, tx: 36, ty: 72, step: 0, state: 'idle', since: 0, label: '' }, t = 0, last = 0, raf = 0, alive = true;
         function R(x, y, w, hh, col) { c.fillStyle = col; c.fillRect(Math.round(x * S), Math.round(y * S), Math.round(w * S), Math.round(hh * S)); }
         function O(x, y, w, hh, col, out) { R(x - .5, y - .5, w + 1, hh + 1, out || '#05070a'); R(x, y, w, hh, col); }
         function glow(x, y, r, col) { var g = c.createRadialGradient(x * S, y * S, 0, x * S, y * S, r * S); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect((x - r) * S, (y - r) * S, 2 * r * S, 2 * r * S); }
+        function txt(s, x, y, size, col, weight) { c.fillStyle = col; c.font = (weight || 700) + ' ' + (size * S) + 'px ui-monospace,Menlo,monospace'; c.textBaseline = 'middle'; c.fillText(s, x * S, y * S); }
+        function tash() { var d = new Date(); return new Date(d.getTime() + d.getTimezoneOffset() * 60000 + 5 * 3600000); }   // Toshkent vaqti
         function room() {
-            R(0, 0, W, H, '#10151f');
-            for (var y = 26; y < H; y += 6) for (var x = (y / 6 % 2) * 6; x < W; x += 12) R(x, y, 6, 6, '#131a26');     // shaxmat pol
-            R(0, 0, W, 26, '#1a2233'); R(0, 25, W, 1.2, '#2b3750');
-            // deraza (tungi shahar)
-            O(6, 4, 26, 14, '#0b1430'); for (var i = 0; i < 9; i++) R(8 + i * 2.6, 18 - 3 - (i * 7 % 6), 1.6, 3 + (i * 7 % 6), '#1f2d52');
-            for (var k = 0; k < 6; k++) if (((t * 1.5 + k) | 0) % 3) R(9 + k * 3.7, 12 + (k % 2) * 2, .6, .6, '#ffd36b');
-            // yozuv
-            O(40, 4, 22, 7, '#0d1117', '#2b3750'); c.fillStyle = '#58a6ff'; c.font = '700 ' + (4.2 * S) + 'px ui-monospace,monospace'; c.textBaseline = 'middle'; c.fillText('🤖 AI', 42 * S, 7.6 * S);
-            // boshqaruv paneli (devorda)
-            O(56, 12, 18, 12, '#1f2937'); for (var j = 0; j < 8; j++) R(58 + (j % 4) * 4, 14 + ((j / 4) | 0) * 4, 2, 2, bot.state === 'panel' ? (((t * 6 + j) | 0) % 2 ? '#f43f5e' : '#10b981') : (j % 3 ? '#14532d' : '#10b981'));
+            var now = tash(), hr = now.getHours(), day = hr >= 7 && hr < 19;
+            // pol: issiq yog'och taxtalar
+            R(0, 30, W, H - 30, '#2a2018');
+            for (var py = 30, row = 0; py < H; py += 5, row++) { R(0, py, W, 5, row % 2 ? '#2d221a' : '#30251c'); R(0, py + 4.6, W, .4, '#1f1812'); for (var px = (row % 3) * 11; px < W; px += 33) R(px, py, .4, 4.6, '#241c15'); }
+            // devor
+            R(0, 0, W, 30, '#243049'); for (var wx = 0; wx < W; wx += 8) R(wx, 0, .4, 29, '#202a41'); R(0, 28.6, W, 1.6, '#151c2c');
+            // deraza: kunduzi osmon, kechasi yulduzlar
+            O(6, 5, 30, 18, '#c7d2fe', '#151c2c');
+            var sky = c.createLinearGradient(0, 6 * S, 0, 22 * S);
+            if (day) { sky.addColorStop(0, '#60a5fa'); sky.addColorStop(1, '#bfdbfe'); } else { sky.addColorStop(0, '#0b1230'); sky.addColorStop(1, '#1e2a5a'); }
+            c.fillStyle = sky; c.fillRect(6.6 * S, 5.6 * S, 28.8 * S, 16.8 * S);
+            if (day) { c.fillStyle = '#fde68a'; c.beginPath(); c.arc(28 * S, 10 * S, 2.4 * S, 0, 7); c.fill(); R(10 + (t * 2 % 30), 9, 6, 1.6, 'rgba(255,255,255,.85)'); }
+            else for (var k = 0; k < 7; k++) if (((t * 1.3 + k) | 0) % 4) R(8 + k * 3.9, 7 + (k * 5 % 9), .6, .6, '#fef3c7');
+            for (var bI = 0; bI < 7; bI++) R(7 + bI * 4, 22 - 3 - (bI * 7 % 6), 3, 3 + (bI * 7 % 6), day ? '#93a4c3' : '#111a35');
+            R(20.6, 5, .8, 18, '#151c2c'); R(5, 22.6, 32, 1.4, '#3b4a6b');
+            // soat (haqiqiy Toshkent vaqti)
+            c.fillStyle = '#0f1424'; c.beginPath(); c.arc(46 * S, 12 * S, 5 * S, 0, 7); c.fill();
+            c.fillStyle = '#f8fafc'; c.beginPath(); c.arc(46 * S, 12 * S, 4.2 * S, 0, 7); c.fill();
+            var mA = now.getMinutes() / 60 * 6.283, hA = (hr % 12 + now.getMinutes() / 60) / 12 * 6.283;
+            c.strokeStyle = '#0f172a'; c.lineWidth = .6 * S; c.beginPath(); c.moveTo(46 * S, 12 * S); c.lineTo((46 + Math.sin(hA) * 2.4) * S, (12 - Math.cos(hA) * 2.4) * S); c.stroke();
+            c.lineWidth = .4 * S; c.beginPath(); c.moveTo(46 * S, 12 * S); c.lineTo((46 + Math.sin(mA) * 3.4) * S, (12 - Math.cos(mA) * 3.4) * S); c.stroke();
+            // boshqaruv paneli (sayt sozlamalari)
+            O(58, 6, 24, 16, '#1f2937'); txt('SAYT', 60, 9, 2.4, '#93c5fd');
+            for (var j = 0; j < 10; j++) R(60 + (j % 5) * 4, 12 + ((j / 5) | 0) * 4, 2.2, 2.2, bot.state === 'panel' ? (((t * 6 + j) | 0) % 2 ? '#f43f5e' : '#10b981') : (j % 3 ? '#14532d' : '#22c55e'));
+            if (bot.state === 'panel') glow(70, 14, 14, 'rgba(56,189,248,.2)');
+            // "AI" yozuvi
+            O(90, 7, 20, 8, '#0d1117', '#2b3750'); txt('🤖 AI', 92, 11, 3.6, '#58a6ff');
             // server javoni
-            O(98, 14, 16, 38, '#111827');
-            for (var r2 = 0; r2 < 9; r2++) { R(100, 16 + r2 * 4, 12, 2.6, '#0b0f17'); for (var l = 0; l < 3; l++) R(106 + l * 2, 16.8 + r2 * 4, 1, 1, ((t * (bot.state === 'db' ? 9 : 2) + r2 * 1.7 + l) | 0) % 3 ? '#3fb950' : '#0f2f1a'); }
-            if (bot.state === 'db') glow(106, 32, 18, 'rgba(63,185,80,.18)');
-            // seyf
-            O(8, 58, 14, 14, '#4b5563'); R(10, 60, 10, 10, '#374151'); c.fillStyle = '#d4a72c'; c.beginPath(); c.arc(15 * S, 65 * S, 2.2 * S, 0, 7); c.fill();
-            if (bot.state === 'safe') for (var m = 0; m < 4; m++) { var u = (t * .8 + m / 4) % 1; R(14 + Math.sin(m * 2 + t) * 4, 56 - u * 10, 1.4, 1.4, 'rgba(250,204,21,' + (1 - u) + ')'); }
-            // pochta qutisi (Telegram)
-            O(76, 62, 10, 12, '#2563eb'); R(77, 64, 8, 1.6, '#1e3a8a'); R(85.5, 60, 1, 6, '#94a3b8'); R(85.5, 60, 3, 2, '#ef4444');
-            if (bot.state === 'mail') { var p = (t * .7) % 1; c.save(); c.globalAlpha = 1 - p; O(80 + p * 30, 58 - p * 40, 5, 3.4, '#f8fafc', '#1e3a8a'); c.restore(); }
-            // stol + monitor + stul
-            O(20, 50, 30, 7, '#7a4f33'); R(20, 50, 30, 1.2, '#9a6440');
-            O(29, 42, 12, 8, '#0b0f17'); var on = bot.state !== 'idle' || ((t | 0) % 4 > 0);
-            R(30, 43, 10, 6, on ? '#0f2944' : '#111827');
-            if (bot.state === 'think') for (var q = 0; q < 4; q++) R(31, 44 + q * 1.3, 2 + ((Math.sin(t * 5 + q) + 1) * 3.2), .6, q ? '#3fb950' : '#58a6ff');
-            R(34, 50, 2, 1, '#0b0f17');
-            if (on) glow(35, 46, 10, 'rgba(88,166,255,.12)');
-            // o'simlik
-            O(116, 64, 6, 6, '#9a5a3c'); c.fillStyle = '#2f8f46'; c.beginPath(); c.arc(119 * S, 61 * S, 5 * S, 0, 7); c.fill();
+            O(124, 18, 18, 44, '#111827');
+            for (var r2 = 0; r2 < 10; r2++) { R(126, 20 + r2 * 4.1, 14, 2.8, '#0b0f17'); for (var l = 0; l < 3; l++) R(133 + l * 2.2, 20.9 + r2 * 4.1, 1, 1, ((t * (bot.state === 'db' ? 9 : 2) + r2 * 1.7 + l) | 0) % 3 ? '#3fb950' : '#0f2f1a'); }
+            if (bot.state === 'db') glow(133, 40, 22, 'rgba(63,185,80,.18)');
+            // do'kon javoni (narxlar: Stars, Premium)
+            O(146, 34, 12, 30, '#6b4226'); for (var sh = 0; sh < 3; sh++) { R(146, 43 + sh * 9, 12, 1, '#4a2c18'); for (var bx = 0; bx < 3; bx++) O(147 + bx * 3.7, 38.5 + sh * 9, 2.8, 4, ['#f59e0b', '#38bdf8', '#a78bfa'][(bx + sh) % 3], '#2a1a0e'); }
+            if (bot.state === 'shop') glow(152, 48, 12, 'rgba(250,204,21,.18)');
+            // seyf (pul, karta)
+            O(8, 76, 16, 16, '#4b5563'); R(10, 78, 12, 12, '#374151'); c.fillStyle = '#d4a72c'; c.beginPath(); c.arc(16 * S, 84 * S, 2.4 * S, 0, 7); c.fill();
+            if (bot.state === 'safe') for (var m = 0; m < 5; m++) { var u = (t * .8 + m / 5) % 1; R(15 + Math.sin(m * 2 + t) * 5, 74 - u * 12, 1.4, 1.4, 'rgba(250,204,21,' + (1 - u) + ')'); }
+            // pochta (Telegram, e'lonlar)
+            O(98, 76, 10, 13, '#2563eb'); R(99, 78, 8, 1.6, '#1e3a8a'); R(107.5, 74, 1, 6, '#94a3b8'); R(107.5, 74, 3, 2, '#ef4444');
+            if (bot.state === 'mail') for (var e = 0; e < 2; e++) { var pp = (t * .7 + e * .5) % 1; c.save(); c.globalAlpha = 1 - pp; O(102 + pp * 40, 72 - pp * 50, 5, 3.4, '#f8fafc', '#1e3a8a'); c.restore(); }
+            // printer (promo-kodlar)
+            O(114, 78, 12, 8, '#d1d5db', '#4b5563'); R(116, 76.6, 8, 1.6, '#f9fafb'); R(115, 82, 10, 1, '#6b7280');
+            if (bot.state === 'promo') { var pr = (t * .9) % 1; O(116.5, 78 - pr * 7, 7, 4, '#fef3c7', '#d97706'); txt('%', 118.6, 80 - pr * 7, 2.6, '#d97706'); }
+            // dam olish burchagi: gilam, divan, kofe
+            O(50, 86, 34, 12, '#7c2d12', '#431407'); R(52, 88, 30, 8, '#9a3412'); for (var g2 = 54; g2 < 82; g2 += 5) R(g2, 96.4, 1.2, 1, '#fdba74');
+            O(52, 78, 24, 6, '#475569'); R(52, 83, 24, 3, '#64748b'); R(51, 78, 1.6, 8, '#334155'); R(75.4, 78, 1.6, 8, '#334155'); R(55, 79, 4, 2.6, '#f59e0b'); R(69, 79, 4, 2.6, '#22d3ee');
+            O(84, 66, 7, 9, '#27272a'); R(85, 67, 5, 2, '#52525b'); R(86.4, 70, 2.2, 2.4, '#fff7ed'); R(89, 67.6, .8, .8, '#ef4444');
+            if (bot.state === 'rest') { var st = (t * 1.1) % 1; c.fillStyle = 'rgba(255,255,255,' + (.6 * (1 - st)) + ')'; c.fillRect((87.4 + Math.sin(t * 3) * .5) * S, (69 - st * 4) * S, .7 * S, 1 * S); }
+            // stol: monitor, chiroq, krujka
+            O(22, 60, 32, 8, '#7a4f33'); R(22, 60, 32, 1.4, '#9a6440');
+            O(31, 50, 14, 10, '#0b0f17'); var on = bot.state !== 'rest';
+            R(32, 51, 12, 8, on ? '#0f2944' : '#111827');
+            if (bot.state === 'think') for (var q = 0; q < 5; q++) R(33, 52.2 + q * 1.3, 2 + ((Math.sin(t * 5 + q) + 1) * 3.6), .6, q ? '#3fb950' : '#58a6ff');
+            else if (on) { R(33, 53, 10, 1.6, '#1d4ed8'); R(33, 55.6, 6, 1, '#334155'); }
+            R(37, 60, 2, 1, '#0b0f17'); if (on) glow(38, 55, 12, 'rgba(88,166,255,.12)');
+            R(24, 56, .6, 4, '#3f3f46'); O(22.6, 55, 3.4, 1.6, '#f59e0b', '#78350f'); glow(24.4, 58, 7, 'rgba(253,186,116,.22)');
+            O(48, 57.6, 2.6, 2.6, '#f5f5f4', '#78716c');
+            // o'simliklar
+            [[4, 40], [154, 88], [44, 92]].forEach(function (pl) { O(pl[0] - 2.5, pl[1], 5, 5, '#9a5a3c'); c.fillStyle = '#2f8f46'; c.beginPath(); c.arc(pl[0] * S, (pl[1] - 2.5) * S, 4.2 * S, 0, 7); c.fill(); c.fillStyle = '#4ade80'; c.beginPath(); c.arc((pl[0] - 1.2) * S, (pl[1] - 3.6) * S, 1.6 * S, 0, 7); c.fill(); });
         }
         function robot() {
             var x = bot.x, y = bot.y, walk = Math.hypot(bot.tx - x, bot.ty - y) > .5, leg = walk ? ((bot.step * 8) | 0) % 2 : 0;
-            var bob = walk ? Math.abs(Math.sin(bot.step * 8)) * .6 : Math.sin(t * 2) * .25;
+            var sit = bot.state === 'rest' && !walk;
+            var bob = walk ? Math.abs(Math.sin(bot.step * 8)) * .6 : Math.sin(t * (sit ? 1.2 : 2)) * .25;
             c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(x * S, y * S, 4 * S, 1.3 * S, 0, 0, 7); c.fill();
-            O(x - 2.6, y - 3, 1.8, 3 - leg, '#64748b'); O(x + .8, y - 3, 1.8, 2 + leg, '#64748b');
-            var by = y - 10 - bob;
-            O(x - 4, by, 8, 7, '#e2e8f0'); R(x - 2.5, by + 2, 5, 2.4, '#0ea5e9');                       // tana + ko'krak ekrani
+            if (!sit) { O(x - 2.6, y - 3, 1.8, 3 - leg, '#64748b'); O(x + .8, y - 3, 1.8, 2 + leg, '#64748b'); }
+            var by = y - (sit ? 8.5 : 10) - bob;
+            O(x - 4, by, 8, 7, '#e2e8f0'); R(x - 2.5, by + 2, 5, 2.4, sit ? '#334155' : '#0ea5e9');
             var arm = bot.state === 'think' && !walk ? (((t * 8) | 0) % 2) : 0;
             O(x - 5.6, by + 1 + arm, 1.4, 4, '#cbd5e1'); O(x + 4.2, by + 1 - arm, 1.4, 4, '#cbd5e1');
-            O(x - 3.4, by - 6, 6.8, 5.4, '#f1f5f9');                                                   // bosh
-            var blink = (t % 3.4) < .12, eye = bot.state === 'wait' ? '#f59e0b' : '#22d3ee';
-            if (!blink) { R(x - 2, by - 4.2, 1.4, 1.6, eye); R(x + .6, by - 4.2, 1.4, 1.6, eye); glow(x, by - 3.4, 4, eye === '#22d3ee' ? 'rgba(34,211,238,.25)' : 'rgba(245,158,11,.3)'); }
+            if (sit) O(x + 4.6, by + 3, 2.2, 2.2, '#f5f5f4', '#78716c');            // qo'lida kofe
+            O(x - 3.4, by - 6, 6.8, 5.4, '#f1f5f9');
+            var blink = (t % 3.4) < .12 || sit && (t % 5) < 1.6, eye = bot.state === 'wait' ? '#f59e0b' : '#22d3ee';
+            if (!blink) { R(x - 2, by - 4.2, 1.4, 1.6, eye); R(x + .6, by - 4.2, 1.4, 1.6, eye); glow(x, by - 3.4, 4, 'rgba(34,211,238,.25)'); }
             else { R(x - 2, by - 3.6, 1.4, .4, eye); R(x + .6, by - 3.6, 1.4, .4, eye); }
-            R(x - .3, by - 8.4, .6, 2.4, '#94a3b8'); R(x - .9, by - 9.4, 1.8, 1.6, ((t * 3) | 0) % 2 ? '#f43f5e' : '#fb7185');   // antenna
-            if (bot.state === 'wait' || (bot.state === 'think' && !walk)) {
-                var txt = bot.state === 'wait' ? '?' : '…';
-                O(x + 4, by - 13, 7, 6, '#f8fafc', '#334155'); c.fillStyle = bot.state === 'wait' ? '#d97706' : '#334155';
-                c.font = '800 ' + (5 * S) + 'px system-ui,sans-serif'; c.textBaseline = 'middle'; c.fillText(txt, (x + 5.6) * S, (by - 9.8) * S);
+            R(x - .3, by - 8.4, .6, 2.4, '#94a3b8'); R(x - .9, by - 9.4, 1.8, 1.6, ((t * 3) | 0) % 2 ? '#f43f5e' : '#fb7185');
+            if (sit && (t % 6) < 3) txt('z', x + 4, by - 9 - (t % 3), 3, 'rgba(203,213,225,.8)');
+            if (bot.label && !walk && bot.state !== 'rest') {      // pufak: hozir nima qilyapti
+                c.font = '700 ' + (2.6 * S) + 'px system-ui,sans-serif';
+                var tw = c.measureText(bot.label).width / S + 4, bx = Math.max(1, Math.min(W - tw - 1, x - tw / 2)), byy = by - 17;
+                O(bx, byy, tw, 5.6, '#f8fafc', '#334155'); c.fillStyle = '#0f172a'; c.textBaseline = 'middle'; c.fillText(bot.label, (bx + 2) * S, (byy + 2.9) * S);
             }
         }
         function frame(now) {
             if (!alive) return;
             raf = requestAnimationFrame(frame);
             var dt = Math.min(.1, (now - (last || now)) / 1000); last = now; t += dt;
-            var dx = bot.tx - bot.x, dy = bot.ty - bot.y, d = Math.hypot(dx, dy), v = 26 * dt;
+            if (bot.state === 'idle' && t - bot.since > 20) setTo('rest');          // ko'p bo'sh tursa — divanda dam oladi
+            var dx = bot.tx - bot.x, dy = bot.ty - bot.y, d = Math.hypot(dx, dy), v = 28 * dt;
             if (d > .5) { bot.step += dt; bot.x += dx / d * Math.min(v, d); bot.y += dy / d * Math.min(v, d); }
             room(); robot();
         }
+        function setTo(st) { bot.state = SPOT[st] ? st : 'idle'; bot.since = t; var p = SPOT[bot.state]; bot.tx = p[0]; bot.ty = p[1]; }
         raf = requestAnimationFrame(frame);
+        var LBL = { think: "o'ylayapti…", db: 'bazada', mail: 'yozyapti', safe: 'hisob-kitob', panel: 'sozlamalar', promo: 'promo-kod', shop: 'narxlar', wait: '?' };
         return {
             canvas: cv,
-            set: function (st) { bot.state = SPOT[st] ? st : 'idle'; var p = SPOT[bot.state]; bot.tx = p[0]; bot.ty = p[1]; },
+            set: function (st) { if (st === 'idle' && (bot.state === 'rest' || bot.state === 'idle')) return; setTo(st); bot.label = LBL[bot.state] || ''; },
             stop: function () { alive = false; cancelAnimationFrame(raf); }
         };
     }
