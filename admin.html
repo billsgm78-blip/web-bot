@@ -416,7 +416,7 @@ select.inp option { background: #12151c; color: var(--text); }
 .ds-badge { font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: rgba(56, 189, 248, .15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, .35); }
 /* ---------- 🤖 Yordamchi (admin agent) ---------- */
 .ag-wrap { display: grid; grid-template-columns: minmax(300px, 480px) 1fr; gap: 16px; align-items: start; }
-@media (max-width: 900px) { .ag-wrap { grid-template-columns: 1fr; } .ag-office { position: static; } }
+}
 .ag-office { border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: #0d1117; position: sticky; top: 12px; }
 .ag-office canvas { display: block; width: 100%; height: auto; }
 .ag-status { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); background: rgba(255,255,255,0.02); min-height: 42px; }
@@ -455,6 +455,21 @@ select.inp option { background: #12151c; color: var(--text); }
 .ag-empty { margin: auto; text-align: center; color: var(--muted); font-size: 14px; max-width: 320px; line-height: 1.6; }
 .ag-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); }
 .ag-head button { border: 1px solid var(--line2); background: transparent; color: var(--muted); border-radius: 10px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+/* telefon: ofis kichik, chat qotib turadi (agent qoidalaridan KEYIN bo'lishi shart) */
+@media (max-width: 900px) {
+    .ag-wrap { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .ag-wrap > *, .ag-chat, .ag-chips { min-width: 0; }   /* bir qatorli tugmalar chatni ekrandan kengaytirib yubormasin */
+    .ag-office { position: static; }
+    .ag-office canvas { width: auto !important; max-width: 100%; max-height: 30vh; margin: 0 auto; }
+    .ag-status { min-height: 34px; padding: 6px 12px; font-size: 12.5px; }
+    .ag-acts-log { display: none; }
+    /* chat qotib turadi: qolgan joyni egallaydi, xabarlar ichida aylanadi, yozish maydoni doim ko'rinadi */
+    .ag-chat { height: calc(100dvh - 30vh - 200px); min-height: 330px; }
+    .ag-head { padding: 8px 12px; }
+    .ag-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+    .ag-chips::-webkit-scrollbar { display: none; }
+    .ag-chips button { flex: none; }
+    .ag-m { max-width: 92%; font-size: 14px; }
 </style>
 <script src="/notify.js"></script>
 </head>
