@@ -1904,6 +1904,7 @@ select.inp option { background: #12151c; color: var(--text); }
         ]));
         var items = [], pending = [], busy = false, sver = -1;
         function setStatus(st) {
+            if (st.state === 'idle' && !busy) office.settle();
             stEl.className = 'ag-status' + (st.state === 'wait' ? ' wait' : (st.state && st.state !== 'idle' ? ' busy' : ''));
             stEl.lastChild.textContent = st.text || (st.state === 'wait' ? "Tasdig'ingizni kutyapti" : 'Yordamchi tayyor');
         }
@@ -2173,7 +2174,8 @@ select.inp option { background: #12151c; color: var(--text); }
             var minOk = t - cur.start >= cur.min;
             if (queue.length && minOk) { begin(queue.shift()); return; }
             if (!queue.length && (cur.state === 'sit') && t - bot.since > 45) begin({ state: 'rest' });       // uzoq bo'sh — divanda dam
-            if (!queue.length && cur.state !== 'sit' && cur.state !== 'rest' && minOk && t - cur.start > cur.min + .8) begin({ state: 'sit' });   // ish tugadi — stoliga qaytib o'tiradi
+            // ish tugadi — stoliga qaytib o'tiradi ('think' esa server javobi kelguncha davom etadi: yozishda qoladi)
+            if (!queue.length && cur.state !== 'sit' && cur.state !== 'rest' && cur.state !== 'think' && minOk && t - cur.start > cur.min + .8) begin({ state: 'sit' });   // ish tugadi — stoliga qaytib o'tiradi
         }
         function frame(now) {
             if (!alive) return;
@@ -2195,6 +2197,7 @@ select.inp option { background: #12151c; color: var(--text); }
                 if (queue.length > 8) queue = queue.slice(-8);
                 if (queue.length && (cur.state === 'rest' || (cur.state === 'sit' && !bot.path.length))) begin(queue.shift());
             },
+            settle: function () { if (cur.state === 'think' && !queue.length) begin({ state: 'sit' }); },   // server bo'sh — yozish tugadi
             snap: function (st) { if (st && st !== 'idle') begin({ state: st }); },
             stop: function () { alive = false; cancelAnimationFrame(raf); }
         };
