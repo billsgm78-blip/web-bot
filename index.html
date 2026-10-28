@@ -2598,7 +2598,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         return of.apply(this, arguments).then(function (res) {
             try {
                 var u = typeof input === 'string' ? input : (input && input.url) || '';
-                if (!fired && res.status === 403 && /railway\.app\/api\//.test(u) && !/\/api\/(login|register|admin|reset)/.test(u)
+                if (!fired && res.status === 403 && /(railway\.app|onrender\.com)\/api\//.test(u) && !/\/api\/(login|register|admin|reset)/.test(u)
                     && localStorage.getItem('bilol_ai_phone') && localStorage.getItem('bilol_ai_password')) {
                     res.clone().json().then(function (j) {
                         if (fired || !j || !/Qaytadan kiring/i.test(j.error || '')) return;
