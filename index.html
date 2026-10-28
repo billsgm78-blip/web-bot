@@ -2689,7 +2689,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
   <!-- ===== 🎬 Scroll-hikoya: pastga surganda telefon aylanadi, imkoniyatlar ketma-ket ochiladi ===== -->
   <style id="story-style">
   .pd-page > .pd-story { padding: 0; }
-  .pd-story { position: relative; height: 560vh; background: #0b0709; color: #f6efe9; }
+  .pd-story { position: relative; height: 800vh; background: #0b0709; color: #f6efe9; }
   .pd-st-stick { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; isolation: isolate; }
   .pd-st-bg { position: absolute; inset: 0; opacity: 0; transition: opacity .9s ease; z-index: -1; }
   .pd-st-bg.on { opacity: 1; }
@@ -2775,7 +2775,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
   .pd-st-dots i.on { background: #fff; transform: scale(1.5); }
   .pd-st-floor { position: absolute; left: 64%; top: 86%; width: 340px; height: 50px; margin-left: -170px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.65), transparent); filter: blur(4px); }
   @media (max-width: 760px) {
-    .pd-story { height: 520vh; }
+    .pd-story { height: 760vh; }
     .pd-st-ch { left: 22px; right: 22px; width: auto; top: calc(78px + env(safe-area-inset-top)); transform: translate3d(0, 14px, 0); }
     .pd-st-ch.on { transform: none; } .pd-st-ch.up { transform: translate3d(0, -14px, 0); }
     .pd-st-h, .pd-st-intro .pd-st-h { font-size: clamp(44px, 13vw, 64px); margin: 10px 0 8px; }
@@ -2898,7 +2898,9 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
   <!-- ===== 🖥 Ichkaridan ko'ring: orqada haqiqiy ekranlar, pastga surganda matn yozilib boradi ===== -->
   <style id="show-style">
   .pd-page > .pd-show { padding: 0; }
-  .pd-show { position: relative; height: 1700vh; background: #08080a; color: #f6efe9; }
+  .pd-snap { scroll-snap-type: y proximity; }
+  .pd-sw-snap { position: absolute; left: 0; width: 1px; height: 1px; scroll-snap-align: start; pointer-events: none; }
+  .pd-show { position: relative; height: 3200vh; background: #08080a; color: #f6efe9; }
   .pd-sw-stick { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; isolation: isolate; }
   /* 🏷 yorliqlar — orqa fonda suzib yuradi, bo'lim almashganda chetdan silliq kirib keladi */
   .pd-sw-tags { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
@@ -2949,7 +2951,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
   .pd-sw-bar i { flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,.18); overflow: hidden; position: relative; }
   .pd-sw-bar i b { position: absolute; inset: 0; background: #ff8a4c; transform-origin: left; transform: scaleX(0); }
   @media (max-width: 760px) {
-    .pd-show { height: 1500vh; }
+    .pd-show { height: 3000vh; }
     .pd-sw-shade { background: linear-gradient(180deg, rgba(8,8,10,.96) 0%, rgba(8,8,10,.85) 38%, rgba(8,8,10,.2) 62%, rgba(8,8,10,0) 100%); }
     .pd-sw-win { right: auto; left: 8vw; top: auto; bottom: 120px; width: 118vw; transform: perspective(1200px) rotateY(-18deg) rotateX(6deg); border-radius: 10px; }
     .pd-sw-wtop { height: 22px; } .pd-sw-wtop span { padding: 3px 24px; font-size: 9px; } .pd-sw-bg { top: 22px; }
@@ -3115,7 +3117,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
           var p = clamp(-top / total, 0, .9999), i = Math.floor(p * N), t = p * N - i, l = L();
           setCh(i, l);
           // matn surishga qarab yoziladi (bo'limning birinchi 55% ida to'liq chiqadi)
-          var full = D[i][3][l], n = reduce ? full.length : Math.round(full.length * ease(t / .55));
+          var full = D[i][3][l], n = reduce ? full.length : Math.round(full.length * ease(t / .45));
           if (n !== typed) { typed = n; P.textContent = full.slice(0, n); }
           C.classList.toggle('in', reduce || t > .62);
           bars.forEach(function (b, k) { b.style.transform = 'scaleX(' + (k < i ? 1 : k > i ? 0 : t).toFixed(3) + ')'; });
@@ -3125,8 +3127,17 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
           phone.style.transform = (mob ? '' : 'translateY(-50%) ') + 'translateY(' + ((1 - enter) * 60).toFixed(1) + 'px) rotate(' + (mob ? 0 : (-4 + 3 * t)).toFixed(2) + 'deg)';
       }
       function req() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
-      function hook() { sc = scroller(); (sc === window ? window : sc).addEventListener('scroll', req, { passive: true }); req(); }
-      window.addEventListener('resize', function () { sc = null; req(); });
+      // har bo'lim o'rtasida yumshoq to'xtash nuqtasi — bir surishda bir nechta ekran uchib o'tib ketmaydi
+      var snaps = [];
+      function placeSnaps() {
+          if (!sc || sc === window) return;
+          if (!snaps.length) for (var k = 0; k < N; k++) { var a = document.createElement('i'); a.className = 'pd-sw-snap'; sec.appendChild(a); snaps.push(a); }
+          var vh = sc.clientHeight, total = sec.offsetHeight - vh;
+          snaps.forEach(function (a, k) { a.style.top = Math.round(total * (k + .5) / N) + 'px'; });
+          sc.classList.add('pd-snap');
+      }
+      function hook() { sc = scroller(); (sc === window ? window : sc).addEventListener('scroll', req, { passive: true }); placeSnaps(); req(); }
+      window.addEventListener('resize', function () { sc = null; req(); setTimeout(function () { sc = scroller(); placeSnaps(); }, 100); });
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
       setTimeout(hook, 1500);
       setInterval(function () { if (L() !== curL && cur >= 0) { cur = -1; req(); } }, 800);   // til almashsa matn qayta yoziladi
