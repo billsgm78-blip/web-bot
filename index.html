@@ -2898,7 +2898,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
   <!-- ===== 🖥 Ichkaridan ko'ring: orqada haqiqiy ekranlar, pastga surganda matn yozilib boradi ===== -->
   <style id="show-style">
   .pd-page > .pd-show { padding: 0; }
-  .pd-show { position: relative; height: 520vh; background: #08080a; color: #f6efe9; }
+  .pd-show { position: relative; height: 1700vh; background: #08080a; color: #f6efe9; }
   .pd-sw-stick { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; isolation: isolate; }
   .pd-sw-glow { position: absolute; inset: 0; z-index: -3; background: radial-gradient(55% 60% at 70% 50%, rgba(255, 110, 40, .32), transparent 70%), radial-gradient(40% 40% at 20% 90%, rgba(120, 80, 255, .14), transparent 70%); transition: background 1s; }
   /* orqa ekran: 3D burilgan brauzer oynasi, ichida saytning haqiqiy ekrani */
@@ -2907,7 +2907,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
   .pd-sw-wtop { position: absolute; left: 0; right: 0; top: 0; height: 30px; z-index: 2; display: flex; align-items: center; gap: 6px; padding: 0 12px; background: #1d1d21; }
   .pd-sw-wtop i { width: 9px; height: 9px; border-radius: 50%; background: #ff5f57; } .pd-sw-wtop i:nth-child(2) { background: #febc2e; } .pd-sw-wtop i:nth-child(3) { background: #28c840; }
   .pd-sw-wtop span { margin: 0 auto; padding: 4px 40px; border-radius: 7px; background: #2b2b31; color: #a1a1aa; font: 500 11px/1 system-ui, sans-serif; }
-  .pd-sw-bg { position: absolute; left: 0; right: 0; top: 30px; bottom: 0; background-size: cover; background-position: center top; opacity: 0; transition: opacity .8s ease; will-change: transform, opacity; transform-origin: 50% 0; }
+  .pd-sw-bg { position: absolute; left: 0; right: 0; top: 30px; bottom: 0; background-size: 100% auto; background-position: center top; background-repeat: no-repeat; background-color: #f5f5f4; opacity: 0; transition: opacity .6s ease; }
   .pd-sw-bg.on { opacity: 1; }
   .pd-sw-win::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; background: linear-gradient(105deg, rgba(8,8,10,.55) 0%, rgba(8,8,10,.1) 45%, rgba(255,255,255,.06) 100%); }
   .pd-sw-shade { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(90deg, rgba(8,8,10,.92) 0%, rgba(8,8,10,.6) 32%, rgba(8,8,10,0) 52%); }
@@ -2929,14 +2929,15 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
   .pd-sw-scr { position: relative; height: 100%; border-radius: 35px; overflow: hidden; background: #fff; }
   .pd-sw-scr::before { content: ""; position: absolute; z-index: 3; top: 9px; left: 50%; width: 30%; height: 20px; margin-left: -15%; border-radius: 99px; background: #000; }
   .pd-sw-scr::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(115deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 30%); }
-  .pd-sw-img { position: absolute; left: 0; top: 0; width: 100%; opacity: 0; transition: opacity .6s ease; will-change: transform; }
+  .pd-sw-img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0; transition: opacity .5s ease; }
   .pd-sw-img.on { opacity: 1; }
   .pd-sw-tag { position: absolute; left: 50%; bottom: -34px; transform: translateX(-50%); white-space: nowrap; font: 600 11px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; opacity: .6; }
-  .pd-sw-bar { position: absolute; left: max(24px, calc((100% - 1180px) / 2)); right: max(24px, calc((100% - 1180px) / 2)); bottom: 28px; display: flex; gap: 8px; }
+  .pd-sw-bar { gap: 4px !important; position: absolute; left: max(24px, calc((100% - 1180px) / 2)); right: max(24px, calc((100% - 1180px) / 2)); bottom: 28px; display: flex; gap: 8px; }
+  .pd-sw-num { position: absolute; right: max(24px, calc((100% - 1180px) / 2)); bottom: 40px; font: 600 12px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .12em; opacity: .6; }
   .pd-sw-bar i { flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,.18); overflow: hidden; position: relative; }
   .pd-sw-bar i b { position: absolute; inset: 0; background: #ff8a4c; transform-origin: left; transform: scaleX(0); }
   @media (max-width: 760px) {
-    .pd-show { height: 480vh; }
+    .pd-show { height: 1500vh; }
     .pd-sw-shade { background: linear-gradient(180deg, rgba(8,8,10,.96) 0%, rgba(8,8,10,.85) 38%, rgba(8,8,10,.2) 62%, rgba(8,8,10,0) 100%); }
     .pd-sw-win { right: auto; left: 8vw; top: auto; bottom: 120px; width: 118vw; transform: perspective(1200px) rotateY(-18deg) rotateX(6deg); border-radius: 10px; }
     .pd-sw-wtop { height: 22px; } .pd-sw-wtop span { padding: 3px 24px; font-size: 9px; } .pd-sw-bg { top: 22px; }
@@ -2946,7 +2947,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
     .pd-sw-p { font-size: 15px; min-height: 6.6em; }
     .pd-sw-facts { margin-top: 12px; } .pd-sw-facts li { font-size: 12px; padding: 5px 10px; }
     .pd-sw-cta { margin-top: 12px; padding: 10px 15px; font-size: 13.5px; }
-    .pd-sw-phone { left: 50%; right: auto; top: auto; bottom: 46px; width: min(44vw, 190px); margin-left: calc(min(44vw, 190px) / -2); border-radius: 32px; padding: 7px; }
+    .pd-sw-phone { left: 50%; right: auto; top: auto; bottom: 46px; width: min(50vw, 220px); margin-left: calc(min(50vw, 220px) / -2); border-radius: 32px; padding: 7px; }
     .pd-sw-scr { border-radius: 26px; } .pd-sw-scr::before { top: 6px; height: 14px; }
     .pd-sw-tag { display: none; }
     .pd-sw-bar { bottom: 18px; }
@@ -2955,11 +2956,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
   <section class="pd-show" id="pd-show" aria-label="Bilols AI">
     <div class="pd-sw-stick">
       <div class="pd-sw-glow"></div>
-      <div class="pd-sw-win" aria-hidden="true"><div class="pd-sw-wtop"><i></i><i></i><i></i><span>bilolsai.uz</span></div>
-        <div class="pd-sw-bg on" data-i="0" style="background-image:url(/img/show/web-chat.webp)"></div>
-        <div class="pd-sw-bg" data-i="1" style="background-image:url(/img/show/web-home.webp)"></div>
-        <div class="pd-sw-bg" data-i="2" style="background-image:url(/img/show/office.webp)"></div>
-        <div class="pd-sw-bg" data-i="3" style="background-image:url(/img/show/shop.webp)"></div></div>
+      <div class="pd-sw-win" aria-hidden="true"><div class="pd-sw-wtop"><i></i><i></i><i></i><span>bilolsai.uz</span></div></div>
       <div class="pd-sw-shade"></div>
       <div class="pd-sw-txt">
         <div class="pd-sw-k"></div>
@@ -2969,12 +2966,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         <a class="pd-sw-cta" href="/apk"></a>
       </div>
       <div class="pd-sw-phone" aria-hidden="true"><div class="pd-sw-scr">
-        <img class="pd-sw-img on" data-i="0" src="/img/show/app-chat.webp" alt="" loading="lazy" decoding="async">
-        <img class="pd-sw-img" data-i="1" src="/img/show/app-home.webp" alt="" loading="lazy" decoding="async">
-        <img class="pd-sw-img" data-i="2" src="/img/show/app-chat2.webp" alt="" loading="lazy" decoding="async">
-        <img class="pd-sw-img" data-i="3" src="/img/show/app-wallet.webp" alt="" loading="lazy" decoding="async">
-      </div><div class="pd-sw-tag"></div></div>
-      <div class="pd-sw-bar" aria-hidden="true"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+</div><div class="pd-sw-tag"></div></div>
+      <div class="pd-sw-bar" aria-hidden="true"></div><div class="pd-sw-num" aria-hidden="true"></div>
     </div>
   </section>
   <script id="show-script">
@@ -2982,22 +2975,78 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
       var sec = document.getElementById('pd-show'); if (!sec) return;
       var $ = function (q) { return sec.querySelector(q); };
       var K = $('.pd-sw-k'), Hh = $('.pd-sw-h'), P = $('.pd-sw-typed'), F = $('.pd-sw-facts'), C = $('.pd-sw-cta'), TAG = $('.pd-sw-tag'), phone = $('.pd-sw-phone');
-      var bgs = sec.querySelectorAll('.pd-sw-bg'), imgs = sec.querySelectorAll('.pd-sw-img'), bars = sec.querySelectorAll('.pd-sw-bar b');
+      var N = 20, win = $('.pd-sw-win'), scr = $('.pd-sw-scr'), bar = $('.pd-sw-bar'), NUM = $('.pd-sw-num'), bgs = [], imgs = [], bars = [];
+      // har bo'lim uchun: orqada sayt (kompyuter) ekrani, telefonda ilova ekrani — rasmlar faqat yaqinlashganda yuklanadi
+      function build() { D.forEach(function (d, i) {
+          var bg = document.createElement('div'); bg.className = 'pd-sw-bg'; win.appendChild(bg); bgs.push(bg);
+          var im = document.createElement('img'); im.className = 'pd-sw-img'; im.alt = ''; im.decoding = 'async'; scr.appendChild(im); imgs.push(im);
+          var t = document.createElement('i'), b = document.createElement('b'); t.appendChild(b); bar.appendChild(t); bars.push(b);
+      }); }
+      function load(i) { if (i < 0 || i >= N || bgs[i].dataset.ok) return; bgs[i].dataset.ok = 1; bgs[i].style.backgroundImage = 'url(/img/show/w-' + D[i][0] + '.webp)'; imgs[i].src = '/img/show/p-' + D[i][0] + '.webp'; }
       var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
       var D = [
-          { k: ['01 — Veb-sayt', '01 — Сайт', '01 — Website'], h: ['Brauzerda<br>ochiladi.', 'Открывается<br>в браузере.', 'Opens in<br>your browser.'],
-            p: ["bilolsai.uz — hech narsa o'rnatmasdan. Savol yozing, rasm yoki hujjat biriktiring: Bilols AI javobni shu zahoti yozib beradi.", 'bilolsai.uz — без установки. Пишите вопрос, прикрепляйте фото или документ — Bilols AI сразу напишет ответ.', 'bilolsai.uz — nothing to install. Type a question, attach a photo or a document, and Bilols AI writes the answer right away.'],
-            f: [['Chat', 'Rasm', 'Hujjat', 'Tarjima'], ['Чат', 'Фото', 'Документы', 'Перевод'], ['Chat', 'Images', 'Docs', 'Translate']], tag: 'bilolsai.uz' },
-          { k: ['02 — Android ilova', '02 — Android-приложение', '02 — Android app'], h: ["Cho'ntagingizda.", 'В кармане.', 'In your pocket.'],
-            p: ['APK ilova — tez va yengil. Kamera bilan masalani suratga oling, bildirishnomalar keladi, kompyuterga QR kod bilan bir zumda kirasiz.', 'APK — быстро и легко. Снимайте задачу камерой, получайте уведомления, входите на компьютере по QR-коду.', 'The APK is fast and light. Snap a problem with the camera, get notifications, and log in on a computer with a QR code.'],
-            f: [['Kamera', 'Bildirishnoma', 'QR kirish'], ['Камера', 'Уведомления', 'Вход по QR'], ['Camera', 'Notifications', 'QR login']], tag: 'Android · APK', cta: ['APK yuklab olish →', 'Скачать APK →', 'Download APK →'] },
-          { k: ['03 — Agentlar ofisi', '03 — Офис агентов', '03 — Agents office'], h: ['Jamoa<br>ishlayapti.', 'Команда<br>работает.', 'A team<br>at work.'],
-            p: ["Har bir so'rovingizni jonli ofisdagi agentlar bajaradi: Malika matn yozadi, Sardor rasm chizadi, Dilnoza tarjima qiladi. Ularni saytda kuzatib turing.", 'Каждый запрос выполняют агенты живого офиса: Малика пишет, Сардор рисует, Дилноза переводит. Наблюдайте за ними на сайте.', 'Every request is handled by agents in a live office: Malika writes, Sardor draws, Dilnoza translates. Watch them on the site.'],
-            f: [['8 agent', 'Choyxona', 'Majlislar zali'], ['8 агентов', 'Чайхана', 'Переговорная'], ['8 agents', 'Tea house', 'Meeting room']], tag: 'Live office' },
-          { k: ["04 — Hamyon", '04 — Кошелёк', '04 — Wallet'], h: ['Hammasi<br>bitta hisobda.', 'Всё в одном<br>аккаунте.', 'One account<br>for all.'],
-            p: ["Balans, kunlik bonus va promo-kodlar. Shu yerning o'zida Telegram Stars va Premium sotib oling — sayt, ilova va botda bitta hisob.", 'Баланс, ежедневный бонус и промокоды. Здесь же — Telegram Stars и Premium. Один аккаунт на сайте, в приложении и боте.', 'Balance, daily bonus and promo codes. Buy Telegram Stars and Premium right here — one account across web, app and bot.'],
-            f: [['Kunlik bonus', 'Stars', 'Premium'], ['Бонус', 'Stars', 'Premium'], ['Daily bonus', 'Stars', 'Premium']], tag: 'Wallet' }
+          ['landing', ['Bosh sahifa', 'Главная', 'Home'], ['Savol bering.<br>Javob oling.', 'Спросите.<br>Получите ответ.', 'Ask.<br>Get answers.'],
+            ["bilolsai.uz — o'zbek tilini tushunadigan shaxsiy sun'iy intellekt. Hech narsa o'rnatmasdan brauzerda ochiladi.", 'bilolsai.uz — личный ИИ, понимающий узбекский. Открывается в браузере без установки.', 'bilolsai.uz — a personal AI that understands Uzbek. Opens in the browser, nothing to install.'],
+            [['Bepul', 'Uch tilda', '24/7'], ['Бесплатно', 'Три языка', '24/7'], ['Free', 'Three languages', '24/7']]],
+          ['qr', ['Kirish', 'Вход', 'Log in'], ['QR kod bilan<br>bir zumda.', 'Вход по<br>QR-коду.', 'Log in with<br>a QR code.'],
+            ["Kompyuterda QR kodni telefon bilan skanerlang — parol yozmasdan hisobingizga kirasiz. Ro'yxatdan o'tish Telegram kodi bilan.", 'Отсканируйте QR-код телефоном — и вы в аккаунте без пароля. Регистрация — по коду из Telegram.', 'Scan the QR code with your phone and you are in, no password. Sign-up uses a Telegram code.'],
+            [['QR', 'Telegram kod', 'Xavfsiz'], ['QR', 'Код Telegram', 'Безопасно'], ['QR', 'Telegram code', 'Secure']]],
+          ['home', ['Chat', 'Чат', 'Chat'], ['Aqlli suhbat.', 'Умный чат.', 'Smart chat.'],
+            ["Oddiy tilda yozing: masala, insho, tarjima yoki g'oya — tayyor tugmalar bilan bir bosishda boshlang.", 'Пишите обычным языком: задача, сочинение, перевод или идея — начните одним нажатием.', 'Write in plain words: a problem, an essay, a translation or an idea — start with one tap.'],
+            [['Masala', 'Insho', 'Tarjima', "G'oya"], ['Задачи', 'Сочинения', 'Перевод', 'Идеи'], ['Problems', 'Essays', 'Translate', 'Ideas']]],
+          ['essay', ['Insho va matn', 'Сочинения', 'Essays'], ['Insho rejasi<br>tayyor.', 'План сочинения<br>готов.', 'Your essay<br>outline.'],
+            ["Mavzuni ayting — reja, kirish, asosiy qism va xulosani yozib beradi. Uy vazifasi uchun ayni muddao.", 'Назовите тему — получите план, вступление, основную часть и вывод. Идеально для домашки.', 'Name a topic and get an outline, intro, body and conclusion. Perfect for homework.'],
+            [['Reja', 'Insho', 'Referat'], ['План', 'Сочинение', 'Реферат'], ['Outline', 'Essay', 'Report']]],
+          ['math', ['Masala yechish', 'Решение задач', 'Math'], ['Bosqichma-<br>bosqich.', 'Шаг<br>за шагом.', 'Step<br>by step.'],
+            ["Matematika, fizika, kimyo — har bir qadamni tushuntirib yechadi va oxirida tekshiradi.", 'Математика, физика, химия — решает с объяснением каждого шага и проверкой.', 'Math, physics, chemistry — solved with every step explained and checked.'],
+            [['Algebra', 'Fizika', 'Tekshiruv'], ['Алгебра', 'Физика', 'Проверка'], ['Algebra', 'Physics', 'Check']]],
+          ['translate', ['Tarjima', 'Перевод', 'Translation'], ["Uch tilda<br>erkin.", 'Свободно<br>на трёх языках.', 'Fluent in<br>three languages.'],
+            ["O'zbek, rus va ingliz tillari o'rtasida tarjima qiladi va so'zlarni tushuntirib beradi.", 'Переводит между узбекским, русским и английским и объясняет слова.', 'Translates between Uzbek, Russian and English and explains the words.'],
+            [["O'zbek", 'Русский', 'English'], ["O'zbek", 'Русский', 'English'], ["O'zbek", 'Русский', 'English']]],
+          ['code', ['Dasturchi', 'Программист', 'Coder'], ['Kodingizdagi<br>xatoni topadi.', 'Найдёт ошибку<br>в коде.', 'Finds the bug<br>in your code.'],
+            ["Python, JavaScript va boshqa tillarda kod yozadi, xatoni topib to'g'rilangan variantini beradi.", 'Пишет код на Python, JavaScript и других языках, находит ошибку и даёт исправление.', 'Writes Python, JavaScript and more, finds the bug and gives you the fix.'],
+            [['Python', 'JavaScript', 'SQL'], ['Python', 'JavaScript', 'SQL'], ['Python', 'JavaScript', 'SQL']]],
+          ['ideas', ["G'oya topish", 'Идеи', 'Ideas'], ["G'oyalar<br>tugamaydi.", 'Идеи<br>без конца.', 'Endless<br>ideas.'],
+            ["Sovg'a, biznes, loyiha yoki post uchun g'oya kerakmi? Bir necha variantni ro'yxat qilib beradi.", 'Нужна идея для подарка, бизнеса, проекта или поста? Получите список вариантов.', 'Need an idea for a gift, a business, a project or a post? Get a list of options.'],
+            [["Sovg'a", 'Biznes', 'Post'], ['Подарок', 'Бизнес', 'Пост'], ['Gifts', 'Business', 'Posts']]],
+          ['doc', ['Hujjat tahlili', 'Документы', 'Documents'], ['Hujjatni<br>bir zumda o\'qiydi.', 'Читает документ<br>за секунды.', 'Reads a document<br>in seconds.'],
+            ["PDF, Word yoki matn faylini biriktiring — asosiy fikrlar va xulosani ajratib beradi.", 'Прикрепите PDF, Word или текст — выделит главное и сделает вывод.', 'Attach a PDF, Word or text file and get the key points and a summary.'],
+            [['PDF', 'Word', 'TXT'], ['PDF', 'Word', 'TXT'], ['PDF', 'Word', 'TXT']]],
+          ['image', ['Rasm yaratish', 'Изображения', 'Images'], ["So'zdan<br>rasmga.", 'Из слов —<br>в картинку.', 'From words<br>to images.'],
+            ["Tasavvuringizni yozing — Bilols AI uni rasmga aylantiradi. Tayyor rasmni o'zgartirishni ham so'rash mumkin.", 'Опишите идею — Bilols AI нарисует её. Готовую картинку можно и отредактировать.', 'Describe it and Bilols AI draws it. You can ask it to edit the result too.'],
+            [['Akvarel', 'Foto', 'Tahrirlash'], ['Акварель', 'Фото', 'Редактирование'], ['Watercolor', 'Photo', 'Edit']]],
+          ['modes', ['AI rejimlari', 'Режимы', 'AI modes'], ['Kerakli<br>mutaxassis.', 'Нужный<br>специалист.', 'The right<br>expert.'],
+            ["O'qituvchi, dasturchi, tarjimon, insho yozuvchi yoki imtihonga tayyorlov — bitta bosishda almashtiring.", 'Учитель, программист, переводчик, автор сочинений или подготовка к экзамену — переключение в одно касание.', 'Teacher, coder, translator, essay writer or exam prep — switch with one tap.'],
+            [["O'qituvchi", 'Dasturchi', 'Imtihon'], ['Учитель', 'Программист', 'Экзамен'], ['Teacher', 'Coder', 'Exams']]],
+          ['models', ['AI modellar', 'Модели', 'Models'], ['Tez yoki<br>kuchli.', 'Быстро<br>или мощно.', 'Fast or<br>powerful.'],
+            ["Bepul tezkor model har kuni ishlaydi, obunada esa barcha kuchli agentlar cheksiz ochiladi.", 'Быстрая бесплатная модель — каждый день, а с подпиской открываются все мощные агенты.', 'A fast free model works every day; a subscription unlocks every pro agent.'],
+            [['Gemini Flash', 'Bepul', 'Obuna'], ['Gemini Flash', 'Бесплатно', 'Подписка'], ['Gemini Flash', 'Free', 'Pro']]],
+          ['support', ['Yordam', 'Поддержка', 'Support'], ['Admin bilan<br>jonli chat.', 'Живой чат<br>с админом.', 'Live chat<br>with the admin.'],
+            ["Savol yoki muammo bo'lsa — shu yerga yozing. Admin javobi saytda va Telegram botda keladi.", 'Вопрос или проблема — пишите сюда. Ответ админа придёт на сайте и в Telegram-боте.', 'Got a question or a problem? Write here. The reply comes on the site and in the Telegram bot.'],
+            [['Onlayn', 'Rasm yuborish', 'Telegram'], ['Онлайн', 'Фото', 'Telegram'], ['Online', 'Photos', 'Telegram']]],
+          ['office', ['Agentlar ofisi', 'Офис агентов', 'Agents office'], ['Jamoa<br>ishlayapti.', 'Команда<br>работает.', 'A team<br>at work.'],
+            ["Har bir so'rovingizni jonli ofisdagi agentlar bajaradi. Choyxona, majlislar zali, kun va tun — hammasi Toshkent vaqtida.", 'Запросы выполняют агенты живого офиса. Чайхана, переговорная, день и ночь — по времени Ташкента.', 'Agents in a live office handle every request. Tea house, meeting room, day and night — on Tashkent time.'],
+            [['8 agent', 'Choyxona', 'Majlis'], ['8 агентов', 'Чайхана', 'Собрание'], ['8 agents', 'Tea house', 'Meetings']]],
+          ['db', ["Ma'lumotlar bazasi", 'База данных', 'Database'], ["Ma'lumotlar<br>qo'riqlanadi.", 'Данные<br>под охраной.', 'Your data,<br>guarded.'],
+            ["Baza zalini qo'riqchilar navbatma-navbat aylanib turadi. Chiroq o'chsa — Sapyor yugurib kelib yoqadi.", 'Зал базы охраняют патрули. Если свет погаснет — Сапёр прибежит и включит.', 'Guards patrol the database hall. If the power goes out, the technician runs in to fix it.'],
+            [["Qo'riqchilar", 'Sapyor', '120 server'], ['Охрана', 'Сапёр', '120 серверов'], ['Guards', 'Technician', '120 racks']]],
+          ['hub-shop', ["Do'kon", 'Магазин', 'Shop'], ['Hamyon va<br>do\'kon.', 'Кошелёк<br>и магазин.', 'Wallet<br>and shop.'],
+            ["Balansni karta, Click yoki Payme orqali to'ldiring. Kunlik bonus, promo-kod, Telegram Stars va Premium — shu yerda.", 'Пополнение картой, Click или Payme. Ежедневный бонус, промокоды, Telegram Stars и Premium — здесь же.', 'Top up by card, Click or Payme. Daily bonus, promo codes, Telegram Stars and Premium — all here.'],
+            [['Click', 'Payme', 'Stars', 'Premium'], ['Click', 'Payme', 'Stars', 'Premium'], ['Click', 'Payme', 'Stars', 'Premium']]],
+          ['hub-orders', ['Buyurtmalar', 'Заказы', 'Orders'], ['Har bir<br>buyurtma ko\'z oldida.', 'Каждый заказ<br>на виду.', 'Every order<br>in view.'],
+            ["Stars, Premium va obuna buyurtmalaringiz holati: kutilmoqda, bajarildi yoki qaytarildi.", 'Статус заказов Stars, Premium и подписки: ожидает, выполнен или возвращён.', 'Status of your Stars, Premium and subscription orders: pending, completed or refunded.'],
+            [['Holat', 'Tarix', 'Qaytarish'], ['Статус', 'История', 'Возврат'], ['Status', 'History', 'Refunds']]],
+          ['hub-profile', ['Profil', 'Профиль', 'Profile'], ['Hisobingiz<br>xavfsiz.', 'Аккаунт<br>в безопасности.', 'Your account,<br>secure.'],
+            ["Parolni o'zgartiring yoki Telegram orqali tiklang, faol qurilmalarni ko'ring va istalganidan chiqing.", 'Смените пароль или восстановите его через Telegram, смотрите активные устройства и выходите с любых.', 'Change or reset your password via Telegram, see active devices and sign out of any.'],
+            [['Parol', 'Qurilmalar', 'QR'], ['Пароль', 'Устройства', 'QR'], ['Password', 'Devices', 'QR']]],
+          ['hub-app', ['Sozlamalar', 'Настройки', 'Settings'], ["O'zingizga<br>moslang.", 'Настройте<br>под себя.', 'Make it<br>yours.'],
+            ["Til, shrift o'lchami, neon nurlar, animatsiyalar, ovozli bildirishnomalar va tebranish — hammasi bir joyda.", 'Язык, размер шрифта, неон, анимации, звуки и вибрация — всё в одном месте.', 'Language, font size, neon glow, animations, sounds and vibration — all in one place.'],
+            [['3 til', 'Shrift', 'Ovoz'], ['3 языка', 'Шрифт', 'Звук'], ['3 languages', 'Font', 'Sound']]],
+          ['hub-apk', ['Android ilova', 'Android-приложение', 'Android app'], ["Cho'ntagingizda.", 'В кармане.', 'In your pocket.'],
+            ["Bilols AI ilovasi — bepul, yengil (2,7 MB) va xavfsiz. Kamera, bildirishnomalar va avtomatik yangilanishlar bilan.", 'Приложение Bilols AI — бесплатно, легко (2,7 МБ) и безопасно. Камера, уведомления и автообновления.', 'The Bilols AI app is free, light (2.7 MB) and safe, with camera, notifications and auto-updates.'],
+            [['Android 7+', '2,7 MB', 'Bepul'], ['Android 7+', '2,7 МБ', 'Бесплатно'], ['Android 7+', '2.7 MB', 'Free']], ['APK yuklab olish →', 'Скачать APK →', 'Download APK →']]
       ];
+      build();
       function L() { var l = (typeof currentLang !== 'undefined' && currentLang) || document.documentElement.lang || 'uz'; return l === 'ru' ? 1 : l === 'en' ? 2 : 0; }
       function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
       function ease(x) { x = clamp(x, 0, 1); return 1 - Math.pow(1 - x, 3); }
@@ -3007,11 +3056,12 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
           if (i === cur && l === curL) return;
           cur = i; curL = l; typed = -1;
           var d = D[i];
-          K.textContent = d.k[l]; Hh.innerHTML = d.h[l]; TAG.textContent = d.tag;
-          F.innerHTML = ''; d.f[l].forEach(function (t) { var li = document.createElement('li'); li.textContent = t; F.appendChild(li); });
-          C.textContent = d.cta ? d.cta[l] : ''; C.style.display = d.cta ? '' : 'none';
-          bgs.forEach(function (e) { e.classList.toggle('on', +e.dataset.i === i); });
-          imgs.forEach(function (e) { e.classList.toggle('on', +e.dataset.i === i); });
+          load(i); load(i + 1); load(i + 2); load(i - 1);
+          K.textContent = (i < 9 ? '0' : '') + (i + 1) + ' — ' + d[1][l]; Hh.innerHTML = d[2][l]; TAG.textContent = d[1][l]; NUM.textContent = (i + 1) + ' / ' + N;
+          F.innerHTML = ''; d[4][l].forEach(function (t) { var li = document.createElement('li'); li.textContent = t; F.appendChild(li); });
+          C.textContent = d[5] ? d[5][l] : ''; C.style.display = d[5] ? '' : 'none';
+          bgs.forEach(function (e, k) { e.classList.toggle('on', k === i); });
+          imgs.forEach(function (e, k) { e.classList.toggle('on', k === i); });
           if (!reduce && Hh.animate) Hh.animate([{ opacity: 0, transform: 'translateY(18px)', filter: 'blur(6px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 700, easing: 'cubic-bezier(.16,1,.3,1)' });
       }
       function update() {
@@ -3020,21 +3070,18 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
           var top = sec.getBoundingClientRect().top - (sc === window ? 0 : sc.getBoundingClientRect().top);
           var vh = sc === window ? innerHeight : sc.clientHeight, total = sec.offsetHeight - vh;
           if (total <= 0 || top > vh || top < -sec.offsetHeight) return;
-          var p = clamp(-top / total, 0, .9999), i = Math.floor(p * 4), t = p * 4 - i, l = L();
+          var p = clamp(-top / total, 0, .9999), i = Math.floor(p * N), t = p * N - i, l = L();
           setCh(i, l);
           // matn surishga qarab yoziladi (bo'limning birinchi 55% ida to'liq chiqadi)
-          var full = D[i].p[l], n = reduce ? full.length : Math.round(full.length * ease(t / .55));
+          var full = D[i][3][l], n = reduce ? full.length : Math.round(full.length * ease(t / .55));
           if (n !== typed) { typed = n; P.textContent = full.slice(0, n); }
           var lis = F.children; for (var k = 0; k < lis.length; k++) lis[k].classList.toggle('in', reduce || t > .5 + k * .06);
           C.classList.toggle('in', reduce || t > .62);
           bars.forEach(function (b, k) { b.style.transform = 'scaleX(' + (k < i ? 1 : k > i ? 0 : t).toFixed(3) + ')'; });
           if (reduce) return;
           // orqa ekran sekin yaqinlashadi va suriladi; telefondagi ilova ekrani o'zi pastga aylanadi
-          var bg = bgs[i]; bg.style.transform = 'scale(' + (1.1 - .1 * t).toFixed(4) + ')';
           var mob = innerWidth <= 760, enter = ease(t / .3);
           phone.style.transform = (mob ? '' : 'translateY(-50%) ') + 'translateY(' + ((1 - enter) * 60).toFixed(1) + 'px) rotate(' + (mob ? 0 : (-4 + 3 * t)).toFixed(2) + 'deg)';
-          var img = imgs[i], ih = img.offsetHeight, ph = img.parentNode.offsetHeight;
-          if (ih > ph) img.style.transform = 'translateY(' + (-(ih - ph) * ease((t - .2) / .7)).toFixed(1) + 'px)';
       }
       function req() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
       function hook() { sc = scroller(); (sc === window ? window : sc).addEventListener('scroll', req, { passive: true }); req(); }
