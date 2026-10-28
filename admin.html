@@ -1981,7 +1981,7 @@ select.inp option { background: #12151c; color: var(--text); }
         var W = 160, H = 100, S = 4;
         var cv = h('canvas', { width: W * S, height: H * S });
         var c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
-        var SPOT = { think: [36, 72], db: [128, 64], mail: [92, 84], safe: [18, 86], panel: [70, 50], promo: [112, 86], shop: [150, 74], wait: [44, 74], rest: [62, 90], idle: [36, 72] };
+        var SPOT = { think: [38, 70], db: [128, 64], mail: [92, 84], safe: [18, 86], panel: [70, 50], promo: [112, 86], shop: [150, 74], wait: [44, 74], rest: [62, 90], idle: [36, 72] };
         var bot = { x: 36, y: 72, tx: 36, ty: 72, step: 0, state: 'idle', since: 0, label: '' }, t = 0, last = 0, raf = 0, alive = true;
         function R(x, y, w, hh, col) { c.fillStyle = col; c.fillRect(Math.round(x * S), Math.round(y * S), Math.round(w * S), Math.round(hh * S)); }
         function O(x, y, w, hh, col, out) { R(x - .5, y - .5, w + 1, hh + 1, out || '#05070a'); R(x, y, w, hh, col); }
@@ -1989,21 +1989,29 @@ select.inp option { background: #12151c; color: var(--text); }
         function txt(s, x, y, size, col, weight) { c.fillStyle = col; c.font = (weight || 700) + ' ' + (size * S) + 'px ui-monospace,Menlo,monospace'; c.textBaseline = 'middle'; c.fillText(s, x * S, y * S); }
         function tash() { var d = new Date(); return new Date(d.getTime() + d.getTimezoneOffset() * 60000 + 5 * 3600000); }   // Toshkent vaqti
         function room() {
-            var now = tash(), hr = now.getHours(), day = hr >= 7 && hr < 19;
-            // pol: issiq yog'och taxtalar
-            R(0, 30, W, H - 30, '#2a2018');
-            for (var py = 30, row = 0; py < H; py += 5, row++) { R(0, py, W, 5, row % 2 ? '#2d221a' : '#30251c'); R(0, py + 4.6, W, .4, '#1f1812'); for (var px = (row % 3) * 11; px < W; px += 33) R(px, py, .4, 4.6, '#241c15'); }
-            // devor
-            R(0, 0, W, 30, '#243049'); for (var wx = 0; wx < W; wx += 8) R(wx, 0, .4, 29, '#202a41'); R(0, 28.6, W, 1.6, '#151c2c');
-            // deraza: kunduzi osmon, kechasi yulduzlar
-            O(6, 5, 30, 18, '#c7d2fe', '#151c2c');
-            var sky = c.createLinearGradient(0, 6 * S, 0, 22 * S);
-            if (day) { sky.addColorStop(0, '#60a5fa'); sky.addColorStop(1, '#bfdbfe'); } else { sky.addColorStop(0, '#0b1230'); sky.addColorStop(1, '#1e2a5a'); }
-            c.fillStyle = sky; c.fillRect(6.6 * S, 5.6 * S, 28.8 * S, 16.8 * S);
-            if (day) { c.fillStyle = '#fde68a'; c.beginPath(); c.arc(28 * S, 10 * S, 2.4 * S, 0, 7); c.fill(); R(10 + (t * 2 % 30), 9, 6, 1.6, 'rgba(255,255,255,.85)'); }
-            else for (var k = 0; k < 7; k++) if (((t * 1.3 + k) | 0) % 4) R(8 + k * 3.9, 7 + (k * 5 % 9), .6, .6, '#fef3c7');
-            for (var bI = 0; bI < 7; bI++) R(7 + bI * 4, 22 - 3 - (bI * 7 % 6), 3, 3 + (bI * 7 % 6), day ? '#93a4c3' : '#111a35');
-            R(20.6, 5, .8, 18, '#151c2c'); R(5, 22.6, 32, 1.4, '#3b4a6b');
+            var now = tash(), hr = now.getHours(), day = hr >= 7 && hr < 20;
+            // pol: sayt ofisidagidek och yog'och taxtalar
+            R(0, 30, W, H - 30, '#d9a978');
+            for (var py = 30, row = 0; py < H; py += 4, row++) { R(0, py, W, 4, row % 2 ? '#d4a272' : '#dcae7e'); R(0, py + 3.6, W, .4, '#b98557'); for (var px = (row % 3) * 9; px < W; px += 26) R(px, py, .4, 3.6, '#c08d5e'); }
+            // devor + plintus
+            R(0, 0, W, 30, '#6b4a3a'); for (var wx = 0; wx < W; wx += 6) R(wx, 0, .4, 29, '#5f4133'); R(0, 28.4, W, 1.6, '#3b271e');
+            // deraza: kunduzi quyosh botishi, kechasi yulduzli osmon
+            [[6, 30]].forEach(function (wd) {
+                O(wd[0], 5, wd[1], 18, '#f3d3a6', '#3b271e');
+                var g = c.createLinearGradient(0, 6 * S, 0, 22 * S);
+                if (day) { g.addColorStop(0, '#6c5bb8'); g.addColorStop(.5, '#ee8459'); g.addColorStop(1, '#ffd08c'); } else { g.addColorStop(0, '#0b1230'); g.addColorStop(1, '#2a2f6a'); }
+                c.fillStyle = g; c.fillRect((wd[0] + .6) * S, 5.6 * S, (wd[1] - 1.2) * S, 16.8 * S);
+                if (day) { c.fillStyle = '#ffe7b0'; c.beginPath(); c.arc((wd[0] + wd[1] * .7) * S, 18 * S, 2.6 * S, 0, 7); c.fill(); }
+                else for (var k = 0; k < 7; k++) if (((t * 1.3 + k) | 0) % 4) R(wd[0] + 2 + k * 3.9, 7 + (k * 5 % 9), .6, .6, '#fef3c7');
+                R(wd[0] + wd[1] / 2 - .4, 5, .8, 18, '#3b271e'); R(wd[0] - 1, 22.6, wd[1] + 2, 1.4, '#8a5a3c');
+            });
+            // nur
+            c.fillStyle = 'rgba(255,200,140,.10)'; c.beginPath(); c.moveTo(6 * S, 30 * S); c.lineTo(36 * S, 30 * S); c.lineTo(48 * S, 56 * S); c.lineTo(18 * S, 56 * S); c.fill();
+            // gulchambar chiroqlari
+            c.strokeStyle = '#2a1d17'; c.lineWidth = Math.max(1, S * .25); c.beginPath(); c.moveTo(0, 1.4 * S);
+            for (var lx = 0; lx <= W; lx += 8) c.quadraticCurveTo((lx + 4) * S, 3.4 * S, (lx + 8) * S, 1.4 * S); c.stroke();
+            var LC = ['#ffd36b', '#ff8a65', '#9ee37d', '#7cc8ff', '#ff9ad1'];
+            for (var bi = 0, bx = 4; bx < W; bx += 8, bi++) { var lon = ((t * 1.5 + bi * .7) % 2) < 1.4; if (lon) glow(bx, 2.8, 2.2, LC[bi % 5] + '55'); R(bx - .6, 2.4, 1.2, 1.4, lon ? LC[bi % 5] : '#6b5a4a'); }
             // soat (haqiqiy Toshkent vaqti)
             c.fillStyle = '#0f1424'; c.beginPath(); c.arc(46 * S, 12 * S, 5 * S, 0, 7); c.fill();
             c.fillStyle = '#f8fafc'; c.beginPath(); c.arc(46 * S, 12 * S, 4.2 * S, 0, 7); c.fill();
@@ -2049,28 +2057,38 @@ select.inp option { background: #12151c; color: var(--text); }
             // o'simliklar
             [[4, 40], [154, 88], [44, 92]].forEach(function (pl) { O(pl[0] - 2.5, pl[1], 5, 5, '#9a5a3c'); c.fillStyle = '#2f8f46'; c.beginPath(); c.arc(pl[0] * S, (pl[1] - 2.5) * S, 4.2 * S, 0, 7); c.fill(); c.fillStyle = '#4ade80'; c.beginPath(); c.arc((pl[0] - 1.2) * S, (pl[1] - 3.6) * S, 1.6 * S, 0, 7); c.fill(); });
         }
+        // Agent — sayt ofisidagi agentlar uslubida (ko'ylak, soch, nom yorlig'i)
+        var LOOK = { shirt: '#6366f1', hair: '#1f2937', skin: '#f1c7a3' };
         function robot() {
             var x = bot.x, y = bot.y, walk = Math.hypot(bot.tx - x, bot.ty - y) > .5, leg = walk ? ((bot.step * 8) | 0) % 2 : 0;
-            var sit = bot.state === 'rest' && !walk;
-            var bob = walk ? Math.abs(Math.sin(bot.step * 8)) * .6 : Math.sin(t * (sit ? 1.2 : 2)) * .25;
-            c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(x * S, y * S, 4 * S, 1.3 * S, 0, 0, 7); c.fill();
-            if (!sit) { O(x - 2.6, y - 3, 1.8, 3 - leg, '#64748b'); O(x + .8, y - 3, 1.8, 2 + leg, '#64748b'); }
-            var by = y - (sit ? 8.5 : 10) - bob;
-            O(x - 4, by, 8, 7, '#e2e8f0'); R(x - 2.5, by + 2, 5, 2.4, sit ? '#334155' : '#0ea5e9');
-            var arm = bot.state === 'think' && !walk ? (((t * 8) | 0) % 2) : 0;
-            O(x - 5.6, by + 1 + arm, 1.4, 4, '#cbd5e1'); O(x + 4.2, by + 1 - arm, 1.4, 4, '#cbd5e1');
-            if (sit) O(x + 4.6, by + 3, 2.2, 2.2, '#f5f5f4', '#78716c');            // qo'lida kofe
-            O(x - 3.4, by - 6, 6.8, 5.4, '#f1f5f9');
-            var blink = (t % 3.4) < .12 || sit && (t % 5) < 1.6, eye = bot.state === 'wait' ? '#f59e0b' : '#22d3ee';
-            if (!blink) { R(x - 2, by - 4.2, 1.4, 1.6, eye); R(x + .6, by - 4.2, 1.4, 1.6, eye); glow(x, by - 3.4, 4, 'rgba(34,211,238,.25)'); }
-            else { R(x - 2, by - 3.6, 1.4, .4, eye); R(x + .6, by - 3.6, 1.4, .4, eye); }
-            R(x - .3, by - 8.4, .6, 2.4, '#94a3b8'); R(x - .9, by - 9.4, 1.8, 1.6, ((t * 3) | 0) % 2 ? '#f43f5e' : '#fb7185');
-            if (sit && (t % 6) < 3) txt('z', x + 4, by - 9 - (t % 3), 3, 'rgba(203,213,225,.8)');
-            if (bot.label && !walk && bot.state !== 'rest') {      // pufak: hozir nima qilyapti
-                c.font = '700 ' + (2.6 * S) + 'px system-ui,sans-serif';
-                var tw = c.measureText(bot.label).width / S + 4, bx = Math.max(1, Math.min(W - tw - 1, x - tw / 2)), byy = by - 17;
-                O(bx, byy, tw, 5.6, '#f8fafc', '#334155'); c.fillStyle = '#0f172a'; c.textBaseline = 'middle'; c.fillText(bot.label, (bx + 2) * S, (byy + 2.9) * S);
-            }
+            var sit = (bot.state === 'rest' || bot.state === 'think') && !walk;
+            if (walk) y -= Math.abs(Math.sin(bot.step * 8 * Math.PI / 2)) * .4; else if (!sit) y -= (Math.sin(t * 1.9) + 1) * .14;
+            c.fillStyle = 'rgba(40,20,10,.22)'; c.beginPath(); c.ellipse(x * S, y * S, 3.4 * S, 1.2 * S, 0, 0, 7); c.fill();
+            if (!sit) { O(x - 2, y - 2.6, 1.6, 2.6 - leg * .8, '#2d2f3a', '#15161c'); O(x + .5, y - 2.6, 1.6, 2.6 - (walk ? (1 - leg) * .8 : 0), '#2d2f3a', '#15161c'); }
+            var by = sit ? y - 6.4 : y - 8;
+            O(x - 2.8, by, 5.6, 5.2, LOOK.shirt, '#2a1d17'); R(x - 2.8, by + 4, 5.6, 1.2, 'rgba(0,0,0,.15)');
+            R(x - .5, by + .4, 1, 1.6, '#e0e7ff');                                                     // galstuk/ID
+            O(x - 2.3, by - 4.6, 4.6, 4.6, LOOK.skin, '#2a1d17');
+            R(x - 2.3, by - 4.6, 4.6, 1.5, LOOK.hair); R(x - 2.3, by - 3.3, .7, 1.1, LOOK.hair);
+            R(x - 2.6, by - 3.6, .5, 1.6, '#111827'); R(x + 2.1, by - 3.6, .5, 1.6, '#111827'); R(x - 2.6, by - 4.8, 5.2, .5, '#111827');   // quloqchin
+            var blink = (t % 3.6) < .14 || (bot.state === 'rest' && (t % 5) < 1.8);
+            var look = walk ? (bot.tx < x ? -.35 : .35) : 0;
+            if (blink) { R(x - 1.3 + look, by - 2.2, 1, .3, '#1a1210'); R(x + .4 + look, by - 2.2, 1, .3, '#1a1210'); }
+            else { R(x - 1.2 + look, by - 2.6, .8, .9, '#1a1210'); R(x + .5 + look, by - 2.6, .8, .9, '#1a1210'); }
+            R(x - 1.6 + look, by - 1.3, .7, .4, 'rgba(240,120,110,.55)'); R(x + 1 + look, by - 1.3, .7, .4, 'rgba(240,120,110,.55)');
+            if (walk) { var sw = Math.sin(bot.step * 8 * Math.PI / 2) * .8; O(x - 3.7, by + .6 + sw, 1.1, 3, LOOK.shirt, '#2a1d17'); O(x + 2.6, by + .6 - sw, 1.1, 3, LOOK.shirt, '#2a1d17'); }
+            if (bot.state === 'think' && !walk && ((t * 6) | 0) % 2) R(x - 3.6, by + 1.6, 1, 1, LOOK.skin);          // klaviaturada yozyapti
+            if (bot.state === 'rest' && !walk) O(x + 2.8, by + 2, 2, 2, '#f5f5f4', '#78716c');                       // kofe
+            if (bot.state === 'rest' && (t % 6) < 3) txt('z', x + 3.4, by - 7 - (t % 3), 3, 'rgba(60,40,30,.6)');
+            // nom yorlig'i — sayt ofisidagidek qorong'i "pill"
+            var stat = bot.label || (bot.state === 'rest' ? 'dam olyapti' : 'tayyor');
+            var lb = 'Yordamchi — Admin · ' + stat;
+            c.font = '700 ' + (3.2 * S) + 'px system-ui,-apple-system,sans-serif';
+            var tw = c.measureText(lb).width / S, bw = tw + 6, hh2 = 5.4, lx2 = Math.max(1, Math.min(W - bw - 1, x - bw / 2)), ly2 = by - 12;
+            c.fillStyle = 'rgba(20,16,14,.9)'; if (c.roundRect) { c.beginPath(); c.roundRect(lx2 * S, ly2 * S, bw * S, hh2 * S, hh2 * S / 2); c.fill(); } else c.fillRect(lx2 * S, ly2 * S, bw * S, hh2 * S);
+            var dot = { think: '#3ddc84', db: '#58a6ff', mail: '#58a6ff', safe: '#f2b134', panel: '#f85149', promo: '#f2b134', shop: '#f2b134', rest: '#9aa4b2', wait: '#f59e0b' }[bot.state] || '#3ddc84';
+            c.fillStyle = dot; c.beginPath(); c.arc((lx2 + 2.2) * S, (ly2 + hh2 / 2) * S, .8 * S, 0, 7); c.fill();
+            c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(lb, (lx2 + 3.8) * S, (ly2 + hh2 / 2) * S);
         }
         function frame(now) {
             if (!alive) return;
@@ -2081,9 +2099,9 @@ select.inp option { background: #12151c; color: var(--text); }
             if (d > .5) { bot.step += dt; bot.x += dx / d * Math.min(v, d); bot.y += dy / d * Math.min(v, d); }
             room(); robot();
         }
-        function setTo(st) { bot.state = SPOT[st] ? st : 'idle'; bot.since = t; var p = SPOT[bot.state]; bot.tx = p[0]; bot.ty = p[1]; }
+        function setTo(st) { bot.state = SPOT[st] ? st : 'idle'; bot.since = t; bot.label = LBL[bot.state] || ''; var p = SPOT[bot.state]; bot.tx = p[0]; bot.ty = p[1]; }
         raf = requestAnimationFrame(frame);
-        var LBL = { think: "o'ylayapti…", db: 'bazada', mail: 'yozyapti', safe: 'hisob-kitob', panel: 'sozlamalar', promo: 'promo-kod', shop: 'narxlar', wait: '?' };
+        var LBL = { think: "o'ylayapti", db: "bazani o'qiyapti", mail: 'xabar yozyapti', safe: 'hisob-kitob', panel: 'sozlamalar', promo: 'promo-kod', shop: 'narxlar', wait: 'kutyapti' };
         return {
             canvas: cv,
             set: function (st) { if (st === 'idle' && (bot.state === 'rest' || bot.state === 'idle')) return; setTo(st); bot.label = LBL[bot.state] || ''; },
