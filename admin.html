@@ -414,6 +414,40 @@ select.inp option { background: #12151c; color: var(--text); }
 .ds-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ds-top b { font-size: 16px; }
 .ds-badge { font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: rgba(56, 189, 248, .15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, .35); }
+/* ---------- 🤖 Yordamchi (admin agent) ---------- */
+.ag-wrap { display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 16px; align-items: start; }
+@media (max-width: 900px) { .ag-wrap { grid-template-columns: 1fr; } .ag-office { position: static; } }
+.ag-office { border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: #0d1117; position: sticky; top: 12px; }
+.ag-office canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.ag-status { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); background: rgba(255,255,255,0.02); min-height: 42px; }
+.ag-status i { width: 9px; height: 9px; border-radius: 50%; background: var(--green); flex: none; box-shadow: 0 0 8px var(--green); }
+.ag-status.busy i { background: var(--blue); box-shadow: 0 0 8px var(--blue); animation: agBlink 1s infinite; }
+.ag-status.wait i { background: var(--amber); box-shadow: 0 0 8px var(--amber); animation: agBlink .7s infinite; }
+@keyframes agBlink { 50% { opacity: .3; } }
+.ag-chat { display: flex; flex-direction: column; border-radius: 18px; border: 1px solid var(--line); background: var(--card); height: min(72vh, 720px); min-height: 420px; }
+.ag-msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.ag-m { max-width: 86%; padding: 10px 14px; border-radius: 16px; font-size: 14.5px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+.ag-m.me { align-self: flex-end; background: rgba(59,130,246,.18); border: 1px solid rgba(59,130,246,.35); border-bottom-right-radius: 6px; }
+.ag-m.bot { align-self: flex-start; background: rgba(255,255,255,.05); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+.ag-m small { display: block; margin-top: 4px; font-size: 11px; color: var(--dim); }
+.ag-m.pend { border-color: rgba(245,158,11,.5); background: rgba(245,158,11,.08); }
+.ag-m.pend .st { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.07); }
+.ag-m.pend .st.ok { color: #6ee7b7; } .ag-m.pend .st.bad { color: #fda4af; }
+.ag-acts { display: flex; gap: 8px; margin-top: 10px; }
+.ag-acts button { flex: 1; height: 38px; border-radius: 12px; border: 1px solid var(--line2); background: rgba(255,255,255,.06); color: var(--text); font-weight: 700; font-size: 14px; cursor: pointer; }
+.ag-acts .yes { background: rgba(16,185,129,.18); border-color: rgba(16,185,129,.5); color: #a7f3d0; }
+.ag-acts .no { background: rgba(244,63,94,.12); border-color: rgba(244,63,94,.4); color: #fda4af; }
+.ag-typing { align-self: flex-start; color: var(--muted); font-size: 13px; padding: 4px 6px; }
+.ag-chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 10px; }
+.ag-chips button { border: 1px solid var(--line2); background: rgba(255,255,255,.04); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size: 12.5px; cursor: pointer; }
+.ag-chips button:hover { color: var(--text); border-color: rgba(139,92,246,.6); }
+.ag-input { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
+.ag-input textarea { flex: 1; resize: none; height: 46px; max-height: 140px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--line); color: var(--text); font: inherit; font-size: 14.5px; outline: none; }
+.ag-input button { width: 52px; border: none; border-radius: 14px; background: var(--grad); color: #fff; font-size: 18px; cursor: pointer; }
+.ag-input button:disabled { opacity: .5; }
+.ag-empty { margin: auto; text-align: center; color: var(--muted); font-size: 14px; max-width: 320px; line-height: 1.6; }
+.ag-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.ag-head button { border: 1px solid var(--line2); background: transparent; color: var(--muted); border-radius: 10px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
 </style>
 <script src="/notify.js"></script>
 </head>
@@ -660,7 +694,7 @@ select.inp option { background: #12151c; color: var(--text); }
 
     // ================= PANEL =================
     var TABS = [
-        ['stats', '📊', 'Statistika'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['aud', '📲', 'Ilova va bot'],
+        ['stats', '📊', 'Statistika'], ['agent', '🤖', 'Yordamchi'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['aud', '📲', 'Ilova va bot'],
         ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik']
     ];
     var tab = 'stats';
@@ -683,7 +717,7 @@ select.inp option { background: #12151c; color: var(--text); }
         // Kirish animatsiyasi faqat sahifa ochilganda (keyingi avto-yangilanishlarda qayta o'ynamaydi)
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
-        var fn = { stats: vStats, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity, aud: vAud }[t];
+        var fn = { stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity, aud: vAud }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -1840,6 +1874,171 @@ select.inp option { background: #12151c; color: var(--text); }
         promo_delete: ['✖', "Promo-kod o'chirildi"], control: ['🚦', 'Boshqaruv'], announce: ['📣', "Saytdagi e'lon"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi'],
         support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], ai: ['🤖', "AI sozlamalari o'zgartirildi"], notify: ['🔔', 'Bildirishnomalar'], login_key: ['🗝', 'Maxfiy kalit bilan kirildi'], key_create: ['🗝', 'Maxfiy kalit yaratildi'], key_delete: ['✖', "Maxfiy kalit o'chirildi"], faceid_add: ['🙂', "Face ID qo'shildi"], faceid_del: ['✖', "Face ID o'chirildi"], shop: ['🏷', "Narxlar o'zgartirildi"]
     };
+    // ---------- 🤖 Yordamchi: admin agent (chat + piksel ofis) ----------
+    var agRun = 0;
+    var AG_CHIPS = ['📊 Bugungi statistika', '💬 Javobsiz murojaatlar', '📦 Kutilayotgan buyurtmalar', '💳 Karta to\'lovlari', '🔎 ID 1011 haqida'];
+    async function vAgent(view) {
+        var run = ++agRun;
+        view.innerHTML = '';
+        var office = agOffice();
+        var stEl = h('div', { class: 'ag-status' }, [h('i'), h('span', { text: "Yordamchi tayyor" })]);
+        var msgs = h('div', { class: 'ag-msgs' });
+        var ta = h('textarea', { placeholder: "Yordamchiga yozing… masalan: bugun qancha pul tushdi?", rows: 1 });
+        var sendBtn = h('button', { title: 'Yuborish', text: '➤' });
+        var chips = h('div', { class: 'ag-chips' }, AG_CHIPS.map(function (c) { return h('button', { text: c, onclick: function () { ask(c.replace(/^\S+\s/, '')); } }); }));
+        var clearBtn = h('button', { text: '🧹 Tozalash', onclick: async function () {
+            if (!(await dialog({ title: 'Suhbatni tozalash', text: "Yordamchi bilan butun suhbat o'chiriladi (Telegram'dagi ham).", ok: "Tozalash" }))) return;
+            await admin('agent_clear'); items = []; render();
+        } });
+        view.appendChild(h('div', { class: 'ag-wrap' }, [
+            h('div', { class: 'ag-office' }, [office.canvas, stEl]),
+            h('div', { class: 'ag-chat' }, [h('div', { class: 'ag-head' }, [h('span', { text: "🤖 Admin yordamchi · Gemini · Telegram bilan umumiy" }), clearBtn]), msgs, chips, h('div', { class: 'ag-input' }, [ta, sendBtn])])
+        ]));
+        var items = [], pending = [], busy = false, sver = -1;
+        function setStatus(st) {
+            office.set(st.state || 'idle');
+            stEl.className = 'ag-status' + (st.state === 'wait' ? ' wait' : (st.state && st.state !== 'idle' ? ' busy' : ''));
+            stEl.lastChild.textContent = st.text || (st.state === 'wait' ? "Tasdig'ingizni kutyapti" : 'Yordamchi tayyor');
+        }
+        function render() {
+            var atBottom = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 80;
+            msgs.innerHTML = '';
+            if (!items.length) msgs.appendChild(h('div', { class: 'ag-empty' }, [h('div', { text: '🤖', style: 'font-size:40px;margin-bottom:8px' }),
+                "Salom! Men admin yordamchingizman. Statistika, foydalanuvchilar, to'lovlar va murojaatlar bo'yicha so'rang — pul qo'shish yoki xabar yuborishdan oldin tasdiq so'rayman."]));
+            items.forEach(function (it) {
+                var me = it.role === 'admin';
+                var b = h('div', { class: 'ag-m ' + (me ? 'me' : 'bot') + (it.pending ? ' pend' : '') }, [it.text]);
+                if (it.pending) {
+                    var live = pending.indexOf(it.pending) >= 0 && (!it.status || it.status === 'kutilmoqda');
+                    if (live) b.appendChild(h('div', { class: 'ag-acts' }, [
+                        h('button', { class: 'yes', text: '✅ Tasdiqlash', onclick: function () { decide(it.pending, true, this); } }),
+                        h('button', { class: 'no', text: '❌ Bekor', onclick: function () { decide(it.pending, false, this); } })]));
+                    else b.appendChild(h('span', { class: 'st' + (it.status === 'bajarildi' ? ' ok' : ' bad'), text: (it.result || it.status || 'eskirgan') }));
+                }
+                b.appendChild(h('small', { text: fmtDate(it.at) + (it.src === 'tg' ? ' · Telegram' : '') }));
+                msgs.appendChild(b);
+            });
+            if (busy) msgs.appendChild(h('div', { class: 'ag-typing', text: '🤖 yozyapti…' }));
+            if (atBottom || busy) msgs.scrollTop = msgs.scrollHeight;
+        }
+        async function reload() {
+            var j = await admin('agent_log', { ver: -1 });
+            if (run !== agRun) return;
+            items = j.items || []; pending = j.pending || [];
+            if (j.state) { sver = j.state.ver; setStatus(j.state); }
+            render();
+        }
+        async function ask(text) {
+            text = (text || '').trim(); if (!text || busy) return;
+            busy = true; sendBtn.disabled = true; ta.value = '';
+            items.push({ role: 'admin', text: text, at: Date.now() / 1000 }); render();
+            try {
+                var j = await admin('agent_ask', { text: text, ver: -1 });
+                if (!j.success) toast(j.error || 'Xato');
+            } catch (e) { if (e.message !== 'auth') toast('Server xatosi'); }
+            busy = false; sendBtn.disabled = false;
+            if (run === agRun) { await reload(); ta.focus(); }
+        }
+        async function decide(id, ok, btn) {
+            btn.parentNode.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+            var j = await admin('agent_confirm', { id: id, ok: ok, ver: -1 });
+            toast(j.result || (ok ? 'Bajarildi' : 'Bekor qilindi'));
+            await reload();
+        }
+        sendBtn.onclick = function () { ask(ta.value); };
+        ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(ta.value); } });
+        ta.addEventListener('input', function () { ta.style.height = '46px'; ta.style.height = Math.min(140, ta.scrollHeight) + 'px'; });
+        await reload();
+        // jonli: Telegram'dan yozilsa yoki agent ishlasa — darhol yangilanadi
+        (async function live() {
+            while (run === agRun && tab === 'agent') {
+                try {
+                    var j = await admin('agent_state', { sver: sver, ver: -1 });
+                    if (run !== agRun || tab !== 'agent') break;
+                    if (j.state && j.state.ver !== sver) { sver = j.state.ver; setStatus(j.state); if (!busy) await reload(); }
+                } catch (e) { if (e.message === 'auth') break; await new Promise(function (r) { setTimeout(r, 3000); }); }
+            }
+            office.stop();
+        })();
+    }
+
+    // Piksel ofis: agent ishiga qarab stol, server javoni, pochta, seyf yoki boshqaruv paneliga yuradi
+    function agOffice() {
+        var W = 128, H = 80, S = 4;
+        var cv = h('canvas', { width: W * S, height: H * S });
+        var c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
+        var SPOT = { idle: [34, 62], think: [34, 62], db: [100, 58], mail: [70, 70], safe: [18, 70], panel: [64, 40], wait: [42, 64] };
+        var bot = { x: 34, y: 62, tx: 34, ty: 62, step: 0, state: 'idle' }, t = 0, last = 0, raf = 0, alive = true;
+        function R(x, y, w, hh, col) { c.fillStyle = col; c.fillRect(Math.round(x * S), Math.round(y * S), Math.round(w * S), Math.round(hh * S)); }
+        function O(x, y, w, hh, col, out) { R(x - .5, y - .5, w + 1, hh + 1, out || '#05070a'); R(x, y, w, hh, col); }
+        function glow(x, y, r, col) { var g = c.createRadialGradient(x * S, y * S, 0, x * S, y * S, r * S); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect((x - r) * S, (y - r) * S, 2 * r * S, 2 * r * S); }
+        function room() {
+            R(0, 0, W, H, '#10151f');
+            for (var y = 26; y < H; y += 6) for (var x = (y / 6 % 2) * 6; x < W; x += 12) R(x, y, 6, 6, '#131a26');     // shaxmat pol
+            R(0, 0, W, 26, '#1a2233'); R(0, 25, W, 1.2, '#2b3750');
+            // deraza (tungi shahar)
+            O(6, 4, 26, 14, '#0b1430'); for (var i = 0; i < 9; i++) R(8 + i * 2.6, 18 - 3 - (i * 7 % 6), 1.6, 3 + (i * 7 % 6), '#1f2d52');
+            for (var k = 0; k < 6; k++) if (((t * 1.5 + k) | 0) % 3) R(9 + k * 3.7, 12 + (k % 2) * 2, .6, .6, '#ffd36b');
+            // yozuv
+            O(40, 4, 22, 7, '#0d1117', '#2b3750'); c.fillStyle = '#58a6ff'; c.font = '700 ' + (4.2 * S) + 'px ui-monospace,monospace'; c.textBaseline = 'middle'; c.fillText('🤖 AI', 42 * S, 7.6 * S);
+            // boshqaruv paneli (devorda)
+            O(56, 12, 18, 12, '#1f2937'); for (var j = 0; j < 8; j++) R(58 + (j % 4) * 4, 14 + ((j / 4) | 0) * 4, 2, 2, bot.state === 'panel' ? (((t * 6 + j) | 0) % 2 ? '#f43f5e' : '#10b981') : (j % 3 ? '#14532d' : '#10b981'));
+            // server javoni
+            O(98, 14, 16, 38, '#111827');
+            for (var r2 = 0; r2 < 9; r2++) { R(100, 16 + r2 * 4, 12, 2.6, '#0b0f17'); for (var l = 0; l < 3; l++) R(106 + l * 2, 16.8 + r2 * 4, 1, 1, ((t * (bot.state === 'db' ? 9 : 2) + r2 * 1.7 + l) | 0) % 3 ? '#3fb950' : '#0f2f1a'); }
+            if (bot.state === 'db') glow(106, 32, 18, 'rgba(63,185,80,.18)');
+            // seyf
+            O(8, 58, 14, 14, '#4b5563'); R(10, 60, 10, 10, '#374151'); c.fillStyle = '#d4a72c'; c.beginPath(); c.arc(15 * S, 65 * S, 2.2 * S, 0, 7); c.fill();
+            if (bot.state === 'safe') for (var m = 0; m < 4; m++) { var u = (t * .8 + m / 4) % 1; R(14 + Math.sin(m * 2 + t) * 4, 56 - u * 10, 1.4, 1.4, 'rgba(250,204,21,' + (1 - u) + ')'); }
+            // pochta qutisi (Telegram)
+            O(76, 62, 10, 12, '#2563eb'); R(77, 64, 8, 1.6, '#1e3a8a'); R(85.5, 60, 1, 6, '#94a3b8'); R(85.5, 60, 3, 2, '#ef4444');
+            if (bot.state === 'mail') { var p = (t * .7) % 1; c.save(); c.globalAlpha = 1 - p; O(80 + p * 30, 58 - p * 40, 5, 3.4, '#f8fafc', '#1e3a8a'); c.restore(); }
+            // stol + monitor + stul
+            O(20, 50, 30, 7, '#7a4f33'); R(20, 50, 30, 1.2, '#9a6440');
+            O(29, 42, 12, 8, '#0b0f17'); var on = bot.state !== 'idle' || ((t | 0) % 4 > 0);
+            R(30, 43, 10, 6, on ? '#0f2944' : '#111827');
+            if (bot.state === 'think') for (var q = 0; q < 4; q++) R(31, 44 + q * 1.3, 2 + ((Math.sin(t * 5 + q) + 1) * 3.2), .6, q ? '#3fb950' : '#58a6ff');
+            R(34, 50, 2, 1, '#0b0f17');
+            if (on) glow(35, 46, 10, 'rgba(88,166,255,.12)');
+            // o'simlik
+            O(116, 64, 6, 6, '#9a5a3c'); c.fillStyle = '#2f8f46'; c.beginPath(); c.arc(119 * S, 61 * S, 5 * S, 0, 7); c.fill();
+        }
+        function robot() {
+            var x = bot.x, y = bot.y, walk = Math.hypot(bot.tx - x, bot.ty - y) > .5, leg = walk ? ((bot.step * 8) | 0) % 2 : 0;
+            var bob = walk ? Math.abs(Math.sin(bot.step * 8)) * .6 : Math.sin(t * 2) * .25;
+            c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(x * S, y * S, 4 * S, 1.3 * S, 0, 0, 7); c.fill();
+            O(x - 2.6, y - 3, 1.8, 3 - leg, '#64748b'); O(x + .8, y - 3, 1.8, 2 + leg, '#64748b');
+            var by = y - 10 - bob;
+            O(x - 4, by, 8, 7, '#e2e8f0'); R(x - 2.5, by + 2, 5, 2.4, '#0ea5e9');                       // tana + ko'krak ekrani
+            var arm = bot.state === 'think' && !walk ? (((t * 8) | 0) % 2) : 0;
+            O(x - 5.6, by + 1 + arm, 1.4, 4, '#cbd5e1'); O(x + 4.2, by + 1 - arm, 1.4, 4, '#cbd5e1');
+            O(x - 3.4, by - 6, 6.8, 5.4, '#f1f5f9');                                                   // bosh
+            var blink = (t % 3.4) < .12, eye = bot.state === 'wait' ? '#f59e0b' : '#22d3ee';
+            if (!blink) { R(x - 2, by - 4.2, 1.4, 1.6, eye); R(x + .6, by - 4.2, 1.4, 1.6, eye); glow(x, by - 3.4, 4, eye === '#22d3ee' ? 'rgba(34,211,238,.25)' : 'rgba(245,158,11,.3)'); }
+            else { R(x - 2, by - 3.6, 1.4, .4, eye); R(x + .6, by - 3.6, 1.4, .4, eye); }
+            R(x - .3, by - 8.4, .6, 2.4, '#94a3b8'); R(x - .9, by - 9.4, 1.8, 1.6, ((t * 3) | 0) % 2 ? '#f43f5e' : '#fb7185');   // antenna
+            if (bot.state === 'wait' || (bot.state === 'think' && !walk)) {
+                var txt = bot.state === 'wait' ? '?' : '…';
+                O(x + 4, by - 13, 7, 6, '#f8fafc', '#334155'); c.fillStyle = bot.state === 'wait' ? '#d97706' : '#334155';
+                c.font = '800 ' + (5 * S) + 'px system-ui,sans-serif'; c.textBaseline = 'middle'; c.fillText(txt, (x + 5.6) * S, (by - 9.8) * S);
+            }
+        }
+        function frame(now) {
+            if (!alive) return;
+            raf = requestAnimationFrame(frame);
+            var dt = Math.min(.1, (now - (last || now)) / 1000); last = now; t += dt;
+            var dx = bot.tx - bot.x, dy = bot.ty - bot.y, d = Math.hypot(dx, dy), v = 26 * dt;
+            if (d > .5) { bot.step += dt; bot.x += dx / d * Math.min(v, d); bot.y += dy / d * Math.min(v, d); }
+            room(); robot();
+        }
+        raf = requestAnimationFrame(frame);
+        return {
+            canvas: cv,
+            set: function (st) { bot.state = SPOT[st] ? st : 'idle'; var p = SPOT[bot.state]; bot.tx = p[0]; bot.ty = p[1]; },
+            stop: function () { alive = false; cancelAnimationFrame(raf); }
+        };
+    }
+
     async function vLog(view) {
         var j = await admin('log');
         view.innerHTML = '';
