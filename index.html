@@ -2895,6 +2895,155 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
       setTimeout(hook, 1500);   // landing keyinroq ko'rinishi mumkin — scroller qayta aniqlanadi
   })();
   </script>
+  <!-- ===== 🖥 Ichkaridan ko'ring: orqada haqiqiy ekranlar, pastga surganda matn yozilib boradi ===== -->
+  <style id="show-style">
+  .pd-page > .pd-show { padding: 0; }
+  .pd-show { position: relative; height: 520vh; background: #08080a; color: #f6efe9; }
+  .pd-sw-stick { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; isolation: isolate; }
+  .pd-sw-glow { position: absolute; inset: 0; z-index: -3; background: radial-gradient(55% 60% at 70% 50%, rgba(255, 110, 40, .32), transparent 70%), radial-gradient(40% 40% at 20% 90%, rgba(120, 80, 255, .14), transparent 70%); transition: background 1s; }
+  /* orqa ekran: 3D burilgan brauzer oynasi, ichida saytning haqiqiy ekrani */
+  .pd-sw-win { position: absolute; right: -5vw; top: 50%; width: min(64vw, 1000px); aspect-ratio: 16 / 10.4; z-index: -2; border-radius: 14px; overflow: hidden; background: #f5f5f4;
+      transform: translateY(-50%) perspective(1800px) rotateY(-17deg) rotateX(4deg); transform-origin: 60% 50%; box-shadow: 0 60px 120px -40px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.08); will-change: transform; }
+  .pd-sw-wtop { position: absolute; left: 0; right: 0; top: 0; height: 30px; z-index: 2; display: flex; align-items: center; gap: 6px; padding: 0 12px; background: #1d1d21; }
+  .pd-sw-wtop i { width: 9px; height: 9px; border-radius: 50%; background: #ff5f57; } .pd-sw-wtop i:nth-child(2) { background: #febc2e; } .pd-sw-wtop i:nth-child(3) { background: #28c840; }
+  .pd-sw-wtop span { margin: 0 auto; padding: 4px 40px; border-radius: 7px; background: #2b2b31; color: #a1a1aa; font: 500 11px/1 system-ui, sans-serif; }
+  .pd-sw-bg { position: absolute; left: 0; right: 0; top: 30px; bottom: 0; background-size: cover; background-position: center top; opacity: 0; transition: opacity .8s ease; will-change: transform, opacity; transform-origin: 50% 0; }
+  .pd-sw-bg.on { opacity: 1; }
+  .pd-sw-win::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; background: linear-gradient(105deg, rgba(8,8,10,.55) 0%, rgba(8,8,10,.1) 45%, rgba(255,255,255,.06) 100%); }
+  .pd-sw-shade { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(90deg, rgba(8,8,10,.92) 0%, rgba(8,8,10,.6) 32%, rgba(8,8,10,0) 52%); }
+  .pd-sw-txt { position: absolute; left: max(24px, calc((100% - 1180px) / 2)); top: 50%; transform: translateY(-50%); width: min(520px, 46%); }
+  .pd-sw-k { font: 600 12px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; color: #ff8a4c; display: flex; align-items: center; gap: 10px; }
+  .pd-sw-k::after { content: ""; width: 42px; height: 1px; background: currentColor; opacity: .6; }
+  .pd-sw-h { margin: 16px 0 18px; font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: clamp(44px, 6vw, 88px); line-height: .95; letter-spacing: -.035em; min-height: 1.9em; }
+  .pd-sw-h span { display: inline-block; }
+  .pd-sw-p { margin: 0; font-size: 18px; line-height: 1.6; color: rgba(246,239,233,.86); min-height: 6.4em; }
+  .pd-sw-caret { display: inline-block; width: 2px; height: 1.05em; margin-left: 2px; vertical-align: -.15em; background: #ff8a4c; animation: swBlink 1s steps(1) infinite; }
+  @keyframes swBlink { 50% { opacity: 0; } }
+  .pd-sw-facts { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .pd-sw-facts li { padding: 7px 12px; border-radius: 999px; font-size: 13px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); opacity: 0; transform: translateY(8px); transition: opacity .5s ease, transform .5s ease; }
+  .pd-sw-facts li.in { opacity: 1; transform: none; }
+  .pd-sw-cta { margin-top: 24px; display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 999px; background: #f6efe9; color: #141311 !important; font-weight: 600; font-size: 14.5px; opacity: 0; transform: translateY(8px); transition: opacity .5s ease, transform .5s ease; pointer-events: none; }
+  .pd-sw-cta.in { opacity: 1; transform: none; pointer-events: auto; }
+  /* telefon: ilova (APK) ekrani */
+  .pd-sw-phone { position: absolute; right: max(24px, calc((100% - 1180px) / 2 + 40px)); top: 50%; width: clamp(220px, 20vw, 290px); aspect-ratio: 9 / 19.5; border-radius: 44px; padding: 10px; background: linear-gradient(150deg, #3a3a40, #0d0d10 60%); box-shadow: inset 0 0 0 1.5px #55555c, 0 50px 90px -30px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.04); will-change: transform; }
+  .pd-sw-scr { position: relative; height: 100%; border-radius: 35px; overflow: hidden; background: #fff; }
+  .pd-sw-scr::before { content: ""; position: absolute; z-index: 3; top: 9px; left: 50%; width: 30%; height: 20px; margin-left: -15%; border-radius: 99px; background: #000; }
+  .pd-sw-scr::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(115deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 30%); }
+  .pd-sw-img { position: absolute; left: 0; top: 0; width: 100%; opacity: 0; transition: opacity .6s ease; will-change: transform; }
+  .pd-sw-img.on { opacity: 1; }
+  .pd-sw-tag { position: absolute; left: 50%; bottom: -34px; transform: translateX(-50%); white-space: nowrap; font: 600 11px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; opacity: .6; }
+  .pd-sw-bar { position: absolute; left: max(24px, calc((100% - 1180px) / 2)); right: max(24px, calc((100% - 1180px) / 2)); bottom: 28px; display: flex; gap: 8px; }
+  .pd-sw-bar i { flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,.18); overflow: hidden; position: relative; }
+  .pd-sw-bar i b { position: absolute; inset: 0; background: #ff8a4c; transform-origin: left; transform: scaleX(0); }
+  @media (max-width: 760px) {
+    .pd-show { height: 480vh; }
+    .pd-sw-shade { background: linear-gradient(180deg, rgba(8,8,10,.96) 0%, rgba(8,8,10,.85) 38%, rgba(8,8,10,.2) 62%, rgba(8,8,10,0) 100%); }
+    .pd-sw-win { right: auto; left: 8vw; top: auto; bottom: 120px; width: 118vw; transform: perspective(1200px) rotateY(-18deg) rotateX(6deg); border-radius: 10px; }
+    .pd-sw-wtop { height: 22px; } .pd-sw-wtop span { padding: 3px 24px; font-size: 9px; } .pd-sw-bg { top: 22px; }
+    .pd-sw-glow { background: radial-gradient(70% 45% at 55% 75%, rgba(255, 110, 40, .35), transparent 70%); }
+    .pd-sw-txt { left: 22px; right: 22px; width: auto; top: calc(74px + env(safe-area-inset-top)); transform: none; }
+    .pd-sw-h { font-size: clamp(36px, 11vw, 52px); margin: 10px 0 10px; min-height: 0; }
+    .pd-sw-p { font-size: 15px; min-height: 6.6em; }
+    .pd-sw-facts { margin-top: 12px; } .pd-sw-facts li { font-size: 12px; padding: 5px 10px; }
+    .pd-sw-cta { margin-top: 12px; padding: 10px 15px; font-size: 13.5px; }
+    .pd-sw-phone { left: 50%; right: auto; top: auto; bottom: 46px; width: min(44vw, 190px); margin-left: calc(min(44vw, 190px) / -2); border-radius: 32px; padding: 7px; }
+    .pd-sw-scr { border-radius: 26px; } .pd-sw-scr::before { top: 6px; height: 14px; }
+    .pd-sw-tag { display: none; }
+    .pd-sw-bar { bottom: 18px; }
+  }
+  </style>
+  <section class="pd-show" id="pd-show" aria-label="Bilols AI">
+    <div class="pd-sw-stick">
+      <div class="pd-sw-glow"></div>
+      <div class="pd-sw-win" aria-hidden="true"><div class="pd-sw-wtop"><i></i><i></i><i></i><span>bilolsai.uz</span></div>
+        <div class="pd-sw-bg on" data-i="0" style="background-image:url(/img/show/web-chat.webp)"></div>
+        <div class="pd-sw-bg" data-i="1" style="background-image:url(/img/show/web-home.webp)"></div>
+        <div class="pd-sw-bg" data-i="2" style="background-image:url(/img/show/office.webp)"></div>
+        <div class="pd-sw-bg" data-i="3" style="background-image:url(/img/show/shop.webp)"></div></div>
+      <div class="pd-sw-shade"></div>
+      <div class="pd-sw-txt">
+        <div class="pd-sw-k"></div>
+        <h2 class="pd-sw-h"></h2>
+        <p class="pd-sw-p"><span class="pd-sw-typed"></span><span class="pd-sw-caret"></span></p>
+        <ul class="pd-sw-facts"></ul>
+        <a class="pd-sw-cta" href="/apk"></a>
+      </div>
+      <div class="pd-sw-phone" aria-hidden="true"><div class="pd-sw-scr">
+        <img class="pd-sw-img on" data-i="0" src="/img/show/app-chat.webp" alt="" loading="lazy" decoding="async">
+        <img class="pd-sw-img" data-i="1" src="/img/show/app-home.webp" alt="" loading="lazy" decoding="async">
+        <img class="pd-sw-img" data-i="2" src="/img/show/app-chat2.webp" alt="" loading="lazy" decoding="async">
+        <img class="pd-sw-img" data-i="3" src="/img/show/app-wallet.webp" alt="" loading="lazy" decoding="async">
+      </div><div class="pd-sw-tag"></div></div>
+      <div class="pd-sw-bar" aria-hidden="true"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+    </div>
+  </section>
+  <script id="show-script">
+  (function () {
+      var sec = document.getElementById('pd-show'); if (!sec) return;
+      var $ = function (q) { return sec.querySelector(q); };
+      var K = $('.pd-sw-k'), Hh = $('.pd-sw-h'), P = $('.pd-sw-typed'), F = $('.pd-sw-facts'), C = $('.pd-sw-cta'), TAG = $('.pd-sw-tag'), phone = $('.pd-sw-phone');
+      var bgs = sec.querySelectorAll('.pd-sw-bg'), imgs = sec.querySelectorAll('.pd-sw-img'), bars = sec.querySelectorAll('.pd-sw-bar b');
+      var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var D = [
+          { k: ['01 — Veb-sayt', '01 — Сайт', '01 — Website'], h: ['Brauzerda<br>ochiladi.', 'Открывается<br>в браузере.', 'Opens in<br>your browser.'],
+            p: ["bilolsai.uz — hech narsa o'rnatmasdan. Savol yozing, rasm yoki hujjat biriktiring: Bilols AI javobni shu zahoti yozib beradi.", 'bilolsai.uz — без установки. Пишите вопрос, прикрепляйте фото или документ — Bilols AI сразу напишет ответ.', 'bilolsai.uz — nothing to install. Type a question, attach a photo or a document, and Bilols AI writes the answer right away.'],
+            f: [['Chat', 'Rasm', 'Hujjat', 'Tarjima'], ['Чат', 'Фото', 'Документы', 'Перевод'], ['Chat', 'Images', 'Docs', 'Translate']], tag: 'bilolsai.uz' },
+          { k: ['02 — Android ilova', '02 — Android-приложение', '02 — Android app'], h: ["Cho'ntagingizda.", 'В кармане.', 'In your pocket.'],
+            p: ['APK ilova — tez va yengil. Kamera bilan masalani suratga oling, bildirishnomalar keladi, kompyuterga QR kod bilan bir zumda kirasiz.', 'APK — быстро и легко. Снимайте задачу камерой, получайте уведомления, входите на компьютере по QR-коду.', 'The APK is fast and light. Snap a problem with the camera, get notifications, and log in on a computer with a QR code.'],
+            f: [['Kamera', 'Bildirishnoma', 'QR kirish'], ['Камера', 'Уведомления', 'Вход по QR'], ['Camera', 'Notifications', 'QR login']], tag: 'Android · APK', cta: ['APK yuklab olish →', 'Скачать APK →', 'Download APK →'] },
+          { k: ['03 — Agentlar ofisi', '03 — Офис агентов', '03 — Agents office'], h: ['Jamoa<br>ishlayapti.', 'Команда<br>работает.', 'A team<br>at work.'],
+            p: ["Har bir so'rovingizni jonli ofisdagi agentlar bajaradi: Malika matn yozadi, Sardor rasm chizadi, Dilnoza tarjima qiladi. Ularni saytda kuzatib turing.", 'Каждый запрос выполняют агенты живого офиса: Малика пишет, Сардор рисует, Дилноза переводит. Наблюдайте за ними на сайте.', 'Every request is handled by agents in a live office: Malika writes, Sardor draws, Dilnoza translates. Watch them on the site.'],
+            f: [['8 agent', 'Choyxona', 'Majlislar zali'], ['8 агентов', 'Чайхана', 'Переговорная'], ['8 agents', 'Tea house', 'Meeting room']], tag: 'Live office' },
+          { k: ["04 — Hamyon", '04 — Кошелёк', '04 — Wallet'], h: ['Hammasi<br>bitta hisobda.', 'Всё в одном<br>аккаунте.', 'One account<br>for all.'],
+            p: ["Balans, kunlik bonus va promo-kodlar. Shu yerning o'zida Telegram Stars va Premium sotib oling — sayt, ilova va botda bitta hisob.", 'Баланс, ежедневный бонус и промокоды. Здесь же — Telegram Stars и Premium. Один аккаунт на сайте, в приложении и боте.', 'Balance, daily bonus and promo codes. Buy Telegram Stars and Premium right here — one account across web, app and bot.'],
+            f: [['Kunlik bonus', 'Stars', 'Premium'], ['Бонус', 'Stars', 'Premium'], ['Daily bonus', 'Stars', 'Premium']], tag: 'Wallet' }
+      ];
+      function L() { var l = (typeof currentLang !== 'undefined' && currentLang) || document.documentElement.lang || 'uz'; return l === 'ru' ? 1 : l === 'en' ? 2 : 0; }
+      function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+      function ease(x) { x = clamp(x, 0, 1); return 1 - Math.pow(1 - x, 3); }
+      function scroller() { var p = sec.parentElement; while (p && p !== document.body) { var o = getComputedStyle(p).overflowY; if ((o === 'auto' || o === 'scroll') && p.scrollHeight > p.clientHeight) return p; p = p.parentElement; } return window; }
+      var sc = null, cur = -1, curL = -1, typed = -1, ticking = false;
+      function setCh(i, l) {
+          if (i === cur && l === curL) return;
+          cur = i; curL = l; typed = -1;
+          var d = D[i];
+          K.textContent = d.k[l]; Hh.innerHTML = d.h[l]; TAG.textContent = d.tag;
+          F.innerHTML = ''; d.f[l].forEach(function (t) { var li = document.createElement('li'); li.textContent = t; F.appendChild(li); });
+          C.textContent = d.cta ? d.cta[l] : ''; C.style.display = d.cta ? '' : 'none';
+          bgs.forEach(function (e) { e.classList.toggle('on', +e.dataset.i === i); });
+          imgs.forEach(function (e) { e.classList.toggle('on', +e.dataset.i === i); });
+          if (!reduce && Hh.animate) Hh.animate([{ opacity: 0, transform: 'translateY(18px)', filter: 'blur(6px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 700, easing: 'cubic-bezier(.16,1,.3,1)' });
+      }
+      function update() {
+          ticking = false;
+          if (!sc) sc = scroller();
+          var top = sec.getBoundingClientRect().top - (sc === window ? 0 : sc.getBoundingClientRect().top);
+          var vh = sc === window ? innerHeight : sc.clientHeight, total = sec.offsetHeight - vh;
+          if (total <= 0 || top > vh || top < -sec.offsetHeight) return;
+          var p = clamp(-top / total, 0, .9999), i = Math.floor(p * 4), t = p * 4 - i, l = L();
+          setCh(i, l);
+          // matn surishga qarab yoziladi (bo'limning birinchi 55% ida to'liq chiqadi)
+          var full = D[i].p[l], n = reduce ? full.length : Math.round(full.length * ease(t / .55));
+          if (n !== typed) { typed = n; P.textContent = full.slice(0, n); }
+          var lis = F.children; for (var k = 0; k < lis.length; k++) lis[k].classList.toggle('in', reduce || t > .5 + k * .06);
+          C.classList.toggle('in', reduce || t > .62);
+          bars.forEach(function (b, k) { b.style.transform = 'scaleX(' + (k < i ? 1 : k > i ? 0 : t).toFixed(3) + ')'; });
+          if (reduce) return;
+          // orqa ekran sekin yaqinlashadi va suriladi; telefondagi ilova ekrani o'zi pastga aylanadi
+          var bg = bgs[i]; bg.style.transform = 'scale(' + (1.1 - .1 * t).toFixed(4) + ')';
+          var mob = innerWidth <= 760, enter = ease(t / .3);
+          phone.style.transform = (mob ? '' : 'translateY(-50%) ') + 'translateY(' + ((1 - enter) * 60).toFixed(1) + 'px) rotate(' + (mob ? 0 : (-4 + 3 * t)).toFixed(2) + 'deg)';
+          var img = imgs[i], ih = img.offsetHeight, ph = img.parentNode.offsetHeight;
+          if (ih > ph) img.style.transform = 'translateY(' + (-(ih - ph) * ease((t - .2) / .7)).toFixed(1) + 'px)';
+      }
+      function req() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+      function hook() { sc = scroller(); (sc === window ? window : sc).addEventListener('scroll', req, { passive: true }); req(); }
+      window.addEventListener('resize', function () { sc = null; req(); });
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
+      setTimeout(hook, 1500);
+      setInterval(function () { if (L() !== curL && cur >= 0) { cur = -1; req(); } }, 800);   // til almashsa matn qayta yoziladi
+  })();
+  </script>
   <section class="pd-sec" id="pd-features">
     <div class="pd-kicker">01 — <span class="pm-t" data-l="uz">Imkoniyatlar</span><span class="pm-t" data-l="ru">Возможности</span><span class="pm-t" data-l="en">Features</span></div>
     <h2 class="pd-h2"><span class="pm-t" data-l="uz">Chat, rasm, hujjat —<br>bitta oynada.</span><span class="pm-t" data-l="ru">Чат, фото, документы —<br>в одном окне.</span><span class="pm-t" data-l="en">Chat, photos, documents —<br>one window.</span></h2>
