@@ -4879,8 +4879,21 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
                 authActionBtn.disabled = false;
                 return;
             } catch (err) {
-                statusBox.style.color = "#f43f5e";
-                statusBox.innerText = tr("Serverga ulanishda xatolik yuz berdi.", "Server connection error.", "Ошибка соединения с сервером.");
+                // Telefonda Telegram'ga o'tilganda so'rov uzilib qolishi mumkin, lekin server kodni yuborgan bo'ladi —
+                // shuning uchun kod maydoni baribir ochiladi (server qayta so'ralganda ham o'sha kodni ishlatadi)
+                isWaitingForOtp = true;
+                otpSentDigits = phone.slice(-9);
+                if (codeFieldWrap) codeFieldWrap.style.display = "block";
+                statusBox.style.color = "#d97706";
+                statusBox.innerText = tr("Aloqa bir lahzaga uzildi. Telegram'ga kod kelgan bo'lsa — shu yerga kiriting.", "The connection dropped for a moment. If a code arrived in Telegram, enter it here.", "Связь на миг прервалась. Если код пришёл в Telegram — введите его здесь.");
+                const again = document.createElement("a");
+                again.href = "#";
+                again.className = "resend-code-link";
+                again.textContent = tr("🔄 Kod kelmadi — qayta yuborish", "🔄 No code — send again", "🔄 Код не пришёл — отправить снова");
+                again.onclick = (ev) => { ev.preventDefault(); resetOtpState(); authActionBtn.click(); };
+                statusBox.appendChild(document.createElement("br"));
+                statusBox.appendChild(again);
+                authActionBtn.innerText = t.btnVerify;
                 authActionBtn.disabled = false;
                 return;
             }
