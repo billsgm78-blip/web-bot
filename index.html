@@ -2945,6 +2945,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
   .pd-sw-scr::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(115deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 30%); }
   .pd-sw-img { position: absolute; left: 50%; top: 6%; height: 94%; width: auto; max-width: none; transform: translateX(-50%); opacity: 0; transition: opacity .5s ease; }
   .pd-sw-img.on { opacity: 1; }
+  .pd-sw-scr.noanim .pd-sw-img { transition: none; }
   .pd-sw-tag { position: absolute; left: 50%; bottom: -34px; transform: translateX(-50%); white-space: nowrap; font: 600 11px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; opacity: .6; }
   .pd-sw-bar { gap: 4px !important; position: absolute; left: max(24px, calc((100% - 1180px) / 2)); right: max(24px, calc((100% - 1180px) / 2)); bottom: 28px; display: flex; gap: 8px; }
   .pd-sw-num { position: absolute; right: max(24px, calc((100% - 1180px) / 2)); bottom: 40px; font: 600 12px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .12em; opacity: .6; }
@@ -3094,6 +3095,28 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
       function ease(x) { x = clamp(x, 0, 1); return 1 - Math.pow(1 - x, 3); }
       function scroller() { var p = sec.parentElement; while (p && p !== document.body) { var o = getComputedStyle(p).overflowY; if ((o === 'auto' || o === 'scroll') && p.scrollHeight > p.clientHeight) return p; p = p.parentElement; } return window; }
       var sc = null, cur = -1, curL = -1, typed = -1, ticking = false;
+      var shownImg = -1, flip = null, basePhone = '';
+      function showImg(i) {
+          shownImg = i; scr.classList.add('noanim');
+          imgs.forEach(function (e, k) { e.classList.toggle('on', k === i); });
+          requestAnimationFrame(function () { scr.classList.remove('noanim'); });
+      }
+      function applyPhone() {
+          var extra = '';
+          if (flip) {
+              var e = (performance.now() - flip.t0) / 1000;
+              if (e >= 1) { if (!flip.swapped) showImg(flip.to); flip = null; }
+              else {
+                  var a;
+                  if (e < .5) a = 90 * Math.pow(e / .5, 2) * flip.dir;                       // ketayotgan ekran yonboshiga buriladi
+                  else { if (!flip.swapped) { flip.swapped = true; showImg(flip.to); } var u = (e - .5) / .5; a = -90 * Math.pow(1 - u, 3) * flip.dir; }   // yangisi narigi tomondan aylanib keladi
+                  var k = Math.sin(Math.PI * e);
+                  extra = ' perspective(1400px) translateY(' + (-18 * k).toFixed(1) + 'px) rotateY(' + a.toFixed(2) + 'deg) scale(' + (1 - .08 * k).toFixed(3) + ')';
+              }
+          }
+          phone.style.transform = basePhone + extra;
+      }
+      function flipLoop() { applyPhone(); if (flip) requestAnimationFrame(flipLoop); }
       function setCh(i, l) {
           if (i === cur && l === curL) return;
           cur = i; curL = l; typed = -1;
@@ -3105,7 +3128,13 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
           fitPhone();
           C.textContent = d[5] ? d[5][l] : ''; C.style.display = d[5] ? '' : 'none';
           bgs.forEach(function (e, k) { e.classList.toggle('on', k === i); });
-          imgs.forEach(function (e, k) { e.classList.toggle('on', k === i); });
+          var prev = shownImg;
+          if (reduce || prev < 0 || !phone.animate) showImg(i);
+          else {                                             // telefon aylanib keladi: yarim burilishda ekran almashadi
+              flip = { t0: performance.now(), to: i, dir: i > prev ? 1 : -1, swapped: false };
+              requestAnimationFrame(flipLoop);
+              bgs[i].animate([{ opacity: 0, transform: 'translateX(' + (8 * flip.dir) + '%) scale(1.06)', filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 900, easing: 'cubic-bezier(.16,1,.3,1)' });
+          }
           if (!reduce && Hh.animate) Hh.animate([{ opacity: 0, transform: 'translateY(18px)', filter: 'blur(6px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 700, easing: 'cubic-bezier(.16,1,.3,1)' });
       }
       function update() {
@@ -3124,7 +3153,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
           if (reduce) return;
           // orqa ekran sekin yaqinlashadi va suriladi; telefondagi ilova ekrani o'zi pastga aylanadi
           var mob = innerWidth <= 760, enter = ease(t / .3);
-          phone.style.transform = (mob ? '' : 'translateY(-50%) ') + 'translateY(' + ((1 - enter) * 60).toFixed(1) + 'px) rotate(' + (mob ? 0 : (-4 + 3 * t)).toFixed(2) + 'deg)';
+          basePhone = (mob ? '' : 'translateY(-50%) ') + 'translateY(' + ((1 - enter) * 60).toFixed(1) + 'px) rotate(' + (mob ? 0 : (-4 + 3 * t)).toFixed(2) + 'deg)';
+          applyPhone();
       }
       function req() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
       // har bo'lim o'rtasida yumshoq to'xtash nuqtasi — bir surishda bir nechta ekran uchib o'tib ketmaydi
