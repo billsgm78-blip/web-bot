@@ -9853,6 +9853,20 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 .ag-feed.big { grid-column: 1 / -1; grid-row: 1; cursor: zoom-out; }
 .ag-feed.dim { opacity: .55; }
 @media (max-width: 700px) { .ag-camp { padding: 0; } .ag-camcard { max-height: 100vh; height: 100%; border-radius: 0; } .ag-camgrid { grid-template-columns: 1fr; gap: 6px; padding: 6px; } .ag-feed, .ag-feed:nth-child(4), .ag-feed:nth-child(5), .ag-feed.big { grid-column: 1 / -1; } .ag-feed.big { grid-row: auto; } }
+/* 🛏 2-qavat */
+.ag-upp { position: fixed; inset: 0; z-index: 2147482550; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(10, 8, 6, .72); }
+.ag-upp[hidden] { display: none; }
+.ag-upcard { width: min(100%, 1560px, calc((100vh - 96px) * 1.82)); border-radius: 18px; overflow: hidden; background: #2a2135; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
+.ag-upcard .ag-head { background: #1e1828; padding: 10px 14px; font-size: 14px; flex-wrap: wrap; row-gap: 6px; } .ag-upcard .ag-head span { flex-wrap: wrap; justify-content: flex-end; row-gap: 6px; }
+.ag-upview { position: relative; overflow: hidden; }
+.ag-upview canvas { display: block; width: 100%; height: auto; }
+.ag-steps { position: absolute; inset: 0; display: flex; flex-direction: column; pointer-events: none; }
+.ag-steps i { flex: 1; background: linear-gradient(180deg, #b98a5f 0 70%, #6b4a32 70% 100%); transform: translateX(105%); }
+.ag-upcard.climb { animation: agClimb .9s cubic-bezier(.16, 1, .3, 1); }
+.ag-upcard.climb .ag-steps i { animation: agStep .85s cubic-bezier(.7, 0, .3, 1) both; animation-delay: calc(var(--k) * 55ms); }
+@keyframes agStep { 0% { transform: translateX(0); } 45% { transform: translateX(0); } 100% { transform: translateX(-105%); } }
+@keyframes agClimb { from { transform: translateY(90px) scale(.96); opacity: .4; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .ag-upcard.climb, .ag-upcard.climb .ag-steps i { animation: none; } .ag-steps { display: none; } }
 .ag-dbcard .ag-head { flex-wrap: wrap; row-gap: 6px; } .ag-dbcard .ag-head span { flex-wrap: wrap; justify-content: flex-end; row-gap: 6px; }
 @media (max-width: 600px) { .ag-btn { padding: 0 9px; font-size: 11.5px; } .ag-head small { display: none; } }
 .ag-card .ag-head { flex-wrap: wrap; row-gap: 6px; }
@@ -10006,7 +10020,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     function callToDb() {
         if (meet) endMeeting();
         agents.forEach(function (a, i) {
-            if (a.scene === 'db' || a.toDb || a.fixed) return;          // kameraman o'z joyida qoladi
+            if (a.scene === 'db' || a.toDb || a.fixed || a.scene === 'up' || a.toUp) return;          // kameraman o'z joyida, uxlayotganlar 2-qavatda qoladi
             var out = inTea(a) ? teaOut(a) : a.x > MW && a.mspot ? roomPath(a.mspot).reverse().slice(1).concat([{ x: 166, y: MDOOR }]) : [];
             leave(a); a.task = false; a.meet = false; a.evBusy = false; a.toDb = true; a.wait = i * .45; a.until = 1e9;
             a.path = out.concat([{ x: a.x > MW ? 166 : a.x, y: CORR }, { x: ADOOR, y: CORR }, { x: ADOOR, y: OH + 3 }]); a.st = 'walk';
@@ -10053,7 +10067,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         else { a.x += dx / d * v; a.y += dy / d * v; }
     }
     function isSit(a) {
-        if (a.st === 'cam') return true;
+        if (a.st === 'cam' || a.st === 'sleep' || a.st === 'bath') return true;
         if (a.meet && a.st === 'meet') return a !== agents[0];    // majlisda stulda o'tiradi, Bilol doska oldida turadi
         if (a.st === 'walk' || a.st === 'idle' || a.st === 'fix' || a.st === 'cheer') return false;
         if (a.st === 'dbwork') return !!(a.dbs && a.dbs.sit);
@@ -10088,7 +10102,46 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         a.task = !!task; a.until = task ? 20 : 10 + Math.random() * 14;
     }
     function freeTea() { var f = rest.filter(function (r) { return r.k === 'tea' && !agents.some(function (a) { return a.spot === r; }); }); return f.length ? f[(Math.random() * f.length) | 0] : null; }
+    /* 🛏 2-QAVAT: yotoqlar, polda madraslar, vannaxona — agentlar zinadan chiqib uxlaydi/cho'miladi */
+    var UW = 200, UH = 110, UCOR = 54, STAIR = { x: 6, y: 34 }, UARR = { x: 8, y: 66 };
+    var UPSPOTS = [
+        { x: 29.5, y: 31, k: 'bed' }, { x: 49.5, y: 31, k: 'bed' }, { x: 69.5, y: 31, k: 'bed' }, { x: 89.5, y: 31, k: 'bed' },
+        { x: 33, y: 79, k: 'mat' }, { x: 55, y: 79, k: 'mat' }, { x: 77, y: 79, k: 'mat' },
+        { x: 171, y: 27, k: 'bath' }, { x: 136, y: 26, k: 'wash' }
+    ];
+    function freeUp(k) { var f = UPSPOTS.filter(function (u) { return (!k || u.k === k) && !agents.some(function (a) { return a.up === u; }); }); return f.length ? f[(Math.random() * f.length) | 0] : null; }
+    function inUp() { return agents.filter(function (a) { return a.scene === 'up' || a.toUp; }).length; }
+    function goUp(a, sp, dur) {
+        if (!sp) return false;
+        var out = exitWing(a), sx = out.length ? MW - 4 : a.x;
+        leave(a); a.task = false; a.up = sp; a.toUp = true; a.until = 1e9;
+        a.path = out.concat([{ x: sx, y: CORR }, { x: STAIR.x, y: CORR }, { x: STAIR.x, y: STAIR.y }]); a.st = 'walk'; a.next = 'idle';
+        a.arrive = function () {                              // zinadan chiqdi — endi 2-qavatda
+            a.scene = 'up'; a.toUp = false; a.x = UARR.x; a.y = UARR.y; a.until = dur || (40 + Math.random() * 40);
+            a.path = [{ x: UARR.x, y: UCOR }, { x: sp.x, y: UCOR }, { x: sp.x, y: sp.y }]; a.st = 'walk';
+            a.next = sp.k === 'bed' || sp.k === 'mat' ? 'sleep' : sp.k;
+        };
+        return true;
+    }
+    function goDown(a) {
+        a.goingDown = true;
+        a.path = [{ x: a.x, y: UCOR }, { x: UARR.x, y: UCOR }, { x: UARR.x, y: UARR.y }]; a.st = 'walk';
+        a.arrive = function () { a.scene = 'office'; a.up = null; a.goingDown = false; a.x = STAIR.x; a.y = STAIR.y; a.path = [{ x: STAIR.x, y: CORR }]; a.st = 'walk'; a.next = 'idle'; a.until = .2; };
+    }
+    function sleepAll() {
+        if (meet) endMeeting();
+        var n = 0;
+        agents.forEach(function (a, k) {
+            if (a.scene !== 'office' || a.toDb || a.fixed || a.meet || a.arrive || a.panic) return;
+            var sp = freeUp('bed') || freeUp('mat') || freeUp(); if (!sp) return;
+            a.wait = k * .3; if (goUp(a, sp, 60 + Math.random() * 30)) n++;
+            say(a, [T('Uyqum keldi 🥱', "I'm sleepy 🥱", 'Хочу спать 🥱'), T('Xayrli tun 🌙', 'Good night 🌙', 'Спокойной ночи 🌙')][k % 2], 2.5);
+        });
+        if (n) headline('😴 ' + T('Agentlar 2-qavatga uxlashga chiqdi', 'Agents went upstairs to sleep', 'Агенты пошли спать наверх'));
+    }
     function sendToRest(a) {
+        var mu = mood(), pu = mu === 'night' ? .6 : mu === 'evening' ? .3 : mu === 'lunch' ? .05 : .1;
+        if (!a.fixed && Math.random() < pu && goUp(a, (mu === 'night' || mu === 'evening') ? (freeUp('bed') || freeUp('mat')) : freeUp())) return;   // ba'zan 2-qavatga — uxlash yoki vanna
         var m = mood(), r = (m === 'lunch' && Math.random() < .8 && freeTea()) || freeRest(); if (!r) { a.until = 3; return; }
         leave(a); a.spot = r; a.next = 'rest'; goTo(a, r); a.until = 6 + Math.random() * 10;
     }
@@ -10101,7 +10154,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
                 return;
             }
             if (a.st === 'walk') {
-                var p = a.path[0], dx = p.x - a.x, dy = p.y - a.y, d = Math.hypot(dx, dy), v = (a.run ? 34 : a.scene === 'db' || a.toDb ? 22 : 14 * speedMul()) * dt;   // o'chganda yugurib keladi; ertalab tezroq, kechqurun sekin
+                var p = a.path[0], dx = p.x - a.x, dy = p.y - a.y, d = Math.hypot(dx, dy), v = (a.run ? 34 : a.scene === 'db' || a.toDb ? 22 : a.scene === 'up' || a.toUp ? 20 : 14 * speedMul()) * dt;   // o'chganda yugurib keladi; ertalab tezroq, kechqurun sekin
                 a.step += dt;
                 if (d <= v) {
                     a.x = p.x; a.y = p.y; a.path.shift();
@@ -10111,6 +10164,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
                 return;
             }
             if (a.panic) { if (a.st === 'panic') panicRun(a); return; }   // vahima: tinmay yuguradi
+            if (a.scene === 'up') { if (!a.goingDown) { a.until -= dt; if (a.until <= 0) goDown(a); } return; }   // 2-qavatda
             if (a.scene === 'db' || a.toDb || a.meet) return;        // bazada yoki majlisda
             if (a.fixed) { if (a.st !== 'cam') { a.next = 'cam'; goTo(a, CAM_SEAT); } return; }   // kameraman joyiga qaytadi
             a.until -= dt;
@@ -10240,7 +10294,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         panicT = 12;
         agents.forEach(function (a, i) {
             if (a.fixed) { say(a, T('Hammasi kamerada! 📹', 'All on camera! 📹', 'Всё на камерах! 📹'), 3); return; }
-            if (a.toDb || a.arrive) return;
+            if (a.toDb || a.arrive || a.scene === 'up') return;
             leave(a); a.task = false; a.panic = true; a.wait = i * .08; panicRun(a);
         });
         guards.forEach(function (g) { g.wait = 0; g.panic = true; });
@@ -10415,6 +10469,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         drawTech(c, s);
         drawKitchen(c, s);
         drawMeetRoom(c, s);
+        drawStairs(c, s);
         drawAnnex(c, s);
     }
     /* 🍵 choyxona, 💰 seyf, 🚪 kirish eshigi, 📮 pochta qutisi */
@@ -10637,6 +10692,10 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     function statText(a) {
         if (a.guest) return T('kirib keldi', 'just arrived', 'пришёл');
         if (a.panic) return T('vahimada! 😱', 'panicking! 😱', 'в панике! 😱');
+        if (a.st === 'sleep') return T('uxlayapti 💤', 'sleeping 💤', 'спит 💤');
+        if (a.st === 'bath') return T('vannada 🛁', 'in the bath 🛁', 'в ванне 🛁');
+        if (a.st === 'wash') return T('yuvinyapti 🪥', 'washing up 🪥', 'умывается 🪥');
+        if (a.toUp) return T('2-qavatga chiqyapti', 'going upstairs', 'идёт наверх');
         if (a.st === 'cam') return panicT > 0 ? T('signal berayapti! 🚨', 'raising the alarm! 🚨', 'бьёт тревогу! 🚨') : T('kameralarni kuzatyapti 📹', 'watching cameras 📹', 'следит за камерами 📹');
         if (a.meet) return a.st === 'walk' ? T('majlisga ketyapti', 'going to meeting', 'идёт на собрание') : a === agents[0] ? T("majlis o'tkazyapti", 'leading a meeting', 'проводит собрание') : T('majlisda', 'in a meeting', 'на собрании');
         if (a.st === 'safe') return T("to'lovni qabul qilyapti", 'taking a payment', 'принимает оплату');
@@ -10731,6 +10790,18 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             if (a.meet && a.st === 'meet' && a !== agents[0] && !saying(a)) return;      // majlisda faqat gapirayotganlar yorlig'i — ustma-ust tushmasin
             label(c, s, a, big, taken);
         });
+    }
+    function drawStairs(c, s) {                     // 🪜 2-qavatga zina (chap devor yonida)
+        O(c, s, 0.4, 27, 10.6, 30, '#7a5236', '#3b271e');
+        for (var k = 0; k < 9; k++) { var y = 28 + k * 3.2, sh = k / 9; R(c, s, 1, y, 9.4, 2.4, k % 2 ? '#a77650' : '#b98a5f'); R(c, s, 1, y + 2.4, 9.4, .8, 'rgba(0,0,0,' + (.35 - sh * .2) + ')'); }
+        R(c, s, 1, 27.6, 9.4, 3.2, 'rgba(20,12,8,.55)');                                   // tepada qorong'i — yuqoriga ketadi
+        R(c, s, 10.4, 26, .7, 31, '#3b271e'); for (var r = 0; r < 6; r++) R(c, s, 10.5, 28 + r * 5, .5, 2.2, '#5a3a26');   // panjara
+        O(c, s, 1.2, 22.4, 9, 3.6, '#1f2937', '#111'); var fs = Math.max(5, s * 1.25); c.font = '800 ' + fs + 'px system-ui'; c.fillStyle = '#fbbf24'; c.textBaseline = 'middle'; c.fillText('2 ↑', 2.6 * s, 24.3 * s);
+    }
+    function overStairs(canvas, e) {
+        var r = canvas.getBoundingClientRect(); if (!r.width) return false;
+        var wx = (e.clientX - r.left) / r.width * W, wy = (e.clientY - r.top) / r.height * H;
+        return wx >= 0 && wx <= 12.5 && wy >= 21 && wy <= 58;
     }
     function drawCamDesk(c, s) {
         var d = CAM_DESK, alarm = panicT > 0 && ((tAll * 4) | 0) % 2;
@@ -10945,6 +11016,130 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         here.concat(guards, sapper ? [sapper] : []).sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, true, taken); });
         guards.forEach(function (g) { if (g.panic) g.alarm = false; });
     }
+    /* ---------- 🛏 2-qavat oynasi ---------- */
+    var upp = null, ucv = null;
+    function openUp() {
+        if (!upp) {
+            upp = document.createElement('div'); upp.className = 'ag-upp'; upp.hidden = true;
+            var st = ''; for (var k = 0; k < 9; k++) st += '<i style="--k:' + (8 - k) + '"></i>';
+            upp.innerHTML = '<div class="ag-upcard"><div class="ag-head"><b></b><span><small></small><button class="ag-btn ag-sleep"></button><button class="ag-btn ag-down"></button><button class="ag-x" aria-label="close">✕</button></span></div><div class="ag-upview"><canvas></canvas><div class="ag-steps">' + st + '</div></div></div>';
+            document.body.appendChild(upp);
+            ucv = upp.querySelector('canvas');
+            upp.addEventListener('click', function (e) {
+                if (e.target === upp || e.target.closest('.ag-x')) { upp.hidden = true; return; }
+                if (e.target.closest('.ag-down')) { upp.hidden = true; openModal(); return; }
+                if (e.target.closest('.ag-sleep')) sleepAll();
+            });
+        }
+        if (modal) modal.hidden = true;
+        var card = upp.querySelector('.ag-upcard'); card.classList.remove('climb'); void card.offsetWidth; card.classList.add('climb');   // zinadan chiqish animatsiyasi
+        upp.hidden = false;
+    }
+    function fitUp(cv) {
+        var w = cv.clientWidth; if (!w) return false;
+        var dpr = Math.max(2, Math.min(window.devicePixelRatio || 1, 3)), pw = Math.round(w * dpr);
+        if (cv.width !== pw) { cv.width = pw; cv.height = Math.round(pw * UH / UW); }
+        return true;
+    }
+    function paintUpUi() {
+        var n = agents.filter(function (a) { return a.scene === 'up'; }).length;
+        upp.querySelector('.ag-head b').textContent = '🛏 ' + T('2-qavat — dam olish', 'Floor 2 — rest', '2 этаж — отдых');
+        upp.querySelector('.ag-head small').textContent = T('Yuqorida: ', 'Upstairs: ', 'Наверху: ') + n + ' · ' + T('Uxlayapti: ', 'Sleeping: ', 'Спят: ') + agents.filter(function (a) { return a.scene === 'up' && a.st === 'sleep'; }).length;
+        var sb = upp.querySelector('.ag-sleep'), stt = '😴 ' + T('Hammani uxlatish', 'Bedtime for all', 'Всех спать'); if (sb.textContent !== stt) sb.textContent = stt;
+        var db = upp.querySelector('.ag-down'), dt2 = '⬇ ' + T('1-qavat', 'Floor 1', '1 этаж'); if (db.textContent !== dt2) db.textContent = dt2;
+    }
+    function drawSleeper(c, s, a, x, y, flat) {       // yotgan agent: yostiqda bosh, ustida ko'rpa, "Zzz"
+        var blank = a.shirt;
+        if (!flat) {                                   // karavotda (tik)
+            O(c, s, x - 2.2, y - 9.6, 4.4, 4.2, a.skin, '#2a1d17'); R(c, s, x - 2.2, y - 9.6, 4.4, 1.3, a.hair);
+            R(c, s, x - 1.3, y - 7.2, 1, .3, '#1a1210'); R(c, s, x + .4, y - 7.2, 1, .3, '#1a1210');
+            O(c, s, x - 6, y - 5.2, 12, 14, blank, '#2a1d17'); R(c, s, x - 6, y - 5.2, 12, 1.6, 'rgba(255,255,255,.35)');
+            for (var q = 0; q < 3; q++) R(c, s, x - 5 + q * 4, y - 1 + (q % 2) * 4, 2.4, .5, 'rgba(0,0,0,.12)');
+            var br = Math.sin(tAll * 1.6 + x) * .3; R(c, s, x - 6, y + 2 + br, 12, .4, 'rgba(0,0,0,.08)');
+        } else {                                       // polda madrasda (yotiq)
+            O(c, s, x - 9.5, y - 2.2, 4.2, 4.4, a.skin, '#2a1d17'); R(c, s, x - 9.5, y - 2.2, 1.3, 4.4, a.hair);
+            R(c, s, x - 7.6, y - 1.3, .3, 1, '#1a1210'); R(c, s, x - 7.6, y + .4, .3, 1, '#1a1210');
+            O(c, s, x - 5, y - 3.4, 14, 6.8, blank, '#2a1d17'); R(c, s, x - 5, y - 3.4, 1.4, 6.8, 'rgba(255,255,255,.35)');
+        }
+        var zy = (tAll * .6 + x * .1) % 1, zx = x + (flat ? -6 : 3);
+        var fs = Math.max(6, s * (1.6 + zy)); c.font = '800 ' + fs + 'px system-ui'; c.fillStyle = 'rgba(147,197,253,' + (1 - zy) + ')'; c.textBaseline = 'middle';
+        c.fillText('z', (zx + zy * 4) * s, (y - (flat ? 5 : 11) - zy * 7) * s);
+    }
+    function drawBather(c, s, a, x, y) {               // vannada: faqat bosh va yelka, atrofda ko'pik
+        O(c, s, x - 2.2, y - 6.5, 4.4, 4.2, a.skin, '#2a1d17'); R(c, s, x - 2.2, y - 6.5, 4.4, 1.3, a.hair);
+        R(c, s, x - 1.2, y - 4.6, .8, .6, '#1a1210'); R(c, s, x + .5, y - 4.6, .8, .6, '#1a1210');
+        R(c, s, x - 3, y - 2.4, 6, 1.6, a.skin);
+        for (var b = 0; b < 9; b++) { var bx = x - 7 + b * 1.8 + Math.sin(tAll * 2 + b) * .4, by = y - 1.6 + Math.sin(tAll * 1.5 + b * 1.3) * .5; c.fillStyle = 'rgba(255,255,255,.95)'; c.beginPath(); c.arc(bx * s, by * s, (1 + (b % 3) * .35) * s, 0, 7); c.fill(); }
+        for (var k = 0; k < 3; k++) { var u = (tAll * .5 + k / 3) % 1; c.fillStyle = 'rgba(255,255,255,' + (.45 * (1 - u)) + ')'; c.fillRect((x - 4 + k * 4 + Math.sin(tAll + k) * .6) * s, (y - 8 - u * 7) * s, .8 * s, 1.2 * s); }
+    }
+    function renderUp(cv) {
+        var c = cv.getContext('2d'), s = cv.width / UW, SK = sky();
+        c.imageSmoothingEnabled = false;
+        // pol: yotoqxona — yog'och, vannaxona — kafel
+        R(c, s, 0, 14, 104, UH - 14, '#c99c70'); for (var py = 14, row = 0; py < UH; py += 4, row++) { R(c, s, 0, py, 104, 4, row % 2 ? '#c4966a' : '#cea275'); R(c, s, 0, py + 3.6, 104, .4, '#a97c52'); }
+        for (var ty = 14; ty < UH; ty += 5) for (var tx = 106; tx < UW; tx += 5) R(c, s, tx, ty, 5, 5, ((tx + ty) / 5) % 2 ? '#dbeafe' : '#eff6ff');
+        // devorlar va derazalar
+        R(c, s, 0, 0, 104, 14, '#7c6a8f'); R(c, s, 104, 0, UW - 104, 14, '#9cc3d5'); R(c, s, 0, 12.6, UW, 1.4, '#3b2f45');
+        var SKC = { dawn: ['#8fb8e8', '#ffe1a8'], day: ['#4f9fe0', '#d4efff'], dusk: ['#6c5bb8', '#ffd08c'], night: ['#070b24', '#26306a'] }[SK];
+        [[28, 20], [64, 20], [158, 14]].forEach(function (w, wi) {
+            O(c, s, w[0], 2, w[1], 9.4, '#f3d3a6', '#3b271e');
+            var g = c.createLinearGradient(0, 2.4 * s, 0, 11 * s); g.addColorStop(0, SKC[0]); g.addColorStop(1, SKC[1]); c.fillStyle = g; c.fillRect((w[0] + .5) * s, 2.5 * s, (w[1] - 1) * s, 8.4 * s);
+            if (SK === 'night') { for (var st2 = 0; st2 < 6; st2++) R(c, s, w[0] + 1 + hash(st2 + wi * 7) * (w[1] - 2), 3 + hash(st2 * 3 + wi) * 6, .4, .4, '#f6f1ff'); if (wi === 0) { c.fillStyle = '#f4f0d6'; c.beginPath(); c.arc((w[0] + 14) * s, 5 * s, 1.5 * s, 0, 7); c.fill(); } }
+            R(c, s, w[0] + w[1] / 2 - .3, 2.4, .6, 8.6, '#3b271e');
+            O(c, s, w[0] - 1, 2, 3, 9.4, '#c084fc', '#6b21a8'); O(c, s, w[0] + w[1] - 2, 2, 3, 9.4, '#c084fc', '#6b21a8');   // pardalar
+        });
+        // vannaxona devori (eshik o'rni ochiq)
+        R(c, s, 103, 14, 2.6, UCOR - 6 - 14, '#6b5a7a'); R(c, s, 103, UCOR + 6, 2.6, UH - UCOR - 6, '#6b5a7a');
+        // yo'lak gilami
+        O(c, s, 14, UCOR - 3, 86, 6, '#7c3aed', '#4c1d95'); for (var gx = 18; gx < 98; gx += 6) R(c, s, gx, UCOR - .4, 2, .8, '#fbbf24');
+        // zina teshigi (pastga)
+        O(c, s, 1, 60, 12, 48, '#5b3b24', '#2a1d17'); for (var k2 = 0; k2 < 10; k2++) R(c, s, 2, 61 + k2 * 4.6, 10, 3.6, 'rgba(0,0,0,' + (.08 + k2 * .06) + ')');
+        R(c, s, 13, 58, .8, 50, '#3b271e'); for (var r2 = 0; r2 < 8; r2++) R(c, s, 13.1, 60 + r2 * 6, .6, 3, '#5a3a26');
+        var fs = Math.max(6, s * 1.6); c.font = '800 ' + fs + 'px system-ui'; c.fillStyle = '#fde68a'; c.textBaseline = 'middle'; c.fillText('1 ↓', 3 * s, 57 * s);
+        // karavotlar (4 ta) va tungi chiroqlar
+        [22, 42, 62, 82].forEach(function (x, k) {
+            O(c, s, x, 16.5, 15, 3, '#6b3f26', '#2a1d17');
+            O(c, s, x, 19.5, 15, 24, '#f5f0e6', '#8a7a6a'); R(c, s, x + 2, 20.2, 11, 3.4, '#ffffff');
+            O(c, s, x + .4, 25, 14.2, 18, ['#60a5fa', '#f472b6', '#34d399', '#fbbf24'][k], '#2a1d17'); R(c, s, x + .4, 25, 14.2, 1.4, 'rgba(255,255,255,.4)');
+            for (var q = 0; q < 3; q++) R(c, s, x + 2 + q * 4.5, 30 + (q % 2) * 6, 2, 2, 'rgba(255,255,255,.25)');
+            if (k < 3) { O(c, s, x + 15.6, 18, 3.4, 4, '#8a5a3c'); R(c, s, x + 16.3, 16, 2, 2, '#fde68a'); glow(c, s, x + 17.3, 17, 6, 'rgba(253,230,138,.35)'); }
+        });
+        // polda madraslar (3 ta)
+        [24, 46, 68].forEach(function (x, k) {
+            O(c, s, x, 74, 18, 10, ['#fca5a5', '#a5b4fc', '#86efac'][k], '#2a1d17'); R(c, s, x, 74, 18, 1.2, 'rgba(255,255,255,.4)');
+            for (var q = 0; q < 4; q++) R(c, s, x + 2 + q * 4.2, 78.6, 1, 1, 'rgba(0,0,0,.15)');
+            O(c, s, x + .8, 75.4, 4, 7.2, '#ffffff', '#c9b9a6');
+        });
+        // o'simlik va kitob javoni
+        O(c, s, 88, 92, 4, 3, '#c97b4f'); c.fillStyle = '#4c9a45'; c.beginPath(); c.arc(90 * s, 90 * s, 3.2 * s, 0, 7); c.fill();
+        O(c, s, 86, 64, 14, 6, '#7a4f33'); ['#c0504d', '#4f81bd', '#9bbb59', '#f2b134', '#8064a2'].forEach(function (col, i) { R(c, s, 87 + i * 2.4, 65, 1.8, 4, col); });
+        // vannaxona: dush, oyna+rakovina, vanna, kir yuvish mashinasi, sochiqlar
+        O(c, s, 110, 16, 14, 18, 'rgba(186,230,253,.45)', '#64748b'); R(c, s, 116, 17, 2, 1.4, '#94a3b8');
+        for (var d = 0; d < 6; d++) { var dy = (tAll * 1.4 + d / 6) % 1; R(c, s, 112 + d * 2, 18.5 + dy * 13, .3, .9, 'rgba(59,130,246,.55)'); }
+        O(c, s, 130, 3, 12, 8, '#e0f2fe', '#64748b'); R(c, s, 131, 4, 3, 6, 'rgba(255,255,255,.7)');      // oyna
+        O(c, s, 130, 15, 12, 5, '#f8fafc', '#64748b'); R(c, s, 135.4, 14, 1.2, 1.6, '#94a3b8');               // rakovina
+        O(c, s, 150, 16, 42, 18, '#f8fafc', '#475569'); R(c, s, 152, 18, 38, 14, '#7dd3fc'); R(c, s, 152, 18, 38, 1.4, 'rgba(255,255,255,.6)');   // vanna
+        R(c, s, 189, 15, 1.4, 3, '#94a3b8');
+        if (!agents.some(function (a) { return a.scene === 'up' && a.st === 'bath'; })) for (var bb = 0; bb < 6; bb++) { c.fillStyle = 'rgba(255,255,255,.85)'; c.beginPath(); c.arc((160 + bb * 4) * s, (25 + Math.sin(tAll + bb) * .5) * s, 1.2 * s, 0, 7); c.fill(); }
+        O(c, s, 160, 38, 14, 5, '#fda4af', '#9f1239');                                                        // vanna gilamchasi
+        O(c, s, 176, 86, 14, 15, '#f1f5f9', '#475569'); c.strokeStyle = '#64748b'; c.lineWidth = Math.max(1, s * .5); c.beginPath(); c.arc(183 * s, 94.5 * s, 4.4 * s, 0, 7); c.stroke();
+        c.fillStyle = 'rgba(56,189,248,.5)'; c.beginPath(); c.arc(183 * s, 94.5 * s, 3.6 * s, tAll * 6, tAll * 6 + 4); c.fill();          // baraban aylanadi
+        [[110, 40, '#fbbf24'], [116, 40, '#34d399']].forEach(function (t) { R(c, s, t[0], 38, 5, .6, '#94a3b8'); O(c, s, t[0] + .5, 38.6, 4, 7, t[2], '#2a1d17'); });   // sochiqlar
+        O(c, s, 192, 60, 5, 4, '#c97b4f'); c.fillStyle = '#4c9a45'; c.beginPath(); c.arc(194.5 * s, 58 * s, 3 * s, 0, 7); c.fill();
+        // agentlar
+        var here = agents.filter(function (a) { return a.scene === 'up'; }), list = [];
+        here.forEach(function (a) {
+            list.push({ y: a.y, f: function () {
+                if (a.st === 'sleep') drawSleeper(c, s, a, a.x, a.y, a.up && a.up.k === 'mat');
+                else if (a.st === 'bath') drawBather(c, s, a, a.x, a.y);
+                else drawAgent(c, s, a);
+            } });
+        });
+        list.sort(function (p, q) { return p.y - q.y; }).forEach(function (o) { o.f(); });
+        if (SK === 'night' || !officeLight) { c.fillStyle = 'rgba(10,12,32,.35)'; c.fillRect(0, 0, cv.width, cv.height); [[38.5 + 17.3 - 15.6, 17], [58.5 + 1.7, 17], [78.5 + 1.7, 17]].forEach(function (g) { glow(c, s, g[0], g[1], 9, 'rgba(253,230,138,.45)'); }); glow(c, s, 136, 10, 8, 'rgba(186,230,253,.35)'); }
+        var taken = [];
+        here.slice().sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, true, taken); });
+    }
     /* 📹 5 ta kamera: har biri baza zalining bir qismini ko'rsatadi */
     var CAMS = [
         { n: ['Kirish', 'Вход', 'Entrance'], x: 0, y: 12, w: 112, h: 63, mx: 4, my: 15, dir: 1 },
@@ -11020,7 +11215,8 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         if (fx.ev && tAll < fx.ev.until) return fx.ev.t;
         if (panicT > 0) return '🚨 ' + T('Vahima!', 'Panic!', 'Паника!');
         if (meet) return '📋 ' + T('Majlis ketyapti', 'Team meeting', 'Идёт собрание');
-        return T('Ishlayapti: ', 'Working: ', 'Работают: ') + w + ' · ' + T('Dam: ', 'Resting: ', 'Отдыхают: ') + (agents.length - w - d) + (d ? ' · ' + T('Bazada: ', 'In DB: ', 'В базе: ') + d : '');
+        var u = agents.filter(function (a) { return a.scene === 'up'; }).length;
+        return T('Ishlayapti: ', 'Working: ', 'Работают: ') + w + ' · ' + T('Dam: ', 'Resting: ', 'Отдыхают: ') + (agents.length - w - d - u) + (d ? ' · ' + T('Bazada: ', 'In DB: ', 'В базе: ') + d : '') + (u ? ' · ' + T('2-qavatda: ', 'Upstairs: ', 'Наверху: ') + u : '');
     }
 
     /* ---------- joylash ---------- */
@@ -11034,7 +11230,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         foot.insertBefore(box, foot.firstChild);   // onlayn sonining tepasida
         cv = box.querySelector('canvas');
         hookDoor(cv, false);
-        box.addEventListener('click', function (e) { if (overDb(cv, e)) { openDb(); return; } openModal(); });
+        box.addEventListener('click', function (e) { if (overStairs(cv, e)) { openUp(); return; } if (overDb(cv, e)) { openDb(); return; } openModal(); });
         if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }).observe(box);
         return true;
     }
@@ -11052,7 +11248,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var timer = null;
         canvas.addEventListener('mousemove', function (e) {
             var on = overDoor(canvas, e);
-            canvas.style.cursor = on || overDb(canvas, e) || (big && agentAt(canvas, e)) ? 'pointer' : '';
+            canvas.style.cursor = on || overDb(canvas, e) || overStairs(canvas, e) || (big && agentAt(canvas, e)) ? 'pointer' : '';
             if (on !== doorHot) doorHot = on;
             if (on && !timer && !(dbp && !dbp.hidden)) timer = setTimeout(function () { timer = null; if (doorHot) openDb(); }, big ? 350 : 600);
             if (!on && timer) { clearTimeout(timer); timer = null; }
@@ -11108,7 +11304,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             document.body.appendChild(modal);
             mcv = modal.querySelector('canvas');
             hookDoor(mcv, true);
-            mcv.addEventListener('click', function (e) { var a = agentAt(mcv, e); if (a && a.fixed) { hidePop(); say(a, T('Mana kameralar 📹', 'Here are the cameras 📹', 'Вот камеры 📹'), 2.5); openCams(); return; } if (a) showPop(a, e); else hidePop(); });
+            mcv.addEventListener('click', function (e) { if (overStairs(mcv, e)) { openUp(); return; } var a = agentAt(mcv, e); if (a && a.fixed) { hidePop(); say(a, T('Mana kameralar 📹', 'Here are the cameras 📹', 'Вот камеры 📹'), 2.5); openCams(); return; } if (a) showPop(a, e); else hidePop(); });
             modal.addEventListener('click', function (e) {
                 if (e.target === modal || e.target.closest('.ag-x')) { modal.hidden = true; hidePop(); return; }
                 if (e.target.closest('.ag-light')) { officeLight = !officeLight; return; }
@@ -11176,7 +11372,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         if (document.hidden) { last = t; return; }
         var dt = Math.min(.1, (t - (last || t)) / 1000); last = t; acc += dt;
         // katta oyna ochiq bo'lsa — 60 kadr/s (silliq); faqat yon paneldagi kichik ofis — 24 kadr/s (telefon qizimasin)
-        var bigOpen = (modal && !modal.hidden) || (dbp && !dbp.hidden) || (camp && !camp.hidden);
+        var bigOpen = (modal && !modal.hidden) || (dbp && !dbp.hidden) || (camp && !camp.hidden) || (upp && !upp.hidden);
         if (acc < (bigOpen ? 1 / 61 : 1 / 30)) return;
         var step = acc; acc = 0; frameDt = step;
         if (!mount()) return;
@@ -11187,6 +11383,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         if (showBig) { modal.querySelector('.ag-head b').textContent = '🏢 ' + T('Agentlar ofisi', 'Agents office', 'Офис агентов'); modal.querySelector('.ag-head small').textContent = counts(); var lb = modal.querySelector('.ag-light'), lt = officeLight ? '🌙 ' + T("Chiroqni o'chirish", 'Lights off', 'Выключить свет') : '💡 ' + T('Chiroqni yoqish', 'Lights on', 'Включить свет'); if (lb.textContent !== lt) lb.textContent = lt; paintBtns(); if (fit(mcv)) render(mcv, true); }
         if (dbp && !dbp.hidden) { paintDbUi(); if (fitDb(dcv)) renderDb(dcv); }
         if (camp && !camp.hidden) renderCams();
+        if (upp && !upp.hidden) { paintUpUi(); if (fitUp(ucv)) renderUp(ucv); }
         if (pop) { if (!showBig || tAll > popT || (pop.a.guest && !fx.guest)) hidePop(); else paintPop(); }
     }
     var lastLang = null;
