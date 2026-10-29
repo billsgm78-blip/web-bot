@@ -2912,6 +2912,9 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
       background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .16); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 20px 40px -20px rgba(0,0,0,.6);
       animation: swFloat var(--ft, 7s) ease-in-out infinite alternate; }
   .pd-sw-chip span::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #ff8a4c; box-shadow: 0 0 10px #ff8a4c; }
+  .pd-sw-tags.mob { left: 12px; right: 12px; top: var(--band, 40%); bottom: auto; height: 46px; display: flex; justify-content: center; align-items: center; gap: 8px; overflow: visible; z-index: 1; }
+  .pd-sw-tags.mob .pd-sw-chip { position: relative; left: auto; top: auto; }
+  .pd-sw-tags.mob .pd-sw-chip span { padding: 8px 14px; }
   @keyframes swFloat { from { transform: translate3d(0, -8px, 0) rotate(-1.5deg); } to { transform: translate3d(14px, 10px, 0) rotate(1.5deg); } }
   @media (prefers-reduced-motion: reduce) { .pd-sw-chip span { animation: none; } .pd-sw-chip { transition: opacity .3s; transform: none !important; } }
   .pd-sw-glow { position: absolute; inset: 0; z-index: -4; background: radial-gradient(55% 60% at 70% 50%, rgba(255, 110, 40, .32), transparent 70%), radial-gradient(40% 40% at 20% 90%, rgba(120, 80, 255, .14), transparent 70%); transition: background 1s; }
@@ -3075,13 +3078,15 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
           var old = TAGS.querySelectorAll('.pd-sw-chip:not(.out)');
           old.forEach(function (e) { e.classList.remove('in'); e.classList.add('out'); setTimeout(function () { e.remove(); }, 800); });
           var mob = innerWidth <= 760, pos = mob ? POS_M : POS_D, shift = i % 2;
+          TAGS.classList.toggle('mob', mob);
+          if (mob) { old.forEach(function (e) { e.style.position = 'absolute'; e.style.left = e.offsetLeft + 'px'; }); list = list.slice(0, 3); }   // telefonda: matn ostida bitta qator, kesilmaydi
           list.forEach(function (t, k) {
               var q = pos[ORD[(k + shift * 3) % 6]], el = document.createElement('div'), sp = document.createElement('span'), left = q[0] < 50;
               el.className = 'pd-sw-chip'; sp.textContent = t; el.appendChild(sp);
               el.style.setProperty('--x', q[0] + '%'); el.style.setProperty('--y', q[1] + '%');
               el.style.setProperty('--dx', (left ? -1 : 1) * (mob ? 46 : 34) + 'vw'); el.style.setProperty('--dy', (k % 2 ? 24 : -24) + 'px');
               el.style.setProperty('--d', (.15 + k * .12) + 's'); el.style.setProperty('--ft', (6 + (k * 1.7) % 4) + 's');
-              if (k === 3) { el.style.setProperty('--b', '1.5px'); el.style.setProperty('--o', '.55'); }   // chuqurlik: bittasi xiraroq
+              if (k === 3 && !mob) { el.style.setProperty('--b', '1.5px'); el.style.setProperty('--o', '.55'); }   // chuqurlik: bittasi xiraroq
               el.style.setProperty('--fs', mob ? (k % 2 ? '13px' : '14.5px') : (k % 2 ? '16px' : '19px'));
               TAGS.appendChild(el);
               requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add('in'); }); });
@@ -3091,7 +3096,8 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
       function fitPhone() {
           if (innerWidth > 760) { phone.style.width = ''; phone.style.marginLeft = ''; return; }
           var st = sec.querySelector('.pd-sw-stick').getBoundingClientRect(), tx = $('.pd-sw-txt').getBoundingClientRect();
-          var avail = st.bottom - tx.bottom - 46 - 22, h = Math.max(220, Math.min(avail, 470)), w = Math.round(h * 9 / 19.5);
+          TAGS.style.setProperty('--band', (tx.bottom - st.top + 6) + 'px');
+          var avail = st.bottom - tx.bottom - 46 - 22 - 52, h = Math.max(200, Math.min(avail, 460)), w = Math.round(h * 9 / 19.5);
           phone.style.width = w + 'px'; phone.style.marginLeft = (-w / 2) + 'px';
       }
       window.addEventListener('resize', function () { setTimeout(fitPhone, 50); });
@@ -9846,7 +9852,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 .ag-feed canvas { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; }
 .ag-feed.big { grid-column: 1 / -1; grid-row: 1; cursor: zoom-out; }
 .ag-feed.dim { opacity: .55; }
-@media (max-width: 700px) { .ag-camgrid { grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; } .ag-feed, .ag-feed:nth-child(4), .ag-feed:nth-child(5) { grid-column: span 1; } .ag-feed:nth-child(5) { grid-column: 1 / -1; } .ag-feed.big { grid-column: 1 / -1; } }
+@media (max-width: 700px) { .ag-camp { padding: 0; } .ag-camcard { max-height: 100vh; height: 100%; border-radius: 0; } .ag-camgrid { grid-template-columns: 1fr; gap: 6px; padding: 6px; } .ag-feed, .ag-feed:nth-child(4), .ag-feed:nth-child(5), .ag-feed.big { grid-column: 1 / -1; } .ag-feed.big { grid-row: auto; } }
 .ag-dbcard .ag-head { flex-wrap: wrap; row-gap: 6px; } .ag-dbcard .ag-head span { flex-wrap: wrap; justify-content: flex-end; row-gap: 6px; }
 @media (max-width: 600px) { .ag-btn { padding: 0 9px; font-size: 11.5px; } .ag-head small { display: none; } }
 .ag-card .ag-head { flex-wrap: wrap; row-gap: 6px; }
