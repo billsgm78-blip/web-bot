@@ -10193,7 +10193,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             if (d <= v) { g.x = p.x; g.y = p.y; g.i = (g.i + 1) % g.loop.length; g.wait = 1.2 + Math.random() * 1.5; }
             else { g.x += dx / d * v; g.y += dy / d * v; if (Math.random() < dt * .08) g.wait = 1 + Math.random(); }
         });
-        tickSapper(dt);
+        tickSapper(dt); tickTech(dt); tickMotion(dt);
         if (dbPower === 'boot') {
             bootT += dt;
             if (bootT >= BOOT) { dbPower = 'on'; if (sapper) { sapper.st = 'cheer'; sapper.cheer = 2.2; } }
@@ -10300,6 +10300,84 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         });
         guards.forEach(function (g) { g.wait = 0; g.panic = true; });
         headline('🚨 ' + T('Vahima! Bazada xavotir', 'Panic! Alarm in the database', 'Паника! Тревога в базе'));
+    }
+    /* 📵 KAMERALAR O'CHDI: kameraman vahimada, Sapyor har bir kamera oldiga borib tuzatadi (~1 daqiqa) */
+    var camDown = [false, false, false, false, false], camTech = null, motion = null, motionT = 100 + Math.random() * 60;
+    var CAM_STAND = [{ x: 12, y: 33 }, { x: 150, y: 33 }, { x: 306, y: 33 }, { x: 306, y: 90 }, { x: 12, y: 90 }], CAM_ORDER = [0, 1, 2, 4, 3];
+    function camsDownCount() { return camDown.filter(Boolean).length; }
+    function camsOff() {
+        if (camTech || camsDownCount() || dbPower !== 'on') return;
+        camDown = [true, true, true, true, true];
+        var cman = agents.filter(function (a) { return a.fixed; })[0];
+        if (cman) say(cman, T("Kameralar o'chdi! 😱", 'Cameras are down! 😱', 'Камеры отключились! 😱'), 4);
+        headline('📵 ' + T("Kameralar o'chdi — Sapyor chaqirildi", 'Cameras down — technician called', 'Камеры отключены — вызван техник'));
+        camTech = { n: 'Sapyor', r: T('Texnik', 'Technician', 'Техник'), shirt: '#f97316', hair: '#1a1a1a', skin: '#e2b48f', helmet: true,
+            x: 2, y: 41, st: 'walk', run: true, step: 0, wait: 1.2, scene: 'db', q: CAM_ORDER.slice(), fixT: 0 };
+        say(camTech, T('Hozir tuzataman! 🔧', "I'll fix it! 🔧", 'Сейчас починю! 🔧'), 3);
+        techNext();
+    }
+    function techNext() {
+        var a = camTech; if (!a) return;
+        if (!a.q.length) {                                     // hammasi tuzatildi — chiqib ketadi
+            a.st = 'cheer'; a.cheer = 2;
+            var cman = agents.filter(function (x) { return x.fixed; })[0];
+            if (cman) say(cman, T('Rahmat, Sapyor! 👍', 'Thanks, technician! 👍', 'Спасибо, техник! 👍'), 3);
+            headline('✅ ' + T('Barcha kameralar ishlayapti', 'All cameras are back', 'Все камеры работают'));
+            return;
+        }
+        var k = a.q[0], t = CAM_STAND[k];
+        a.path = techPath(a, t); a.st = 'walk'; a.run = true;
+        a.arrive = function () { a.st = 'fixcam'; a.run = false; a.fixT = 6; a.fixing = k; say(a, T('Tuzatyapman… 🔧', 'Fixing… 🔧', 'Чиню… 🔧'), 2.5); };
+    }
+    function techPath(a, t) {                          // to'g'ri yo'l: bir yo'lakda — to'g'ridan, aks holda eng yaqin chetdagi o'tish yo'lidan
+        if (Math.abs(a.y - t.y) < 1) return [{ x: t.x, y: t.y }];
+        var lx = (a.x + t.x) / 2 > DW / 2 ? DW - 5 : LANE;
+        return [{ x: lx, y: a.y }, { x: lx, y: t.y }, { x: t.x, y: t.y }];
+    }
+    function tickTech(dt) {
+        var a = camTech; if (!a) return;
+        if (a.wait > 0) { a.wait -= dt; return; }
+        if (a.st === 'fixcam') { a.fixT -= dt; a.step += dt; if (a.fixT <= 0) { camDown[a.fixing] = false; a.fixing = -1; a.q.shift(); techNext(); } return; }
+        if (a.st === 'cheer') { a.cheer -= dt; if (a.cheer <= 0) { a.st = 'walk'; a.run = false; a.path = techPath(a, { x: 2, y: 41 }); a.arrive = function () { camTech = null; }; } return; }
+        if (a.st !== 'walk') return;
+        var p = a.path[0], dx = p.x - a.x, dy = p.y - a.y, d = Math.hypot(dx, dy), v = (a.run ? 36 : 20) * dt;
+        a.step += dt;
+        if (d <= v) { a.x = p.x; a.y = p.y; a.path.shift(); if (!a.path.length) { var f = a.arrive; a.arrive = null; if (f) f(); } }
+        else { a.x += dx / d * v; a.y += dy / d * v; }
+    }
+    // 👁 kamera harakatni sezadi: zalda mushuk yugurib o'tadi → kameraman signal beradi → vahima
+    function tickMotion(dt) {
+        if (motion) {
+            motion.x += motion.vx * dt; motion.step += dt;
+            if (!motion.seen && motion.x > 20 && motion.x < DW - 20 && camsDownCount() === 0) {
+                motion.seen = true;
+                var cman = agents.filter(function (a) { return a.fixed; })[0];
+                if (cman) say(cman, T('Kamerada nimadir bor! 😱', "Something's on camera! 😱", 'На камере что-то есть! 😱'), 3);
+                if (panicT <= 0) startPanic();
+            }
+            if (motion.x < -12 || motion.x > DW + 12) {
+                var was = motion.seen; motion = null;
+                if (was) setTimeout(function () { var cman = agents.filter(function (a) { return a.fixed; })[0]; if (cman) say(cman, T('Mushuk ekan 😹', 'It was a cat 😹', 'Это была кошка 😹'), 3.5); }, 5000);
+            }
+            return;
+        }
+        if (reduce || dbPower !== 'on' || camTech || panicT > 0) return;
+        motionT -= dt;
+        if (motionT <= 0) { motionT = 300 + Math.random() * 240; motionStart(); }
+    }
+    function motionStart() {
+        if (motion || dbPower !== 'on') return;
+        var dir = Math.random() < .5 ? 1 : -1, lanes = [33, 50, 97, 126];
+        motion = { x: dir > 0 ? -10 : DW + 10, y: lanes[(Math.random() * lanes.length) | 0], vx: dir * 38, step: 0, seen: false };
+    }
+    function drawCat(c, s, m) {
+        var x = m.x, y = m.y, d = m.vx > 0 ? 1 : -1, leg = ((m.step * 14) | 0) % 2;
+        c.fillStyle = 'rgba(0,0,0,.3)'; c.beginPath(); c.ellipse(x * s, y * s, 3 * s, .8 * s, 0, 0, 7); c.fill();
+        R(c, s, x - 2.6, y - 2.6, 5.2, 2.2, '#111827'); R(c, s, x + d * 2.2 - 1, y - 4, 2.4, 2.2, '#111827');
+        R(c, s, x + d * 2.2 - .9, y - 4.8, .6, .8, '#111827'); R(c, s, x + d * 2.2 + .5, y - 4.8, .6, .8, '#111827');
+        R(c, s, x + d * 2.6, y - 3.3, .5, .5, '#facc15');
+        R(c, s, x - d * 2.6 - (d > 0 ? 1.6 : 0), y - 3.6 - Math.sin(m.step * 12) * .6, 1.6, .5, '#111827');
+        R(c, s, x - 2 + leg * .6, y - .5, .6, .9, '#111827'); R(c, s, x + 1.4 - leg * .6, y - .5, .6, .9, '#111827');
     }
     function stopPanic() {
         panicT = 0;
@@ -10684,7 +10762,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         if ((md === 'evening' || md === 'night') && !walking && ((tAll + a.x * .53) % 8) < 1.1) { R(c, s, x - .5, by - 1.4, 1, 1, '#5a1f1a'); R(c, s, x - 3.4, by - 1.8, 1, 1, a.skin); }   // esnaydi
         if (a.meet && a === agents[0] && a.st === 'meet') { var up2 = ((tAll * 2) | 0) % 2 ? .5 : 0; O(c, s, x + 2.7, by - 3 - up2, 1.2, 3.2, a.shirt, '#2a1d17'); R(c, s, x + 2.7, by - 4 - up2, 1.2, 1, a.skin); }   // ekranga ko'rsatadi
         if (a.st === 'greet') { var wv = Math.sin(tAll * 10) * .6; O(c, s, x + 2.7, by - 3 + wv, 1.2, 3.2, a.shirt, '#2a1d17'); R(c, s, x + 2.7, by - 4 + wv, 1.2, 1, a.skin); }   // qo'l silkitadi
-        if (a.st === 'cheer' || (a.st === 'fix' && dbPower === 'boot')) {           // qo'llar tepada
+        if (a.st === 'cheer' || a.st === 'fixcam' || (a.st === 'fix' && dbPower === 'boot') || (a.fixed && a.st === 'cam' && camsDownCount() && ((tAll * 2) | 0) % 2)) {           // qo'llar tepada (kameraman vahimada silkitadi)
             var up = ((tAll * 6) | 0) % 2 ? .6 : 0;
             O(c, s, x - 3.9, by - 3 - up, 1.2, 3.2, a.shirt, '#2a1d17'); O(c, s, x + 2.7, by - 3 - (.6 - up), 1.2, 3.2, a.shirt, '#2a1d17');
             R(c, s, x - 3.9, by - 4 - up, 1.2, 1, a.skin); R(c, s, x + 2.7, by - 4 - (.6 - up), 1.2, 1, a.skin);
@@ -10697,6 +10775,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         if (a.st === 'bath') return T('vannada 🛁', 'in the bath 🛁', 'в ванне 🛁');
         if (a.st === 'wash') return T('yuvinyapti 🪥', 'washing up 🪥', 'умывается 🪥');
         if (a.toUp) return T('2-qavatga chiqyapti', 'going upstairs', 'идёт наверх');
+        if (a.st === 'cam' && camsDownCount()) return T("vahimada — kameralar o'chdi! 😱", 'panicking — cameras down! 😱', 'в панике — камеры погасли! 😱');
         if (a.st === 'cam') return panicT > 0 ? T('signal berayapti! 🚨', 'raising the alarm! 🚨', 'бьёт тревогу! 🚨') : T('kameralarni kuzatyapti 📹', 'watching cameras 📹', 'следит за камерами 📹');
         if (a.meet) return a.st === 'walk' ? T('majlisga ketyapti', 'going to meeting', 'идёт на собрание') : a === agents[0] ? T("majlis o'tkazyapti", 'leading a meeting', 'проводит собрание') : T('majlisda', 'in a meeting', 'на собрании');
         if (a.st === 'safe') return T("to'lovni qabul qilyapti", 'taking a payment', 'принимает оплату');
@@ -10707,6 +10786,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         return a.st === 'work' ? (a.task ? T('javob yozyapti', 'replying', 'пишет ответ') : (a.n === 'Bilol' ? T('vazifa beryapti', 'assigning', 'раздаёт задачи') : T('ishlayapti', 'working', 'работает')))
             : a.st === 'dbwork' ? (a.dbs && a.dbs.sit ? T("so'rov yozyapti", 'running queries', 'пишет запросы') : T('serverni tekshiryapti', 'checking servers', 'проверяет сервер'))
             : a.st === 'guard' ? (a.alarm ? T('qidiryapti!', 'searching!', 'ищет!') : T('navbatchilikda', 'on patrol', 'на посту'))
+            : a.st === 'fixcam' ? T('kamerani tuzatyapti 🔧', 'fixing a camera 🔧', 'чинит камеру 🔧')
             : a.st === 'fix' ? (dbPower === 'boot' ? T('yoqyapti ⚡', 'powering on ⚡', 'включает ⚡') : T('kutyapti', 'waiting', 'ждёт'))
             : a.st === 'cheer' ? T('yoqildi! 🎉', 'back online! 🎉', 'включили! 🎉')
             : a.st === 'walk' ? (a.run ? T('yugurib kelyapti!', 'running!', 'бежит!') : a.toDb ? T('bazaga ketyapti', 'going to DB', 'идёт в базу') : '') : T('dam olyapti', 'resting', 'отдыхает');
@@ -10812,6 +10892,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             var mx = d.x + .6 + k * 3.8, my = d.y - 3.4;
             O(c, s, mx, my, 3.4, 3, '#0b1220', '#05070a');
             R(c, s, mx + .3, my + .3, 2.8, 2.4, alarm ? '#7f1d1d' : '#0f2a1d');
+            if (camDown[k]) { for (var z2 = 0; z2 < 5; z2++) R(c, s, mx + .3 + hash(z2 + k * 7 + Math.floor(tAll * 12)) * 2.4, my + .3 + hash(z2 * 3 + k + Math.floor(tAll * 12)) * 2, .4, .4, '#9ca3af'); continue; }
             var g = guards[k % guards.length]; if (g) R(c, s, mx + .3 + (g.x / DW) * 2.4, my + .3 + (g.y / DH) * 2, .45, .45, '#4ade80');
             if (((tAll * 1.3 + k) | 0) % 3 === 0) R(c, s, mx + .3, my + .3 + ((tAll * 3 + k) % 2.4), 2.8, .2, 'rgba(255,255,255,.25)');
         }
@@ -10977,7 +11058,10 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             c.fillStyle = 'rgba(56,139,253,.06)'; c.beginPath(); c.moveTo(x * s, y * s); c.lineTo((x + dir * 26) * s, (y + 22) * s); c.lineTo((x + dir * 8) * s, (y + 30) * s); c.closePath(); c.fill();
             O(c, s, x - 2.2, y - 1.2, 4.4, 2.4, '#d1d5db', '#111827'); R(c, s, x + dir * 1.6 - .5, y - .6, 1.2, 1.2, '#111827');
             R(c, s, x - dir * 2.4 - .3, y - 2.4, .6, 2.4, '#4b5563');
-            if (((tAll * 2 + k) | 0) % 2) R(c, s, x - dir * 1.2, y - .9, .6, .6, '#ef4444');
+            if (camDown[k]) {                                   // o'chgan: chirog'i yo'q, ba'zan uchqun
+                if (camTech && camTech.fixing === k) for (var sp2 = 0; sp2 < 4; sp2++) { var u2 = (tAll * 3 + sp2 / 4) % 1; R(c, s, x + (hash(sp2 + Math.floor(tAll * 6)) - .5) * 6 * u2, y + 1 + u2 * 6, .5, .5, sp2 % 2 ? '#fde047' : '#fb923c'); }
+                else if (hash(Math.floor(tAll * 5) + k) > .85) R(c, s, x - .3, y + 1.4, .6, .6, '#fde047');
+            } else if (((tAll * 2 + k) | 0) % 2) R(c, s, x - dir * 1.2, y - .9, .6, .6, '#ef4444');
         });
         var list = [];
         ROWS.forEach(function (ry, k) {
@@ -10994,6 +11078,8 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var here = agents.filter(function (a) { return a.scene === 'db'; });
         here.forEach(function (a) { list.push({ y: a.y + .1, f: function () { drawAgent(c, s, a); } }); });
         if (sapper) list.push({ y: sapper.y + .1, f: function () { drawAgent(c, s, sapper); } });
+        if (camTech) list.push({ y: camTech.y + .1, f: function () { drawAgent(c, s, camTech); } });
+        if (motion) list.push({ y: motion.y, f: function () { drawCat(c, s, motion); } });
         guards.forEach(function (g) { list.push({ y: g.y + .1, f: function () { drawGuard(c, s, g); } }); });
         list.sort(function (p, q) { return p.y - q.y; }).forEach(function (o) { o.f(); });
         if (!on) {
@@ -11014,7 +11100,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         if (noLabels) return;
         var taken = [];
         guards.forEach(function (g) { g.r = T("Qo'riqchi", 'Guard', 'Охранник'); g.st = g.panic ? 'guard' : 'guard'; g.alarm = g.alarm || !!g.panic; });
-        here.concat(guards, sapper ? [sapper] : []).sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, true, taken); });
+        here.concat(guards, sapper ? [sapper] : [], camTech ? [camTech] : []).sort(function (p, q) { return q.y - p.y; }).forEach(function (a) { label(c, s, a, true, taken); });
         guards.forEach(function (g) { if (g.panic) g.alarm = false; });
     }
     /* ---------- 🛏 2-qavat oynasi ---------- */
@@ -11153,13 +11239,14 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     function openCams() {
         if (!camp) {
             camp = document.createElement('div'); camp.className = 'ag-camp'; camp.hidden = true;
-            var html = '<div class="ag-camcard"><div class="ag-head"><b></b><span><small></small><button class="ag-btn ag-panic"></button><button class="ag-x" aria-label="close">✕</button></span></div><div class="ag-camgrid">';
+            var html = '<div class="ag-camcard"><div class="ag-head"><b></b><span><small></small><button class="ag-btn ag-camoff"></button><button class="ag-btn ag-panic"></button><button class="ag-x" aria-label="close">✕</button></span></div><div class="ag-camgrid">';
             CAMS.forEach(function (cm, k) { html += '<div class="ag-feed" data-k="' + k + '"><canvas></canvas></div>'; });
             camp.innerHTML = html + '</div></div>';
             document.body.appendChild(camp);
             camp.addEventListener('click', function (e) {
                 if (e.target === camp || e.target.closest('.ag-x')) { camp.hidden = true; camBig = -1; return; }
                 if (e.target.closest('.ag-panic')) { if (panicT > 0) stopPanic(); else startPanic(); return; }
+                if (e.target.closest('.ag-camoff')) { camsOff(); return; }
                 var f = e.target.closest('.ag-feed'); if (f) { var k = +f.dataset.k; camBig = camBig === k ? -1 : k; camp.querySelectorAll('.ag-feed').forEach(function (el, i) { el.classList.toggle('big', i === camBig); el.classList.toggle('dim', camBig >= 0 && i !== camBig); }); }
             });
             camOff = document.createElement('canvas'); camOff.width = DW * 5; camOff.height = DH * 5;
@@ -11174,6 +11261,8 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         camp.querySelector('.ag-head small').textContent = 'Shoxrux — ' + T('kameraman', 'operator', 'оператор') + ' · ' + tkClock().slice(11);
         var pb = camp.querySelector('.ag-panic'), pt = panicT > 0 ? '⏹ ' + T("Vahimani to'xtatish", 'Stop panic', 'Остановить панику') : '🚨 ' + T('Vahima', 'Panic', 'Паника');
         if (pb.textContent !== pt) pb.textContent = pt; pb.classList.toggle('red', panicT > 0); pb.disabled = dbPower !== 'on';
+        var ob = camp.querySelector('.ag-camoff'), dn = camsDownCount(), ot = dn ? '🔧 ' + T('Tuzatilmoqda ', 'Fixing ', 'Ремонт ') + (5 - dn) + '/5' : '📵 ' + T("Kameralarni o'chirish", 'Cut cameras', 'Отключить камеры');
+        if (ob.textContent !== ot) ob.textContent = ot; ob.disabled = !!dn || !!camTech || dbPower !== 'on'; ob.classList.toggle('hot', !!dn);
         camp.querySelectorAll('.ag-feed canvas').forEach(function (cv, k) {
             var w = cv.clientWidth; if (!w) return;
             var pw = Math.round(w * Math.min(2, window.devicePixelRatio || 1)); if (cv.width !== pw) { cv.width = pw; cv.height = Math.round(pw * 9 / 16); }
@@ -11181,6 +11270,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             c.imageSmoothingEnabled = true;
             var jx = Math.sin(tAll * .4 + k) * 2;               // kamera sekin u yoq-bu yoqqa buriladi
             c.drawImage(camOff, (cm.x + jx) * S, cm.y * S, cm.w * S, cm.h * S, 0, 0, W2, H2);
+            if (camDown[k]) { c.fillStyle = '#0a0a0a'; c.fillRect(0, 0, W2, H2); for (var z = 0; z < 900; z++) { var gv = (Math.random() * 200) | 0; c.fillStyle = 'rgb(' + gv + ',' + gv + ',' + gv + ')'; c.fillRect(Math.random() * W2, Math.random() * H2, 2, 2); } }
             c.globalCompositeOperation = 'saturation'; c.fillStyle = 'hsl(0,0%,50%)'; c.fillRect(0, 0, W2, H2);
             c.globalCompositeOperation = 'source-over';
             c.fillStyle = alarm ? 'rgba(239,68,68,.16)' : 'rgba(74,222,128,.10)'; c.fillRect(0, 0, W2, H2);
@@ -11193,6 +11283,18 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
             c.fillStyle = '#e5e7eb'; c.fillText('REC', W2 - fs * 3, fs * .6);
             c.textBaseline = 'bottom'; c.fillText(tkClock(), fs * .7, H2 - fs * .5);
             if (alarm && blink) { c.fillStyle = '#ef4444'; c.textAlign = 'right'; c.fillText('⚠ ' + T('XAVOTIR', 'ALERT', 'ТРЕВОГА'), W2 - fs * .7, H2 - fs * .5); c.textAlign = 'left'; }
+            if (camDown[k]) {
+                c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '800 ' + (fs * 1.4) + 'px ui-monospace,Menlo,monospace';
+                c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(W2 * .2, H2 * .38, W2 * .6, H2 * .24);
+                c.fillStyle = '#f87171'; c.fillText('📵 ' + T("SIGNAL YO'Q", 'NO SIGNAL', 'НЕТ СИГНАЛА'), W2 / 2, H2 / 2 - fs * .4);
+                c.font = '700 ' + fs + 'px ui-monospace,Menlo,monospace'; c.fillStyle = '#e5e7eb';
+                c.fillText(camTech && camTech.fixing === k ? '🔧 ' + T('Sapyor tuzatyapti…', 'Technician fixing…', 'Техник чинит…') : '⏳ ' + T('Sapyor kelyapti…', 'Technician on the way…', 'Техник идёт…'), W2 / 2, H2 / 2 + fs * .9);
+                c.textAlign = 'left';
+            } else if (motion && motion.x > cm.x && motion.x < cm.x + cm.w && motion.y > cm.y && motion.y < cm.y + cm.h) {   // 👁 harakat aniqlandi
+                var mx2 = (motion.x - cm.x - jx) / cm.w * W2, my2 = (motion.y - cm.y) / cm.h * H2;
+                c.strokeStyle = '#ef4444'; c.lineWidth = 2.5; c.strokeRect(mx2 - W2 * .06, my2 - H2 * .14, W2 * .12, H2 * .16);
+                c.fillStyle = '#ef4444'; c.font = '800 ' + fs + 'px ui-monospace,Menlo,monospace'; c.textBaseline = 'bottom'; c.fillText('⚠ ' + T('HARAKAT!', 'MOTION!', 'ДВИЖЕНИЕ!'), mx2 - W2 * .06, my2 - H2 * .15);
+            }
             c.strokeStyle = 'rgba(229,231,235,.5)'; c.lineWidth = 1.5; var m = fs * .7, L = fs * 1.2;
             [[m, m, 1, 1], [W2 - m, m, -1, 1], [m, H2 - m, 1, -1], [W2 - m, H2 - m, -1, -1]].forEach(function (q) { c.beginPath(); c.moveTo(q[0] + q[2] * L, q[1]); c.lineTo(q[0], q[1]); c.lineTo(q[0], q[1] + q[3] * L); c.stroke(); });
         });
@@ -11390,7 +11492,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     var lastLang = null;
     setInterval(function () { var l = typeof currentLang !== 'undefined' ? currentLang : 'uz'; if (l !== lastLang) { lastLang = l; relabel(); } }, 1000);
     if (reduce) { agents.forEach(function (a) { a.until = 1e9; }); guards.forEach(function (g) { g.wait = 1e9; }); }
-    window.__officeDemo = { pay: onPay, user: onUser, sup: onSup, meet: function () { meetT = 0; } };
+    window.__officeDemo = { pay: onPay, user: onUser, sup: onSup, meet: function () { meetT = 0; }, cat: function () { motionStart(); } };
     requestAnimationFrame(frame);
 })();
 </script>
