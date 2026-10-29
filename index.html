@@ -10128,10 +10128,11 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         a.path = [{ x: a.x, y: UCOR }, { x: UARR.x, y: UCOR }, { x: UARR.x, y: UARR.y }]; a.st = 'walk';
         a.arrive = function () { a.scene = 'office'; a.up = null; a.goingDown = false; a.x = STAIR.x; a.y = STAIR.y; a.path = [{ x: STAIR.x, y: CORR }]; a.st = 'walk'; a.next = 'idle'; a.until = .2; };
     }
-    function sleepAll() {
+    function sleepAll() {                              // hamma emas — 2–3 ta xohlagan (tasodifiy) agent tepaga chiqib uxlaydi
         if (meet) endMeeting();
-        var n = 0;
-        agents.forEach(function (a, k) {
+        var n = 0, want = Math.max(0, 2 + (Math.random() < .5 ? 1 : 0) - inUp());
+        agents.slice().sort(function () { return Math.random() - .5; }).forEach(function (a, k) {
+            if (n >= want) return;
             if (a.scene !== 'office' || a.toDb || a.fixed || a.meet || a.arrive || a.panic) return;
             var sp = freeUp('bed') || freeUp('mat') || freeUp(); if (!sp) return;
             a.wait = k * .3; if (goUp(a, sp, 60 + Math.random() * 30)) n++;
@@ -10140,8 +10141,8 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         if (n) headline('😴 ' + T('Agentlar 2-qavatga uxlashga chiqdi', 'Agents went upstairs to sleep', 'Агенты пошли спать наверх'));
     }
     function sendToRest(a) {
-        var mu = mood(), pu = mu === 'night' ? .6 : mu === 'evening' ? .3 : mu === 'lunch' ? .05 : .1;
-        if (!a.fixed && Math.random() < pu && goUp(a, (mu === 'night' || mu === 'evening') ? (freeUp('bed') || freeUp('mat')) : freeUp())) return;   // ba'zan 2-qavatga — uxlash yoki vanna
+        var mu = mood(), pu = mu === 'night' ? .45 : mu === 'evening' ? .3 : mu === 'lunch' ? .05 : .15, cap = mu === 'night' ? 3 : 2;
+        if (!a.fixed && inUp() < cap && Math.random() < pu && goUp(a, (mu === 'night' || mu === 'evening') ? (freeUp('bed') || freeUp('mat')) : freeUp())) return;   // ba'zan 2-qavatga — uxlash yoki vanna
         var m = mood(), r = (m === 'lunch' && Math.random() < .8 && freeTea()) || freeRest(); if (!r) { a.until = 3; return; }
         leave(a); a.spot = r; a.next = 'rest'; goTo(a, r); a.until = 6 + Math.random() * 10;
     }
@@ -11045,7 +11046,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var n = agents.filter(function (a) { return a.scene === 'up'; }).length;
         upp.querySelector('.ag-head b').textContent = '🛏 ' + T('2-qavat — dam olish', 'Floor 2 — rest', '2 этаж — отдых');
         upp.querySelector('.ag-head small').textContent = T('Yuqorida: ', 'Upstairs: ', 'Наверху: ') + n + ' · ' + T('Uxlayapti: ', 'Sleeping: ', 'Спят: ') + agents.filter(function (a) { return a.scene === 'up' && a.st === 'sleep'; }).length;
-        var sb = upp.querySelector('.ag-sleep'), stt = '😴 ' + T('Hammani uxlatish', 'Bedtime for all', 'Всех спать'); if (sb.textContent !== stt) sb.textContent = stt;
+        var sb = upp.querySelector('.ag-sleep'), stt = '😴 ' + T('Uxlashga chiqish', 'Nap time', 'Пора вздремнуть'); sb.disabled = inUp() >= 3; if (sb.textContent !== stt) sb.textContent = stt;
         var db = upp.querySelector('.ag-down'), dt2 = '⬇ ' + T('1-qavat', 'Floor 1', '1 этаж'); if (db.textContent !== dt2) db.textContent = dt2;
     }
     function drawSleeper(c, s, a, x, y, flat) {       // yotgan agent: yostiqda bosh, ustida ko'rpa, "Zzz"
