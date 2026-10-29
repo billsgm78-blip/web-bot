@@ -2998,6 +2998,11 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
           var im = document.createElement('img'); im.className = 'pd-sw-img'; im.alt = ''; im.decoding = 'async'; scr.appendChild(im); imgs.push(im);
           var t = document.createElement('i'), b = document.createElement('b'); t.appendChild(b); bar.appendChild(t); bars.push(b);
       }); }
+      var preloaded = false;
+      function preloadAll() {
+          if (preloaded) return; preloaded = true;
+          for (var k = 0; k < N; k++) { load(k); var im = new Image(); im.decoding = 'async'; im.src = '/img/show/w-' + D[k][0] + '.webp'; }
+      }
       function load(i) { if (i < 0 || i >= N || bgs[i].dataset.ok) return; bgs[i].dataset.ok = 1; bgs[i].style.backgroundImage = 'url(/img/show/w-' + D[i][0] + '.webp)'; imgs[i].src = '/img/show/p-' + D[i][0] + '.webp'; }
       var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
       var D = [
@@ -3109,6 +3114,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
               else {
                   var a;
                   if (e < .5) a = 90 * Math.pow(e / .5, 2) * flip.dir;                       // ketayotgan ekran yonboshiga buriladi
+                  else if (!flip.swapped && !imgs[flip.to].complete && (flip.hold = (flip.hold || performance.now())) && performance.now() - flip.hold < 1500) { flip.t0 = performance.now() - 500; a = 90 * flip.dir; }
                   else { if (!flip.swapped) { flip.swapped = true; showImg(flip.to); } var u = (e - .5) / .5; a = -90 * Math.pow(1 - u, 3) * flip.dir; }   // yangisi narigi tomondan aylanib keladi
                   var k = Math.sin(Math.PI * e);
                   extra = ' perspective(1400px) translateY(' + (-18 * k).toFixed(1) + 'px) rotateY(' + a.toFixed(2) + 'deg) scale(' + (1 - .08 * k).toFixed(3) + ')';
@@ -3142,6 +3148,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
           if (!sc) sc = scroller();
           var top = sec.getBoundingClientRect().top - (sc === window ? 0 : sc.getBoundingClientRect().top);
           var vh = sc === window ? innerHeight : sc.clientHeight, total = sec.offsetHeight - vh;
+          if (top < vh * 3) preloadAll();                       // ekranlar oldindan yuklanadi — bo'limda birdan "paydo bo'lmaydi"
           if (total <= 0 || top > vh || top < -sec.offsetHeight) return;
           var p = clamp(-top / total, 0, .9999), i = Math.floor(p * N), t = p * N - i, l = L();
           setCh(i, l);
@@ -3153,14 +3160,16 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
           if (reduce) return;
           // orqa ekran sekin yaqinlashadi va suriladi; telefondagi ilova ekrani o'zi pastga aylanadi
           var mob = innerWidth <= 760, enter = ease(t / .3);
-          basePhone = (mob ? '' : 'translateY(-50%) ') + 'translateY(' + ((1 - enter) * 60).toFixed(1) + 'px) rotate(' + (mob ? 0 : (-4 + 3 * t)).toFixed(2) + 'deg)';
+          var wave = Math.sin(p * N * Math.PI * 2);           // uzluksiz yengil tebranish — bo'lim chegarasida sakrash yo'q
+          basePhone = (mob ? '' : 'translateY(-50%) ') + 'translateY(' + (wave * 6).toFixed(1) + 'px) rotate(' + (mob ? 0 : (-2.5 + 1.5 * wave)).toFixed(2) + 'deg)';
           applyPhone();
       }
       function req() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
       // har bo'lim o'rtasida yumshoq to'xtash nuqtasi — bir surishda bir nechta ekran uchib o'tib ketmaydi
       var snaps = [];
       function placeSnaps() {
-          if (!sc || sc === window) return;
+          if (sc && sc !== window) sc.classList.remove('pd-snap');   // to'xtash nuqtalari o'chirildi — sahifa "taq" etib tortilmaydi, surish silliq
+          return;
           if (!snaps.length) for (var k = 0; k < N; k++) { var a = document.createElement('i'); a.className = 'pd-sw-snap'; sec.appendChild(a); snaps.push(a); }
           var vh = sc.clientHeight, total = sec.offsetHeight - vh;
           snaps.forEach(function (a, k) { a.style.top = Math.round(total * (k + .5) / N) + 'px'; });
