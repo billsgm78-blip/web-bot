@@ -439,6 +439,75 @@
         show('auth'); haptic();
         $('auth').scrollTop = 0;
     }
+    /* ---------- QR orqali kirish (kompyuter): telefon skanerlab tasdiqlaydi — saytdagi bilan bir xil tizim ---------- */
+    var QR = { run: 0, timer: 0, id: null, secret: null, ver: 0, exp: 0, scanned: false };
+    function qrLib() {
+        if (window.qrcode) return Promise.resolve();
+        return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = '/vendor/qrcode-generator-1.4.4.js'; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+    }
+    async function qrPost(path, body) {
+        var r = await fetch(RAIL + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        try { return await r.json(); } catch (e) { return {}; }
+    }
+    function qrSt(t, cls) { var e = $('qr-st'); e.textContent = t || ''; e.className = 'au-qr-st ' + (cls || ''); }
+    function qrBadge(t) { var b = $('qr-badge'); b.hidden = !t; b.textContent = t || ''; $('qr-box').classList.toggle('dim', !!t); }
+    function qrOpen() { $('auth').classList.add('qr'); $('au-qr').hidden = false; qrNew(); }
+    function qrClose() { QR.run++; clearInterval(QR.timer); $('auth').classList.remove('qr'); $('au-qr').hidden = true; }
+    function qrExpired() { QR.run++; clearInterval(QR.timer); qrBadge(L('QR kod eskirdi', 'QR-код устарел', 'QR code expired')); qrSt(''); $('qr-new').hidden = false; }
+    function qrTick() {
+        var s = Math.max(0, Math.round((QR.exp - Date.now()) / 1000));
+        if (s <= 0) return qrExpired();
+        if (!QR.scanned) qrSt(L('Kod amal qiladi: ', 'Код действует: ', 'Code valid for: ') + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'));
+    }
+    async function qrNew() {
+        var run = ++QR.run; clearInterval(QR.timer); QR.scanned = false;
+        $('qr-new').hidden = true; qrBadge(''); qrSt('');
+        $('qr-box').innerHTML = '<div class="au-qr-spin"></div>';
+        try {
+            await qrLib();
+            var j = await qrPost('/api/qr/new', { ua: navigator.userAgent });
+            if (run !== QR.run) return;
+            if (!j || !j.success) throw new Error((j && j.error) || '');
+            QR.id = j.id; QR.secret = j.secret; QR.ver = 0; QR.exp = Date.now() + (j.ttl || 120) * 1000;
+            var q = qrcode(0, 'M'); q.addData('https://www.bilolsai.uz/?qrl=' + encodeURIComponent(j.id)); q.make();
+            $('qr-box').innerHTML = q.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
+            qrTick(); QR.timer = setInterval(qrTick, 1000);
+            qrPoll(run);
+        } catch (e) {
+            if (run !== QR.run) return;
+            $('qr-box').innerHTML = ''; qrBadge(L("QR kod yaratib bo'lmadi", 'Не удалось создать QR-код', 'Could not create a QR code'));
+            qrSt((e && e.message) || L('Internetni tekshiring', 'Проверьте интернет', 'Check your internet'), 'err'); $('qr-new').hidden = false;
+        }
+    }
+    async function qrPoll(run) {
+        while (run === QR.run) {
+            var j = null;
+            try { j = await qrPost('/api/qr/poll', { id: QR.id, secret: QR.secret, ver: QR.ver }); } catch (e) {}
+            if (run !== QR.run) return;
+            if (!j || !j.success) { await new Promise(function (r) { setTimeout(r, 2000); }); continue; }
+            if (typeof j.ver === 'number') QR.ver = j.ver;
+            if (j.status === 'scanned') {
+                QR.scanned = true; QR.exp = Date.now() + 90000;
+                qrBadge('📱 ' + L('Skanerlandi', 'Отсканировано', 'Scanned'));
+                qrSt((j.name || L('Hisob', 'Аккаунт', 'Account')) + (j.phone ? ' (' + j.phone + ')' : '') + ' — ' + L('telefoningizda tasdiqlang', 'подтвердите на телефоне', 'confirm on your phone'), 'wait');
+            } else if (j.status === 'ok' && j.login) {
+                QR.run++; clearInterval(QR.timer); qrBadge('✅');
+                var lg = j.login, ph = normPhone(lg.phone);
+                state.phone = ph; state.pass = lg.password; state.name = lg.name || '';
+                ls('ba_phone', ph); ls('ba_pass', lg.password); ls('ba_name', state.name);
+                qrClose(); resetOtp(); authMsg(''); clearDraft();
+                enterMain();
+                toast(L('Xush kelibsiz! 👋', 'Добро пожаловать! 👋', 'Welcome! 👋'), 'ok');
+                return;
+            } else if (j.status === 'denied') {
+                QR.run++; clearInterval(QR.timer); qrBadge(L('Rad etildi', 'Отклонено', 'Denied'));
+                qrSt(L('Telefonda kirish rad etildi.', 'Вход отклонён на телефоне.', 'Login was denied on the phone.'), 'err'); $('qr-new').hidden = false; return;
+            } else if (j.status === 'expired') { qrExpired(); return; }
+        }
+    }
+    $('au-qr-btn').onclick = qrOpen;
+    $('qr-new').onclick = qrNew;
+    $('qr-back').onclick = qrClose;
     function paintAuthHead() {
         var reg = auth.mode === 'register';
         $('auth').classList.toggle('reg', reg);
@@ -450,6 +519,13 @@
             $('au-title').textContent = reg ? L("Ro'yxatdan o'tish", 'Регистрация', 'Sign up') : L('Kirish', 'Вход', 'Login');
             $('au-sub').textContent = reg ? L('Yangi hisob yarating', 'Создайте новый аккаунт', 'Create a new account') : L('Davom etish uchun hisobingizga kiring', 'Войдите в аккаунт, чтобы продолжить', 'Log in to your account to continue');
         }
+        $('au-or-t').textContent = L('yoki', 'или', 'or');
+        $('au-qr-bt').textContent = L('QR kod bilan kirish', 'Войти по QR-коду', 'Log in with a QR code');
+        $('qr-how').innerHTML = L('Telefoningiz kamerasi bilan skanerlang yoki <b>bilolsai.uz</b> → ⚙️ Sozlamalar → <b>QR orqali kirish</b> ni oching. So\'ng telefonda tasdiqlang.',
+            'Отсканируйте камерой телефона или откройте <b>bilolsai.uz</b> → ⚙️ Настройки → <b>Вход по QR</b>. Затем подтвердите на телефоне.',
+            'Scan with your phone camera or open <b>bilolsai.uz</b> → ⚙️ Settings → <b>Log in with QR</b>. Then confirm on your phone.');
+        $('qr-new').textContent = '🔄 ' + L('Yangi QR kod', 'Новый QR-код', 'New QR code');
+        $('qr-back').textContent = '← ' + L('Telefon raqam bilan kirish', 'Войти по номеру телефона', 'Log in with phone number');
         $('au-sd-h').textContent = reg ? L('Xush kelibsiz', 'Добро пожаловать', 'Welcome') : L('Qaytganingizdan xursandmiz', 'С возвращением', 'Welcome Back');
         $('au-sd-p').textContent = reg ? L("O'zbek tilini tushunadigan AI — bir necha soniyada hisob oching.", 'ИИ, который понимает узбекский, — аккаунт за пару секунд.', 'An AI that understands Uzbek — create an account in seconds.')
             : L("To'xtagan joyingizdan davom eting.", 'Продолжайте с того места, где остановились.', "Let's continue where you left off.");

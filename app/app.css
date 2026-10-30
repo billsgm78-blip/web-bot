@@ -838,3 +838,25 @@ html.desk .au .lang-row button.on { background: #d9a066; color: #1b1308; }
 html.desk .au .privacy-link { color: #77777e; margin-top: 10px; }
 html.desk .au .phone-in input, html.desk .au .pass-in input { background: none !important; border: 0 !important; }
 .au-sd-art, .au-sd-art * { stroke: none !important; }
+/* QR orqali kirish — faqat kompyuterda */
+.au-or, .au-qr-btn, .au-qr { display: none !important; }
+html.desk .au-or { display: flex !important; align-items: center; gap: 12px; margin: 18px 0 14px; color: #6e6e75; font-size: 12.5px; }
+html.desk .au-or::before, html.desk .au-or::after { content: ""; flex: 1; height: 1px; background: #26262a; }
+html.desk .au-qr-btn { display: flex !important; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 48px; border-radius: 12px; background: #1b1b1e; border: 1px solid #2c2c31; color: #ececee; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: border-color .15s ease; }
+html.desk .au-qr-btn:hover { border-color: #d9a066; }
+html.desk .au-qr-btn svg { width: 20px; height: 20px; fill: #d9a066; stroke: none; }
+html.desk .au.qr .auth-card > :not(.au-qr) { display: none !important; }
+html.desk .au.qr .au-qr:not([hidden]) { display: block !important; text-align: center; }
+.au-qr-box { position: relative; width: 220px; height: 220px; margin: 4px auto 0; padding: 14px; border-radius: 16px; background: #fff; display: grid; place-items: center; transition: opacity .2s ease; }
+.au-qr-box svg { width: 100%; height: 100%; display: block; }
+.au-qr-box.dim { opacity: .18; }
+.au-qr { position: relative; }
+.au-qr-badge { position: absolute; top: 116px; left: 50%; transform: translate(-50%, -50%); width: max-content; max-width: 200px; padding: 8px 14px; border-radius: 999px; background: #141416; border: 1px solid #d9a066; color: #f3c58c; font-weight: 700; font-size: 14px; }
+.au-qr-badge[hidden] { display: none; }
+.au-qr-spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(217, 160, 102, .25); border-top-color: #d9a066; animation: auQrSpin .9s linear infinite; }
+@keyframes auQrSpin { to { transform: rotate(360deg); } }
+.au-qr-how { margin: 18px 0 8px; font-size: 13.5px; line-height: 1.55; color: #a1a1a8; }
+.au-qr-how b { color: #ececee; }
+.au-qr-st { min-height: 20px; margin: 0 0 12px; font-size: 13.5px; color: #8f8f96; white-space: pre-line; }
+.au-qr-st.wait { color: #f3c58c; } .au-qr-st.err { color: #f87171; }
+.au-qr-back { display: block; margin: 8px auto 0; color: #d9a066 !important; font-size: 13.5px !important; }
