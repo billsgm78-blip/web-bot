@@ -158,11 +158,16 @@
     function openPrivacy(mode) {
         pv.mode = mode || 'view';
         $('privacy').classList.add('on'); pvPaint();
-        if (!pv.loaded) {
+        if (!pv.loaded || pv.lang !== lang) {
+            pv.loaded = false;
             $('pv-body').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div><div class="skel-row"></div>';
             fetch('privacy.html').then(function (r) { if (!r.ok) throw 0; return r.text(); }).then(function (h) {
                 var a = new DOMParser().parseFromString(h, 'text/html').querySelector('article');
-                $('pv-body').innerHTML = a ? a.innerHTML : ''; pv.loaded = true; $('pv-body').scrollTop = 0; pvScroll();
+                $('pv-body').innerHTML = a ? a.innerHTML : '';
+                // siyosat 3 tilda — faqat ilova tilidagisi qoladi
+                var pl = $('pv-body').querySelectorAll('.pv-lang'), has = [].some.call(pl, function (s) { return s.lang === lang; });
+                [].forEach.call(pl, function (s) { if (s.lang !== (has ? lang : 'uz')) s.remove(); });
+                pv.loaded = true; pv.lang = lang; $('pv-body').scrollTop = 0; pvScroll();
             }).catch(function () {
                 $('pv-body').innerHTML = '<p>' + esc(L("Yuklab bo'lmadi. Internetni tekshiring.", 'Не удалось загрузить.', 'Could not load.')) + '</p>';
             });
