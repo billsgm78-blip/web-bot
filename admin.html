@@ -489,6 +489,7 @@ select.inp option { background: #12151c; color: var(--text); }
         </form>
         <div class="or-line"><span>yoki</span></div>
         <button type="button" class="btn faceid-btn" id="a-keybtn"><span class="fid-ico">🗝</span> Maxfiy kalit bilan kirish</button>
+        <button type="button" class="btn faceid-btn" id="a-nfcbtn" style="margin-top:10px"><span class="fid-ico">📶</span> NFC tegizib kirish</button>
         <form id="key-form" style="display:none;margin-top:12px" autocomplete="off">
             <div class="field"><input id="a-key" placeholder="BLS-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" maxlength="50" autocapitalize="characters" spellcheck="false" style="font-family:'Twemoji', ui-monospace,monospace;letter-spacing:0;font-size:13px;text-transform:uppercase"></div>
             <button class="btn" id="a-keygo">🗝 Kirish</button>
@@ -640,11 +641,14 @@ select.inp option { background: #12151c; color: var(--text); }
         for (var i = 0; i < body.length; i += 4) parts.push(body.slice(i, i + 4));
         this.value = raw.length <= 3 ? raw : parts.join('-');
     });
-    $('key-form').addEventListener('submit', async function (e) {
+    $('key-form').addEventListener('submit', function (e) {
         e.preventDefault();
-        var msg = $('a-msg'), btn = $('a-keygo'), key = $('a-key').value.trim();
+        keyLogin($('a-key').value.trim(), $('a-keygo'));
+    });
+    async function keyLogin(key, btn) {
+        var msg = $('a-msg');
         if (key.replace(/[^A-Z0-9]/gi, '').length !== 35) { msg.className = 'msg err'; msg.textContent = "Kalit to'liq emas (43 belgi)."; return; }
-        btn.disabled = true; msg.className = 'msg'; msg.textContent = '⏳';
+        if (btn) btn.disabled = true; msg.className = 'msg'; msg.textContent = '⏳';
         try {
             var j = await post('/api/admin-auth/key', { key: key });
             if (j.success) {
@@ -654,8 +658,61 @@ select.inp option { background: #12151c; color: var(--text); }
                 enterApp();
             } else { msg.className = 'msg err'; msg.textContent = j.error || 'Xato'; }
         } catch (e3) { msg.className = 'msg err'; msg.textContent = "Server bilan bog'lanib bo'lmadi."; }
-        btn.disabled = false;
-    });
+        if (btn) btn.disabled = false;
+    }
+
+    // ---------- NFC: tagda https://www.bilolsai.uz/admin#k=BLS-… havolasi turadi ----------
+    // iPhone va Android tagga tegizilganda havolani o'zi ochadi (ilova shart emas); Android Chrome'da sahifa ichidan ham o'qiladi.
+    var NFC_OK = 'NDEFReader' in window;
+    function nfcKeyFrom(s) { var m = String(s || '').toUpperCase().match(/BLS(?:-?[A-Z0-9]{4}){8}/); return m ? m[0] : ''; }
+    function nfcUrl(key) { return 'https://www.bilolsai.uz/admin#k=' + key; }
+    (function hashKey() {
+        var m = location.hash.match(/[#&]k=([^&]+)/); if (!m) return;
+        var key = nfcKeyFrom(decodeURIComponent(m[1]));
+        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}   // kalit manzil satrida va tarixda qolmasin
+        if (key && !token) keyLogin(key, $('a-nfcbtn'));
+    })();
+    var nfcAbort = null;
+    $('a-nfcbtn').onclick = async function () {
+        var msg = $('a-msg'), btn = this;
+        if (!NFC_OK) {
+            msg.className = 'msg';
+            msg.textContent = /iPhone|iPad|iPod/.test(navigator.userAgent)
+                ? "iPhone'da: ekranni yoqing va NFC tagni telefonning tepa qismiga tegizing — chiqqan bildirishnomani bosing, panel o'zi ochiladi."
+                : "Bu brauzer NFC'ni sahifa ichida o'qiy olmaydi. Tagni telefonga tegizing — havola o'zi ochiladi (Android: Chrome, iPhone: Safari).";
+            return;
+        }
+        if (nfcAbort) { nfcAbort.abort(); nfcAbort = null; btn.classList.remove('scan'); msg.textContent = ''; return; }
+        try {
+            var r = new NDEFReader(); nfcAbort = new AbortController();
+            await r.scan({ signal: nfcAbort.signal });
+            btn.classList.add('scan'); msg.className = 'msg'; msg.textContent = '📶 NFC tagni telefonning orqasiga tegizing…';
+            r.onreadingerror = function () { msg.className = 'msg err'; msg.textContent = "Tagni o'qib bo'lmadi, qayta tegizing."; };
+            r.onreading = function (ev) {
+                var key = '';
+                ev.message.records.forEach(function (rec) {
+                    if (key || !rec.data) return;
+                    try { key = nfcKeyFrom(new TextDecoder(rec.encoding || 'utf-8').decode(rec.data)); } catch (e) {}
+                });
+                if (!key) { msg.className = 'msg err'; msg.textContent = "Bu tagda Bilols AI kaliti yo'q."; return; }
+                nfcAbort.abort(); nfcAbort = null; btn.classList.remove('scan');
+                if (navigator.vibrate) navigator.vibrate(60);
+                keyLogin(key, btn);
+            };
+        } catch (e) {
+            nfcAbort = null; btn.classList.remove('scan'); msg.className = 'msg err';
+            msg.textContent = e && e.name === 'NotAllowedError' ? "NFC'ga ruxsat berilmadi." : "NFC o'chiq yoki qo'llab-quvvatlanmaydi — telefon sozlamalarida NFC'ni yoqing.";
+        }
+    };
+    async function nfcWrite(key) {
+        if (!NFC_OK) { toast("Yozish faqat Android Chrome'da. iPhone'da havolani nusxalab, «NFC Tools» ilovasi bilan yozing."); return false; }
+        try {
+            toast('📶 Bo\'sh NFC tagni telefonga tegizing…');
+            await new NDEFReader().write({ records: [{ recordType: 'url', data: nfcUrl(key) }] });
+            if (navigator.vibrate) navigator.vibrate(60);
+            toast('✅ Kalit NFC tagga yozildi'); return true;
+        } catch (e) { toast(e && e.name === 'NotAllowedError' ? "NFC'ga ruxsat berilmadi" : "Yozib bo'lmadi: " + ((e && e.message) || 'xato')); return false; }
+    }
 
     var boxes = [];
     (function buildBoxes() {
@@ -2435,12 +2492,26 @@ select.inp option { background: #12151c; color: var(--text); }
                 card.appendChild(kb);
                 card.appendChild(h('div', { class: 'm-btns' }, [
                     h('button', { class: 'btn ghost', text: '📋 Nusxalash', onclick: function () { try { navigator.clipboard.writeText(x.key).then(function () { toast('✅ Nusxalandi'); }); } catch (e) { toast('Qo\'lda belgilab nusxalang'); } } }),
+                    h('button', { class: 'btn ghost', text: '📶 NFC tagga yozish', onclick: function () { nfcWrite(x.key); } }),
                     h('button', { class: 'btn', text: 'Saqladim', onclick: function () { $('modal').classList.remove('open'); paintKey(); } })
                 ]));
                 $('modal').classList.add('open');
             } }));
         }
         paintKey();
+        // NFC tag
+        var nfcKey = h('input', { class: 'inp', placeholder: 'BLS-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX', autocapitalize: 'characters', spellcheck: 'false', autocomplete: 'off', style: "font-family:'Twemoji', ui-monospace,monospace;font-size:13px;text-transform:uppercase" });
+        function nfcKeyOk() { var k = nfcKeyFrom(nfcKey.value); if (!k) toast("Maxfiy kalitni to'liq kiriting (43 belgi)"); return k; }
+        view.appendChild(h('div', { class: 'h', text: '📶 NFC bilan kirish' }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'sum', style: 'line-height:1.55', text: "Maxfiy kalitni NFC tagga (stiker, karta, brelok — NTAG213/215/216) yozing. Keyin tagni telefonga tegizsangiz, admin panel o'zi ochilib kirasiz: iPhone (XS va yangilari) va NFC'li Android telefonlarda, ilova o'rnatmasdan. Tagni yo'qotsangiz — yuqorida yangi kalit yarating, eski tag darhol ishlamay qoladi." }),
+            h('label', { class: 'lb' }, ['Maxfiy kalit', nfcKey]),
+            h('div', { class: 'm-btns', style: 'justify-content:flex-start' }, [
+                h('button', { class: 'btn', text: '📶 NFC tagga yozish', onclick: async function () { var k = nfcKeyOk(); if (k && await nfcWrite(k)) nfcKey.value = ''; } }),
+                h('button', { class: 'btn ghost', text: '🔗 Havolani nusxalash', onclick: function () { var k = nfcKeyOk(); if (!k) return; try { navigator.clipboard.writeText(nfcUrl(k)).then(function () { toast("✅ Nusxalandi — «NFC Tools» ilovasida URL sifatida yozing"); }); } catch (e) { toast('Nusxalab bo\'lmadi'); } } })
+            ]),
+            h('div', { class: 'sum', style: 'line-height:1.55;opacity:.8', text: NFC_OK ? "✅ Bu qurilma NFC tagga to'g'ridan-to'g'ri yoza oladi." : "Bu qurilmada sahifadan yozib bo'lmaydi (faqat Android Chrome). iPhone'da: havolani nusxalang → «NFC Tools» ilovasi → Write → Add a record → URL → Write → tagni tegizing." })
+        ]));
         // parol
         var oldP = h('input', { class: 'inp', type: 'password', autocomplete: 'current-password' });
         var newP = h('input', { class: 'inp', type: 'password', autocomplete: 'new-password' });
