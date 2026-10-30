@@ -109,6 +109,31 @@
     <!-- Kirish / ro'yxatdan o'tish -->
     <section id="auth" class="screen au">
         <button class="au-back" id="a-back" aria-label="back"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+        <aside class="au-side" aria-hidden="true">
+            <svg class="au-sd-art" viewBox="0 0 400 640" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                    <linearGradient id="sdbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14120e"/><stop offset=".6" stop-color="#0d0c0a"/><stop offset="1" stop-color="#070707"/></linearGradient>
+                    <linearGradient id="sdbeam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd98a" stop-opacity=".2"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></linearGradient>
+                    <radialGradient id="sdglow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f3c58c" stop-opacity=".5"/><stop offset=".55" stop-color="#d9a066" stop-opacity=".12"/><stop offset="1" stop-color="#d9a066" stop-opacity="0"/></radialGradient>
+                    <linearGradient id="sdbolt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1cf"/><stop offset=".5" stop-color="#f3c58c"/><stop offset="1" stop-color="#c98a45"/></linearGradient>
+                    <linearGradient id="sdline" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f3c58c" stop-opacity="0"/><stop offset=".5" stop-color="#f3c58c"/><stop offset="1" stop-color="#f3c58c" stop-opacity="0"/></linearGradient>
+                    <filter id="sdblur"><feGaussianBlur stdDeviation="2.4"/></filter>
+                </defs>
+                <rect width="400" height="640" fill="url(#sdbg)"/>
+                <g fill="#1a1712" opacity=".9"><rect x="40" y="0" width="70" height="640"/><rect x="290" y="0" width="70" height="640"/></g>
+                <polygon points="170,0 230,0 330,520 70,520" fill="url(#sdbeam)"/>
+                <polygon points="190,0 210,0 250,520 150,520" fill="url(#sdbeam)" opacity=".8"/>
+                <circle cx="200" cy="270" r="200" fill="url(#sdglow)"/>
+                <g class="au-sd-bolt"><polygon points="218,170 152,300 194,300 168,404 252,262 208,262 238,170" fill="url(#sdbolt)"/></g>
+                <g filter="url(#sdblur)" opacity=".9"><rect x="20" y="470" width="360" height="3" fill="url(#sdline)"/><rect x="60" y="500" width="280" height="2.4" fill="url(#sdline)" opacity=".7"/><rect x="100" y="526" width="200" height="2" fill="url(#sdline)" opacity=".5"/></g>
+                <g fill="#f3c58c" class="au-sd-sparks"><circle cx="120" cy="200" r="1.6"/><circle cx="290" cy="170" r="1.3"/><circle cx="260" cy="350" r="1.8"/><circle cx="130" cy="380" r="1.2"/><circle cx="320" cy="260" r="1.4"/></g>
+            </svg>
+            <div class="au-sd-brand"><img src="logo.png" alt=""><b>BILOLS AI</b></div>
+            <div class="au-sd-txt"><h2 id="au-sd-h"></h2><p id="au-sd-p"></p></div>
+            <small class="au-sd-foot">© 2026 Bilols AI</small>
+        </aside>
+        <div class="au-main"><div class="au-box">
+        <div class="au-logo" aria-hidden="true"><img src="logo.png" alt=""></div>
         <div class="au-head">
             <h1 id="au-title"></h1>
             <p id="au-sub"></p>
@@ -169,8 +194,10 @@
             <button class="btn primary big" id="a-go" data-t="getCode"></button>
             <p class="au-switch"><span id="au-sw-q"></span> <button class="link" id="au-sw"></button></p>
         </div>
+        </div>
         <div class="lang-row" id="auth-lang"></div>
         <button class="privacy-link" data-privacy>🔒 <span data-t="privacy"></span></button>
+        </div>
     </section>
 
     <!-- Asosiy ilova -->

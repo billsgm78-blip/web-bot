@@ -790,3 +790,51 @@ body.kb .bm-comp { padding-bottom: calc(8px + env(safe-area-inset-bottom)) !impo
 .lp-btn { box-shadow: 0 10px 24px -14px rgba(255, 225, 77, .6) !important; }
 .bm-glow i { display: none !important; }
 .bm-glow { background: radial-gradient(70% 100% at 50% 0%, rgba(255, 255, 255, .13), rgba(255, 255, 255, .04) 45%, transparent 75%); }
+
+/* ================= Kompyuter: ikki ustunli kirish oynasi (html.desk — keng ekran va sichqoncha) ================= */
+.au-side, .au-logo { display: none; }
+.au-main, .au-box { display: contents; }
+html.desk .au { flex-direction: row; padding: 0 !important; background: #0c0c0d !important; color: #ececee; overflow: hidden; }
+html.desk .au-back, html.desk .au-art { display: none !important; }
+html.desk .au-side { display: flex; flex-direction: column; justify-content: space-between; position: relative; width: 42%; min-width: 360px; max-width: 560px; padding: 34px 40px 26px; overflow: hidden; color: #f4f1ea; border-right: 1px solid #1d1d20; }
+.au-sd-art { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+.au-sd-bolt { animation: lpPulse 3.4s ease-in-out infinite; transform-origin: 200px 285px; }
+.au-sd-sparks circle { animation: lpSpark 4s ease-in-out infinite; } .au-sd-sparks circle:nth-child(2n) { animation-delay: -1.4s; }
+.au-sd-brand, .au-sd-txt, .au-sd-foot { position: relative; z-index: 1; }
+.au-sd-brand { display: flex; align-items: center; gap: 10px; }
+.au-sd-brand img { width: 30px; height: 30px; border-radius: 9px; }
+.au-sd-brand b { font-size: 14px; font-weight: 800; letter-spacing: .14em; }
+.au-sd-txt { margin-top: auto; padding-left: 16px; border-left: 2px solid #d9a066; }
+.au-sd-txt h2 { margin: 0 0 10px; font-size: 32px; line-height: 1.12; font-weight: 600; color: #fff; }
+.au-sd-txt p { margin: 0; font-size: 14px; line-height: 1.55; color: #b9b5ac; max-width: 32ch; }
+.au-sd-foot { margin-top: 28px; font-size: 12px; color: #77736b; }
+html.desk .au-main { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 40px 32px; overflow-y: auto; background: radial-gradient(60% 50% at 50% 40%, #17161a, #0c0c0d 75%); }
+html.desk .au-box { display: block; width: 100%; max-width: 420px; padding: 34px 34px 28px; border-radius: 22px; background: #141416; border: 1px solid #26262a; box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8); }
+html.desk .au-logo { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%; background: #1c1c1f; border: 1px solid #2c2c31; }
+html.desk .au-logo img { width: 30px; height: 30px; border-radius: 8px; }
+html.desk .au-head { margin: 0 0 24px; text-align: center; }
+html.desk .au-head h1 { font-family: inherit; font-size: 26px; font-weight: 700; color: #fff; }
+html.desk .au-head p { color: #8f8f96; font-size: 13.5px; margin-top: 6px; }
+html.desk .au .field > span { color: #c9c9cf; font-size: 12.5px; font-weight: 600; }
+html.desk .au .field input, html.desk .au .phone-in, html.desk .au .pass-in { background: #1b1b1e !important; border: 1px solid #2a2a2f !important; color: #f1f1f3; box-shadow: none; }
+html.desk .au .field input:focus, html.desk .au .phone-in:focus-within, html.desk .au .pass-in:focus-within { border-color: #d9a066 !important; background: #1d1d21 !important; }
+html.desk .au .phone-in em, html.desk .au input::placeholder { color: #6e6e75; }
+html.desk .au input { color: #f1f1f3 !important; }
+html.desk .au .pass-in button { filter: grayscale(1) brightness(1.6); }
+html.desk .au-forgot { color: #d9a066 !important; }
+html.desk .au .btn.primary { position: relative; background: linear-gradient(90deg, #f3c58c, #d9a066) !important; color: #1b1308 !important; box-shadow: 0 14px 30px -14px rgba(217, 160, 102, .8) !important; }
+html.desk .au .btn.primary::after { content: "→"; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 18px; }
+html.desk .au .btn.primary:hover { filter: brightness(1.05); }
+html.desk .au-switch { color: #8f8f96; }
+html.desk .au-switch .link { color: #d9a066 !important; }
+html.desk .au .auth-msg { color: #a1a1a8; }
+html.desk .au .auth-msg.err { color: #f87171; }
+html.desk .au .auth-msg.ok { color: #34d399; }
+html.desk .au .consent { color: #a1a1a8; }
+html.desk .au .consent a, html.desk .au .consent button:not(.c-box) { color: #d9a066; }
+html.desk .au .lang-row { margin-top: 22px; justify-content: center; }
+html.desk .au .lang-row button { background: #1b1b1e; color: #a1a1a8; }
+html.desk .au .lang-row button.on { background: #d9a066; color: #1b1308; }
+html.desk .au .privacy-link { color: #77777e; margin-top: 10px; }
+html.desk .au .phone-in input, html.desk .au .pass-in input { background: none !important; border: 0 !important; }
+.au-sd-art, .au-sd-art * { stroke: none !important; }

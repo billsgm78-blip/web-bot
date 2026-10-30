@@ -203,7 +203,15 @@
     }
 
     /* ================= Ekranlar ================= */
+    // Kompyuter (keng ekran, sichqoncha): boshlang'ich sahifa o'rniga darhol ikki ustunli kirish oynasi
+    var deskMq = window.matchMedia ? matchMedia('(min-width: 900px) and (pointer: fine)') : null;
+    function isDesk() { return !!(deskMq && deskMq.matches); }
+    function paintDesk() {
+        document.documentElement.classList.toggle('desk', isDesk());
+        if (isDesk() && $('landing').classList.contains('on')) openAuth(auth.mode || 'login');
+    }
     function show(id) {
+        if (id === 'landing' && isDesk()) { openAuth(auth.mode || 'login'); return; }
         ['splash', 'lock', 'landing', 'auth', 'main'].forEach(function (s) { $(s).classList.toggle('on', s === id); });
         if (id !== 'landing') closeLpMenu();
     }
@@ -438,6 +446,13 @@
         $('au-sub').textContent = reg ? L("Ro'yxatdan o'ting va boshlang", 'Зарегистрируйтесь и начните', 'Sign up and get started') : L('Davom etish uchun kiring', 'Войдите, чтобы продолжить', 'Log in to continue');
         $('au-sw-q').textContent = reg ? L('Hisobingiz bormi?', 'Уже есть аккаунт?', 'Already have an account?') : L("Hisobingiz yo'qmi?", 'Нет аккаунта?', "Don't have an account?");
         $('au-sw').textContent = reg ? L('Kirish', 'Войти', 'Log in') : L("Ro'yxatdan o'tish", 'Регистрация', 'Sign up');
+        if (isDesk()) {
+            $('au-title').textContent = reg ? L("Ro'yxatdan o'tish", 'Регистрация', 'Sign up') : L('Kirish', 'Вход', 'Login');
+            $('au-sub').textContent = reg ? L('Yangi hisob yarating', 'Создайте новый аккаунт', 'Create a new account') : L('Davom etish uchun hisobingizga kiring', 'Войдите в аккаунт, чтобы продолжить', 'Log in to your account to continue');
+        }
+        $('au-sd-h').textContent = reg ? L('Xush kelibsiz', 'Добро пожаловать', 'Welcome') : L('Qaytganingizdan xursandmiz', 'С возвращением', 'Welcome Back');
+        $('au-sd-p').textContent = reg ? L("O'zbek tilini tushunadigan AI — bir necha soniyada hisob oching.", 'ИИ, который понимает узбекский, — аккаунт за пару секунд.', 'An AI that understands Uzbek — create an account in seconds.')
+            : L("To'xtagan joyingizdan davom eting.", 'Продолжайте с того места, где остановились.', "Let's continue where you left off.");
     }
     function paintLanding() {
         $('lp-lead').textContent = L("Savol bering, rasm yuboring yoki hujjat biriktiring — o'zbek tilini tushunadigan AI soniyalar ichida javob beradi.",
@@ -1968,6 +1983,8 @@
 
     /* ================= Ishga tushirish ================= */
     async function start() {
+        document.documentElement.classList.toggle('desk', isDesk());
+        if (deskMq) { if (deskMq.addEventListener) deskMq.addEventListener('change', paintDesk); else if (deskMq.addListener) deskMq.addListener(paintDesk); }
         applyI18n();
         paintLangRow($('auth-lang'));
         paintModes();
