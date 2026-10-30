@@ -1046,12 +1046,38 @@
     // 🪄 — chat ichida rasm yaratish rejimi (rasm biriktirilsa — tahrirlanadi)
     $('c-img').onclick = function () { haptic(); setGenMode(!chat.genMode); };
 
-    /* Oddiy markdown: kod bloklari, `kod`, **qalin**, sarlavha, ro'yxat */
+    /* Formulalar (LaTeX): $…$, $$…$$, \(…\), \[…\] — KaTeX bilan chiziladi (sayt bilan bir xil) */
+    var TEX_RX = /\$\$([\s\S]+?)\$\$|\\\[([\s\S]+?)\\\]|\\\(([\s\S]+?)\\\)|\$(?!\s)([^$\n]+?)(?<!\s)\$/g;
+    var katexP = null;
+    function loadKatex() {
+        if (window.katex) return Promise.resolve();
+        if (katexP) return katexP;
+        var base = /(^|\.)bilolsai\.uz$/.test(location.hostname) ? '' : 'https://www.bilolsai.uz';
+        katexP = new Promise(function (res, rej) {
+            var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = base + '/vendor/katex/katex.min.css'; document.head.appendChild(l);
+            var s = document.createElement('script'); s.src = base + '/vendor/katex/katex.min.js'; s.onload = res; s.onerror = function () { katexP = null; rej(); };
+            document.head.appendChild(s);
+        });
+        return katexP;
+    }
+    function typeset(el) {
+        if (!el || !el.querySelector('.tex:not(.done)')) return;
+        if (!window.katex) { loadKatex().then(function () { typeset(el); }, function () {}); return; }
+        [].forEach.call(el.querySelectorAll('.tex:not(.done)'), function (s) {
+            try { katex.render(s.getAttribute('data-tex'), s, { displayMode: s.classList.contains('td'), throwOnError: false }); s.classList.add('done'); } catch (e) {}
+        });
+    }
+
+    /* Oddiy markdown: kod bloklari, `kod`, **qalin**, sarlavha, ro'yxat, formulalar */
     function md(src) {
         var parts = String(src || '').split(/```/);
-        var out = '';
+        var out = '', tex = [];
         parts.forEach(function (p, i) {
             if (i % 2) { out += '<pre><code>' + esc(p.replace(/^[a-zA-Z0-9+#-]*\n/, '')) + '</code></pre>'; return; }
+            p = p.replace(TEX_RX, function (all, d1, d2, i1, i2) {
+                tex.push([d1 || d2 || i1 || i2, !!(d1 || d2), all]);
+                return '\u0001' + (tex.length - 1) + '\u0002';
+            });
             var lines = esc(p).split('\n'), list = null, para = [];
             function flushP() { if (para.length) { out += '<p>' + para.join('<br>') + '</p>'; para = []; } }
             function flushL() { if (list) { out += '</' + list + '>'; list = null; } }
@@ -1061,12 +1087,15 @@
                 if (!t) { flushP(); flushL(); return; }
                 if ((m = t.match(/^#{1,4}\s+(.*)$/))) { flushP(); flushL(); out += '<h4>' + inl(m[1]) + '</h4>'; return; }
                 if ((m = t.match(/^[-*•]\s+(.*)$/))) { flushP(); if (list !== 'ul') { flushL(); out += '<ul>'; list = 'ul'; } out += '<li>' + inl(m[1]) + '</li>'; return; }
-                if ((m = t.match(/^\d+[.)]\s+(.*)$/))) { flushP(); if (list !== 'ol') { flushL(); out += '<ol>'; list = 'ol'; } out += '<li>' + inl(m[1]) + '</li>'; return; }
+                if ((m = t.match(/^(\d+)[.)]\s+(.*)$/))) { flushP(); if (list !== 'ol') { flushL(); out += '<ol start="' + m[1] + '">'; list = 'ol'; } out += '<li>' + inl(m[2]) + '</li>'; return; }
                 flushL(); para.push(inl(t));
             });
             flushP(); flushL();
         });
-        return out;
+        return out.replace(/\u0001(\d+)\u0002/g, function (all, n) {
+            var x = tex[+n];
+            return '<span class="tex' + (x[1] ? ' td' : '') + '" data-tex="' + esc(x[0].trim()).replace(/"/g, '&quot;') + '">' + esc(x[2]) + '</span>';
+        });
         function inl(s) {
             return s.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<i>$2</i>');
         }
@@ -1093,7 +1122,7 @@
         if (m.imgTag && !m.img) { var it = document.createElement('div'); it.className = 'file-tag'; it.textContent = '🖼 ' + L('Rasm', 'Фото', 'Image'); b.appendChild(it); }
         var tx = document.createElement('div');
         tx.className = 'tx';
-        if (m.r === 'u' || m.err) tx.textContent = m.t || ''; else tx.innerHTML = md(m.t);
+        if (m.r === 'u' || m.err) tx.textContent = m.t || ''; else { tx.innerHTML = md(m.t); typeset(tx); }
         b.appendChild(tx);
         if (m.r === 'a' && !m.err && m.t) {
             var acts = document.createElement('div'); acts.className = 'b-acts';
@@ -1326,7 +1355,7 @@
                     reply += dec.decode(chunk.value, { stream: true });
                     if (!aiB && reply) { typing.remove(); aiB = bubble({ r: 'a', t: '' }); aiB.querySelector('.b-acts') && aiB.querySelector('.b-acts').remove(); box.appendChild(aiB); }
                     var now = Date.now();
-                    if (aiB && now - last > (reply.length > 3000 ? 260 : 150)) { last = now; var tx = aiB.querySelector('.tx'); tx.innerHTML = md(reply); tx.classList.add('caret'); scrollChat(); }
+                    if (aiB && now - last > (reply.length > 3000 ? 260 : 150)) { last = now; var tx = aiB.querySelector('.tx'); tx.innerHTML = md(reply); typeset(tx); tx.classList.add('caret'); scrollChat(); }
                 }
                 reply += dec.decode();
             } else {
