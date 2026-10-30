@@ -664,7 +664,14 @@ select.inp option { background: #12151c; color: var(--text); }
     // ---------- NFC: tagda https://www.bilolsai.uz/admin#k=BLS-… havolasi turadi ----------
     // iPhone va Android tagga tegizilganda havolani o'zi ochadi (ilova shart emas); Android Chrome'da sahifa ichidan ham o'qiladi.
     var NFC_OK = 'NDEFReader' in window;
-    function nfcKeyFrom(s) { var m = String(s || '').toUpperCase().match(/BLS(?:-?[A-Z0-9]{4}){8}/); return m ? m[0] : ''; }
+    // matn yoki havola: bo'sh joy, qator, tire bo'lsa ham kalit topiladi (Telegram'dan nusxalanganda shunday bo'ladi)
+    function nfcKeyFrom(s) {
+        var raw = String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, ''), i = raw.indexOf('BLS');
+        if (i < 0 || raw.length - i < 35) return '';
+        var body = raw.slice(i + 3, i + 35), parts = ['BLS'];
+        for (var j = 0; j < 32; j += 4) parts.push(body.slice(j, j + 4));
+        return parts.join('-');
+    }
     function nfcUrl(key) { return 'https://www.bilolsai.uz/admin#k=' + key; }
     (function hashKey() {
         var m = location.hash.match(/[#&]k=([^&]+)/); if (!m) return;
