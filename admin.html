@@ -1958,7 +1958,7 @@ select.inp option { background: #12151c; color: var(--text); }
         sub: ['♾️', 'Obuna'], password: ['🔑', "Foydalanuvchi paroli o'rnatildi"], message: ['✉️', 'Xabar yuborildi'], broadcast: ['📢', "E'lon"],
         order: ['🛒', 'Buyurtma'], ban: ['⛔', 'Bloklandi'], unban: ['✅', 'Blokdan chiqarildi'], promo_create: ['🎟️', 'Promo-kod yaratildi'],
         promo_delete: ['✖', "Promo-kod o'chirildi"], control: ['🚦', 'Boshqaruv'], announce: ['📣', "Saytdagi e'lon"], backup: ['💾', 'Zaxira nusxa yuklab olindi'], logout_all: ['⎋', 'Hamma qurilmalardan chiqildi'], admin_password: ['🛡', 'Admin paroli almashtirildi'],
-        support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], ai: ['🤖', "AI sozlamalari o'zgartirildi"], notify: ['🔔', 'Bildirishnomalar'], login_key: ['🗝', 'Maxfiy kalit bilan kirildi'], key_create: ['🗝', 'Maxfiy kalit yaratildi'], key_delete: ['✖', "Maxfiy kalit o'chirildi"], faceid_add: ['🙂', "Face ID qo'shildi"], faceid_del: ['✖', "Face ID o'chirildi"], shop: ['🏷', "Narxlar o'zgartirildi"]
+        support_reply: ['💬', 'Murojaatga javob'], card: ['💳', "Karta (avto to'lov)"], ai: ['🤖', "AI sozlamalari o'zgartirildi"], notify: ['🔔', 'Bildirishnomalar'], login_key: ['🗝', 'Maxfiy kalit bilan kirildi'], key_create: ['🗝', 'Maxfiy kalit yaratildi'], key_delete: ['✖', "Maxfiy kalit o'chirildi"], review_create: ['🧪', 'Tekshiruv hisobi yaratildi'], review_delete: ['✖', "Tekshiruv hisobi o'chirildi"], faceid_add: ['🙂', "Face ID qo'shildi"], faceid_del: ['✖', "Face ID o'chirildi"], shop: ['🏷', "Narxlar o'zgartirildi"]
     };
     // ---------- 🤖 Yordamchi: admin agent (chat + piksel ofis) ----------
     var agRun = 0;
@@ -2506,6 +2506,43 @@ select.inp option { background: #12151c; color: var(--text); }
             } }));
         }
         paintKey();
+        // Tekshiruv hisobi (Microsoft Store va h.k.)
+        view.appendChild(h('div', { class: 'h', text: '🧪 Tekshiruv hisobi (Microsoft Store)' }));
+        var revCard = h('div', { class: 'card form' });
+        view.appendChild(revCard);
+        function revNotes(a) {
+            return 'The app requires sign-in. Please use this test account:\nPhone: ' + a.phone + '\nPassword: ' + a.password + '\nVerification code: ' + a.code +
+                '\n\nHow to sign in: open the app → "Hisobim bor — Kirish" (I have an account — Sign in) → enter the phone number and password → press the button → enter the verification code above.' +
+                '\nThe free AI agent works without a subscription: type any question in the chat. The interface language can be changed to English or Russian in Settings.';
+        }
+        async function paintRev() {
+            revCard.innerHTML = '';
+            var j = await admin('review_status'), a = j.account;
+            revCard.appendChild(h('div', { class: 'sum', style: 'line-height:1.55', text: "Microsoft Store tekshiruvchilari uchun alohida hisob. Telegram'ga ulanmagan: kirishda botga kod yuborilmaydi, o'rniga doimiy 4 xonali kod ishlaydi. Tekshiruv tugagach o'chirib qo'ying." }));
+            revCard.appendChild(h('div', { class: 'row', style: 'border:none' }, [
+                h('div', { class: 'r-ico', text: a ? '🧪' : '—' }),
+                h('div', { class: 'r-main' }, [h('b', { text: a ? ('Faol: ' + a.phone + ' · kod ' + a.code) : "Hisob yo'q" }),
+                    h('small', { text: a ? ('Yaratilgan: ' + fmtDate(a.created) + " · parol faqat yaratilganda ko'rsatiladi") : 'Yangi tekshiruv hisobi yarating' })]),
+                a ? h('button', { class: 'act red', text: "O'chirish", onclick: async function () {
+                    if (!await dialog({ title: "Tekshiruv hisobini o'chirish", text: "Bu hisob bilan endi kirib bo'lmaydi.", ok: "O'chirish", danger: true })) return;
+                    await admin('review_delete'); toast("O'chirildi"); paintRev();
+                } }) : null
+            ]));
+            revCard.appendChild(h('button', { class: 'btn', text: a ? '🔄 Yangi tekshiruv hisobi (eskisi o\'chadi)' : '🧪 Tekshiruv hisobi yaratish', onclick: async function () {
+                var x = await admin('review_create');
+                if (!x.success) { toast(x.error || 'Xato'); return; }
+                var notes = revNotes(x), card = $('m-card'); card.innerHTML = '';
+                card.appendChild(h('h3', { text: '🧪 Tekshiruv hisobi tayyor' }));
+                card.appendChild(h('p', { text: "Quyidagi matnni Partner Center → «Дополнительная информация о тестировании» maydoniga qo'ying. Parol faqat hozir ko'rsatiladi." }));
+                card.appendChild(h('div', { style: "font-family:'Twemoji', ui-monospace,monospace;font-size:13px;line-height:1.5;white-space:pre-wrap;padding:14px;border-radius:14px;background:rgba(139,92,246,0.12);border:1px dashed rgba(139,92,246,0.6);margin-bottom:14px;user-select:all;word-break:break-word", text: notes }));
+                card.appendChild(h('div', { class: 'm-btns' }, [
+                    h('button', { class: 'btn ghost', text: '📋 Nusxalash', onclick: function () { try { navigator.clipboard.writeText(notes).then(function () { toast('✅ Nusxalandi'); }); } catch (e) { toast('Qo\'lda belgilab nusxalang'); } } }),
+                    h('button', { class: 'btn', text: 'Tayyor', onclick: function () { $('modal').classList.remove('open'); paintRev(); } })
+                ]));
+                $('modal').classList.add('open');
+            } }));
+        }
+        paintRev();
         // NFC tag
         var nfcKey = h('input', { class: 'inp', placeholder: 'BLS-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX', autocapitalize: 'characters', spellcheck: 'false', autocomplete: 'off', style: "font-family:'Twemoji', ui-monospace,monospace;font-size:13px;text-transform:uppercase" });
         function nfcKeyOk() { var k = nfcKeyFrom(nfcKey.value); if (!k) toast("Maxfiy kalitni to'liq kiriting (43 belgi)"); return k; }
