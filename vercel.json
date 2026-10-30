@@ -13,6 +13,18 @@
       "destination": "/apk.html"
     },
     {
+      "source": "/kompyuter",
+      "destination": "/kompyuter.html"
+    },
+    {
+      "source": "/windows",
+      "destination": "/kompyuter.html"
+    },
+    {
+      "source": "/pc",
+      "destination": "/kompyuter.html"
+    },
+    {
       "source": "/iphone",
       "destination": "/iphone.html"
     },
@@ -40,6 +52,23 @@
         {
           "key": "Content-Disposition",
           "value": "attachment; filename=\"Bilols-AI.apk\""
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300"
+        }
+      ]
+    },
+    {
+      "source": "/download/(.*)\\.exe",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/vnd.microsoft.portable-executable"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=\"Bilols-AI-Setup.exe\""
         },
         {
           "key": "Cache-Control",

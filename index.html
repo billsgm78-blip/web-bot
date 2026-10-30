@@ -3220,7 +3220,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
         <li><span class="pm-t" data-l="uz">Kompyuterda QR kod bilan bir zumda kiring</span><span class="pm-t" data-l="ru">На компьютере — вход по QR-коду за секунду</span><span class="pm-t" data-l="en">Log in on a computer in a second with a QR code</span></li>
         <li><span class="pm-t" data-l="uz">Hamyon: Telegram Stars va Premium xaridi</span><span class="pm-t" data-l="ru">Кошелёк: покупка Telegram Stars и Premium</span><span class="pm-t" data-l="en">Wallet: buy Telegram Stars and Premium</span></li>
       </ul>
-      <div class="pd-cta"><a class="pd-btn" href="/apk"><span class="pm-t" data-l="uz">APK yuklab olish</span><span class="pm-t" data-l="ru">Скачать APK</span><span class="pm-t" data-l="en">Download APK</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></div>
+      <div class="pd-cta"><a class="pd-btn" href="/apk"><span class="pm-t" data-l="uz">APK yuklab olish</span><span class="pm-t" data-l="ru">Скачать APK</span><span class="pm-t" data-l="en">Download APK</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a><a class="pd-btn ghost" href="/kompyuter"><span class="pm-t" data-l="uz">Kompyuter uchun</span><span class="pm-t" data-l="ru">Для компьютера</span><span class="pm-t" data-l="en">For Windows</span></a></div>
     </div>
     <div class="pd-phone" aria-hidden="true"><div class="pd-phone-in">
       <div class="pd-ph-top"><b>Bilols AI</b><span>● 15 000</span></div>
@@ -3267,6 +3267,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
       <a href="/maxfiylik" target="_blank" rel="noopener"><span class="pm-t" data-l="uz">Maxfiylik siyosati</span><span class="pm-t" data-l="ru">Конфиденциальность</span><span class="pm-t" data-l="en">Privacy</span></a>
       <a href="https://t.me/BilolsAIbot" target="_blank" rel="noopener">Telegram</a>
       <a href="/apk">Android</a>
+      <a href="/kompyuter">Windows</a>
     </div>
     <div class="pd-word">bilolsai<em>.</em>uz</div>
   </footer>
@@ -8175,6 +8176,12 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
     if (window.__isIOS) {
         var a = document.getElementById('drawer-app');
         if (a) { a.href = '/iphone'; a.querySelector('.ds-text b').textContent = 'iPhone ilova'; a.querySelector('#drawer-app-sub').textContent = "Bosh ekranga qo'shish — bepul"; }
+        return;
+    }
+    // Windows kompyuterda — kompyuter versiyasi sahifasiga
+    if (/Windows NT/.test(ua)) {
+        var w = document.getElementById('drawer-app');
+        if (w) { w.href = '/kompyuter'; w.querySelector('.ds-ico').textContent = '💻'; w.querySelector('.ds-text b').textContent = 'Kompyuter ilova'; w.querySelector('#drawer-app-sub').textContent = 'Windows uchun — bepul'; }
         return;
     }
     fetch('https://bilolsai-api.onrender.com/api/site-status', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (st) {
