@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bilols AI — Olov</title>
+<meta name="description" content="Bilols AI — o'zbek tilini tushunadigan sun'iy intellekt: chat, rasm, hujjat, tarjima, agentlar, hamyon va ilovalar.">
+<meta name="theme-color" content="#09090b">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+@font-face{font-family:Outfit;font-weight:500;font-display:swap;src:url(app/fonts/outfit-500.woff2) format("woff2")}
+@font-face{font-family:Outfit;font-weight:800;font-display:swap;src:url(app/fonts/outfit-800.woff2) format("woff2")}
+:root{--bg:#09090b;--card:#121215;--card2:#17171b;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#f4f4f5;--mut:#9a9aa3;
+  --or:#ff6a1a;--or2:#ff9a3d;--orglow:rgba(255,106,26,.45);--pad:clamp(16px,4vw,48px)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:Outfit,system-ui,sans-serif;font-weight:500;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.wrap{max-width:1180px;margin:0 auto;padding:0 var(--pad)}
+.btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 20px;border-radius:12px;font-weight:800;font-size:14.5px;transition:transform .2s,box-shadow .3s}
+.btn.or{background:linear-gradient(180deg,var(--or2),var(--or));color:#fff;box-shadow:0 10px 30px -10px var(--orglow),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn.or:hover{transform:translateY(-2px);box-shadow:0 16px 40px -10px var(--orglow),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn.gh{border:1px solid var(--line2);background:rgba(255,255,255,.03)}
+.btn.gh:hover{background:rgba(255,255,255,.07)}
+.h2{font-weight:800;font-size:clamp(30px,4.4vw,52px);letter-spacing:-.025em;line-height:1.05;text-align:center}
+.sub{color:var(--mut);text-align:center;max-width:56ch;margin:14px auto 0;font-size:15.5px;line-height:1.55}
+.cur{position:fixed;left:0;top:0;width:340px;height:340px;margin:-170px 0 0 -170px;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(255,106,26,.12),transparent 60%);will-change:transform}
+@media (hover:none){.cur{display:none}}
+
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+nav.sc{background:rgba(9,9,11,.86);border-color:var(--line)}
+nav .wrap{display:flex;align-items:center;gap:22px;height:66px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:19px;letter-spacing:-.02em;margin-right:auto}
+.brand img{width:28px;height:28px;border-radius:8px}
+.brand em{font-style:normal;color:var(--or)}
+.nl{display:flex;gap:22px;font-size:14px;color:var(--mut)}
+.nl a:hover{color:#fff}
+@media(max-width:820px){.nl{display:none}}
+
+/* hero */
+.hero{position:relative;padding:150px 0 0;text-align:center;overflow:hidden}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border:1px solid var(--line2);border-radius:99px;font-size:12.5px;color:#d4d4d8;background:rgba(255,255,255,.03)}
+.badge b{background:var(--or);color:#fff;padding:3px 10px;border-radius:99px;font-size:11.5px}
+.hero h1{font-weight:800;font-size:clamp(40px,7vw,84px);letter-spacing:-.035em;line-height:1.02;margin:22px auto 0;max-width:13ch}
+.hero h1 span{display:inline-block;opacity:0;transform:translateY(40px);transition:opacity .9s,transform 1.1s cubic-bezier(.16,1,.3,1)}
+.ld .hero h1 span{opacity:1;transform:none}
+.hero p{color:var(--mut);max-width:50ch;margin:20px auto 0;font-size:16.5px;line-height:1.55}
+.hero .cta{display:flex;gap:12px;justify-content:center;margin-top:30px;flex-wrap:wrap}
+.fx{opacity:0;transform:translateY(20px);transition:opacity .9s .4s,transform 1s .4s cubic-bezier(.16,1,.3,1)}
+.ld .fx{opacity:1;transform:none}
+/* tutilish yoyi */
+.sun{position:relative;height:clamp(240px,34vw,420px);margin-top:-10px;pointer-events:none}
+.sun .disc{position:absolute;left:50%;top:0;width:min(1100px,150vw);aspect-ratio:1;transform:translate(-50%,40%) scale(.9);border-radius:50%;opacity:0;
+  background:radial-gradient(circle at 50% 50%,#0b0b0e 58%,transparent 58.4%),
+             conic-gradient(from 200deg,transparent 0deg,#5a1a05 40deg,#ff6a1a 90deg,#ffc27a 120deg,#ff6a1a 150deg,#5a1a05 200deg,transparent 250deg,transparent 360deg);
+  transition:transform 2s cubic-bezier(.16,1,.3,1),opacity 1.4s}
+.sun .disc::after{content:"";position:absolute;inset:-6%;border-radius:50%;background:radial-gradient(circle at 50% 30%,rgba(255,106,26,.35),transparent 55%)}
+.ld .sun .disc{opacity:1;transform:translate(-50%,8%) scale(1)}
+.sun .halo{position:absolute;left:50%;top:10%;width:70%;height:90%;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 60%,rgba(255,106,26,.28),transparent 60%)}
+/* dashboard */
+.dash{position:relative;z-index:2;margin:-200px auto 0;max-width:1080px;perspective:1400px}
+.dash .fr{border-radius:18px;border:1px solid var(--line2);background:var(--card);padding:10px;box-shadow:0 -20px 80px -30px var(--orglow),0 50px 120px -40px #000;transform-origin:50% 0;will-change:transform}
+.dash .bar{display:flex;align-items:center;gap:8px;padding:6px 8px 12px;font-size:12px;color:var(--mut)}
+.dash .bar i{width:10px;height:10px;border-radius:50%;background:#2a2a30}
+.dash .bar i:first-child{background:#ff5f57}.dash .bar i:nth-child(2){background:#febc2e}.dash .bar i:nth-child(3){background:#28c840}
+.dash .bar span{margin-left:auto}
+.dash img{border-radius:10px;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top}
+
+/* lenta */
+.logos{padding:70px 0 20px;text-align:center;color:var(--mut);font-size:13.5px}
+.mq{overflow:hidden;margin-top:22px;-webkit-mask:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent);mask:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent)}
+.mq .tr{display:flex;gap:56px;width:max-content;animation:mq 28s linear infinite}
+.mq span{display:flex;align-items:center;gap:8px;font-weight:800;font-size:22px;color:#6b6b74;white-space:nowrap}
+.mq span i{font-style:normal;font-size:18px}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* bento */
+.sec{padding:100px 0}
+.bento{display:grid;grid-template-columns:1fr 1fr 1fr;grid-auto-rows:minmax(220px,auto);gap:16px;margin-top:48px}
+.bx{position:relative;border:1px solid var(--line);background:linear-gradient(180deg,var(--card2),var(--card));border-radius:20px;padding:22px;overflow:hidden}
+.bx h3{font-weight:800;font-size:18px;text-align:center}
+.bx p{color:var(--mut);font-size:13.5px;line-height:1.5;text-align:center;margin-top:6px}
+.bx.tall{grid-row:span 2}
+.bal{margin-top:20px;border:1px solid var(--line2);border-radius:14px;padding:12px;font-size:12.5px}
+.bal .row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px}
+.bal .row.on{background:linear-gradient(90deg,var(--or),#c2410c);color:#fff;box-shadow:0 10px 30px -12px var(--orglow)}
+.bal .row b{margin-left:auto}
+.spark{margin-top:16px;border:1px solid var(--line2);border-radius:14px;padding:12px;display:flex;justify-content:space-between;align-items:flex-end}
+.spark b{font-size:26px;font-weight:800}
+.spark small{display:block;color:var(--mut);font-size:11.5px}
+.spark svg{width:110px;height:40px}
+.spark path{fill:none;stroke:var(--or2);stroke-width:2;stroke-dasharray:200;stroke-dashoffset:200;transition:stroke-dashoffset 1.6s .3s}
+.in .spark path{stroke-dashoffset:0}
+.funnel{position:relative;height:100%;min-height:440px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:20px}
+.funnel .cone{position:absolute;top:0;left:50%;width:78%;height:62%;transform:translateX(-50%);clip-path:polygon(0 0,100% 0,62% 100%,38% 100%);
+  background:linear-gradient(180deg,#ff9a3d,#ff6a1a 40%,#c2410c);opacity:.95}
+.funnel .cone::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(0,0,0,.18) 0 2px,transparent 2px 22px)}
+.funnel .ico{position:relative;z-index:1;width:84px;height:84px;border-radius:22px;background:#1b1b20;border:1px solid var(--line2);display:grid;place-items:center;margin-top:auto;margin-bottom:auto;box-shadow:0 0 0 0 var(--orglow);animation:ring 2.4s infinite}
+.funnel .ico img{width:48px;height:48px;border-radius:12px}
+@keyframes ring{70%{box-shadow:0 0 0 22px rgba(255,106,26,0)}100%{box-shadow:0 0 0 0 rgba(255,106,26,0)}}
+.langs{display:flex;justify-content:center;gap:10px;margin-top:22px}
+.langs span{padding:10px 16px;border-radius:12px;border:1px solid var(--line2);font-weight:800;font-size:18px;background:#1b1b20}
+.langs span:nth-child(1){border-color:var(--or);box-shadow:0 0 30px -10px var(--orglow)}
+.modes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
+.modes span{font-size:12.5px;padding:7px 11px;border-radius:99px;border:1px solid var(--line2);color:#d4d4d8}
+.modes span:first-child{background:var(--or);border-color:var(--or);color:#fff}
+.stars{display:flex;justify-content:center;gap:14px;margin-top:22px;font-size:34px}
+.stars i{font-style:normal;display:inline-block;animation:tw 2.6s ease-in-out infinite}
+.stars i:nth-child(2){animation-delay:.5s}.stars i:nth-child(3){animation-delay:1s}
+@keyframes tw{50%{transform:translateY(-6px) scale(1.08)}}
+@media(max-width:900px){.bento{grid-template-columns:1fr 1fr}.bx.tall{grid-row:span 1}.funnel{min-height:320px}}
+@media(max-width:620px){.bento{grid-template-columns:1fr}}
+
+/* imkoniyatlar */
+.feat{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(24px,5vw,70px);align-items:center;margin-top:70px}
+.feat.rev .ft{order:2}
+.ft h3{font-weight:800;font-size:clamp(24px,3vw,34px);letter-spacing:-.02em;line-height:1.15}
+.ft p{color:var(--mut);margin-top:14px;line-height:1.6}
+.ft ul{list-style:none;margin-top:20px;display:grid;gap:10px}
+.ft li{display:flex;gap:10px;align-items:center;font-size:14.5px}
+.ft li::before{content:"✓";width:20px;height:20px;border-radius:6px;background:var(--or);color:#fff;font-size:12px;display:grid;place-items:center;flex:none}
+.vis{position:relative;border:1px solid var(--line);background:var(--card);border-radius:22px;aspect-ratio:1.2;overflow:hidden}
+.rings{position:absolute;right:-18%;bottom:-30%;width:90%;aspect-ratio:1}
+.rings i{position:absolute;inset:calc(var(--k)*9%);border-radius:50%;border:2px solid transparent;
+  background:conic-gradient(from calc(var(--k)*60deg),transparent 0 50%,rgba(255,106,26,calc(.9 - var(--k)*.15)) 75%,transparent 100%) border-box;
+  -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin calc(10s + var(--k)*4s) linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shield{position:absolute;right:16%;bottom:14%;width:26%;filter:drop-shadow(0 20px 40px rgba(0,0,0,.6))}
+.mini{position:absolute;left:7%;top:9%;width:56%;display:grid;gap:10px}
+.mini div{border:1px solid var(--line2);background:#1b1b20;border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center;font-size:13px}
+.mini div i{width:30px;height:30px;border-radius:9px;background:var(--or);display:grid;place-items:center;font-style:normal;flex:none}
+.mini div small{display:block;color:var(--mut);font-size:11.5px}
+.ccard{position:absolute;left:50%;top:52%;width:62%;aspect-ratio:1.6;border-radius:16px;transform:translate(-50%,-50%) rotateX(52deg) rotateZ(-28deg);
+  background:linear-gradient(135deg,#ff9a3d,#ff6a1a 45%,#9a3412);box-shadow:0 40px 60px -20px rgba(255,106,26,.5);animation:flo 6s ease-in-out infinite;padding:7% 8%;color:#fff;font-weight:800}
+.ccard small{display:block;font-size:11px;opacity:.8;font-weight:500;margin-top:30%}
+@keyframes flo{50%{transform:translate(-50%,-56%) rotateX(52deg) rotateZ(-24deg)}}
+.vis .pill{position:absolute;left:7%;top:8%;border:1px solid var(--line2);background:#1b1b20;border-radius:14px;padding:12px 14px;font-size:13px;display:flex;gap:10px;align-items:center}
+.vis .pill i{width:30px;height:30px;border-radius:9px;background:var(--or);display:grid;place-items:center;font-style:normal}
+@media(max-width:820px){.feat{grid-template-columns:1fr}.feat.rev .ft{order:0}}
+
+/* narxlar */
+.prices{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px;align-items:stretch}
+.pc{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:26px;display:flex;flex-direction:column;transition:transform .3s,border-color .3s}
+.pc:hover{transform:translateY(-6px);border-color:var(--line2)}
+.pc .pr{font-weight:800;font-size:38px;letter-spacing:-.02em}
+.pc .pr small{font-size:15px;color:var(--mut);font-weight:500}
+.pc h4{font-size:15px;margin:4px 0 8px}
+.pc p{color:var(--mut);font-size:13.5px;line-height:1.5}
+.pc ul{list-style:none;margin:20px 0;display:grid;gap:10px;font-size:14px}
+.pc li{display:flex;gap:10px;align-items:center}
+.pc li::before{content:"✓";width:18px;height:18px;border-radius:5px;background:var(--or);color:#fff;font-size:11px;display:grid;place-items:center;flex:none}
+.pc .btn{margin-top:auto;justify-content:center}
+.pc.hot{border-color:var(--or);background:linear-gradient(180deg,rgba(255,106,26,.1),var(--card) 40%);box-shadow:0 30px 80px -40px var(--orglow)}
+@media(max-width:860px){.prices{grid-template-columns:1fr}}
+
+/* galereya */
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.gc{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);aspect-ratio:.82;background:#fff}
+.gc img{width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .8s cubic-bezier(.16,1,.3,1)}
+.gc:hover img{transform:scale(1.06)}
+.gc .cap{position:absolute;left:12px;right:12px;bottom:12px;background:rgba(18,18,21,.92);border:1px solid var(--line2);border-radius:14px;padding:12px 14px;transform:translateY(calc(100% + 16px));transition:transform .5s cubic-bezier(.16,1,.3,1)}
+.gc:hover .cap,.gc:focus-within .cap{transform:none}
+.gc .cap b{display:block}.gc .cap small{color:var(--mut);font-size:12.5px}
+@media (hover:none){.gc .cap{transform:none}}
+@media(max-width:820px){.gal{grid-template-columns:1fr 1fr}}@media(max-width:520px){.gal{grid-template-columns:1fr}}
+
+/* yakuniy */
+.fin{position:relative;border:1px solid var(--line2);background:var(--card);border-radius:24px;padding:clamp(24px,4vw,48px);display:grid;grid-template-columns:1fr 1.2fr;gap:32px;align-items:center;overflow:hidden}
+.fin::after{content:"";position:absolute;left:6%;right:6%;bottom:-2px;height:3px;background:linear-gradient(90deg,transparent,var(--or),#ffc27a,var(--or),transparent);box-shadow:0 0 40px 6px var(--orglow)}
+.fin h2{font-weight:800;font-size:clamp(28px,3.6vw,44px);letter-spacing:-.025em;line-height:1.08}
+.fin p{color:var(--mut);margin:14px 0 24px;line-height:1.55}
+.fin img{border-radius:14px;border:1px solid var(--line2);aspect-ratio:16/10;object-fit:cover;object-position:top;transform:translateY(12%) ;box-shadow:0 30px 60px -20px #000}
+@media(max-width:820px){.fin{grid-template-columns:1fr}}
+footer{padding:70px 0 40px;color:var(--mut);font-size:14px}
+footer .wrap{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px}
+footer b{color:#fff;display:block;margin-bottom:12px;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+footer a{display:block;margin:7px 0}footer a:hover{color:#fff}
+footer .big{font-weight:800;font-size:26px;color:#fff;letter-spacing:-.02em;line-height:1.15}
+.copy{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;grid-column:1/-1;font-size:12.5px}
+@media(max-width:760px){footer .wrap{grid-template-columns:1fr 1fr}}
+
+/* paydo bo'lish */
+.rv{opacity:0;transform:translateY(40px);transition:opacity .9s,transform 1s cubic-bezier(.16,1,.3,1);transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv,.fx,.hero h1 span{opacity:1!important;transform:none!important}.sun .disc{opacity:1;transform:translate(-50%,8%)}.dash .fr{transform:none!important}}
+</style>
+</head>
+<body>
+<div class="cur" id="cur"></div>
+<nav id="nav"><div class="wrap">
+  <a class="brand" href="https://bilolsai.uz"><img src="icons/icon-192.png" alt="">Bilols<em>.</em>AI</a>
+  <div class="nl"><a href="#imk">Imkoniyatlar</a><a href="#narx">Narxlar</a><a href="#gal">Ichkaridan</a><a href="https://bilolsai.uz/apk">Ilova</a></div>
+  <a class="btn or" href="https://bilolsai.uz">Kirish →</a>
+</div></nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="badge fx"><b>Yangi</b>Agentlar ofisi · 2 qavat →</div>
+    <h1 id="h1">O'zbekcha sun'iy intellekt. Siz uchun.</h1>
+    <p class="fx">Savol bering, rasm yarating, hujjatni tahlil qildiring, tarjima qiling — Bilols AI o'zbek tilini tushunadi va soniyalar ichida javob beradi.</p>
+    <div class="cta fx"><a class="btn gh" href="#imk">Batafsil ↓</a><a class="btn or" href="https://bilolsai.uz">Bepul boshlash →</a></div>
+  </div>
+  <div class="sun" aria-hidden="true"><div class="halo"></div><div class="disc"></div></div>
+</header>
+
+<div class="dash"><div class="wrap"><div class="fr" id="dash">
+  <div class="bar"><i></i><i></i><i></i><span>bilolsai.uz</span></div>
+  <img src="img/show/w-code.webp" alt="Bilols AI chat oynasi" decoding="async">
+</div></div></div>
+
+<section class="logos"><div class="wrap">Bilols AI ichida ishlaydi
+  <div class="mq"><div class="tr" id="mq"></div></div>
+</div></section>
+
+<section class="sec" id="imk"><div class="wrap">
+  <h2 class="h2 rv">Hammasi bitta joyda</h2>
+  <p class="sub rv">Chat, rasm, hujjat, tarjima va hamyon — sayt, Android va Windows ilovalarida bir xil ishlaydi.</p>
+  <div class="bento">
+    <div class="bx rv"><h3>Hamyon</h3><p>Balansni Click, Payme yoki karta orqali to'ldiring.</p>
+      <div class="bal"><div class="row on">💳 Click · Payme<b>+25 000</b></div><div class="row">🎁 Kunlik bonus<b>+500</b></div><div class="row">👥 Do'st taklifi<b>+2 000</b></div></div></div>
+    <div class="bx rv" style="--d:.1s"><h3>3 til</h3><p>Javoblar o'zbek, rus va ingliz tilida.</p>
+      <div class="langs"><span>UZ</span><span>RU</span><span>EN</span></div>
+      <div class="spark"><div><small>Bepul xabarlar</small><b>30 / kun</b></div><svg viewBox="0 0 110 40"><path d="M2 34 L18 28 L30 31 L44 20 L58 24 L72 12 L86 16 L108 4"/></svg></div></div>
+    <div class="bx tall rv" style="--d:.2s"><div class="funnel"><div class="cone"></div><div class="ico"><img src="icons/icon-192.png" alt=""></div>
+      <h3>Bitta savol — aniq javob</h3><p>Internetdan qidiradi, rasm va hujjatni tushunadi, kerak bo'lsa bir nechta AI modeldan tanlaydi.</p></div></div>
+    <div class="bx rv"><h3>AI rejimlar</h3><p>Vazifaga mos rejimni tanlang.</p>
+      <div class="modes"><span>🤖 Oddiy</span><span>👨‍🏫 O'qituvchi</span><span>💻 Dasturchi</span><span>🌐 Tarjimon</span><span>✍️ Insho</span><span>📝 Imtihon: DTM, IELTS</span></div></div>
+    <div class="bx rv" style="--d:.1s"><h3>Rasm yaratish</h3><p>Matndan rasm — bir bosishda saqlash va ulashish.</p>
+      <div class="stars"><i>🎨</i><i>✨</i><i>🖼️</i></div></div>
+  </div>
+</div></section>
+
+<section class="sec" style="padding-top:20px"><div class="wrap">
+  <h2 class="h2 rv">Kuchli imkoniyatlar</h2>
+  <p class="sub rv">Oddiy suhbatdan tortib, hujjat tahlili va agentlar ofisigacha.</p>
+  <div class="feat">
+    <div class="ft rv"><h3>Ma'lumotlaringiz — xavfsiz qo'lda</h3><p>Hisobingiz parol va Telegram kodi bilan himoyalangan. Kompyuterga QR kod orqali parolsiz kirasiz.</p>
+      <ul><li>Telegram orqali kirish kodi</li><li>Kompyuterda QR bilan kirish</li><li>Suhbatlar faqat sizga ko'rinadi</li></ul></div>
+    <div class="vis rv" style="--d:.15s"><div class="rings"><i style="--k:0"></i><i style="--k:1"></i><i style="--k:2"></i><i style="--k:3"></i></div>
+      <div class="mini"><div><i>💬</i><span>Suhbatlar<small>Hamma qurilmada</small></span></div><div><i>🔐</i><span>Kirish kodi<small>Telegram orqali</small></span></div></div>
+      <svg class="shield" viewBox="0 0 100 120"><defs><linearGradient id="sg" x1="0" x2="1"><stop offset="0" stop-color="#fafafa"/><stop offset=".5" stop-color="#e4e4e7"/><stop offset=".5" stop-color="#a1a1aa"/><stop offset="1" stop-color="#d4d4d8"/></linearGradient></defs><path d="M50 4 L94 20 V58 C94 86 74 106 50 116 C26 106 6 86 6 58 V20 Z" fill="url(#sg)"/></svg></div>
+  </div>
+  <div class="feat rev">
+    <div class="ft rv"><h3>Do'kon va to'lovlar — tez va oson</h3><p>Obuna, Telegram Stars va Premium, rasm yaratish — hammasi bitta hamyondan. Har to'lov tarixda saqlanadi.</p>
+      <ul><li>Click, Payme va karta</li><li>Stars va Premium</li><li>Buyurtmalar tarixi</li></ul></div>
+    <div class="vis rv" style="--d:.15s;perspective:900px"><div class="pill"><i>⚡</i><span>To'lov doim ochiq<br><small style="color:var(--mut)">24/7 avtomatik</small></span></div>
+      <div class="ccard">BILOLS AI<small>•••• •••• •••• 2026</small></div></div>
+  </div>
+</div></section>
+
+<section class="sec" id="narx"><div class="wrap">
+  <h2 class="h2 rv">Narxlar</h2>
+  <p class="sub rv">Bepul boshlang. Ko'proq kerak bo'lsa — obuna yoki faqat ishlatganingiz uchun to'lang.</p>
+  <div class="prices">
+    <div class="pc rv"><div class="pr">0 <small>so'm</small></div><h4>Bepul</h4><p>Har kuni AI bilan suhbat.</p>
+      <ul><li>Kuniga 30 ta xabar</li><li>Kuniga 20 ta internet qidiruv</li><li>Kunlik bonus 500 so'm</li><li>Sayt va ilovalar</li></ul><a class="btn gh" href="https://bilolsai.uz">Boshlash</a></div>
+    <div class="pc hot rv" style="--d:.1s"><div class="pr">25 000 <small>so'm / 30 kun</small></div><h4>Obuna</h4><p>Cheklovsiz — barcha AI agentlar bilan.</p>
+      <ul><li>Cheklovsiz xabarlar</li><li>Barcha AI modellar</li><li>Cheklovsiz internet qidiruv</li><li>30 kun amal qiladi</li></ul><a class="btn or" href="https://bilolsai.uz">Obuna bo'lish</a></div>
+    <div class="pc rv" style="--d:.2s"><div class="pr">1 500 <small>so'm / rasm</small></div><h4>Rasm yaratish</h4><p>Faqat yaratgan rasmingiz uchun to'laysiz.</p>
+      <ul><li>Matndan rasm</li><li>Saqlash va ulashish</li><li>Xato bo'lsa — pul qaytadi</li><li>Hamyondan avtomatik</li></ul><a class="btn gh" href="https://bilolsai.uz">Rasm yaratish</a></div>
+  </div>
+</div></section>
+
+<section class="sec" id="gal" style="padding-top:20px"><div class="wrap">
+  <h2 class="h2 rv">Ichkaridan</h2>
+  <p class="sub rv">Saytdagi haqiqiy ekranlar.</p>
+  <div class="gal">
+    <a class="gc rv" href="https://bilolsai.uz"><img src="img/show/p-image.webp" alt="" loading="lazy" decoding="async"><div class="cap"><b>Rasm yaratish</b><small>Matndan rasm</small></div></a>
+    <a class="gc rv" style="--d:.1s" href="https://bilolsai.uz"><img src="img/show/p-translate.webp" alt="" loading="lazy" decoding="async"><div class="cap"><b>Tarjima</b><small>UZ · RU · EN</small></div></a>
+    <a class="gc rv" style="--d:.2s" href="https://bilolsai.uz"><img src="img/show/p-hub-shop.webp" alt="" loading="lazy" decoding="async"><div class="cap"><b>Hamyon</b><small>Click, Payme, karta</small></div></a>
+  </div>
+</div></section>
+
+<section class="sec" style="padding-top:20px"><div class="wrap">
+  <div class="fin rv"><div><h2>Bilols AI bilan ishingizni tezlashtiring</h2><p>Ro'yxatdan o'tish bir daqiqa. Telegram orqali kod keladi — va boshladingiz.</p>
+    <a class="btn or" href="https://bilolsai.uz">Bepul boshlash →</a></div>
+    <img src="img/show/w-office.webp" alt="Agentlar ofisi" loading="lazy" decoding="async"></div>
+</div></section>
+
+<footer><div class="wrap">
+  <div><div class="big">Bilols AI —<br>o'zbekcha sun'iy intellekt</div></div>
+  <div><b>Sahifalar</b><a href="https://bilolsai.uz">Bosh sahifa</a><a href="#narx">Narxlar</a><a href="https://bilolsai.uz/maxfiylik">Maxfiylik</a></div>
+  <div><b>Ilovalar</b><a href="https://bilolsai.uz/apk">Android</a><a href="https://bilolsai.uz/kompyuter">Windows</a><a href="https://bilolsai.uz/iphone">iPhone</a></div>
+  <div><b>Aloqa</b><a href="https://t.me/BilolsAIbot">Telegram bot</a><a href="https://bilolsai.uz/portfolio">Mening portfoliom</a></div>
+  <div class="copy">© 2026 Bilols AI · bilolsai.uz</div>
+</div></footer>
+
+<script>
+(function(){
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// sarlavha so'zlari birma-bir ko'tariladi
+var h1=document.getElementById('h1');h1.innerHTML=h1.textContent.split(' ').map(function(w,i){return '<span style="transition-delay:'+(i*.08)+'s">'+w+'</span>'}).join(' ');
+requestAnimationFrame(function(){requestAnimationFrame(function(){document.body.classList.add('ld')})});
+// lenta
+var L=[['✦','Gemini'],['✈','Telegram'],['◎','Click'],['◈','Payme'],['▲','Android'],['▣','Windows'],['◆','iPhone'],['∑','KaTeX']],h='';
+for(var k=0;k<2;k++)L.forEach(function(x){h+='<span><i>'+x[0]+'</i>'+x[1]+'</span>'});document.getElementById('mq').innerHTML=h;
+// paydo bo'lish
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.15,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});
+// kursor nuri
+var cur=document.getElementById('cur'),mx=-500,my=-500,cx=mx,cy=my,moving=false;
+if(matchMedia('(hover:hover)').matches&&!reduce){addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;if(!moving){moving=true;requestAnimationFrame(tick)}});}
+function tick(){cx+=(mx-cx)*.12;cy+=(my-cy)*.12;cur.style.transform='translate('+cx+'px,'+cy+'px)';if(Math.abs(mx-cx)+Math.abs(my-cy)>.5)requestAnimationFrame(tick);else moving=false}
+// skroll: menyu foni, dashboard qiyalikdan to'g'rilanadi
+var nav=document.getElementById('nav'),dash=document.getElementById('dash'),tk=false;
+function onScroll(){
+  nav.classList.toggle('sc',scrollY>20);
+  if(reduce)return;
+  var r=dash.getBoundingClientRect(),vh=innerHeight,p=Math.min(1,Math.max(0,(vh-r.top)/(vh*.85)));
+  dash.style.transform='rotateX('+((1-p)*22).toFixed(2)+'deg) scale('+(.92+p*.08).toFixed(3)+') translateY('+((1-p)*40).toFixed(1)+'px)';
+}
+addEventListener('scroll',function(){if(!tk){tk=true;requestAnimationFrame(function(){onScroll();tk=false})}},{passive:true});
+addEventListener('resize',onScroll);onScroll();
+})();
+</script>
+</body>
+</html>
