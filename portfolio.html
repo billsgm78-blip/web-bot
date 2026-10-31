@@ -426,33 +426,16 @@ function onScroll(){
   hzT.style.transform='translate3d('+(-hp*Math.max(0,max))+'px,0,0)';
   var idx=Math.min(shots,Math.floor(hp*shots)+1);hzP.textContent=(idx<10?'0':'')+idx+' / '+shots;
 }
-/* ambient music — synthesized in the browser, starts only on click */
-var sb=document.getElementById('snd'),sT=document.getElementById('sndT'),ac=null,master=null,timer=null,step=0;
-var CH=[[57,64,67,71,74],[53,60,64,67,72],[48,55,59,64,67],[55,62,66,69,74]]; // Am9 Fmaj7 Cmaj7 G6/9
-function mtof(n){return 440*Math.pow(2,(n-69)/12)}
-function initAudio(){
-  ac=new (window.AudioContext||window.webkitAudioContext)();
-  master=ac.createGain();master.gain.value=0;
-  var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2200;
-  var len=ac.sampleRate*3.5,ir=ac.createBuffer(2,len,ac.sampleRate);
-  for(var ch=0;ch<2;ch++){var d=ir.getChannelData(ch);for(var i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
-  var rev=ac.createConvolver();rev.buffer=ir;var wet=ac.createGain();wet.gain.value=.55;
-  master.connect(lp);lp.connect(ac.destination);lp.connect(rev);rev.connect(wet);wet.connect(ac.destination);
-}
-function voice(f,t,d,type,v){var o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;o.detune.value=(Math.random()-.5)*10;
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+Math.min(1.6,d*.35));g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.1)}
-function playBar(){var t=ac.currentTime+.05,c=CH[step%CH.length],BAR=4.8;
-  voice(mtof(c[0]-12),t,BAR+1.5,'sine',.16);
-  c.forEach(function(n){voice(mtof(n),t,BAR+1.2,'triangle',.028)});
-  for(var k=0;k<6;k++)if(Math.random()<.7)voice(mtof(c[(k*2+step)%c.length]+12),t+k*.8,2.4,'sine',.045);
-  step++}
+/* music — audio/portfolio.mp3, starts only on click, fades in/out, loops */
+var sb=document.getElementById('snd'),sT=document.getElementById('sndT'),au=null,fade=null;
+function fadeTo(v,ms,done){clearInterval(fade);var from=au.volume,t0=performance.now();
+  fade=setInterval(function(){var p=Math.min(1,(performance.now()-t0)/ms);au.volume=from+(v-from)*p;if(p>=1){clearInterval(fade);done&&done()}},30)}
 function setSound(on){
-  if(on&&!ac)initAudio();
+  if(on&&!au){au=new Audio('audio/portfolio.mp3');au.loop=true;au.preload='auto';au.volume=0}
   sb.classList.toggle('on',on);sb.setAttribute('aria-pressed',on);sT.textContent=on?'Ovoz: yoqiq':"Ovoz: o'chiq";
-  if(!ac)return;var t=ac.currentTime;master.gain.cancelScheduledValues(t);master.gain.setValueAtTime(master.gain.value,t);
-  if(on){ac.resume();master.gain.linearRampToValueAtTime(.9,t+2);if(!timer){playBar();timer=setInterval(playBar,4800)}}
-  else{master.gain.linearRampToValueAtTime(0,t+.8);clearInterval(timer);timer=null}
+  if(!au)return;
+  if(on){var pr=au.play();if(pr&&pr.catch)pr.catch(function(){sb.classList.remove('on');sb.setAttribute('aria-pressed',false);sT.textContent="Ovoz: o'chiq"});fadeTo(.8,1500)}
+  else fadeTo(0,700,function(){au.pause()})
 }
 sb.addEventListener('click',function(){setSound(!sb.classList.contains('on'))});
 document.addEventListener('visibilitychange',function(){if(document.hidden&&sb.classList.contains('on'))setSound(false)});
