@@ -441,6 +441,13 @@ select.inp option { background: #12151c; color: var(--text); }
 .ld-v.ok { background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.4); }
 .ld-v.warn { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.4); }
 .ld-v.bad { background: rgba(244,63,94,.1); border: 1px solid rgba(244,63,94,.45); }
+.ld-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+.ld-code { display: grid; grid-template-columns: 56px 1fr auto; gap: 10px; align-items: center; padding: 9px 10px; border-radius: 10px; margin-top: 6px; font-size: 13px; background: rgba(255,255,255,.03); }
+.ld-code b { font-size: 16px; } .ld-code i { font-style: normal; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ld-code.g b { color: #34d399; } .ld-code.s b { color: #60a5fa; } .ld-code.b b { color: #fb7185; }
+.ld-row { display: grid; grid-template-columns: 48px 44px 70px 56px 1fr; gap: 8px; padding: 6px 4px; border-bottom: 1px solid var(--line); font: 12.5px ui-monospace, Menlo, monospace; color: var(--muted); }
+.ld-row b.g { color: #34d399; } .ld-row b.b { color: #fb7185; } .ld-row .m { color: #93c5fd; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 860px) { .ld-two { grid-template-columns: 1fr; } }
 .ld-v.shield { background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.45); }
 @media (max-width: 760px) { .ld-grid { grid-template-columns: 1fr 1fr; } }
 .ag-office canvas:hover { filter: brightness(1.06); }
@@ -2521,9 +2528,10 @@ select.inp option { background: #12151c; color: var(--text); }
     var LOAD = { run: 0 };
     function vLoad(view) {
         view.innerHTML = '';
-        var opt = { target: 'site', conc: 10, dur: 10 };
+        var opt = { target: 'site', conc: 10, dur: 10 }, paints = [];
         function seg(list, key) {
             var box = h('div', { class: 'seg' });
+            paints.push(paint);
             function paint() { box.innerHTML = ''; list.forEach(function (x) { box.appendChild(h('button', { class: opt[key] === x[0] ? 'active' : '', text: x[1], onclick: function () { if (LOAD.busy) return; opt[key] = x[0]; paint(); } })); }); }
             paint(); return box;
         }
@@ -2537,22 +2545,29 @@ select.inp option { background: #12151c; color: var(--text); }
         view.appendChild(h('div', { class: 'card form' }, [
             h('div', { class: 'sum', text: "Sayt yoki bot serveriga bir vaqtda ko'p so'rov yuborib, qanchalik tez va barqaror javob berishini o'lchaydi. So'rovlar shu brauzerdan ketadi." }),
             h('div', { class: 'lb' }, ['Nishon', seg([['site', '🌐 Sayt (Vercel)'], ['api', '🖥 Bot serveri (Render)']], 'target')]),
-            h('div', { class: 'lb' }, ["Bir vaqtda nechta so'rov", seg([[5, '5'], [10, '10'], [25, '25'], [50, '50']], 'conc')]),
-            h('div', { class: 'lb' }, ['Davomiyligi', seg([[10, '10 s'], [20, '20 s'], [30, '30 s']], 'dur')]),
+            h('div', { class: 'lb' }, ["Bir vaqtda nechta so'rov (bot serveri uchun ko'pi bilan 50)", seg([[5, '5'], [10, '10'], [25, '25'], [50, '50'], [100, '100'], [200, '200']], 'conc')]),
+            h('div', { class: 'lb' }, ['Davomiyligi', seg([[10, '10 s'], [20, '20 s'], [30, '30 s'], [60, '60 s']], 'dur')]),
             h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap' }, [startBtn, stopBtn])
         ]));
         view.appendChild(h('div', { class: 'ld-grid' }, Object.keys(T).map(function (k) { return T[k].el; })));
         view.appendChild(h('div', { class: 'card' }, [h('div', { class: 'sum', text: "Grafik: to'q sariq — soniyasiga so'rovlar, ko'k — o'rtacha javob vaqti (ms), qizil — xatolar" }), cv]));
         view.appendChild(verdict);
+        // qanday javoblar keldi: kodlar jadvali va oxirgi javoblar
+        var codesBox = h('div', { class: 'ld-codes' }), lastBox = h('div', { class: 'ld-last' });
+        view.appendChild(h('div', { class: 'ld-two' }, [
+            h('div', { class: 'card' }, [h('div', { class: 'sum', text: 'Javob kodlari' }), codesBox]),
+            h('div', { class: 'card' }, [h('div', { class: 'sum', text: 'Oxirgi javoblar' }), lastBox])]));
         stopBtn.onclick = function () { LOAD.run++; };
         startBtn.onclick = async function () {
             if (LOAD.busy) return;
+            if (opt.target === 'api' && opt.conc > 50) { opt.conc = 50; toast("Bot serveri uchun 50 tagacha — server ishdan chiqmasin"); paints.forEach(function (f) { f(); }); }
             if (opt.target === 'api' && !await dialog({ title: '⚡ Bot serveriga yuklama', text: "Bot serveri bepul tarifdagi bitta kichik server. Test paytida haqiqiy foydalanuvchilar uchun sekinlashishi mumkin. " + opt.conc + " ta parallel so'rov, " + opt.dur + " soniya. Davom etamizmi?", ok: 'Boshlash', danger: true })) return;
+            if (opt.target === 'site' && opt.conc >= 100 && !await dialog({ title: '⚡ Katta yuklama', text: opt.conc + " ta parallel so'rov sizning internetingizni ham to'ldiradi va Vercel himoyasi IP'ingizni bir necha daqiqaga bloklashi mumkin (shu vaqt sayt sizga ochilmaydi). Davom etamizmi?", ok: 'Boshlash', danger: true })) return;
             run();
         };
         async function run() {
             var my = ++LOAD.run; LOAD.busy = true; startBtn.style.display = 'none'; stopBtn.style.display = ''; verdict.className = 'ld-v'; verdict.textContent = '';
-            var tg = TG[opt.target], lat = [], n = 0, ok = 0, err = 0, codes = {}, t0 = performance.now(), end = t0 + opt.dur * 1000, sec = [], maxL = 0;
+            var tg = TG[opt.target], lat = [], n = 0, ok = 0, err = 0, codes = {}, t0 = performance.now(), end = t0 + opt.dur * 1000, sec = [], maxL = 0, last = [];
             function bucket() { var i = Math.floor((performance.now() - t0) / 1000); while (sec.length <= i) sec.push({ n: 0, e: 0, ms: 0 }); return sec[i]; }
             function paint() {
                 var el = (performance.now() - t0) / 1000, sorted = lat.slice().sort(function (a, b) { return a - b; });
@@ -2561,18 +2576,21 @@ select.inp option { background: #12151c; color: var(--text); }
                 T.p95.set(sorted.length ? Math.round(sorted[Math.floor(sorted.length * .95)] || sorted[sorted.length - 1]) + ' ms' : '—'); T.max.set(maxL ? Math.round(maxL) + ' ms' : '—');
                 T.left.set(Math.max(0, Math.ceil((end - performance.now()) / 1000)) + ' s');
                 drawChart(cv, sec, opt.dur);
+                paintCodes(codesBox, codes, n); paintLast(lastBox, last);
             }
             async function worker(w) {
                 var i = 0;
                 while (my === LOAD.run && performance.now() < end) {
-                    var b = bucket(), s0 = performance.now(), good = false;
+                    var b = bucket(), s0 = performance.now(), good = false, rec = { code: 'tarmoq', kb: 0, cache: '', mit: '' };
                     try {
                         var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 15000);
                         var r = await fetch(tg.url(w + '-' + (i++)), { cache: 'no-store', signal: ctl.signal });
-                        await r.arrayBuffer(); clearTimeout(to);
+                        var buf = await r.arrayBuffer(); clearTimeout(to);
                         good = r.ok; codes[r.status] = (codes[r.status] || 0) + 1;
+                        rec = { code: r.status, kb: buf.byteLength / 1024, cache: r.headers.get('x-vercel-cache') || '', mit: r.headers.get('x-vercel-mitigated') || '' };
                     } catch (e) { codes.tarmoq = (codes.tarmoq || 0) + 1; }
                     var ms = performance.now() - s0; n++; b.n++; b.ms += ms; maxL = Math.max(maxL, ms);
+                    rec.ms = ms; rec.t = (performance.now() - t0) / 1000; last.push(rec); if (last.length > 14) last.shift();
                     if (good) { ok++; lat.push(ms); } else { err++; b.e++; }
                 }
             }
@@ -2593,6 +2611,28 @@ select.inp option { background: #12151c; color: var(--text); }
                 (n / Math.max(1, opt.dur)).toFixed(1) + " so'rov/s, 95% so'rov " + Math.round(p95) + ' ms dan tez, xatolar ' + Math.round(er * 100) + '%.' + (codeTxt ? '\nJavob kodlari — ' + codeTxt : '');
             try { admin('ping'); } catch (e) {}
         }
+    }
+    var CODE_MEAN = { 200: "Muvaffaqiyatli — sahifa to'liq keldi", 204: 'Muvaffaqiyatli (bo\'sh javob)', 301: 'Boshqa manzilga yo\'naltirildi', 304: "O'zgarmagan (keshdan)",
+        400: "Noto'g'ri so'rov", 401: 'Kirish kerak', 403: "Himoya blokladi — bitta IP'dan juda ko'p so'rov (hujum deb hisoblandi)", 404: 'Topilmadi',
+        429: "Juda ko'p so'rov — tezlik cheklovi ishladi", 500: 'Serverda ichki xato', 502: "Server javobi buzildi (shlyuz xatosi)", 503: "Server band yoki ishlamayapti", 504: "Server o'z vaqtida javob bermadi",
+        tarmoq: "Ulanish uzildi yoki 15 soniyada javob kelmadi" };
+    function paintCodes(box, codes, n) {
+        box.innerHTML = '';
+        Object.keys(codes).sort().forEach(function (c) {
+            var v = codes[c], good = /^2|^304/.test(c), shield = c === '403' || c === '429';
+            box.appendChild(h('div', { class: 'ld-code ' + (good ? 'g' : shield ? 's' : 'b') }, [
+                h('b', { text: c === 'tarmoq' ? '—' : c }), h('span', { text: CODE_MEAN[c] || 'Boshqa javob' }), h('i', { text: v + ' · ' + Math.round(v / Math.max(1, n) * 100) + '%' })]));
+        });
+        if (!box.children.length) box.appendChild(h('div', { class: 'sum', text: 'Hali javob yo\'q' }));
+    }
+    function paintLast(box, last) {
+        box.innerHTML = '';
+        last.slice().reverse().forEach(function (r) {
+            var good = /^2|^304/.test(String(r.code));
+            box.appendChild(h('div', { class: 'ld-row' }, [h('span', { text: r.t.toFixed(1) + ' s' }), h('b', { class: good ? 'g' : 'b', text: String(r.code) }),
+                h('span', { text: Math.round(r.ms) + ' ms' }), h('span', { text: r.kb ? r.kb.toFixed(0) + ' KB' : '—' }),
+                h('span', { class: 'm', text: [r.cache && ('kesh: ' + r.cache), r.mit && ('himoya: ' + r.mit)].filter(Boolean).join(' · ') || '' })]));
+        });
     }
     function drawChart(cv, sec, dur) {
         var w = cv.clientWidth || 900, hh = 220, dpr = Math.min(2, window.devicePixelRatio || 1);
