@@ -188,6 +188,7 @@ if (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'Mac
     fetch(API, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
         clearTimeout(t);
         var a = j && j.apk; show(!!(a && a.on), a && a.msg);
+        if (j && j.lockAll) { var sm = document.querySelector('#maint small'); if (sm) sm.hidden = true; }   // sayt ham yopiq — saytga yo'naltirmaymiz
         autoStart(!!(a && a.on));
     }).catch(function () { clearTimeout(t); show(false); });
 })();

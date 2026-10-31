@@ -72,6 +72,18 @@ input, textarea, select { font-family: inherit; color: var(--text); }
 .chip { padding: 7px 12px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); font-size: 12.5px; }
 .icon-btn { height: 38px; padding: 0 14px; border-radius: 11px; border: 1px solid var(--line2); background: rgba(255,255,255,0.04); color: var(--text); font-size: 13.5px; font-weight: 600; }
 .icon-btn:hover { background: rgba(255,255,255,0.08); }
+/* 🚨 Tashvish */
+.panic-btn { border-color: rgba(244,63,94,0.55); background: rgba(244,63,94,0.14); color: #fecdd3; }
+.panic-btn:hover { background: rgba(244,63,94,0.26); }
+.panic-btn.on { background: #e11d48; border-color: #fb7185; color: #fff; animation: panicPulse 1.4s ease-in-out infinite; }
+@keyframes panicPulse { 50% { box-shadow: 0 0 0 6px rgba(244,63,94,0.25); } }
+#panic-bar { display: none; align-items: center; gap: 14px; margin: 0 0 16px; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(244,63,94,0.55); background: rgba(244,63,94,0.1); }
+#panic-bar.on { display: flex; }
+#panic-bar .t { flex: 1; min-width: 0; font-size: 13.5px; line-height: 1.45; }
+#panic-bar .t b { display: block; color: #fda4af; font-size: 14.5px; margin-bottom: 2px; }
+#panic-bar .t span { color: var(--muted); word-break: break-word; }
+#panic-bar .btn { width: auto; height: 40px; padding: 0 16px; flex-shrink: 0; }
+@media (max-width: 600px) { #panic-bar { flex-direction: column; align-items: stretch; } #panic-bar .btn { width: 100%; } }
 .mobile-tabs { display: none; }
 
 .grid { display: grid; gap: 12px; }
@@ -521,11 +533,13 @@ select.inp option { background: #12151c; color: var(--text); }
             <div class="top">
                 <h2 id="page-title">Statistika</h2>
                 <div class="right">
+                    <button class="icon-btn panic-btn" id="panic-btn" title="Tashvish: hammasini to'xtatish">🚨<span class="lbl"> Tashvish</span></button>
                     <span class="chip" id="session-chip">Sessiya faol</span>
                     <button class="icon-btn" id="refresh" title="Yangilash">↻<span class="lbl"> Yangilash</span></button>
                     <button class="icon-btn" id="logout-top">Chiqish</button>
                 </div>
             </div>
+            <div id="panic-bar" role="alert"><div class="t"><b>🚨 Tashvish rejimi yoqiq</b><span id="panic-text"></span></div><button class="btn danger" id="panic-off">🟢 Hammasini ochish</button></div>
             <div class="mobile-tabs" id="nav-mobile"></div>
             <div id="view"></div>
         </main>
@@ -825,8 +839,39 @@ select.inp option { background: #12151c; color: var(--text); }
             if (j.supportUnread !== supportUnread || j.pendingOrders !== pendingCount) { supportUnread = j.supportUnread; pendingCount = j.pendingOrders; buildNav(); }
             if (supportUnread > prevU) toast('💬 Yangi murojaat keldi');
             if (tab === 'support' && supportUnread > prevU) supRefresh();
+            if (j.panic) paintPanic(j.panic);
         } catch (e) {}
     }
+
+    // ---------- 🚨 Tashvish: bir bosishda sayt, ilova va APK yuklash to'xtaydi ----------
+    var panic = { on: false };
+    function paintPanic(p) {
+        panic = p || { on: false };
+        var b = $('panic-btn');
+        b.classList.toggle('on', !!panic.on);
+        b.querySelector('.lbl').textContent = panic.on ? ' Tashvish yoqiq' : ' Tashvish';
+        $('panic-bar').classList.toggle('on', !!panic.on);
+        if (panic.on) $('panic-text').textContent = 'Sayt, Android ilova va APK yuklash to\'xtatilgan' + (panic.by === 'agent' ? ' (AI agent yoqdi)' : '') +
+            (panic.at ? ' · ' + fmtDate(panic.at) : '') + '. Ekranda: «' + (panic.title || '') + '» — ' + (panic.msg || '');
+    }
+    async function panicOff() {
+        if (!await dialog({ title: '🟢 Tashvishni o\'chirish', text: "Sayt, ilova va APK yuklash tashvishdan oldingi holatiga qaytadi.", ok: 'Hammasini ochish' })) return;
+        var x = await admin('panic_set', { on: false });
+        if (x.success) { paintPanic(x.panic); toast('🟢 Hammasi ochildi'); if (tab === 'control') go('control'); } else toast(x.error || 'Xato');
+    }
+    async function panicOn() {
+        var d = panic.defaults || {};
+        var v = await dialog({ title: '🚨 Tashvish', text: "Sayt, Android ilova va APK yuklash darhol to'xtaydi. Foydalanuvchilar ekranida quyidagi yozuv chiqadi:",
+            fields: [{ label: 'Sarlavha', value: panic.title || d.title || "Vaqtincha to'xtatildi" },
+                     { label: 'Sabab (ekranda chiqadi)', multiline: true, value: panic.msg || '', placeholder: d.msg || '' }],
+            ok: 'Davom etish', danger: true });
+        if (!v) return;
+        if (!await dialog({ title: 'Aniqmi?', text: 'Hamma joy hozir to\'xtaydi.\n\n' + (v[0] || d.title || '') + '\n' + (v[1] || d.msg || ''), ok: 'Ha, to\'xtat', danger: true })) return;
+        var x = await admin('panic_set', { on: true, title: v[0], msg: v[1] });
+        if (x.success) { paintPanic(x.panic); toast('🚨 Tashvish yoqildi — hammasi to\'xtatildi'); if (tab === 'control') go('control'); } else toast(x.error || 'Xato');
+    }
+    $('panic-btn').onclick = function () { panic.on ? panicOff() : panicOn(); };
+    $('panic-off').onclick = panicOff;
     function startPing() { clearInterval(pingTimer); ping(); pingTimer = setInterval(ping, 4000); }
     // panel yopilsa yoki boshqa ilovaga o'tilsa — saytda darhol "oflayn"
     function goOffline() {
