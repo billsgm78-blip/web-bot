@@ -441,6 +441,7 @@ select.inp option { background: #12151c; color: var(--text); }
 .ld-v.ok { background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.4); }
 .ld-v.warn { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.4); }
 .ld-v.bad { background: rgba(244,63,94,.1); border: 1px solid rgba(244,63,94,.45); }
+.ld-v.shield { background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.45); }
 @media (max-width: 760px) { .ld-grid { grid-template-columns: 1fr 1fr; } }
 .ag-office canvas:hover { filter: brightness(1.06); }
 /* ofis kattalashtirilgan oyna va 2-qavat oynasi */
@@ -2580,10 +2581,15 @@ select.inp option { background: #12151c; color: var(--text); }
             clearInterval(timer); paint();
             LOAD.busy = false; startBtn.style.display = ''; stopBtn.style.display = 'none';
             var er = n ? err / n : 1, sorted = lat.slice().sort(function (a, b) { return a - b; }), p95 = sorted.length ? sorted[Math.floor(sorted.length * .95)] || 0 : 0;
-            var cls = er > .05 || p95 > 3000 ? 'bad' : er > .01 || p95 > 1200 ? 'warn' : 'ok';
+            var blocked = (codes[403] || 0) + (codes[429] || 0), realErr = n ? (err - blocked) / n : 1;
+            var cls = n && blocked / n > .2 ? 'shield' : er > .05 || p95 > 3000 ? 'bad' : er > .01 || p95 > 1200 ? 'warn' : 'ok';
             var codeTxt = Object.keys(codes).map(function (c) { return c + ': ' + codes[c]; }).join(', ');
-            verdict.className = 'ld-v ' + cls;
-            verdict.textContent = (cls === 'ok' ? '✅ Barqaror: ' : cls === 'warn' ? '⚠️ Biroz qiynaldi: ' : '🔴 Qiynalyapti: ') + tg.name + ' ' + opt.conc + " ta parallel so'rovda " +
+            verdict.className = 'ld-v ' + (cls === 'shield' ? 'ok shield' : cls);
+            verdict.textContent = cls === 'shield'
+                ? "🛡 Himoya ishladi: " + tg.name + " " + blocked + " ta so'rovni " + (codes[429] ? '429' : '403') + " bilan rad etdi — bitta IP'dan juda ko'p so'rov kelgani uchun uni hujum deb bilib, vaqtincha blokladi. Sayt yiqilmagan." +
+                  "\nBlokdan oldin: " + ok + " ta muvaffaqiyatli so'rov, 95% " + Math.round(p95) + " ms dan tez; boshqa xatolar " + Math.max(0, Math.round(realErr * 100)) + "%." +
+                  "\nJavob vaqti sizning internetingizga ham bog'liq (har so'rov sahifani to'liq yuklaydi). Blok bir necha daqiqada o'zi ochiladi." + (codeTxt ? '\nJavob kodlari — ' + codeTxt : '')
+                : (cls === 'ok' ? '✅ Barqaror: ' : cls === 'warn' ? '⚠️ Biroz qiynaldi: ' : '🔴 Qiynalyapti: ') + tg.name + ' ' + opt.conc + " ta parallel so'rovda " +
                 (n / Math.max(1, opt.dur)).toFixed(1) + " so'rov/s, 95% so'rov " + Math.round(p95) + ' ms dan tez, xatolar ' + Math.round(er * 100) + '%.' + (codeTxt ? '\nJavob kodlari — ' + codeTxt : '');
             try { admin('ping'); } catch (e) {}
         }
