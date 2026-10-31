@@ -198,7 +198,6 @@ section{position:relative}
 .lb-cert img{max-width:min(1400px,100%);max-height:88vh;border-radius:12px;box-shadow:0 30px 80px rgba(0,0,0,.6);transform:scale(.94);transition:transform .4s cubic-bezier(.16,1,.3,1)}
 .lb-cert.on img{transform:none}
 .lb-cert .x{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:none;color:#fff;font-size:18px;cursor:pointer}
-.lb-cert a{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:14px;border-bottom:1px solid currentColor;color:#fff}
 
 /* contact */
 .contact{min-height:100svh;padding:clamp(90px,14vh,160px) var(--pad) 32px;display:flex;flex-direction:column;justify-content:space-between;background:radial-gradient(120% 80% at 50% 120%,rgba(245,181,68,.22),transparent 60%)}
@@ -406,19 +405,19 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;color:
   <div class="lbl">Sertifikatlar</div>
   <h2 class="big-h rv">O'qishdan to'xtamayman</h2>
   <div class="cert-g">
-    <a class="cert rv" href="img/cert/google-genai.webp" data-verify="https://coursera.org/verify/R6WKHIFLSHVX">
+    <a class="cert rv" href="img/cert/google-genai.webp">
       <div class="ph"><img src="img/cert/google-genai-sm.webp" alt="Google Cloud — Introduction to Generative AI sertifikati" loading="lazy" decoding="async"></div>
       <span class="ok">✓ Coursera tasdiqlagan</span>
-      <div class="meta"><div><b>Introduction to Generative AI</b><small>Google Cloud · Coursera · 2025-yil fevral</small></div><span class="badge">Google Cloud</span></div>
+      <div class="meta"><div><b>Introduction to Generative AI</b><small>Google Cloud · Coursera · 2026-yil oktyabr</small></div><span class="badge">Google Cloud</span></div>
     </a>
-    <a class="cert rv" style="transition-delay:.1s" href="img/cert/scrimba-ai-apps.webp" data-verify="https://coursera.org/verify/9V6A7YG6B2U2">
+    <a class="cert rv" style="transition-delay:.1s" href="img/cert/scrimba-ai-apps.webp">
       <div class="ph"><img src="img/cert/scrimba-ai-apps-sm.webp" alt="Scrimba — Build AI Apps with ChatGPT, DALL-E and GPT-4 sertifikati" loading="lazy" decoding="async"></div>
       <span class="ok">✓ Coursera tasdiqlagan</span>
-      <div class="meta"><div><b>Build AI Apps with ChatGPT, DALL·E and GPT-4</b><small>Scrimba · Coursera · 2025-yil noyabr</small></div><span class="badge">Scrimba</span></div>
+      <div class="meta"><div><b>Build AI Apps with ChatGPT, DALL·E and GPT-4</b><small>Scrimba · Coursera · 2026-yil oktyabr</small></div><span class="badge">Scrimba</span></div>
     </a>
   </div>
 </section>
-<div class="lb-cert" id="lbCert" role="dialog" aria-label="Sertifikat"><button class="x" type="button" aria-label="Yopish">✕</button><img alt=""><a target="_blank" rel="noopener">Coursera'da tekshirish ↗</a></div>
+<div class="lb-cert" id="lbCert" role="dialog" aria-label="Sertifikat"><button class="x" type="button" aria-label="Yopish">✕</button><img alt=""></div>
 
 <section class="contact" id="contact">
   <div>
@@ -481,8 +480,8 @@ function draw(t){if(!reduce)requestAnimationFrame(draw);if(t-lastT<33||!document
 requestAnimationFrame(draw);
 
 /* sertifikatni katta ko'rish */
-var lb=document.getElementById('lbCert'),lbImg=lb.querySelector('img'),lbA=lb.querySelector('a');
-document.querySelectorAll('.cert').forEach(function(c){c.addEventListener('click',function(e){e.preventDefault();lbImg.src=c.getAttribute('href');lbImg.alt=c.querySelector('img').alt;lbA.href=c.dataset.verify;lb.classList.add('on')})});
+var lb=document.getElementById('lbCert'),lbImg=lb.querySelector('img');
+document.querySelectorAll('.cert').forEach(function(c){c.addEventListener('click',function(e){e.preventDefault();lbImg.src=c.getAttribute('href');lbImg.alt=c.querySelector('img').alt;lb.classList.add('on')})});
 function lbClose(){lb.classList.remove('on')}
 lb.addEventListener('click',function(e){if(e.target===lb||e.target.classList.contains('x'))lbClose()});
 addEventListener('keydown',function(e){if(e.key==='Escape')lbClose()});
