@@ -9996,10 +9996,11 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         };
         return true;
     }
+    function downDone(a) { a.scene = 'office'; a.up = null; a.goingDown = false; a.x = STAIR.x; a.y = STAIR.y; a.path = [{ x: STAIR.x, y: CORR }]; a.st = 'walk'; a.next = 'idle'; a.until = .2; }
     function goDown(a) {
-        a.goingDown = true;
+        a.goingDown = true; a.next = 'idle';            // eski "uxlash" niyati zinaga olib ketilmaydi
         a.path = [{ x: a.x, y: UCOR }, { x: UARR.x, y: UCOR }, { x: UARR.x, y: UARR.y }]; a.st = 'walk';
-        a.arrive = function () { a.scene = 'office'; a.up = null; a.goingDown = false; a.x = STAIR.x; a.y = STAIR.y; a.path = [{ x: STAIR.x, y: CORR }]; a.st = 'walk'; a.next = 'idle'; a.until = .2; };
+        a.arrive = function () { downDone(a); };
     }
     function sleepAll() {                              // hamma emas — 2–3 ta xohlagan (tasodifiy) agent tepaga chiqib uxlaydi
         if (meet) endMeeting();
@@ -10038,7 +10039,11 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
                 return;
             }
             if (a.panic) { if (a.st === 'panic') panicRun(a); return; }   // vahima: tinmay yuguradi
-            if (a.scene === 'up') { if (!a.goingDown) { a.until -= dt; if (a.until <= 0) goDown(a); } return; }   // 2-qavatda
+            if (a.scene === 'up') {                                 // 2-qavatda
+                if (a.goingDown) { downDone(a); return; }           // zinaga yetdi-yu, pastga o'tmay qolgan bo'lsa — tushirib yuboriladi
+                if (a.st === 'sleep' && a.up && Math.hypot(a.x - a.up.x, a.y - a.up.y) > 2) { a.path = [{ x: a.x, y: UCOR }, { x: a.up.x, y: UCOR }, { x: a.up.x, y: a.up.y }]; a.st = 'walk'; a.next = 'sleep'; return; }   // karavotdan tashqarida uxlamaydi
+                a.until -= dt; if (a.until <= 0) goDown(a); return;
+            }
             if (a.scene === 'db' || a.toDb || a.meet) return;        // bazada yoki majlisda
             if (a.fixed) { if (a.st !== 'cam') { a.next = 'cam'; goTo(a, CAM_SEAT); } return; }   // kameraman joyiga qaytadi
             a.until -= dt;
@@ -10106,7 +10111,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     function roomPath(sp) { return [{ x: 166, y: 44 }].concat(sp.via, [{ x: sp.x, y: sp.y }]); }   // eshikdan kirgandan keyingi yo'l
     function startMeeting(force) {
         var boss = agents[0];
-        if (force && boss.arrive) { boss.arrive = null; boss.run = false; }               // tugma bosilsa — Bilol hozirgi ishini qoldiradi
+        if (force && boss.arrive && boss.scene === 'office' && !boss.toUp) { boss.arrive = null; boss.run = false; }   // tugma bosilsa — Bilol hozirgi ishini qoldiradi (zinadagi yo'lini emas)
         if (dbPower !== 'on' || (reduce && !force) || boss.scene !== 'office' || boss.toDb || boss.arrive) return;
         var who = agents.filter(function (a) { return a.scene === 'office' && !a.toDb && (force || !a.task) && !a.arrive; });
         if (who.length < 3 || who.indexOf(boss) < 0) return;
