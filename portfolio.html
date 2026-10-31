@@ -11,6 +11,9 @@
 <meta name="theme-color" content="#07070a">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="preload" href="app/fonts/outfit-800.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 @font-face{font-family:Outfit;font-weight:500;font-display:swap;src:url(app/fonts/outfit-500.woff2) format("woff2")}
 @font-face{font-family:Outfit;font-weight:800;font-display:swap;src:url(app/fonts/outfit-800.woff2) format("woff2")}
@@ -33,12 +36,34 @@ img{display:block;max-width:100%}
   animation:grain 1s steps(6) infinite}
 @keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-4%,3%)}40%{transform:translate(3%,-5%)}60%{transform:translate(-6%,-2%)}80%{transform:translate(5%,4%)}100%{transform:translate(0,0)}}
 
-/* preloader */
-.pre{position:fixed;inset:0;z-index:100;background:#000;display:flex;flex-direction:column;justify-content:space-between;padding:var(--pad);transition:transform 1s cubic-bezier(.76,0,.24,1)}
-.pre.done{transform:translateY(-100%)}
-.pre-top{display:flex;justify-content:space-between;color:var(--mut);font-size:13px;letter-spacing:.2em;text-transform:uppercase}
-.pre-num{font-weight:800;font-size:clamp(90px,22vw,320px);line-height:.8;letter-spacing:-.05em;align-self:flex-end;font-variant-numeric:tabular-nums}
-.pre-bar{position:absolute;left:0;bottom:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+/* access gate */
+.pre{position:fixed;inset:0;z-index:100;background:radial-gradient(60% 45% at 50% 30%,#0b1622,#04060a 70%,#000);display:flex;align-items:center;justify-content:center;padding:var(--pad);font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;color:#e6edf3;transition:opacity .9s,transform 1.1s cubic-bezier(.76,0,.24,1)}
+.pre.done{opacity:0;transform:scale(1.04);pointer-events:none}
+.pre::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px)}
+.gate{position:relative;width:min(560px,100%);border:1px solid rgba(255,255,255,.09);background:rgba(3,5,8,.7);padding:clamp(34px,6vw,52px) clamp(20px,5vw,44px);text-align:center;opacity:0;transform:translateY(16px);animation:gin 1s .2s forwards}
+@keyframes gin{to{opacity:1;transform:none}}
+.gate::before,.gate::after{content:"";position:absolute;width:20px;height:20px;border:2px solid #4fa3b8}
+.gate::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
+.gate::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
+.g-k{font-size:11px;letter-spacing:.45em;color:#6b7680;text-transform:uppercase}
+.g-t{font-weight:600;font-size:clamp(19px,4.4vw,30px);letter-spacing:.12em;margin:26px 0 16px;white-space:nowrap}
+.g-t i{font-style:normal;color:#4fa3b8;margin:0 .35em}
+.g-st{font-size:12px;letter-spacing:.32em;color:#9aa4ad;margin-top:24px}
+.g-st b{font-weight:600;color:#f06a6a;transition:color .3s}
+.g-st b.ok{color:#4ade80}
+.g-line{position:relative;height:1px;background:rgba(255,255,255,.08);margin:34px 0;overflow:hidden}
+.g-line::after{content:"";position:absolute;top:0;left:-40%;width:40%;height:100%;background:linear-gradient(90deg,transparent,#4fa3b8,transparent);animation:scan 2.4s ease-in-out infinite}
+.g-line span{position:absolute;left:0;top:0;height:100%;width:0;background:#4fa3b8;box-shadow:0 0 12px #4fa3b8;transition:width .25s}
+@keyframes scan{to{left:100%}}
+.g-btn{width:100%;background:#07090c;border:1px solid rgba(255,255,255,.18);color:#e6edf3;font:inherit;font-size:clamp(13px,3.2vw,15px);letter-spacing:.3em;padding:20px 10px;cursor:pointer;transition:border-color .3s,background .3s,color .3s}
+.g-btn:hover,.g-btn:focus-visible{border-color:#4fa3b8;background:#0b1218;outline:none}
+.g-btn:disabled{cursor:default;color:#4fa3b8;border-color:rgba(79,163,184,.4)}
+.g-log{font-size:11px;line-height:1.9;color:#6b7680;text-align:left;margin-top:18px;min-height:0;letter-spacing:.05em}
+.g-log div{opacity:0;animation:gin .3s forwards}
+.g-log div::before{content:"> ";color:#4fa3b8}
+.g-foot{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-size:11px;letter-spacing:.45em;color:#3a424a}
+.blink::after{content:"_";animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
 
 /* cursor */
 .cur{position:fixed;left:0;top:0;width:10px;height:10px;border-radius:50%;background:var(--gold);z-index:95;pointer-events:none;mix-blend-mode:difference;transform:translate(-50%,-50%);transition:width .3s,height .3s,background .3s}
@@ -195,10 +220,17 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;color:
 <div class="grain" aria-hidden="true"></div>
 <div class="cur" aria-hidden="true"><span>Ko'rish</span></div>
 
-<div class="pre" aria-hidden="true">
-  <div class="pre-top"><span>Bilol — Portfolio</span><span>bilolsai.uz</span></div>
-  <div class="pre-num" id="preNum">0</div>
-  <div class="pre-bar" id="preBar"></div>
+<div class="pre" id="gate" role="dialog" aria-label="Kirish">
+  <div class="gate">
+    <div class="g-k">System access</div>
+    <div class="g-t">BILOL<i>//</i>DIGITAL SYSTEM</div>
+    <div class="g-k" style="letter-spacing:.38em">Secure terminal</div>
+    <div class="g-st">SYSTEM STATUS: <b id="gStat">LOCKED</b></div>
+    <div class="g-line"><span id="gBar"></span></div>
+    <button class="g-btn" id="gBtn" type="button">[ TIZIMGA KIRISH → ]</button>
+    <div class="g-log" id="gLog" aria-live="polite"></div>
+  </div>
+  <div class="g-foot">DESIGN · CODE · EXPERIENCE</div>
 </div>
 
 <nav>
@@ -365,12 +397,21 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;color:
 var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 var fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
 
-/* preloader */
-var pre=document.querySelector('.pre'),num=document.getElementById('preNum'),bar=document.getElementById('preBar');
-var t0=performance.now(),dur=reduce?200:1700;
-(function tick(t){var p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);num.textContent=Math.round(e*100);bar.style.width=e*100+'%';
-  if(p<1)requestAnimationFrame(tick);else{pre.classList.add('done');document.body.classList.remove('loading');setTimeout(function(){document.body.classList.add('ready')},250);}
-})(t0);
+/* access gate: click → authenticating → music + open */
+var pre=document.getElementById('gate'),gBtn=document.getElementById('gBtn'),gStat=document.getElementById('gStat'),gBar=document.getElementById('gBar'),gLog=document.getElementById('gLog');
+function openSite(){pre.classList.add('done');document.body.classList.remove('loading');setTimeout(function(){document.body.classList.add('ready');pre.style.display='none'},reduce?0:900)}
+gBtn.addEventListener('click',function(){
+  if(gBtn.disabled)return;gBtn.disabled=true;
+  setSound(true);
+  gStat.textContent='AUTHENTICATING';gStat.className='blink';gStat.style.color='#f5b544';
+  gBtn.textContent='[ AUTHENTICATING... ]';
+  var steps=['Ulanish o\'rnatilmoqda...','Identifikatsiya: BILOL','Modullar yuklanmoqda: web · android · bot','Shifrlash kaliti tekshirildi'],i=0,T=reduce?120:520;
+  (function next(){
+    if(i<steps.length){var d=document.createElement('div');d.textContent=steps[i];gLog.appendChild(d);i++;gBar.style.width=(i/steps.length*100)+'%';setTimeout(next,T)}
+    else{gStat.className='ok';gStat.style.color='';gStat.textContent='ACCESS GRANTED';gBtn.textContent='[ XUSH KELIBSIZ ]';setTimeout(openSite,reduce?100:700)}
+  })();
+});
+
 
 /* marquee */
 var words=['Bilols AI','Android','Telegram bot','Windows','AI agentlar','Python','Dizayn'],h='';
