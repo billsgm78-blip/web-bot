@@ -230,7 +230,7 @@
         if (app.lock) {
             showLock(app.lockTitle || L("Vaqtincha to'xtatildi", 'Временно приостановлено', 'Temporarily unavailable'),
                 app.lockMsg || L("Texnik ishlar olib borilmoqda. Tez orada qaytamiz!", 'Идут технические работы. Скоро вернёмся!', 'Maintenance in progress. Back soon!'),
-                '🛠', T('retry'), function () { loadStatus(); });
+                '🛠', T('retry'), function () { loadStatus(); }, !!(app.panic || st.panic));
             st.lockAll = true;
             return st;
         }
@@ -258,7 +258,12 @@
     }
     var lockAction = function () { loadStatus(); };
     $('lock-retry').onclick = function () { lockAction(); };
-    function showLock(title, msg, ico, btn, action) {
+    function showLock(title, msg, ico, btn, action, panic) {
+        // 🚨 Tashvish rejimi — qizil "xavf" ko'rinishi; boshqa bloklar (texnik ishlar, yangilash) oddiy ko'rinishda
+        $('lock').classList.toggle('panic', !!panic);
+        if (panic) { ico = '🚨'; var d = new Date(), z = function (n) { return ('0' + n).slice(-2); };
+            $('pz-time').textContent = '> ' + z(d.getDate()) + '.' + z(d.getMonth() + 1) + '.' + d.getFullYear() + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()) + ' · KOD 0xDEAD'; }
+        $('lock-title').setAttribute('data-text', title);
         $('lock-title').textContent = title;
         $('lock-msg').textContent = msg;
         document.querySelector('#lock .big-ico').textContent = ico || '🛠';
