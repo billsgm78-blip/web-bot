@@ -2661,6 +2661,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
       <a href="#pd-app"><span class="pm-t" data-l="uz">Ilova</span><span class="pm-t" data-l="ru">Приложение</span><span class="pm-t" data-l="en">App</span></a>
       <a href="#pd-price"><span class="pm-t" data-l="uz">Narxlar</span><span class="pm-t" data-l="ru">Цены</span><span class="pm-t" data-l="en">Pricing</span></a>
       <a href="#pd-faq"><span class="pm-t" data-l="uz">Savollar</span><span class="pm-t" data-l="ru">Вопросы</span><span class="pm-t" data-l="en">FAQ</span></a>
+      <a href="/portfolio"><span class="pm-t" data-l="uz">Mening portfoliom</span><span class="pm-t" data-l="ru">Моё портфолио</span><span class="pm-t" data-l="en">My portfolio</span></a>
     </nav>
     <div class="pd-lang"><button type="button" data-lg="uz" onclick="setAppLanguage('uz')">UZ</button><button type="button" data-lg="ru" onclick="setAppLanguage('ru')">RU</button><button type="button" data-lg="en" onclick="setAppLanguage('en')">EN</button></div>
     <button type="button" class="pd-pill" onclick="openAuthModal()"><span class="pm-t" data-l="uz">Kirish</span><span class="pm-t" data-l="ru">Войти</span><span class="pm-t" data-l="en">Log in</span></button>
@@ -3059,6 +3060,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
       <a href="https://t.me/BilolsAIbot" target="_blank" rel="noopener">Telegram</a>
       <a href="/apk">Android</a>
       <a href="/kompyuter">Windows</a>
+      <a href="/portfolio"><span class="pm-t" data-l="uz">Mening portfoliom</span><span class="pm-t" data-l="ru">Моё портфолио</span><span class="pm-t" data-l="en">My portfolio</span></a>
     </div>
     <div class="pd-word">bilolsai<em>.</em>uz</div>
   </footer>
@@ -8605,6 +8607,7 @@ html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background
         var foot = document.createElement('div'); foot.className = 'cg-foot cg-only';
         foot.innerHTML = '<button type="button" data-k="shop">' + ic('<path d="M3 7h18l-1.5 11a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2z"/><path d="M8 7a4 4 0 0 1 8 0"/>') + '<span></span></button>' +
             '<button type="button" data-k="apk">' + ic('<path d="M12 3v12M7 10l5 5 5-5"/><rect x="6" y="18" width="12" height="3" rx="1.5"/>') + '<span></span></button>' +
+            '<button type="button" data-k="pf">' + ic('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>') + '<span></span></button>' +
             '<button type="button" data-k="set">' + ic('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>') + '<span></span></button>' +
             '<button type="button" class="cg-user" data-k="me"><span class="cg-ava"></span><div><b></b><small></small></div>' + ic('<path d="m7 15 5 5 5-5M7 9l5-5 5 5"/>') + '</button>';
         panel.appendChild(foot);
@@ -8620,6 +8623,7 @@ html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background
             else if (k === 'set') { close(); $('open-settings-btn') && $('open-settings-btn').click(); }
             else if (k === 'shop') { close(); window.__openSettingsHub ? window.__openSettingsHub('shop') : ($('open-wallet-btn') && $('open-wallet-btn').click()); }
             else if (k === 'apk') { close(); if (window.__isIOS) { location.href = '/iphone'; return; } window.__openSettingsHub ? window.__openSettingsHub('apk') : (location.href = '/apkyuklash'); }
+            else if (k === 'pf') { location.href = '/portfolio'; }
             else if (k === 'me') { close(); $('open-wallet-btn') && $('open-wallet-btn').click(); }
         }
         [nav, foot].forEach(function (box) { box.addEventListener('click', function (e) { var b = e.target.closest('button[data-k]'); if (b) { e.stopPropagation(); act(b.getAttribute('data-k')); } }); });
@@ -8633,8 +8637,8 @@ html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background
     function paint() {
         var nav = $('cg-nav'); if (!nav) return;
         var L = { gen: T('Rasm yaratish', 'Create images', 'Создать изображение'), doc: T('Hujjat tahlili', 'Analyse a document', 'Анализ документа'),
-            mode: T('AI rejimlari', 'AI modes', 'Режимы ИИ'), sup: T('Yordam — admin', 'Support', 'Поддержка'), set: T('Sozlamalar', 'Settings', 'Настройки'), shop: T("Do'kon", 'Shop', 'Магазин'), apk: T('APK yuklash', 'Download APK', 'Скачать APK') };
-        document.querySelectorAll('.cg-nav button, .cg-foot button[data-k="set"], .cg-foot button[data-k="shop"], .cg-foot button[data-k="apk"]').forEach(function (b) { var s = b.querySelector('span'); if (s) s.textContent = L[b.getAttribute('data-k')] || ''; });
+            mode: T('AI rejimlari', 'AI modes', 'Режимы ИИ'), sup: T('Yordam — admin', 'Support', 'Поддержка'), set: T('Sozlamalar', 'Settings', 'Настройки'), shop: T("Do'kon", 'Shop', 'Магазин'), apk: T('APK yuklash', 'Download APK', 'Скачать APK'), pf: T('Mening portfoliom', 'My portfolio', 'Моё портфолио') };
+        document.querySelectorAll('.cg-nav button, .cg-foot button[data-k="set"], .cg-foot button[data-k="shop"], .cg-foot button[data-k="apk"], .cg-foot button[data-k="pf"]').forEach(function (b) { var s = b.querySelector('span'); if (s) s.textContent = L[b.getAttribute('data-k')] || ''; });
         var name = (typeof currentName !== 'undefined' && currentName) || localStorage.getItem('bilol_ai_name') || 'Bilols AI';
         var u = document.querySelector('.cg-user');
         if (u) {
