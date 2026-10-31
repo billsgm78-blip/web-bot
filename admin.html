@@ -431,6 +431,19 @@ select.inp option { background: #12151c; color: var(--text); }
 }
 .ag-office { border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: #0d1117; position: sticky; top: 12px; }
 .ag-office canvas { display: block; width: 100%; height: auto; }
+.ag-office canvas:hover { filter: brightness(1.06); }
+/* ofis kattalashtirilgan oyna va 2-qavat oynasi */
+.ag-zoom { position: fixed; inset: 0; z-index: 95; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(2,4,10,0); transition: background .25s; }
+.ag-zoom.on { background: rgba(2,4,10,.82); }
+.ag-zoom-card { width: min(96vw, calc((100vh - 120px) * 200 / 140)); background: #0d1117; border: 1px solid var(--line2); border-radius: 18px; overflow: hidden;
+    transform: scale(.6) translateY(30px); opacity: 0; transition: transform .35s cubic-bezier(.2,.9,.25,1.15), opacity .25s; box-shadow: 0 40px 120px -20px rgba(0,0,0,.8); }
+.ag-zoom-card.up { width: min(96vw, calc((100vh - 120px) * 160 / 56), 1400px); }
+.ag-zoom.on .ag-zoom-card { transform: none; opacity: 1; }
+.ag-zoom-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px 10px 16px; }
+.ag-zoom-head b { font-size: 14.5px; }
+.ag-zoom-x { width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line2); background: rgba(255,255,255,.05); color: var(--text); font-size: 15px; }
+.ag-zoom-cv { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.ag-zoom-card small { display: block; padding: 8px 16px 12px; color: var(--muted); font-size: 12.5px; }
 .ag-status { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); background: rgba(255,255,255,0.02); min-height: 42px; }
 .ag-status i { width: 9px; height: 9px; border-radius: 50%; background: var(--green); flex: none; box-shadow: 0 0 8px var(--green); }
 .ag-status.busy i { background: var(--blue); box-shadow: 0 0 8px var(--blue); animation: agBlink 1s infinite; }
@@ -2104,31 +2117,38 @@ select.inp option { background: #12151c; color: var(--text); }
     // Piksel ofis (tepada ofis, pastda baza xonasi). Agent holatlarni NAVBAT bilan o'ynaydi: stolga o'tirib yozadi,
     // odam bilan ish bo'lsa baza xonasiga kirib javonlar orasida qidirib topadi, keyin seyf/pochta/panelga boradi.
     function agOffice() {
-        var W = 160, OY = 46, H = 140 + OY, S = 4, dpr = 1;           // OY — tepadagi 2-qavat balandligi (2-qavat y < 0 da)
-        var cv = h('canvas', { width: W * S, height: H * S, style: 'width:100%;height:auto' });
-        var c = cv.getContext('2d');
+        // Ikki sahna: 1-qavat (ofis + choyxona + pastda baza, y 0..140) va 2-qavat (yotoqxona, WC, vanna; y -56..0).
+        // Simulyatsiya bitta — bir nechta kanvasga chiziladi: kichik ofis, kattalashtirilgan ofis, 2-qavat oynasi.
+        var GW = 200, GH = 140, UW = 160, UH = 56, W = GW, H = GH, S = 4, dpr = 1, c = null;
         var COR = 74, DOOR_X = 140, AISLE = 122;                      // yo'lak, baza eshigi, baza ichidagi o'tish yo'li
-        var STAIR_X = 117, STAIR_FOOT = 31, STAIR_TOP = -5, F2COR = -10; // zina (1-qavat devoridan 2-qavatga) va 2-qavat yo'lagi
+        var STAIR_X = 117, STAIR_FOOT = 31, STAIR_TOP = -4, F2COR = -10; // zina (1-qavat devoridan 2-qavatga) va 2-qavat yo'lagi
         var RACKS = []; for (var rx = 6; rx < 125; rx += 11) RACKS.push(rx);
         var TABLES = ['users', 'payments', 'chats', 'sessions', 'promos', 'orders', 'support', 'cards', 'settings', 'logs', 'usage'];
         var SPOT = { sit: [38, 73], think: [38, 73], idle: [38, 73], rest: [64, 90], safe: [29, 88], mail: [94, 90], panel: [70, 40],
-                     promo: [120, 93], shop: [141, 67], db: [133, 66], sleep: [22, -19], tea: [69, -13], up: [138, -12] };
+                     promo: [120, 93], shop: [141, 67], db: [133, 66], tea: [168, 71], sleep: [20, -24], wc: [68, -22], bath: [97, -21], up: [142, -14] };
         // o'zi aylanib yuradigan joylar (ikkala qavatda)
-        var ROAM = [[100, 60], [56, 40], [20, 44], [106, 72], [88, 52], [62, 66], [48, -12], [100, -18], [138, -14], [128, -22], [30, -9]];
+        var ROAM = [[100, 60], [56, 40], [20, 44], [106, 72], [88, 52], [62, 66], [180, 84], [36, -12], [140, -14], [128, -20], [150, -9]];
         var bot = { x: 38, y: 73, path: [], step: 0, pose: 'sit', label: '', since: 0 }, t = 0, last = 0, raf = 0, alive = true;
         var queue = [], cur = { state: 'sit', until: 0 }, scan = { rack: -1, found: -1, until: 0 };
-        var lastAct = 0, teaDone = false;                             // oxirgi ish vaqti (admin yozmasa — choyxonaga chiqadi)
+        var lastAct = 0, teaDone = false;                             // oxirgi ish vaqti (admin yozmasa — choyxonaga boradi)
+        var views = [];                                               // chiziladigan kanvaslar
         // ---------- chizish yordamchilari (o'lcham S — ekranga qarab, tiniq) ----------
         function R(x, y, w, hh, col) { c.fillStyle = col; var X = Math.round(x * S), Y = Math.round(y * S); c.fillRect(X, Y, Math.round((x + w) * S) - X, Math.round((y + hh) * S) - Y); }
         function O(x, y, w, hh, col, out) { R(x - .5, y - .5, w + 1, hh + 1, out || '#05070a'); R(x, y, w, hh, col); }
         function glow(x, y, r, col) { var g = c.createRadialGradient(x * S, y * S, 0, x * S, y * S, r * S); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect((x - r) * S, (y - r) * S, 2 * r * S, 2 * r * S); }
         function txt(s, x, y, size, col, weight, font) { c.fillStyle = col; c.font = (weight || 700) + ' ' + (size * S) + 'px ' + (font || 'ui-monospace,Menlo,monospace'); c.textBaseline = 'middle'; c.fillText(s, x * S, y * S); }
         function tash() { var d = new Date(); return new Date(d.getTime() + d.getTimezoneOffset() * 60000 + 5 * 3600000); }
-        function fit() {
-            var cw = cv.clientWidth; if (!cw) return;
+        function mkView(scene, cls) {
+            var w = scene === 'u' ? UW : GW, hh = scene === 'u' ? UH : GH;
+            var cv = h('canvas', { width: w * 4, height: hh * 4, class: cls || '', style: 'width:100%;height:auto;cursor:pointer' });
+            var v = { cv: cv, c: cv.getContext('2d'), scene: scene, W: w, H: hh, oy: scene === 'u' ? UH : 0, on: true };
+            views.push(v); return v;
+        }
+        function fit(v) {
+            var cw = v.cv.clientWidth; if (!cw) return false;
             dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 3));
-            var pw = Math.round(cw * dpr); if (cv.width !== pw) { cv.width = pw; cv.height = Math.round(pw * H / W); }
-            S = cv.width / W; c.imageSmoothingEnabled = false;
+            var pw = Math.round(cw * dpr); if (v.cv.width !== pw) { v.cv.width = pw; v.cv.height = Math.round(pw * v.H / v.W); }
+            v.S = v.cv.width / v.W; return true;
         }
         // ---------- ofis ----------
         function office() {
@@ -2190,47 +2210,33 @@ select.inp option { background: #12151c; color: var(--text); }
             O(35, 70, 6, 5, '#3a3a44');                                                                     // stul
             [[4, 40], [156, 90], [46, 96]].forEach(function (pl) { O(pl[0] - 2.5, pl[1], 5, 5, '#c97b4f'); c.fillStyle = '#2f6b33'; c.beginPath(); c.arc(pl[0] * S, (pl[1] - 2.5) * S, 4.2 * S, 0, 7); c.fill(); c.fillStyle = '#6cbf5c'; c.beginPath(); c.arc((pl[0] - 1.2) * S, (pl[1] - 3.6) * S, 1.6 * S, 0, 7); c.fill(); });
         }
-        // ---------- 2-qavat: yotoqxona + choyxona (y -46..0) ----------
-        function floor2() {
-            var now = tash(), hr = now.getHours(), day = hr >= 7 && hr < 20;
-            R(0, -46, W, 16, '#3d4a5c'); for (var wx = 0; wx < W; wx += 8) R(wx, -46, .4, 16, '#34404f'); R(0, -31, W, 1.2, '#2a3340');
-            R(0, -30, W, 28, '#a9784f');
-            for (var py = -30, row = 0; py < -2; py += 4, row++) { R(0, py, W, 4, row % 2 ? '#a3724a' : '#ad7c53'); R(0, py + 3.6, W, .4, '#8a5f3c'); }
-            R(0, -2, W, 2, '#2a1d17'); R(0, -2, W, .5, '#5f4133');                                             // qavatlar orasidagi pol
-            // deraza (oy / quyosh)
-            O(42, -43, 16, 10, '#f3d3a6', '#2a1d17');
-            var g = c.createLinearGradient(0, -42 * S, 0, -34 * S);
-            if (day) { g.addColorStop(0, '#7cc4f5'); g.addColorStop(1, '#cfe9ff'); } else { g.addColorStop(0, '#0b1230'); g.addColorStop(1, '#232a5c'); }
-            c.fillStyle = g; c.fillRect(42.6 * S, -42.4 * S, 14.8 * S, 8.8 * S); R(49.6, -43, .8, 10, '#2a1d17');
-            if (!day) { c.fillStyle = '#fef3c7'; c.beginPath(); c.arc(53 * S, -39.5 * S, 1.6 * S, 0, 7); c.fill(); }
-            // yotoqxona: karavot, tungi chiroq
-            O(4, -44, 26, 4, '#1f2937'); txt('YOTOQXONA', 5.4, -42, 2.1, '#cbd5e1', 700);
-            O(8, -27, 28, 13, '#6b4226', '#2a1a0e'); R(8, -29, 3, 15, '#4a2c18');                              // karavot
-            R(11, -25.6, 7, 4.6, '#f8fafc'); R(11, -21.4, 24, 6.4, cur.state === 'sleep' ? '#4f46e5' : '#6366f1'); R(11, -21.4, 24, 1, '#818cf8');
-            O(38, -24, 5, 6, '#4a2c18'); R(39.6, -28, 1.8, 4, '#fde68a'); glow(40.5, -27, 8, day ? 'rgba(253,230,138,.12)' : 'rgba(253,230,138,.35)');
-            // choyxona: gilam, xontaxta, choynak, piyola, ko'rpacha, samovar
-            O(60, -44, 22, 4, '#7f1d1d'); txt('CHOYXONA', 61.4, -42, 2.1, '#fde68a', 700);
-            R(60, -26, 44, 18, '#9f1239'); R(62, -24, 40, 14, '#be123c');
-            for (var gx = 64; gx < 102; gx += 6) { R(gx, -20, 2, 2, '#fbbf24'); R(gx + 1.5, -14.5, 1.2, 1.2, '#fde68a'); }
-            R(60, -26, 44, .8, '#fbbf24'); R(60, -8.8, 44, .8, '#fbbf24');
-            O(63, -17, 10, 4, '#1d4ed8'); R(63, -17, 10, 1, '#60a5fa');                                          // ko'rpachalar
-            O(91, -17, 10, 4, '#047857'); R(91, -17, 10, 1, '#34d399');
-            O(75, -21, 14, 6, '#7c4a2a', '#3b2414'); R(75, -21, 14, 1, '#a16207');                                // xontaxta
-            O(78, -24, 4, 3, '#e0f2fe', '#1e3a8a'); R(81.6, -23.4, 1.4, .8, '#1e3a8a'); R(79.4, -25, 1.2, 1, '#1e3a8a');   // choynak
-            O(84, -22.6, 1.8, 1.4, '#f8fafc', '#1e3a8a'); O(86.6, -22.6, 1.8, 1.4, '#f8fafc', '#1e3a8a');                  // piyolalar
-            if (cur.state === 'tea') for (var st = 0; st < 3; st++) { var u = (t * .6 + st / 3) % 1; R(80 + Math.sin(t * 2 + st) * .8, -26 - u * 6, .6, .6, 'rgba(255,255,255,' + (.6 - u * .6) + ')'); }
-            O(96, -29, 6, 8, '#d4a72c', '#7a5a2a'); R(97, -31, 4, 2, '#b45309'); R(98.2, -33, 1.6, 2, '#78350f');            // samovar
-            R(98.6, -25, 1.2, .6, '#3b2414'); if (((t * 3) | 0) % 2) glow(99, -24, 3, 'rgba(255,120,40,.4)');
-            // zina tuynugi + kitob javoni, gul
-            O(STAIR_X - 5, -8, 10, 6, '#1a120d', '#3b2414'); for (var sr = 0; sr < 3; sr++) R(STAIR_X - 4, -7.4 + sr * 1.8, 8, .6, '#4a3424');
-            R(STAIR_X - 6, -9, .8, 7, '#d4a72c'); R(STAIR_X + 5.2, -9, .8, 7, '#d4a72c'); R(STAIR_X - 6, -9, 12, .6, '#d4a72c');
-            O(130, -44, 22, 20, '#6b4226'); for (var bs = 0; bs < 3; bs++) { R(130, -38 + bs * 6, 22, .8, '#4a2c18'); for (var bk = 0; bk < 6; bk++) R(131.5 + bk * 3.4, -43 + bs * 6, 2.4, 4.6, ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#a855f7', '#14b8a6'][(bk + bs * 2) % 6]); }
-            O(154, -14, 4, 4, '#c97b4f'); c.fillStyle = '#2f6b33'; c.beginPath(); c.arc(156 * S, -16 * S, 3.6 * S, 0, 7); c.fill();
+        // ---------- choyxona (1-qavat, o'ng tomonda) ----------
+        function teahouse() {
+            R(160, 0, 40, 30, '#1e5f74'); for (var i = 0; i < 8; i++) for (var j = 0; j < 5; j++) R(162 + i * 5, 2 + j * 5.4, 2, 2, (i + j) % 2 ? '#2a7d96' : '#174b5c');
+            R(160, 28.4, 40, 1.6, '#3b271e');
+            O(166, 4, 28, 5, '#7f1d1d', '#2a1d17'); txt('CHOYXONA', 168.4, 6.6, 2.6, '#fde68a', 800);
+            c.strokeStyle = '#5f4133'; c.lineWidth = .4 * S; c.beginPath(); c.moveTo(180 * S, 9 * S); c.lineTo(180 * S, 15 * S); c.stroke();     // osma chiroq
+            O(177.5, 15, 5, 3, '#d4a72c', '#7a5a2a'); glow(180, 19, 14, 'rgba(255,200,120,.22)');
+            R(160, 30, 40, 70, '#c99a6a'); for (var py = 30, row = 0; py < 100; py += 4, row++) R(160, py + 3.6, 40, .4, '#a97e52');
+            R(159.2, 30, 1.6, 36, '#3b271e'); R(159.2, 82, 1.6, 18, '#3b271e');                                    // devor, eshik yo'li (yo'lakda)
+            R(163, 46, 35, 44, '#9f1239'); R(165, 48, 31, 40, '#be123c'); R(163, 46, 35, .8, '#fbbf24'); R(163, 89.2, 35, .8, '#fbbf24');
+            for (var gx = 167; gx < 196; gx += 6) for (var gy = 52; gy < 88; gy += 8) { R(gx, gy, 2, 2, '#fbbf24'); R(gx + 3, gy + 4, 1.2, 1.2, '#fde68a'); }
+            O(163, 64, 7, 12, '#1d4ed8'); R(163, 64, 7, 1.2, '#60a5fa');                                              // ko'rpachalar
+            O(191, 64, 7, 12, '#047857'); R(191, 64, 7, 1.2, '#34d399');
+            O(172, 64, 17, 9, '#7c4a2a', '#3b2414'); R(172, 64, 17, 1.2, '#a16207');                                  // xontaxta
+            O(175, 59.5, 5, 4, '#e0f2fe', '#1e3a8a'); R(179.6, 60.4, 1.8, 1, '#1e3a8a'); R(176.8, 58.2, 1.4, 1.2, '#1e3a8a');   // choynak
+            O(182.5, 61.4, 2.2, 1.8, '#f8fafc', '#1e3a8a'); O(185.6, 61.4, 2.2, 1.8, '#f8fafc', '#1e3a8a');                    // piyolalar
+            O(175, 68, 10, 3, '#fbbf24', '#92400e');                                                                      // non
+            if (cur.state === 'tea' || ((t / 4) | 0) % 2) for (var st = 0; st < 3; st++) { var u = (t * .6 + st / 3) % 1; R(177 + Math.sin(t * 2 + st) * .8, 58 - u * 7, .6, .6, 'rgba(255,255,255,' + (.6 - u * .6) + ')'); }
+            O(189, 33, 7, 10, '#d4a72c', '#7a5a2a'); R(190, 31, 5, 2, '#b45309'); R(191.4, 29.4, 2, 1.8, '#78350f');       // samovar
+            R(188, 38, 1.4, .8, '#3b2414'); if (((t * 3) | 0) % 2) glow(192.5, 41, 3, 'rgba(255,120,40,.45)');
+            O(164, 32, 5, 5, '#c97b4f'); c.fillStyle = '#2f6b33'; c.beginPath(); c.arc(166.5 * S, 30 * S, 4 * S, 0, 7); c.fill();
         }
-        function stairs() {                                    // 1-qavat devoridagi zina — 2-qavatga chiqadi
+        function stairs() {                                    // 1-qavat devoridagi zina — 2-qavatga chiqadi (bosilsa 2-qavat oynasi ochiladi)
             R(STAIR_X - 6, 0, 12, 30, '#3b271e');
             for (var i = 0; i < 10; i++) { var yy = 27 - i * 3; R(STAIR_X - 5, yy, 10, 3, i % 2 ? '#8a5a3c' : '#9a6440'); R(STAIR_X - 5, yy, 10, .6, '#c08d5e'); }
             R(STAIR_X - 6, 0, .8, 30, '#d4a72c'); R(STAIR_X + 5.2, 0, .8, 30, '#d4a72c');
+            O(STAIR_X - 4, 31, 8, 3.2, '#111827', '#d4a72c'); txt('2 ↑', STAIR_X - 2.6, 32.7, 2.2, '#fde68a', 800);
         }
         // ---------- baza xonasi (pastda, sayt ofisidagi baza zali uslubida) ----------
         function dbroom() {
@@ -2238,8 +2244,8 @@ select.inp option { background: #12151c; color: var(--text); }
             var dead = !!(panic && panic.on);      // 🚨 tashvish: baza o'chiq — chiroqlar o'chgan, qizil favqulodda chiroq
             R(0, 100, W, 40, '#0e131a');
             for (var gx = 0; gx < W; gx += 6) R(gx, 104, .3, 36, '#18202b');
-            for (var gy = 104; gy < H; gy += 6) R(0, gy, W, .3, '#18202b');
-            if ((active || inside) && !dead) { var gl = c.createLinearGradient(0, 104 * S, 0, H * S); gl.addColorStop(0, 'rgba(56,139,253,.16)'); gl.addColorStop(1, 'rgba(56,139,253,0)'); c.fillStyle = gl; c.fillRect(0, 104 * S, W * S, 36 * S); }
+            for (var gy = 104; gy < 140; gy += 6) R(0, gy, W, .3, '#18202b');
+            if ((active || inside) && !dead) { var gl = c.createLinearGradient(0, 104 * S, 0, 140 * S); gl.addColorStop(0, 'rgba(56,139,253,.16)'); gl.addColorStop(1, 'rgba(56,139,253,0)'); c.fillStyle = gl; c.fillRect(0, 104 * S, W * S, 36 * S); }
             // devor (shisha derazali) va eshik
             R(0, 100, W, 5, '#2a3340'); R(0, 100, W, .8, '#3b4656'); R(0, 104.4, W, .6, active ? '#1f6feb' : '#30363d');
             [[4, 24], [32, 24], [60, 24], [88, 24]].forEach(function (w) { O(w[0], 101.2, w[1], 2.6, 'rgba(88,166,255,.28)', '#1c2128'); });
@@ -2271,16 +2277,64 @@ select.inp option { background: #12151c; color: var(--text); }
                 if (((t * 2) | 0) % 2) glow(W / 2, 107, 22, 'rgba(255,31,61,.35)');
             } else if (!inside && !active) { c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(0, 105 * S, W * S, 35 * S); }
         }
+        // ---------- 2-qavat: yotoqxona, hojatxona, vanna, zina yo'lagi (y -56..0) ----------
+        function upstairs() {
+            var now = tash(), hr = now.getHours(), day = hr >= 7 && hr < 20;
+            R(0, -56, W, 20, '#3d4a5c'); for (var wx = 0; wx < W; wx += 8) R(wx, -56, .4, 20, '#34404f'); R(0, -37, W, 1.2, '#2a3340');
+            R(0, -36, W, 34, '#a9784f'); for (var py = -36, row = 0; py < -2; py += 4, row++) { R(0, py, W, 4, row % 2 ? '#a3724a' : '#ad7c53'); R(0, py + 3.6, W, .4, '#8a5f3c'); }
+            R(0, -2, W, 2, '#2a1d17');
+            // yotoqxona
+            O(4, -54, 30, 5, '#1f2937'); txt('YOTOQXONA', 6, -51.5, 2.4, '#cbd5e1', 800);
+            O(37, -53, 15, 11, '#f3d3a6', '#2a1d17');
+            var g = c.createLinearGradient(0, -52 * S, 0, -43 * S);
+            if (day) { g.addColorStop(0, '#7cc4f5'); g.addColorStop(1, '#cfe9ff'); } else { g.addColorStop(0, '#0b1230'); g.addColorStop(1, '#232a5c'); }
+            c.fillStyle = g; c.fillRect(37.6 * S, -52.4 * S, 13.8 * S, 9.8 * S); R(44, -53, .8, 11, '#2a1d17');
+            if (!day) { c.fillStyle = '#fef3c7'; c.beginPath(); c.arc(48 * S, -49 * S, 1.6 * S, 0, 7); c.fill(); }
+            O(6, -33, 30, 15, '#6b4226', '#2a1a0e'); R(6, -35, 3, 17, '#4a2c18');
+            R(9, -31, 8, 5, '#f8fafc'); R(9, -26, 26, 7.6, cur.state === 'sleep' ? '#4f46e5' : '#6366f1'); R(9, -26, 26, 1, '#818cf8');
+            O(39, -29, 6, 7, '#4a2c18'); R(41, -33, 2, 4, '#fde68a'); glow(42, -32, 9, day ? 'rgba(253,230,138,.12)' : 'rgba(253,230,138,.35)');
+            R(54.4, -36, 1.6, 22, '#4b3a2c');
+            // hojatxona (WC): kafel, unitaz, rakovina, oyna
+            R(56, -56, 29, 20, '#cfe3ea'); for (var tx = 56; tx < 85; tx += 4) R(tx, -56, .3, 20, '#a9c7d1'); for (var ty = -56; ty < -36; ty += 4) R(56, ty, 29, .3, '#a9c7d1');
+            R(56, -36, 29, 34, '#e5eef2'); for (var tx2 = 56; tx2 < 85; tx2 += 5) R(tx2, -36, .3, 34, '#c4d6dd'); for (var ty2 = -36; ty2 < -2; ty2 += 5) R(56, ty2, 29, .3, '#c4d6dd');
+            O(58, -54, 10, 5, '#0f766e', '#064e3b'); txt('WC', 60.6, -51.5, 2.8, '#ecfeff', 800);
+            O(62, -36, 9, 6, '#f8fafc', '#64748b'); O(63, -30, 7, 7, '#ffffff', '#64748b'); R(64, -29, 5, 3, '#dbeafe');   // unitaz
+            O(75, -36, 7, 3, '#f8fafc', '#64748b'); R(77.6, -38, 1.2, 2, '#94a3b8'); O(74.5, -50, 8, 10, '#bae6fd', '#64748b'); R(75.5, -49, 2, 8, 'rgba(255,255,255,.5)');
+            R(84.4, -36, 1.6, 22, '#4b3a2c');
+            // vannaxona: kafel, vanna (ko'pikli), dush
+            R(86, -56, 25, 20, '#d9f0e8'); for (var bx = 86; bx < 111; bx += 4) R(bx, -56, .3, 20, '#b3dccd'); for (var by2 = -56; by2 < -36; by2 += 4) R(86, by2, 25, .3, '#b3dccd');
+            R(86, -36, 25, 34, '#eef7f3'); for (var bx2 = 86; bx2 < 111; bx2 += 5) R(bx2, -36, .3, 34, '#cfe6dd');
+            O(88, -54, 14, 5, '#1d4ed8', '#1e3a8a'); txt('VANNA', 89.6, -51.5, 2.4, '#eff6ff', 800);
+            R(106, -54, 1, 14, '#94a3b8'); O(103.5, -41, 5, 2, '#cbd5e1', '#64748b');                                            // dush
+            O(88, -27, 21, 9, '#ffffff', '#64748b'); R(89, -26, 19, 3, '#7dd3fc');                                                 // vanna
+            for (var bb = 0; bb < 7; bb++) { var bu = Math.sin(t * 2 + bb) * .4; c.fillStyle = '#f8fafc'; c.beginPath(); c.arc((90.5 + bb * 2.7) * S, (-26.4 + bu) * S, 1.3 * S, 0, 7); c.fill(); }
+            if (cur.state === 'bath') for (var dr = 0; dr < 5; dr++) { var du = (t * 1.2 + dr / 5) % 1; R(104 + dr * .7, -39 + du * 12, .4, .9, 'rgba(56,189,248,' + (1 - du) + ')'); }
+            R(110.4, -36, 1.6, 22, '#4b3a2c');
+            // zina yo'lagi: tuynuk, javon, gul
+            O(STAIR_X - 5, -7, 10, 5, '#1a120d', '#3b2414'); for (var sr = 0; sr < 3; sr++) R(STAIR_X - 4, -6.4 + sr * 1.5, 8, .6, '#4a3424');
+            R(STAIR_X - 6, -8, .8, 6, '#d4a72c'); R(STAIR_X + 5.2, -8, .8, 6, '#d4a72c'); R(STAIR_X - 6, -8, 12, .6, '#d4a72c');
+            O(STAIR_X + 7, -6.6, 8, 3.2, '#111827', '#d4a72c'); txt('1 ↓', STAIR_X + 8.6, -5, 2.2, '#fde68a', 800);
+            O(128, -54, 26, 22, '#6b4226'); for (var bs = 0; bs < 3; bs++) { R(128, -47 + bs * 7, 26, .8, '#4a2c18'); for (var bk = 0; bk < 7; bk++) R(129.5 + bk * 3.5, -53 + bs * 7, 2.5, 5.4, ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#a855f7', '#14b8a6'][(bk + bs * 2) % 6]); }
+            O(154, -14, 4, 4, '#c97b4f'); c.fillStyle = '#2f6b33'; c.beginPath(); c.arc(156 * S, -16 * S, 3.6 * S, 0, 7); c.fill();
+        }
         // ---------- agent (sayt agentlari uslubida) ----------
         var LOOK = { shirt: '#6366f1', hair: '#1f2937', skin: '#f1c7a3' };
         function arrived() { return !bot.path.length; }
         function sleeper() {                                   // karavotda yotib uxlaydi
-            var hx = 14.5, hy = -23.2;
+            var hx = 12.5, hy = -28.4;
             O(hx - 2.3, hy - 2.3, 4.6, 4.6, LOOK.skin, '#2a1d17'); R(hx - 2.3, hy - 2.3, 1.5, 4.6, LOOK.hair);
             R(hx + .2, hy - .4, 1, .3, '#1a1210'); R(hx + .2, hy + 1, 1, .3, '#1a1210');
-            R(17, -21.4, 18, 6.4, '#4f46e5'); R(17, -21.4, 18, 1, '#818cf8'); R(17 + (Math.sin(t * 1.4) + 1) * .3, -21.8, 12, .6, 'rgba(255,255,255,.12)');
+            R(15, -26, 20, 7.6, '#4f46e5'); R(15, -26, 20, 1, '#818cf8'); R(15 + (Math.sin(t * 1.4) + 1) * .3, -26.4, 13, .6, 'rgba(255,255,255,.12)');
             for (var z = 0; z < 3; z++) { var u = (t * .35 + z / 3) % 1; c.save(); c.globalAlpha = 1 - u; txt('z', hx + 3 + u * 8, hy - 4 - u * 12, 2.4 + u * 2.2, '#c7d2fe'); c.restore(); }
-            nameTag(hx + 6, hy - 6);
+            nameTag(hx + 8, hy - 2);
+        }
+        function bather() {                                    // vannada cho'milyapti: faqat boshi ko'rinadi, ko'pik
+            var hx = 97, hy = -29.6;
+            O(hx - 2.3, hy - 2.3, 4.6, 4.6, LOOK.skin, '#2a1d17'); R(hx - 2.3, hy - 2.3, 4.6, 1.5, LOOK.hair);
+            R(hx - 1.2, hy - .4, .8, .9, '#1a1210'); R(hx + .5, hy - .4, .8, .9, '#1a1210'); R(hx - 1.6, hy + .8, .7, .4, 'rgba(240,120,110,.55)'); R(hx + 1, hy + .8, .7, .4, 'rgba(240,120,110,.55)');
+            for (var b = 0; b < 4; b++) { c.fillStyle = '#ffffff'; c.beginPath(); c.arc((hx - 4 + b * 2.6) * S, (hy + 2.6 + Math.sin(t * 3 + b) * .3) * S, 1.4 * S, 0, 7); c.fill(); }
+            var bu = (t * .5) % 1; c.fillStyle = 'rgba(255,255,255,' + (1 - bu) + ')'; c.beginPath(); c.arc((hx + 3) * S, (hy - 3 - bu * 8) * S, .9 * S, 0, 7); c.fill();
+            nameTag(hx, hy + 1);
         }
         function nameTag(x, by) {
             var walk = !arrived();
@@ -2288,14 +2342,16 @@ select.inp option { background: #12151c; color: var(--text); }
             c.font = '700 ' + (3.2 * S) + 'px system-ui,-apple-system,sans-serif';
             var tw = c.measureText(lb).width / S, bw = tw + 6, hh2 = 5.4, lx2 = Math.max(1, Math.min(W - bw - 1, x - bw / 2)), ly2 = by - 12;
             c.fillStyle = 'rgba(20,16,14,.9)'; if (c.roundRect) { c.beginPath(); c.roundRect(lx2 * S, ly2 * S, bw * S, hh2 * S, hh2 * S / 2); c.fill(); } else c.fillRect(lx2 * S, ly2 * S, bw * S, hh2 * S);
-            var dot = { think: '#3ddc84', find: '#58a6ff', db: '#58a6ff', mail: '#58a6ff', safe: '#f2b134', panel: '#f85149', promo: '#f2b134', shop: '#f2b134', rest: '#9aa4b2', sleep: '#818cf8', tea: '#f59e0b', roam: '#9aa4b2', up: '#9aa4b2' }[cur.state] || '#3ddc84';
+            var dot = { think: '#3ddc84', find: '#58a6ff', db: '#58a6ff', mail: '#58a6ff', safe: '#f2b134', panel: '#f85149', promo: '#f2b134', shop: '#f2b134', rest: '#9aa4b2',
+                        sleep: '#818cf8', tea: '#f59e0b', roam: '#9aa4b2', up: '#9aa4b2', wc: '#38bdf8', bath: '#38bdf8' }[cur.state] || '#3ddc84';
             c.fillStyle = dot; c.beginPath(); c.arc((lx2 + 2.2) * S, (ly2 + hh2 / 2) * S, .8 * S, 0, 7); c.fill();
             c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(lb, (lx2 + 3.8) * S, (ly2 + hh2 / 2) * S);
         }
         function person() {
             if (cur.state === 'sleep' && arrived()) { sleeper(); return; }
+            if (cur.state === 'bath' && arrived()) { bather(); return; }
             var x = bot.x, y = bot.y, walk = !arrived(), leg = walk ? ((bot.step * 9) | 0) % 2 : 0;
-            var sit = !walk && (cur.state === 'sit' || cur.state === 'think' || cur.state === 'idle' || cur.state === 'rest' || cur.state === 'tea');
+            var sit = !walk && (cur.state === 'sit' || cur.state === 'think' || cur.state === 'idle' || cur.state === 'rest' || cur.state === 'tea' || cur.state === 'wc');
             if (walk) y -= Math.abs(Math.sin(bot.step * 9 * Math.PI / 2)) * .45; else if (!sit) y -= (Math.sin(t * 1.9) + 1) * .14;
             c.fillStyle = 'rgba(40,20,10,.25)'; c.beginPath(); c.ellipse(x * S, y * S, 3.4 * S, 1.2 * S, 0, 0, 7); c.fill();
             if (!sit) { O(x - 2, y - 2.6, 1.6, 2.6 - leg * .8, '#2d2f3a', '#15161c'); O(x + .5, y - 2.6, 1.6, 2.6 - (walk ? (1 - leg) * .8 : 0), '#2d2f3a', '#15161c'); }
@@ -2315,15 +2371,16 @@ select.inp option { background: #12151c; color: var(--text); }
             else if (cur.state === 'find') { O(x + 2.7, by + .4, 1.1, 3.2, LOOK.shirt, '#2a1d17'); O(x + 3, by - 1, 2, 2.6, '#1f2937'); R(x + 3.3, by - .7, 1.4, 1.8, '#58a6ff'); }   // planshet bilan qidiryapti
             if (cur.state === 'rest' && !walk) { O(x + 2.8, by + 2, 2, 2, '#f5f5f4', '#78716c'); if ((t % 6) < 3) txt('z', x + 3.4, by - 7 - (t % 3), 3, 'rgba(60,40,30,.6)'); }
             if (cur.state === 'tea' && !walk) { var sip = (t % 5) < 1.4; O(x + 2.6, by + (sip ? -1.6 : 1.6), 1.8, 1.4, '#f8fafc', '#1e3a8a'); if (!sip) R(x + 3.2, by - .4 - (t * 2 % 2), .5, .5, 'rgba(255,255,255,.7)'); }
+            if (cur.state === 'tea' && !walk) { var sip = (t % 5) < 1.4; O(x + 2.6, by + (sip ? -1.6 : 1.6), 1.8, 1.4, '#f8fafc', '#1e3a8a'); if (!sip) R(x + 3.2, by - .4 - (t * 2 % 2), .5, .5, 'rgba(255,255,255,.7)'); }
+            if (cur.state === 'wc' && !walk) { O(x + 2.6, by + .4, 3, 3.6, '#f8fafc', '#94a3b8'); R(x + 3, by + 1, 2.2, .4, '#64748b'); R(x + 3, by + 2, 1.6, .4, '#64748b'); }   // gazeta o'qiyapti
             nameTag(x, by);
         }
         // ---------- yo'l topish va navbat ----------
-        function inDb(p) { return p[1] > 101; }
         function zone(p) { return p[1] > 101 ? 'db' : p[1] < 0 ? 'f2' : 'g'; }
         function route(to) {                                  // yo'lak orqali; baza xonasiga faqat eshikdan, 2-qavatga faqat zinadan
             var pts = [], from = [bot.x, bot.y], fz = zone(from), tz = zone(to);
             if (fz === tz && fz === 'db') { pts.push([to[0], AISLE], to); return pts; }
-            if (fz === tz && fz === 'f2') { if (Math.abs(from[1] - to[1]) > 2) pts.push([from[0], F2COR], [to[0], F2COR]); pts.push(to); return pts; }
+            if (fz === tz && fz === 'f2') { if (Math.abs(from[1] - to[1]) > 2 || Math.abs(from[0] - to[0]) > 6) pts.push([from[0], F2COR], [to[0], F2COR]); pts.push(to); return pts; }
             if (fz === 'db') { pts.push([from[0], AISLE], [DOOR_X, AISLE], [DOOR_X, 102], [DOOR_X, COR]); from = [DOOR_X, COR]; }
             if (fz === 'f2') { pts.push([from[0], F2COR], [STAIR_X, F2COR], [STAIR_X, STAIR_TOP], [STAIR_X, STAIR_FOOT], [STAIR_X, COR]); from = [STAIR_X, COR]; }
             if (tz === 'db') { pts.push([from[0], COR], [DOOR_X, COR], [DOOR_X, 102], [DOOR_X, AISLE], [to[0], AISLE], to); return pts; }
@@ -2331,14 +2388,16 @@ select.inp option { background: #12151c; color: var(--text); }
             if (Math.abs(from[1] - to[1]) > 3 || Math.abs(from[0] - to[0]) > 30) pts.push([from[0], COR], [to[0], COR]);
             pts.push(to); return pts;
         }
-        var GOING = { sleep: 'yotoqxonaga boryapti', tea: 'choyxonaga boryapti', roam: 'aylanib yuribdi', up: '2-qavatga chiqyapti', rest: 'divanga boryapti', sit: 'stoliga boryapti', find: 'bazaga boryapti', safe: 'seyfga boryapti', mail: 'pochtaga boryapti', panel: 'panelga boryapti', promo: 'printerga boryapti', shop: 'javonga boryapti' };
+        var GOING = { sleep: 'yotoqxonaga boryapti', tea: 'choyxonaga boryapti', roam: 'aylanib yuribdi', up: '2-qavatga chiqyapti', wc: 'hojatxonaga boryapti', bath: 'vannaga boryapti',
+                      rest: 'divanga boryapti', sit: 'stoliga boryapti', find: 'bazaga boryapti', safe: 'seyfga boryapti', mail: 'pochtaga boryapti', panel: 'panelga boryapti', promo: 'printerga boryapti', shop: 'javonga boryapti' };
         var LBL = { sit: "stolida o'tiribdi", think: 'yozyapti', idle: "stolida o'tiribdi", rest: 'dam olyapti', find: 'bazada qidiryapti', db: "statistikani ko'ryapti",
                     mail: 'xabar yuboryapti', safe: 'pul bilan ishlayapti', panel: "sozlamalarni o'zgartiryapti", promo: 'promo-kod chiqaryapti', shop: "narxlarni o'zgartiryapti",
-                    sleep: 'uxlayapti', tea: 'choy ichyapti', roam: 'aylanib yuribdi', up: '2-qavatda' };
+                    sleep: 'uxlayapti', tea: 'choy ichyapti', roam: 'aylanib yuribdi', up: '2-qavatda', wc: 'hojatxonada', bath: "vannada cho'milyapti" };
+        var CALM = { sit: 1, rest: 1, think: 1, sleep: 1, tea: 1, roam: 1, up: 1, wc: 1, bath: 1 };    // ishdan keyin stolga qaytarilmaydigan holatlar
         function begin(ev) {
             var st = ev.state === 'wait' ? 'think' : (LBL[ev.state] ? ev.state : 'sit');
             if (st === 'idle') st = 'sit';
-            cur = { state: st, start: t, auto: !!ev.auto, min: { think: 1.2, find: 0, db: 2, mail: 2.4, safe: 2.4, panel: 2.2, promo: 2.4, shop: 2.2, sit: .3, rest: .3, sleep: .3, tea: .3, roam: .3, up: .3 }[st] || 1 };
+            cur = { state: st, start: t, auto: !!ev.auto, min: { think: 1.2, find: 0, db: 2, mail: 2.4, safe: 2.4, panel: 2.2, promo: 2.4, shop: 2.2 }[st] || (CALM[st] ? .3 : 1) };
             if (!ev.auto && st !== 'sit') { lastAct = t; teaDone = false; }
             bot.label = LBL[st]; bot.since = t; scan.rack = -1;
             if (st === 'find') {                               // javonlar orasida aylanib qidiradi: 3 ta javon, oxirgisida topadi
@@ -2353,6 +2412,7 @@ select.inp option { background: #12151c; color: var(--text); }
             } else bot.path = route(SPOT[st]);
         }
         function rackSpot(idx) { var row = idx >= RACKS.length ? 1 : 0, x = RACKS[idx % RACKS.length] + 4.5; return [x, row ? 126.5 : 120]; }
+        function nextIdle() { var r = Math.random(); return { state: r < .08 ? 'wc' : r < .12 ? 'bath' : r < .78 ? 'roam' : 'sit', auto: true }; }
         function update(dt) {
             if (bot.path.length) {
                 var p = bot.path[0], dx = p[0] - bot.x, dy = p[1] - bot.y, d = Math.hypot(dx, dy), v = (36 + Math.min(queue.length, 3) * 16) * dt;   // navbatda ish bo'lsa — tezroq yuradi
@@ -2372,27 +2432,64 @@ select.inp option { background: #12151c; color: var(--text); }
             if (scan.found >= 0 && t > scan.until) scan.found = -1;
             var minOk = t - cur.start >= cur.min;
             if (queue.length && minOk) { begin(queue.shift()); return; }
-            // 🚶 o'zi yuradi: bo'sh qolsa aylanadi; 2.5 daqiqa admin yozmasa — choyxonaga chiqib choy ichadi, keyin xohlasa uxlaydi
-            var free = !queue.length && (cur.auto || cur.state === 'sit');
+            // 🚶 o'zi yuradi: bo'sh qolsa aylanadi, ba'zan WC/vannaga kiradi; 2.5 daqiqa admin yozmasa — choyxonada choy, keyin xohlasa uxlaydi
+            var free = !queue.length && (cur.auto || cur.state === 'sit'), here = t - (cur.reached || t);
             if (free && !teaDone && t - lastAct > 150) { teaDone = true; begin({ state: 'tea', auto: true }); return; }
-            if (free && cur.state === 'sit' && t - bot.since > 20) { begin({ state: Math.random() < .2 ? 'rest' : 'roam', auto: true }); return; }
-            if (free && (cur.state === 'roam' || cur.state === 'rest') && t - (cur.reached || t) > (cur.wait || 10)) { begin(Math.random() < .7 ? { state: 'roam', auto: true } : { state: 'sit', auto: true }); return; }
-            if (free && cur.state === 'tea' && t - (cur.reached || t) > 30) { begin(Math.random() < .5 ? { state: 'sleep', auto: true } : { state: 'roam', auto: true }); return; }
+            if (free && cur.state === 'sit' && t - bot.since > 20) { begin(Math.random() < .2 ? { state: 'rest', auto: true } : nextIdle()); return; }
+            if (free && (cur.state === 'roam' || cur.state === 'rest') && here > (cur.wait || 10)) { begin(nextIdle()); return; }
+            if (free && cur.state === 'wc' && here > 9) { begin({ state: 'roam', auto: true }); return; }
+            if (free && cur.state === 'bath' && here > 16) { begin({ state: 'roam', auto: true }); return; }
+            if (free && cur.state === 'tea' && here > 30) { begin(Math.random() < .5 ? { state: 'sleep', auto: true } : { state: 'roam', auto: true }); return; }
             // ish tugadi — stoliga qaytib o'tiradi ('think' esa server javobi kelguncha davom etadi: yozishda qoladi)
-            var stay = { sit: 1, rest: 1, think: 1, sleep: 1, tea: 1, roam: 1, up: 1 };
-            if (!queue.length && !stay[cur.state] && minOk && t - cur.start > cur.min + .8) begin({ state: 'sit' });   // ish tugadi — stoliga qaytib o'tiradi
+            if (!queue.length && !CALM[cur.state] && minOk && t - cur.start > cur.min + .8) begin({ state: 'sit' });
+        }
+        function draw(v) {
+            if (!v.on || !fit(v)) return;
+            c = v.c; S = v.S; W = v.W; H = v.H; c.imageSmoothingEnabled = false;
+            c.setTransform(1, 0, 0, 1, 0, 0); c.translate(0, Math.round(v.oy * S));
+            if (v.scene === 'u') { upstairs(); if (bot.y < 0) person(); }
+            else { office(); teahouse(); stairs(); dbroom(); if (bot.y >= -1) person(); }
         }
         function frame(now) {
             if (!alive) return;
             raf = requestAnimationFrame(frame);
             var dt = Math.min(.05, (now - (last || now)) / 1000); last = now; t += dt;
-            fit(); update(dt);
-            c.setTransform(1, 0, 0, 1, 0, 0); c.translate(0, Math.round(OY * S));   // 2-qavat y < 0 da
-            floor2(); office(); stairs(); dbroom(); person();
+            update(dt);
+            views.forEach(draw);
         }
+        // ---------- bosish: zina — 2-qavat oynasi; ofisning boshqa joyi — ofis kattalashib ekranga chiqadi ----------
+        function onStairs(v, e) {
+            var r = v.cv.getBoundingClientRect(); if (!r.width) return false;
+            var x = (e.clientX - r.left) / r.width * v.W, y = (e.clientY - r.top) / r.height * v.H - v.oy;
+            return v.scene === 'u' ? (Math.abs(x - STAIR_X) < 9 && y > -10) : (Math.abs(x - STAIR_X) < 8 && y < 36);
+        }
+        var zoomEl = null;
+        function zoom(scene) {
+            if (zoomEl) closeZoom();
+            var v = mkView(scene, 'ag-zoom-cv');
+            var title = scene === 'u' ? '🛏 2-qavat · yotoqxona, hojatxona, vanna' : "🏢 Ofis · 1-qavat (choyxona) va baza";
+            var box = h('div', { class: 'ag-zoom-card' + (scene === 'u' ? ' up' : '') }, [
+                h('div', { class: 'ag-zoom-head' }, [h('b', { text: title }), h('button', { class: 'ag-zoom-x', text: '✕', title: 'Yopish', onclick: closeZoom })]), v.cv,
+                h('small', { text: scene === 'u' ? "Zinani bossangiz — 1-qavatga" : 'Zinani bossangiz — 2-qavat ochiladi' })]);
+            zoomEl = h('div', { class: 'ag-zoom' }, [box]);
+            zoomEl.addEventListener('click', function (e) { if (e.target === zoomEl) closeZoom(); });
+            v.cv.addEventListener('click', function (e) { if (onStairs(v, e)) zoom(scene === 'u' ? 'g' : 'u'); });
+            document.body.appendChild(zoomEl);
+            requestAnimationFrame(function () { zoomEl.classList.add('on'); });
+            zoomEl._v = v;
+        }
+        function closeZoom() {
+            if (!zoomEl) return;
+            var el = zoomEl; zoomEl = null; el._v.on = false; views = views.filter(function (x) { return x !== el._v; });
+            el.classList.remove('on'); setTimeout(function () { el.remove(); }, 250);
+        }
+        document.addEventListener('keydown', function esc(e) { if (!alive) { document.removeEventListener('keydown', esc); return; } if (e.key === 'Escape') closeZoom(); });
+        var main = mkView('g');
+        main.cv.title = "Bosing — ofis kattalashadi · Zinani bosing — 2-qavat";
+        main.cv.addEventListener('click', function (e) { zoom(onStairs(main, e) ? 'u' : 'g'); });
         raf = requestAnimationFrame(frame);
         return {
-            canvas: cv,
+            canvas: main.cv,
             push: function (events) {                         // server holatlari — navbat bilan o'ynaladi
                 (events || []).forEach(function (e) {
                     if (e.state === 'idle') { if (!queue.length || queue[queue.length - 1].state !== 'sit') queue.push({ state: 'sit' }); return; }
@@ -2402,11 +2499,11 @@ select.inp option { background: #12151c; color: var(--text); }
                 });
                 if (queue.length > 8) queue = queue.slice(-8);
                 if (queue.length) lastAct = t;
-                if (queue.length && (cur.auto || cur.state === 'rest' || cur.state === 'sleep' || cur.state === 'tea' || cur.state === 'roam' || cur.state === 'up' || (cur.state === 'sit' && !bot.path.length))) begin(queue.shift());
+                if (queue.length && (cur.auto || CALM[cur.state] && cur.state !== 'think' && (cur.state !== 'sit' || !bot.path.length))) begin(queue.shift());
             },
             settle: function () { if (cur.state === 'think' && !queue.length) begin({ state: 'sit' }); },   // server bo'sh — yozish tugadi
             snap: function (st) { if (st && st !== 'idle') begin({ state: st }); },
-            stop: function () { alive = false; cancelAnimationFrame(raf); }
+            stop: function () { alive = false; cancelAnimationFrame(raf); closeZoom(); }
         };
     }
 
