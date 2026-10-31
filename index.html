@@ -6545,12 +6545,22 @@ window.addEventListener('message', function (e) {
                 box.appendChild(it);
             });
         }
+        // ro'yxat ko'rinib turibdimi: telefonda — panel ochilganda; kompyuterda (yangi dizayn) — panel doim ochiq yon ustun
+        function listShown() {
+            if (drawer.classList.contains('open')) return true;
+            var b = $('chat-list'); if (!b) return false;
+            var r = b.getBoundingClientRect();
+            return r.width > 0 && r.right > 0 && r.left < window.innerWidth;
+        }
         function openDrawer() {
             drawer.classList.add('open'); // avval ochiladi — ro'yxatda xato bo'lsa ham panel ko'rinadi
             try { renderChatList(); } catch (e) { if (window.__reportError) window.__reportError('Chats: ' + (e && e.message || e)); }
         }
         function closeDrawer() { drawer.classList.remove('open'); }
         $('open-chats-btn').onclick = function (e) { if (e) e.stopPropagation(); openDrawer(); };
+        // kompyuterda yon ustun doim ko'rinadi — ochilishi bilan va oyna o'lchami o'zgarganda ro'yxat chiziladi
+        setTimeout(function () { if (listShown()) try { renderChatList(); } catch (e) {} }, 300);
+        window.addEventListener('resize', function () { if (listShown()) try { renderChatList(); } catch (e) {} });
         $('close-chats-btn').onclick = closeDrawer;
         $('chats-backdrop').onclick = closeDrawer;
         $('new-chat-btn').onclick = function () {
@@ -6901,7 +6911,7 @@ window.addEventListener('message', function (e) {
             $('gallery-btn').title = T('Biriktirish', 'Attach', 'Прикрепить');
             paintBonus();
             if ($('suggest-grid')) showSuggestions();
-            if (drawer.classList.contains('open')) renderChatList();
+            if (listShown()) renderChatList();
         }
         var prevSetLang = window.setAppLanguage;
         if (typeof prevSetLang === 'function') {
@@ -7433,7 +7443,7 @@ window.addEventListener('message', function (e) {
             rewards: function () { return rewards; }, loadRewards: loadRewards, setImageMode: function (on) { setImageMode(on); },
             subActive: function () { return !!subActive(); }, subCTA: subCTA,
             showSuggestions: showSuggestions, hideSuggestions: hideSuggestions,
-            chatsChanged: function () { if (drawer.classList.contains('open')) renderChatList(); }
+            chatsChanged: function () { if (listShown()) renderChatList(); }
         };
 
         // Sahifa ochilganda suhbat allaqachon chizilgan bo'lsa, tayyor so'rovlarni qo'shamiz
