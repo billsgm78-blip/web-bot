@@ -2536,15 +2536,16 @@ select.inp option { background: #12151c; color: var(--text); }
             paint(); return box;
         }
         var TG = { site: { name: 'Sayt (Vercel)', url: function (i) { return location.origin + '/?yuklama=' + i + '-' + Date.now(); } },
+                   small: { name: 'Sayt — kichik fayl', url: function (i) { return location.origin + '/robots.txt?yuklama=' + i + '-' + Date.now(); } },
                    api: { name: 'Bot serveri (Render)', url: function () { return API + '/api/site-status'; } } };
         function tile(label) { var b = h('b', { text: '—' }); return { el: h('div', { class: 'ld-t' }, [b, h('small', { text: label })]), set: function (v) { b.textContent = v; } }; }
-        var T = { n: tile("So'rovlar"), ok: tile('Muvaffaqiyatli'), err: tile('Xatolar'), rps: tile("So'rov / soniya"), avg: tile("O'rtacha javob"), p95: tile('95% — shundan tez'), max: tile('Eng sekin'), left: tile('Qolgan vaqt') };
+        var T = { n: tile("So'rovlar"), ok: tile('Muvaffaqiyatli'), err: tile('Xatolar'), rps: tile("So'rov / soniya"), avg: tile("O'rtacha javob"), p95: tile('95% — shundan tez'), max: tile('Eng sekin'), left: tile('Qolgan vaqt'), mbps: tile('Yuklab olish tezligi'), hit: tile('Keshdan berildi') };
         var cv = h('canvas', { class: 'ld-cv', width: 900, height: 220 });
         var verdict = h('div', { class: 'ld-v' });
         var startBtn = h('button', { class: 'btn', text: '⚡ Yuklamani boshlash' }), stopBtn = h('button', { class: 'btn ghost', text: "⏹ To'xtatish", style: 'display:none' });
         view.appendChild(h('div', { class: 'card form' }, [
             h('div', { class: 'sum', text: "Sayt yoki bot serveriga bir vaqtda ko'p so'rov yuborib, qanchalik tez va barqaror javob berishini o'lchaydi. So'rovlar shu brauzerdan ketadi." }),
-            h('div', { class: 'lb' }, ['Nishon', seg([['site', '🌐 Sayt (Vercel)'], ['api', '🖥 Bot serveri (Render)']], 'target')]),
+            h('div', { class: 'lb' }, ['Nishon', seg([['site', '🌐 Sayt — bosh sahifa'], ['small', '📄 Sayt — kichik fayl'], ['api', '🖥 Bot serveri (Render)']], 'target')]),
             h('div', { class: 'lb' }, ["Bir vaqtda nechta so'rov (bot serveri uchun ko'pi bilan 50)", seg([[5, '5'], [10, '10'], [25, '25'], [50, '50'], [100, '100'], [200, '200']], 'conc')]),
             h('div', { class: 'lb' }, ['Davomiyligi', seg([[10, '10 s'], [20, '20 s'], [30, '30 s'], [60, '60 s']], 'dur')]),
             h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap' }, [startBtn, stopBtn])
@@ -2567,7 +2568,7 @@ select.inp option { background: #12151c; color: var(--text); }
         };
         async function run() {
             var my = ++LOAD.run; LOAD.busy = true; startBtn.style.display = 'none'; stopBtn.style.display = ''; verdict.className = 'ld-v'; verdict.textContent = '';
-            var tg = TG[opt.target], lat = [], n = 0, ok = 0, err = 0, codes = {}, t0 = performance.now(), end = t0 + opt.dur * 1000, sec = [], maxL = 0, last = [];
+            var tg = TG[opt.target], lat = [], n = 0, ok = 0, err = 0, codes = {}, t0 = performance.now(), end = t0 + opt.dur * 1000, sec = [], maxL = 0, last = [], bytes = 0, hits = 0;
             function bucket() { var i = Math.floor((performance.now() - t0) / 1000); while (sec.length <= i) sec.push({ n: 0, e: 0, ms: 0 }); return sec[i]; }
             function paint() {
                 var el = (performance.now() - t0) / 1000, sorted = lat.slice().sort(function (a, b) { return a - b; });
@@ -2575,6 +2576,7 @@ select.inp option { background: #12151c; color: var(--text); }
                 T.rps.set(el > 0 ? (n / el).toFixed(1) : '0'); T.avg.set(lat.length ? Math.round(lat.reduce(function (a, b) { return a + b; }, 0) / lat.length) + ' ms' : '—');
                 T.p95.set(sorted.length ? Math.round(sorted[Math.floor(sorted.length * .95)] || sorted[sorted.length - 1]) + ' ms' : '—'); T.max.set(maxL ? Math.round(maxL) + ' ms' : '—');
                 T.left.set(Math.max(0, Math.ceil((end - performance.now()) / 1000)) + ' s');
+                T.mbps.set(el > 0 ? (bytes * 8 / 1e6 / el).toFixed(1) + ' Mbit/s' : '—'); T.hit.set(n ? Math.round(hits / n * 100) + '%' : '—');
                 drawChart(cv, sec, opt.dur);
                 paintCodes(codesBox, codes, n); paintLast(lastBox, last);
             }
@@ -2588,6 +2590,7 @@ select.inp option { background: #12151c; color: var(--text); }
                         var buf = await r.arrayBuffer(); clearTimeout(to);
                         good = r.ok; codes[r.status] = (codes[r.status] || 0) + 1;
                         rec = { code: r.status, kb: buf.byteLength / 1024, cache: r.headers.get('x-vercel-cache') || '', mit: r.headers.get('x-vercel-mitigated') || '' };
+                        bytes += buf.byteLength; if (/HIT|STALE|PRERENDER/i.test(rec.cache)) hits++;
                     } catch (e) { codes.tarmoq = (codes.tarmoq || 0) + 1; }
                     var ms = performance.now() - s0; n++; b.n++; b.ms += ms; maxL = Math.max(maxL, ms);
                     rec.ms = ms; rec.t = (performance.now() - t0) / 1000; last.push(rec); if (last.length > 14) last.shift();
@@ -2600,9 +2603,19 @@ select.inp option { background: #12151c; color: var(--text); }
             LOAD.busy = false; startBtn.style.display = ''; stopBtn.style.display = 'none';
             var er = n ? err / n : 1, sorted = lat.slice().sort(function (a, b) { return a - b; }), p95 = sorted.length ? sorted[Math.floor(sorted.length * .95)] || 0 : 0;
             var blocked = (codes[403] || 0) + (codes[429] || 0), realErr = n ? (err - blocked) / n : 1;
-            var cls = n && blocked / n > .2 ? 'shield' : er > .05 || p95 > 3000 ? 'bad' : er > .01 || p95 > 1200 ? 'warn' : 'ok';
+            var mbps = bytes * 8 / 1e6 / Math.max(1, opt.dur), hitR = n ? hits / n : 0;
+            // keshdan berilgan katta sahifa sekin kelsa — tor joy sayt emas, foydalanuvchining internet kanali
+            var netBound = opt.target !== 'api' && hitR > .8 && er < .05 && p95 > 1200;
+            var cls = n && blocked / n > .2 ? 'shield' : netBound ? 'net' : er > .05 || p95 > 3000 ? 'bad' : er > .01 || p95 > 1200 ? 'warn' : 'ok';
             var codeTxt = Object.keys(codes).map(function (c) { return c + ': ' + codes[c]; }).join(', ');
             verdict.className = 'ld-v ' + (cls === 'shield' ? 'ok shield' : cls);
+            if (cls === 'net') {
+                verdict.className = 'ld-v ok';
+                verdict.textContent = "✅ Sayt barqaror — sekinlik sizning internetingizda. " + Math.round(hitR * 100) + "% javob Vercel keshidan bir zumda berildi, xatolar " + Math.round(er * 100) + "%." +
+                    "\nYuklab olish ~" + mbps.toFixed(0) + " Mbit/s da to'xtadi — bu sizning kanal tezligingiz: " + opt.conc + " ta sahifa (har biri ~" + Math.round(bytes / Math.max(1, n) / 1024) + " KB) navbatda kutdi." +
+                    "\nSaytning o'zini sinash uchun «📄 Sayt — kichik fayl» ni tanlang." + (codeTxt ? '\nJavob kodlari — ' + codeTxt : '');
+                return;
+            }
             verdict.textContent = cls === 'shield'
                 ? "🛡 Himoya ishladi: " + tg.name + " " + blocked + " ta so'rovni " + (codes[429] ? '429' : '403') + " bilan rad etdi — bitta IP'dan juda ko'p so'rov kelgani uchun uni hujum deb bilib, vaqtincha blokladi. Sayt yiqilmagan." +
                   "\nBlokdan oldin: " + ok + " ta muvaffaqiyatli so'rov, 95% " + Math.round(p95) + " ms dan tez; boshqa xatolar " + Math.max(0, Math.round(realErr * 100)) + "%." +
