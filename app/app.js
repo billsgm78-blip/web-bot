@@ -1374,6 +1374,7 @@
                     if (lastU && lastU.r === 'u') { chat.msgs.pop(); if (!ta.value && lastU.t) { ta.value = lastU.t; autoGrow(ta); } }
                     if (j.needLogin) { sessionExpired(); return; }
                     var eb = bubble({ r: 'a', t: '⚠️ ' + (j.error || L("Javob olib bo'lmadi", 'Не удалось получить ответ', 'Could not get a reply')), err: true });
+                    if (window.BilolNotify) window.BilolNotify.play('error');   // xato / balans yoki limit yetmadi
                     if (j.insufficient) { chatCTA(eb, 'money'); chatCTA(eb, 'free'); setBalance(j.balance); }
                     if (j.needSub) { chatCTA(eb, 'sub'); chatCTA(eb, 'free'); }
                     if (j.limitReached) chatCTA(eb, 'limit');
@@ -1443,6 +1444,7 @@
                     : j.noMoney ? L('Balans yetarli emas. Rasm narxi: ', 'Недостаточно средств. Цена: ', 'Not enough balance. Price: ') + money(j.price) + ' ' + T('sum')
                     : (j.error || L("Rasm yaratib bo'lmadi", 'Не удалось создать изображение', 'Could not create the image'))) });
                 if (j.needSub) chatCTA(eb, 'sub'); else if (j.noMoney) chatCTA(eb, 'money');
+                if (window.BilolNotify) window.BilolNotify.play('error');
                 box.appendChild(eb); scrollChat(true);
                 return;
             }
@@ -1596,6 +1598,7 @@
     }
     function notEnough(price) {
         if (state.balance != null && Number(state.balance) < Number(price)) {
+            if (window.BilolNotify) window.BilolNotify.play('error');
             ask(L('Balans yetarli emas', 'Недостаточно средств', 'Not enough balance'),
                 L('Yana ', 'Нужно ещё ', 'You need ') + money(price - state.balance) + ' ' + T('sum') + L(' kerak.', '.', ' more.'),
                 '💳 ' + L("To'ldirish", 'Пополнить', 'Top up')).then(function (ok) { if (ok) { switchTab('wallet'); openTopup(); } });

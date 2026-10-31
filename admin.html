@@ -1180,15 +1180,12 @@ select.inp option { background: #12151c; color: var(--text); }
             STICKERS[t].forEach(function (e) {
                 picks.appendChild(h('button', { class: 'sq', style: 'font-size:22px;width:44px;height:44px', text: e, onclick: function () { v.emoji = e; emo.value = e; repaint(); } }));
             });
-            var snd = h('select', { class: 'inp', style: 'max-width:220px' });
-            (j.sounds || []).forEach(function (sname) { var o = h('option', { value: sname, text: SOUND_NAMES[sname] || sname }); if (sname === v.sound) o.selected = true; snd.appendChild(o); });
-            snd.onchange = function () { v.sound = snd.value; if (window.BilolNotify) window.BilolNotify.play(v.sound, true); };
             view.appendChild(h('div', { class: 'h', text: n[1] }));
             view.appendChild(h('div', { class: 'card form' }, [
                 h('div', { class: 'sum', text: n[2] }),
                 h('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap' }, [h('div', { class: 'sum', text: 'Rang:' }), c1, c2, sw]),
                 h('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap' }, [h('div', { class: 'sum', text: 'Stiker:' }), emo, picks]),
-                h('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap' }, [h('div', { class: 'sum', text: 'Ovoz:' }), snd,
+                h('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap' }, [
                     h('button', { class: 'act', text: '▶ Ko\'rish', onclick: function () { preview(t, n[3]); } })])
             ]));
         });

@@ -32,8 +32,11 @@
         return 'info';
     }
 
-    // ---------- ovozlar (fayl kerak emas, WebAudio) ----------
+    // ---------- ovozlar (WebAudio); xato ovozi — fayldan (error-tap.mp3, shu fayl yonida) ----------
     var ctx = null;
+    var BASE = ((document.currentScript && document.currentScript.src) || '').replace(/[^\/?#]*([?#].*)?$/, '');
+    var errAudio = null;
+    try { errAudio = new Audio(BASE + 'error-tap.mp3'); errAudio.preload = 'auto'; } catch (e) {}
     function vol() {
         try { var v = localStorage.getItem('bilol_ai_volume'); return v === 'low' ? 0.35 : v === 'mid' ? 0.65 : 1; } catch (e) { return 1; }
     }
@@ -57,7 +60,10 @@
         pop: function () { tone(620, 0, 0.12, 'sine', 0.25, 260); },
         coin: function () { tone(1319, 0, 0.09, 'square', 0.07); tone(1976, 0.08, 0.32, 'square', 0.07); },
         beep: function () { tone(880, 0, 0.16, 'triangle', 0.22); tone(880, 0.2, 0.16, 'triangle', 0.18); },
-        error: function () { tone(330, 0, 0.16, 'sawtooth', 0.09, 300); tone(220, 0.17, 0.3, 'sawtooth', 0.1, 180); },
+        error: function () {
+            if (errAudio) { try { errAudio.pause(); errAudio.currentTime = 0; errAudio.volume = Math.min(1, vol()); var pr = errAudio.play(); if (pr && pr.catch) pr.catch(function () {}); return; } catch (e) {} }
+            tone(330, 0, 0.16, 'sawtooth', 0.09, 300); tone(220, 0.17, 0.3, 'sawtooth', 0.1, 180);
+        },
         bell: function () { tone(1568, 0, 0.9, 'sine', 0.18); tone(2349, 0.01, 0.6, 'sine', 0.08); tone(3136, 0.02, 0.4, 'sine', 0.04); }
     };
     function play(name, force) {
@@ -109,7 +115,7 @@
         el.innerHTML = '<span class="bn-st">' + esc(c.emoji || '') + '</span><span>' + esc(msg) + '</span><i class="bn-bar" style="animation-duration:' + dur + 'ms"></i>';
         el.style.transform = 'translate(-50%,0)';
         document.body.appendChild(el);
-        if (!opts.silent) play(c.sound);
+        if (!opts.silent) play(type === 'error' ? 'error' : c.sound);   // xato — doim bitta ovoz (admin sozlamasidan qat'i nazar)
         if (type === 'error' && navigator.vibrate) { try { navigator.vibrate([40, 40, 60]); } catch (e) {} }
 
         var timer = setTimeout(close, dur), sx = 0, sy = 0, drag = false;

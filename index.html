@@ -5466,7 +5466,8 @@ window.addEventListener('message', function (e) {
                 hideTyping();
                 if (data.insufficient) showNotification(data.error || tr("Balansda pul yetarli emas", "Not enough balance", "Недостаточно средств"), "error");
                 if (data.needSub) showNotification(data.error || tr("Bu agent faqat obunachilar uchun", "This agent is for subscribers only", "Этот агент только для подписчиков"), "warning");
-                if (data.webLimit && window.BilolWeb) { window.BilolWeb.left(0); showNotification(data.error, "warning"); }
+                if (data.webLimit && window.BilolWeb) { window.BilolWeb.left(0); showNotification(data.error, "error"); }
+                if (data.limitReached && window.BilolNotify) window.BilolNotify.play('error');   // kunlik limit tugadi — xato ovozi
                 if (data.limitReached || data.needLogin || data.maintenance || data.insufficient || data.needSub || data.webLimit) {
                     // Limit tugadi yoki qayta kirish kerak: savolni tarixdan olib tashlaymiz, keyin qayta yuborish mumkin
                     if (chatHistory.length && chatHistory[chatHistory.length - 1].role === "user") {
@@ -7064,6 +7065,7 @@ window.addEventListener('message', function (e) {
                         : j.noMoney ? T("Balans yetarli emas. Rasm narxi: ", 'Not enough balance. Image price: ', 'Недостаточно средств. Цена изображения: ') + money(j.price) + ' ' + sum()
                         : (j.error || T("Rasm yaratib bo'lmadi.", 'Could not create the image.', 'Не удалось создать изображение.'));
                     err.textContent = '⚠️ ' + t + (j.detail && rewards && rewards.isAdmin ? '\n\n[admin] ' + j.detail : '');
+                    if (window.BilolNotify) window.BilolNotify.play('error');   // rasm chiqmadi / balans yetmadi — xato ovozi
                     err.style.whiteSpace = 'pre-wrap';
                     msgBox.appendChild(err);
                     if (j.needSub) {
