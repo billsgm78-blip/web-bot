@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bilols AI — Yo'lak</title>
+<meta name="description" content="Bilols AI — o'zbek tilini tushunadigan sun'iy intellekt: chat, rasm, hujjat, matematika, tarjima, agentlar, do'kon va ilovalar.">
+<meta name="theme-color" content="#0b0b0d">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+@font-face{font-family:Outfit;font-weight:500;font-display:swap;src:url(app/fonts/outfit-500.woff2) format("woff2")}
+@font-face{font-family:Outfit;font-weight:800;font-display:swap;src:url(app/fonts/outfit-800.woff2) format("woff2")}
+:root{--bg:#0b0b0d;--ink:#f5f5f4;--mut:#8b8b92;--line:rgba(255,255,255,.14);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Outfit,system-ui,sans-serif;font-weight:500;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+
+/* fon: sim chiziqlar va texnik yozuvlar */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s}
+.bg.on{opacity:1}
+.bg svg{width:100%;height:100%}
+.bg text{font:10px var(--mono);fill:rgba(255,255,255,.28)}
+
+/* 3D sahna */
+.stage{position:fixed;inset:0;z-index:1;perspective:900px;perspective-origin:50% -10%;overflow:hidden}
+.plane{position:absolute;left:0;bottom:0;display:flex;flex-direction:column-reverse;transform-origin:50% 100%;will-change:transform;transform-style:preserve-3d}
+.sec{position:relative;flex:none;width:100%;overflow:visible;transform-style:preserve-3d}
+.sec .in{position:absolute;inset:0;padding:6% 7%}
+
+/* kirish (hero) — tekis sahifa */
+.hero{background:#1f2be0;display:grid;grid-template-columns:auto 230px 1fr;gap:18px;padding:18px}
+.hero .word{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:min(19vh,15vw);line-height:.8;letter-spacing:-.04em;white-space:nowrap}
+.hero .col{display:flex;flex-direction:column;gap:12px;font:12px/1.5 var(--mono)}
+.hero .col .bx{border:1px solid rgba(255,255,255,.35);padding:10px}
+.hero .col ol{list-style:none}
+.hero .col li{display:flex;justify-content:space-between}
+.hero .col li b{font-weight:500;opacity:.6}
+.hero .logo{width:64px;height:64px;border-radius:16px;margin:6px 0}
+.hero .graph{background:#0a0f3d;position:relative;overflow:hidden}
+.hero .graph svg{position:absolute;inset:0;width:100%;height:100%}
+.hero .graph text{font:11px var(--mono);fill:#c7d2fe}
+.hero .tag{position:absolute;left:12px;bottom:12px;font:11px var(--mono);color:#c7d2fe;opacity:.8}
+@media(max-width:760px){.hero{grid-template-columns:auto 1fr;grid-template-rows:auto 1fr;gap:10px;padding:12px}.hero .col{grid-column:2;grid-row:1;font-size:11px;gap:8px}.hero .col .bx:nth-child(n+3){display:none}.hero .graph{grid-column:2;grid-row:2;min-height:200px}.hero .word{grid-row:1/3;font-size:15vh}}
+
+/* bo'lim tasmalari */
+.band h2{font-weight:800;font-size:clamp(40px,6vw,96px);letter-spacing:-.03em;line-height:.95;margin-bottom:2%}
+.band .lead{max-width:34ch;font-size:clamp(15px,1.5vw,22px);line-height:1.35;opacity:.9}
+.band .num{font:13px var(--mono);opacity:.7;margin-bottom:10px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:3%;margin-top:5%;transform-style:preserve-3d}
+.card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.28);padding:8px;transform:translateZ(36px);box-shadow:0 40px 60px -30px rgba(0,0,0,.6)}
+.card img{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top;background:#fff}
+.card.ph img{aspect-ratio:9/14}
+.card p{font:12px/1.4 var(--mono);margin-top:8px;opacity:.85}
+.notes{display:grid;grid-template-columns:repeat(4,1fr);gap:3%;margin-top:6%;font:12px/1.5 var(--mono);opacity:.8}
+.notes div{border-top:1px solid rgba(255,255,255,.35);padding-top:8px}
+.end{background:#141416;text-align:center}
+.end h2{font-size:clamp(40px,7vw,110px)}
+
+/* ekrandagi (tekis) qatlamlar */
+.ui{position:fixed;z-index:3;pointer-events:none;opacity:0;transition:opacity .5s}
+.ui.on{opacity:1}
+.idx{left:20px;top:50%;transform:translateY(-50%);font:12px/2 var(--mono);color:var(--mut);pointer-events:auto}
+.idx a{display:flex;align-items:center;gap:10px}
+.idx a::after{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.4}
+.idx a.on{color:#fff}
+.idx a.on::after{opacity:1;box-shadow:0 0 10px #fff}
+.cap{right:24px;top:22px;width:min(360px,calc(100vw - 48px));text-align:right}
+.cap .t{font-weight:800;font-size:clamp(22px,2.6vw,34px);letter-spacing:-.02em;transition:opacity .3s,transform .3s}
+.cap .d{font:12.5px/1.5 var(--mono);color:#d4d4d8;margin-top:6px;transition:opacity .3s}
+.cap.sw .t,.cap.sw .d{opacity:0;transform:translateY(6px)}
+.lab{font-weight:800;font-size:clamp(13px,1.3vw,18px);text-shadow:0 2px 12px rgba(0,0,0,.8);transition:opacity .4s,transform .4s}
+.lab.l{left:4%;top:52%}.lab.r{right:4%;top:42%;text-align:right}
+.lines{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .5s}
+.lines.on{opacity:1}
+.lines path{fill:none;stroke:rgba(255,255,255,.55);stroke-width:1}
+.cta{left:50%;bottom:12%;transform:translateX(-50%);text-align:center;pointer-events:none}
+.cta.on{pointer-events:auto}
+.cta a{display:inline-block;background:#fff;color:#000;font-weight:800;padding:14px 34px;font-size:16px;box-shadow:0 0 0 0 rgba(255,255,255,.5);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 18px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+.cta small{display:block;margin-top:14px;font:11px var(--mono);color:var(--mut)}
+.top{left:20px;top:18px;font-weight:800;font-size:18px;pointer-events:auto}
+.top b{color:#818cf8}
+.hint{left:50%;bottom:22px;transform:translateX(-50%);font:11px var(--mono);color:#e0e7ff;letter-spacing:.2em}
+@media(max-width:760px){.idx{display:none}.lab{display:none}.lines{display:none}.cap{top:auto;bottom:14px;right:12px;text-align:left;left:12px;width:auto;background:rgba(11,11,13,.88);border:1px solid var(--line);padding:12px 14px;border-radius:12px}.cta{bottom:16%}}
+
+/* harakatsiz rejim: oddiy ketma-ket sahifa */
+@media (prefers-reduced-motion:reduce){
+  .stage{position:static;perspective:none}.plane{position:static;transform:none!important;flex-direction:column;width:auto!important;height:auto!important}
+  .sec{height:auto!important;min-height:100vh}.sec .in{position:static}.ui,.lines,.bg{display:none}.spacer{display:none}
+}
+</style>
+</head>
+<body>
+<div class="bg" id="bg"><svg id="wire" aria-hidden="true"></svg></div>
+<div class="stage"><div class="plane" id="plane"></div></div>
+<svg class="lines" id="lines" aria-hidden="true"><path id="ln1"/><path id="ln2"/></svg>
+
+<a class="ui top on" href="https://bilolsai.uz">Bilols<b>.</b>AI</a>
+<nav class="ui idx" id="idx" aria-label="Bo'limlar"></nav>
+<div class="ui cap" id="cap"><div class="t" id="capT"></div><div class="d" id="capD"></div></div>
+<div class="ui lab l" id="labL"></div>
+<div class="ui lab r" id="labR"></div>
+<div class="ui hint on" id="hint">↓ PASTGA SURING</div>
+<div class="ui cta" id="cta"><a href="https://bilolsai.uz">Boshlash →</a><small>bepul · o'zbek tilida · web, Android, Windows</small></div>
+<div class="spacer" id="spacer"></div>
+
+<script>
+(function(){
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var S=[
+ {k:'chat',n:'AI chat',c:'#1f2be0',d:"O'zbek tilini tushunadigan suhbatdosh: savol bering, rasm yoki hujjat yuboring — soniyalar ichida aniq javob.",
+  cards:[['w-modes.webp','5 ta AI rejim: oddiy, chuqur, ijodiy…'],['p-home.webp','Telefonda — xuddi messenjerdek',1],['p-models.webp','Bir nechta AI modeldan tanlang',1]],
+  notes:["Javoblar o'zbek, rus va ingliz tilida","Internetdan qidiradi","Suhbatlar hamma qurilmada","Kuniga bepul xabarlar"],l:'5 ta AI rejim',r:'Bir nechta model'},
+ {k:'rasm',n:'Rasm yaratish',c:'#6d28d9',d:"G'oyangizni yozing — Bilols AI uni rasmga aylantiradi. Saqlang, ulashing, qayta chizdiring.",
+  cards:[['w-image.webp','Matndan rasm'],['p-image.webp','Telefonda ham',1],['w-ideas.webp',"G'oyalar va ilhom"]],
+  notes:['Matndan rasm','Bir bosishda saqlash','Ulashish','Har rasm — alohida narx'],l:'Matndan rasm',r:'Saqlash va ulashish'},
+ {k:'hujjat',n:'Hujjat va insho',c:'#be185d',d:"PDF, rasm yoki matnni yuboring — xulosa, reja, insho va javoblar tayyor.",
+  cards:[['w-doc.webp','Hujjatni tahlil qiladi'],['w-essay.webp','Insho va reja'],['p-doc.webp','Telefondan yuklash',1]],
+  notes:['PDF va rasm','Qisqa xulosa','Insho rejasi','Savol-javob'],l:'PDF va rasmni o\'qiydi',r:'Insho, reja, xulosa'},
+ {k:'math',n:'Matematika va kod',c:'#c2410c',d:"Misolni bosqichma-bosqich yechadi, formulalarni chiroyli ko'rsatadi, kodingizdagi xatoni topadi.",
+  cards:[['w-math.webp','Formulalar — KaTeX'],['w-code.webp','Kodni tuzatadi'],['p-code.webp','Python, JS va boshqalar',1]],
+  notes:['Bosqichma-bosqich yechim','LaTeX formulalar','Xatoni topadi','Nusxa olish tugmasi'],l:'Formulalar',r:'Kodni topib to\'g\'rilaydi'},
+ {k:'tarjima',n:'Tarjima',c:'#15803d',d:"Uch tilda tabiiy tarjima: o'zbek, rus, ingliz. Ma'noni saqlaydi, so'zma-so'z emas.",
+  cards:[['w-translate.webp','UZ · RU · EN'],['p-translate.webp','Ovoz va matn',1],['w-hub-profile.webp','Til sozlamalari']],
+  notes:["O'zbek","Rus","Ingliz","Ma'noni saqlaydi"],l:'UZ · RU · EN',r:'Tabiiy tarjima'},
+ {k:'agent',n:'Agentlar ofisi',c:'#0f766e',d:"Piksel-art ofis: har bir AI agent — o'z stoli va vazifasi bor xodim. Ishlayotganini real vaqtda ko'rasiz.",
+  cards:[['w-office.webp','Agentlar ishlayapti'],['p-office.webp','Telefonda ofis',1],['w-db.webp','Baza zali']],
+  notes:['Rahbar va kodchi','Dizayner, tarjimon','Real vaqtda','Kamera va baza'],l:'Har agent — o\'z stoli',r:'Real vaqtda'},
+ {k:'dokon',n:"Do'kon va hamyon",c:'#a21caf',d:"Balansni Click, Payme yoki karta orqali to'ldiring. Obuna, Telegram Stars va Premium — bir joyda.",
+  cards:[['w-hub-shop.webp',"Do'kon"],['p-hub-shop.webp','Hamyon',1],['w-hub-orders.webp','Buyurtmalar']],
+  notes:['Click va Payme','Karta orqali','Stars va Premium','Kunlik bonus'],l:'Click, Payme, karta',r:'Stars va Premium'},
+ {k:'ilova',n:'Ilovalar',c:'#27272a',d:"Android ilova, Windows dasturi va iPhone'da bosh ekranga qo'shish. Kompyuterga QR kod bilan bir zumda kirasiz.",
+  cards:[['w-qr.webp','QR kod bilan kirish'],['p-hub-apk.webp','Android APK',1],['w-hub-apk.webp','Yuklab olish']],
+  notes:['Android','Windows','iPhone','QR bilan kirish'],l:'Android · Windows · iPhone',r:'QR bilan kirish'}
+];
+var plane=document.getElementById('plane'),VW,VH,HS,HERO,TOTAL,TILT_END,TRAVEL,secs=[];
+
+// --- hero ---
+function heroHTML(){
+  var li=S.map(function(s,i){return '<li><span>'+s.n+'</span><b>0'+(i+1)+'</b></li>'}).join('');
+  return '<div class="word">Bilols AI</div><div class="col"><div class="bx"><ol>'+li+'</ol></div>'+
+    '<div class="bx">O\'zbek tilini tushunadigan shaxsiy sun\'iy intellekt<img class="logo" src="icons/icon-192.png" alt=""></div>'+
+    '<div class="bx">3 platforma: Web · Android · Windows<br>3 til: UZ · RU · EN</div>'+
+    '<div class="bx">50+ server API<br>Agentlar ofisi — real vaqtda</div></div>'+
+    '<div class="graph"><svg id="graph"></svg><div class="tag">bilolsai.uz — hammasi bir joyda</div></div>';
+}
+function graph(){
+  var g=document.getElementById('graph'),r=g.getBoundingClientRect(),w=r.width||600,h=r.height||600,out='';
+  g.setAttribute('viewBox','0 0 '+w+' '+h);
+  var cx=w/2,cy=h/2,R=Math.min(w,h)*.36,seed=7;function rnd(){seed=(seed*9301+49297)%233280;return seed/233280}
+  S.forEach(function(s,i){
+    var a=i/S.length*6.283-1.2,x=cx+Math.cos(a)*R*(.8+rnd()*.35),y=cy+Math.sin(a)*R*(.8+rnd()*.35);
+    for(var k=0;k<14;k++){var b=rnd()*6.283,d=18+rnd()*70,x2=x+Math.cos(b)*d,y2=y+Math.sin(b)*d;
+      out+='<line x1="'+x+'" y1="'+y+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(k%5?'rgba(129,140,248,.35)':'rgba(74,222,128,.5)')+'"/>';
+      if(k%3===0)out+='<rect x="'+(x2-3)+'" y="'+(y2-3)+'" width="6" height="6" fill="#fff" opacity=".85"/>';}
+    out+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="rgba(199,210,254,.25)"/>';
+    out+='<circle cx="'+x+'" cy="'+y+'" r="3.5" fill="#c7d2fe"/><text x="'+(x+8)+'" y="'+(y-6)+'">'+s.n+'  0'+(i+1)+'</text>';
+  });
+  out+='<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="#4ade80"><animate attributeName="r" values="5;9;5" dur="2.4s" repeatCount="indefinite"/></circle>';
+  g.innerHTML=out;
+}
+// --- bo'limlar ---
+function bandHTML(s,i){
+  return '<div class="in"><div class="num">0'+(i+1)+' / 0'+S.length+'</div><h2>'+s.n+'</h2><p class="lead">'+s.d+'</p><div class="cards">'+
+    s.cards.map(function(c){return '<div class="card'+(c[2]?' ph':'')+'"><img src="img/show/'+c[0]+'" alt="" loading="lazy" decoding="async"><p>'+c[1]+'</p></div>'}).join('')+
+    '</div><div class="notes">'+s.notes.map(function(n){return '<div>'+n+'</div>'}).join('')+'</div></div>';
+}
+function build(){
+  var h=document.createElement('section');h.className='sec hero';h.innerHTML=heroHTML();plane.appendChild(h);secs.push(h);
+  S.forEach(function(s,i){var e=document.createElement('section');e.className='sec band';e.style.background=s.c;e.innerHTML=bandHTML(s,i);plane.appendChild(e);secs.push(e)});
+  var end=document.createElement('section');end.className='sec band end';end.innerHTML='<div class="in" style="display:flex;flex-direction:column;justify-content:center;align-items:center"><div class="num">BILOLSAI.UZ</div><h2>Savol bering.<br>Javob oling.</h2></div>';
+  plane.appendChild(end);secs.push(end);
+  document.getElementById('idx').innerHTML=S.map(function(s,i){return '<a href="#" data-i="'+i+'">'+s.n+'</a>'}).join('');
+  document.getElementById('idx').addEventListener('click',function(e){var a=e.target.closest('a');if(!a)return;e.preventDefault();scrollTo({top:TILT_END+(+a.dataset.i+.35)*HS*K,behavior:'smooth'})});
+}
+// --- fon simlari ---
+function wire(){
+  var w=VW,h=VH,o='',cx=w/2;
+  for(var i=-8;i<=8;i++)o+='<path d="M'+(cx+i*18)+' '+(h*.05)+' Q '+(cx+i*w*.06)+' '+(h*.5)+' '+(cx+i*w*.14)+' '+h+'" stroke="rgba(255,255,255,'+(Math.abs(i)>3?.07:.12)+')" fill="none"/>';
+  for(var j=0;j<6;j++){var y=h*(.15+j*.15);o+='<text x="'+(w*.06+j*13)+'" y="'+y+'">x = '+(j*12.4).toFixed(1)+'  y = '+(4.2*j).toFixed(2)+'</text><text x="'+(w*.82)+'" y="'+(y+30)+'">'+(1200+j*850)+'</text>'}
+  o+='<circle cx="'+(w*.82)+'" cy="'+(h*.24)+'" r="'+(h*.07)+'" fill="none" stroke="rgba(255,255,255,.12)"/><ellipse cx="'+(w*.82)+'" cy="'+(h*.24)+'" rx="'+(h*.07)+'" ry="'+(h*.025)+'" fill="none" stroke="rgba(255,255,255,.12)"/>';
+  o+='<rect x="'+(w*.1)+'" y="'+(h*.7)+'" width="'+(h*.08)+'" height="'+(h*.12)+'" fill="none" stroke="rgba(255,255,255,.1)"/><rect x="'+(w*.1+8)+'" y="'+(h*.7-8)+'" width="'+(h*.08)+'" height="'+(h*.12)+'" fill="none" stroke="rgba(255,255,255,.08)"/>';
+  var sv=document.getElementById('wire');sv.setAttribute('viewBox','0 0 '+w+' '+h);sv.innerHTML=o;
+}
+var K=1.15;  // skroll tezligi: 1 px skroll = K px yo'lak
+function layout(){
+  VW=innerWidth;VH=innerHeight;HERO=VH;HS=Math.max(VH*1.15,Math.min(VW*.9,1100));
+  secs.forEach(function(e,i){e.style.height=(i===0?HERO:HS)+'px'});
+  TOTAL=HERO+HS*(secs.length-1);
+  plane.style.width=VW+'px';plane.style.height=TOTAL+'px';
+  TILT_END=VH*.9;TRAVEL=TOTAL-HERO-HS*.35;
+  document.getElementById('spacer').style.height=(TILT_END+TRAVEL/K+VH)+'px';
+  wire();graph();
+}
+var cap=document.getElementById('cap'),capT=document.getElementById('capT'),capD=document.getElementById('capD'),labL=document.getElementById('labL'),labR=document.getElementById('labR'),
+    links=document.querySelectorAll('#idx a'),cur=-2,ln1=document.getElementById('ln1'),ln2=document.getElementById('ln2');
+function show(i){
+  if(i===cur)return;cur=i;
+  var on=i>=0&&i<S.length;
+  ['idx','cap','labL','labR','lines'].forEach(function(id){document.getElementById(id).classList.toggle('on',on)});
+  document.getElementById('cta').classList.toggle('on',i>=S.length);
+  document.getElementById('bg').classList.toggle('on',i>=-1&&tilt>.15);
+  [].forEach.call(document.querySelectorAll('#idx a'),function(a,k){a.classList.toggle('on',k===i)});
+  if(!on)return;
+  cap.classList.add('sw');
+  setTimeout(function(){capT.textContent='0'+(i+1)+' — '+S[i].n;capD.textContent=S[i].d;labL.textContent=S[i].l;labR.textContent=S[i].r;cap.classList.remove('sw')},180);
+}
+var tilt=0;
+function frame(){
+  var y=scrollY,t=Math.min(1,y/TILT_END),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  tilt=e;
+  var off=Math.max(0,Math.min(TRAVEL,(y-TILT_END)*K));
+  plane.style.transform='translate3d(0,0,'+(-e*120)+'px) rotateX('+(e*62)+'deg) translate3d(0,'+off+'px,0)';
+  // faqat yaqindagi bo'limlar chiziladi (uzoq va o'tib ketganlari yashirinadi)
+  var near=HERO+off;   // tekislik pastidan yaqin nuqtagacha bo'lgan masofa
+  for(var k=0;k<secs.length;k++){var from=k===0?0:HERO+(k-1)*HS,to=from+(k===0?HERO:HS);secs[k].style.visibility=(to<off-VH*.3||from>off+HS*3.2)?'hidden':'visible'}
+  // ekranda eng yaqin ko'rinib turgan tasma (tekislik pastidan off + bir oz oldinda)
+  var idx=t<1?-1:Math.floor((off+HS*.3-HERO)/HS);
+  if(idx<-1)idx=-1;if(idx>S.length)idx=S.length;
+  document.getElementById('bg').classList.toggle('on',t>.15);
+  document.getElementById('hint').classList.toggle('on',y<40);
+  show(t<1?-1:idx);
+  if(cur>=0&&cur<S.length){
+    var mx=VW/2;
+    ln1.setAttribute('d','M'+(VW*.04+labL.offsetWidth+8)+' '+(VH*.52+10)+' C '+(VW*.3)+' '+(VH*.52+10)+' '+(mx-120)+' '+(VH*.66)+' '+(mx-60)+' '+(VH*.7));
+    ln2.setAttribute('d','M'+(VW*.96-labR.offsetWidth-8)+' '+(VH*.42+10)+' C '+(VW*.7)+' '+(VH*.42+10)+' '+(mx+120)+' '+(VH*.55)+' '+(mx+70)+' '+(VH*.6));
+  }
+}
+build();
+if(reduce){secs.forEach(function(e){e.style.height='auto'});graph();return}
+layout();frame();
+var tk=false;addEventListener('scroll',function(){if(!tk){tk=true;requestAnimationFrame(function(){frame();tk=false})}},{passive:true});
+addEventListener('resize',function(){layout();frame()});
+addEventListener('load',function(){graph()});
+})();
+</script>
+</body>
+</html>
