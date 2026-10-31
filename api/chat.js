@@ -14,10 +14,11 @@ const LOGIN_MSG = {
   en: "Please log out and log in again."
 };
 
-// Har bir xabardan oldin limitni tekshiradi. Bot serveri javob bermasa, chat to'xtab qolmasligi uchun ruxsat beriladi.
+// Har bir xabardan oldin limitni tekshiradi. Bot serveri javob bermasa — xabar yuborilmaydi
+// (avval ruxsat berilardi: server uxlab yotganda istalgan odam soxta raqam bilan AI'dan bepul foydalana olardi).
 async function checkQuota(phone, password, model, client, web) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 6000);
+  const timer = setTimeout(() => ctrl.abort(), 9000);
   try {
     const r = await fetch(`${RAILWAY_URL}/api/chat-quota`, {
       method: "POST",
@@ -28,10 +29,10 @@ async function checkQuota(phone, password, model, client, web) {
     if (r.status === 403) return { allowed: false, needLogin: true };
     const j = await r.json().catch(() => ({}));
     if (j.blocked) return { allowed: false, maintenance: true, message: j.message };
-    if (!j.success) return { allowed: true };
+    if (!j.success) return { allowed: false, offline: true };
     return j;
   } catch (e) {
-    return { allowed: true, offline: true };
+    return { allowed: false, offline: true };
   } finally {
     clearTimeout(timer);
   }
@@ -97,6 +98,10 @@ export default async function handler(req, res) {
   const quota = await checkQuota(String(phone), String(password), typeof model === "string" ? model.slice(0, 80) : "", /appassets\.androidplatform\.net/.test(String(req.headers.origin || "")) ? "app" : "web", wantWeb);
   if (quota.needLogin) {
     return res.status(401).json({ error: LOGIN_MSG[uiLang], needLogin: true });
+  }
+  if (quota.offline) {
+    const busy = { uz: "⏳ Server uyg'onmoqda — bir necha soniyadan so'ng xabarni qayta yuboring.", ru: "⏳ Сервер просыпается — отправьте сообщение ещё раз через несколько секунд.", en: "⏳ The server is waking up — please send your message again in a few seconds." };
+    return res.status(503).json({ error: busy[uiLang] || busy.uz, retry: true });
   }
   if (!quota.allowed && quota.maintenance) {
     return res.status(503).json({ error: "🛠 " + (quota.message || "Texnik ishlar olib borilmoqda."), maintenance: true });

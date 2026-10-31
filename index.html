@@ -4576,7 +4576,10 @@ window.addEventListener('message', function (e) {
         try {
             const cleanPhone = currentPhone.replace(/[^0-9]/g, "");
             paintCachedBalance(cleanPhone);
-            const res = await fetch(`${RAILWAY_URL}/api/balance?phone=${cleanPhone}`);
+            const res = await fetch(`${RAILWAY_URL}/api/balance`, {   // balans faqat hisob egasiga (parol/sessiya bilan)
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone: cleanPhone, password: localStorage.getItem("bilol_ai_password") || "" })
+            });
             const data = await res.json();
             if (data.balance === undefined || data.balance === null) return;   // server xatosi — balans 0 deb ko'rsatilmaydi
             const currentBal = Number(data.balance || 0);
