@@ -565,7 +565,7 @@ html[data-design="premium"] .pd-page {
 
 /* nav */
 .pd-nav { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 14px; padding-top: calc(12px + env(safe-area-inset-top)); padding-bottom: 12px;
-    background: color-mix(in srgb, var(--pd-bg) 88%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid var(--pd-line); }
+    background: var(--pd-bg); border-bottom: 1px solid var(--pd-line); }   /* blur yo'q: yopishqoq menyu ostida har kadr xiralashtirish telefonni qotiradi */
 .pd-brand { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 16px; letter-spacing: -.01em; margin-right: auto; }
 .pd-logo { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--pd-ink); color: var(--pd-bg); }
 .pd-logo svg { width: 15px; height: 15px; }

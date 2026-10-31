@@ -2696,17 +2696,18 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
   .pd-sw-stick { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; isolation: isolate; }
   /* 🏷 yorliqlar — orqa fonda suzib yuradi, bo'lim almashganda chetdan silliq kirib keladi */
   .pd-sw-tags { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-  .pd-sw-chip { position: absolute; left: var(--x); top: var(--y); opacity: 0; transform: translate3d(var(--dx), var(--dy), 0) scale(.85); filter: blur(var(--b, 0px));
+  .pd-sw-chip { position: absolute; left: var(--x); top: var(--y); opacity: 0; transform: translate3d(var(--dx), var(--dy), 0) scale(.85);
       transition: opacity .9s cubic-bezier(.16, 1, .3, 1) var(--d), transform 1.2s cubic-bezier(.16, 1, .3, 1) var(--d); }
   .pd-sw-chip.in { opacity: var(--o, .85); transform: none; }
   .pd-sw-chip.out { opacity: 0; transform: translate3d(calc(var(--dx) * -.4), -30px, 0) scale(.9); transition-duration: .6s, .7s; transition-delay: 0s; }
   .pd-sw-chip span { display: inline-flex; align-items: center; gap: 9px; padding: 11px 20px; border-radius: 999px; white-space: nowrap; font-size: var(--fs, 17px); font-weight: 600; color: #f6efe9;
-      background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .16); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 20px 40px -20px rgba(0,0,0,.6);
+      background: rgba(38, 36, 40, .92); border: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 20px 40px -20px rgba(0,0,0,.6);
       animation: swFloat var(--ft, 7s) ease-in-out infinite alternate; }
   .pd-sw-chip span::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #ff8a4c; box-shadow: 0 0 10px #ff8a4c; }
   .pd-sw-tags.mob { left: 12px; right: 12px; top: var(--band, 40%); bottom: auto; height: 46px; display: flex; justify-content: center; align-items: center; gap: 8px; overflow: visible; z-index: 1; }
   .pd-sw-tags.mob .pd-sw-chip { position: relative; left: auto; top: auto; }
   .pd-sw-tags.mob .pd-sw-chip span { padding: 8px 14px; }
+  .pd-show:not(.sw-vis) .pd-sw-chip span { animation-play-state: paused; }   /* bo'lim ko'rinmasa yorliqlar suzmaydi */
   @keyframes swFloat { from { transform: translate3d(0, -8px, 0) rotate(-1.5deg); } to { transform: translate3d(14px, 10px, 0) rotate(1.5deg); } }
   @media (prefers-reduced-motion: reduce) { .pd-sw-chip span { animation: none; } .pd-sw-chip { transition: opacity .3s; transform: none !important; } }
   .pd-sw-glow { position: absolute; inset: 0; z-index: -4; background: radial-gradient(55% 60% at 70% 50%, rgba(255, 110, 40, .32), transparent 70%), radial-gradient(40% 40% at 20% 90%, rgba(120, 80, 255, .14), transparent 70%); transition: background 1s; }
@@ -2784,6 +2785,7 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
   <script id="show-script">
   (function () {
       var sec = document.getElementById('pd-show'); if (!sec) return;
+      if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { sec.classList.toggle('sw-vis', e[0].isIntersecting); }).observe(sec); else sec.classList.add('sw-vis');
       var $ = function (q) { return sec.querySelector(q); };
       var K = $('.pd-sw-k'), Hh = $('.pd-sw-h'), P = $('.pd-sw-typed'), F = $('.pd-sw-facts'), C = $('.pd-sw-cta'), TAG = $('.pd-sw-tag'), phone = $('.pd-sw-phone');
       var N = 20, win = $('.pd-sw-win'), scr = $('.pd-sw-scr'), bar = $('.pd-sw-bar'), NUM = $('.pd-sw-num'), bgs = [], imgs = [], bars = [];
@@ -2937,9 +2939,9 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
           else {                                             // telefon aylanib keladi: yarim burilishda ekran almashadi
               flip = { t0: performance.now(), to: i, dir: i > prev ? 1 : -1, swapped: false };
               requestAnimationFrame(flipLoop);
-              bgs[i].animate([{ opacity: 0, transform: 'translateX(' + (8 * flip.dir) + '%) scale(1.06)', filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 900, easing: 'cubic-bezier(.16,1,.3,1)' });
+              bgs[i].animate([{ opacity: 0, transform: 'translateX(' + (8 * flip.dir) + '%) scale(1.06)' }, { opacity: 1, transform: 'none' }], { duration: 900, easing: 'cubic-bezier(.16,1,.3,1)' });
           }
-          if (!reduce && Hh.animate) Hh.animate([{ opacity: 0, transform: 'translateY(18px)', filter: 'blur(6px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 700, easing: 'cubic-bezier(.16,1,.3,1)' });
+          if (!reduce && Hh.animate) Hh.animate([{ opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.16,1,.3,1)' });
       }
       function update() {
           ticking = false;
@@ -5731,9 +5733,15 @@ body.theme-light .uid-chip { color: #0f172a; border-color: rgba(15,23,42,0.15); 
             return reduce || document.hidden || document.body.classList.contains('fx-no-particles') || (o && o.classList.contains('disabled'));
         }
 
+        var parked = false;
         function frame() {
+            // ko'rinmayotgan kanvasga (dizayn uni yashirgan yoki effektlar o'chiq) har kadrda chizilmaydi — telefon qotmasin
+            if (animationsOff() || !cv.getClientRects().length) {
+                if (!parked) { ctx.clearRect(0, 0, W, H); parked = true; }
+                setTimeout(frame, 1000); return;
+            }
+            parked = false;
             requestAnimationFrame(frame);
-            if (animationsOff()) { ctx.clearRect(0, 0, W, H); return; }
             ctx.clearRect(0, 0, W, H);
             for (var i = 0; i < pts.length; i++) {
                 var p = pts[i];
