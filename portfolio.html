@@ -191,6 +191,7 @@ section{position:relative}
 .cert .meta small{color:var(--mut);font-size:13px}
 .cert .badge{flex:none;font-size:12px;border:1px solid rgba(245,181,68,.5);color:var(--gold);border-radius:99px;padding:6px 12px;white-space:nowrap}
 .cert .ok{position:absolute;top:14px;right:14px;background:rgba(7,7,10,.82);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:6px 12px;font-size:12px}
+@media(min-width:1100px){.cert-g{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.cert-g{grid-template-columns:1fr}}
 /* katta ko'rish */
 .lb-cert{position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -405,12 +406,17 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;color:
   <div class="lbl">Sertifikatlar</div>
   <h2 class="big-h rv">O'qishdan to'xtamayman</h2>
   <div class="cert-g">
-    <a class="cert rv" href="img/cert/google-genai.webp?v=2">
+    <a class="cert rv" href="img/cert/anthropic-ai-fluency.webp">
+      <div class="ph"><img src="img/cert/anthropic-ai-fluency-sm.webp" alt="Anthropic — AI Fluency: Framework &amp; Foundations sertifikati" loading="lazy" decoding="async"></div>
+      <span class="ok">✓ Anthropic Academy</span>
+      <div class="meta"><div><b>AI Fluency: Framework &amp; Foundations</b><small>Anthropic · Anthropic Academy</small></div><span class="badge">Anthropic</span></div>
+    </a>
+    <a class="cert rv" style="transition-delay:.1s" href="img/cert/google-genai.webp?v=2">
       <div class="ph"><img src="img/cert/google-genai-sm.webp?v=2" alt="Google Cloud — Introduction to Generative AI sertifikati" loading="lazy" decoding="async"></div>
       <span class="ok">✓ Coursera tasdiqlagan</span>
       <div class="meta"><div><b>Introduction to Generative AI</b><small>Google Cloud · Coursera</small></div><span class="badge">Google Cloud</span></div>
     </a>
-    <a class="cert rv" style="transition-delay:.1s" href="img/cert/scrimba-ai-apps.webp?v=2">
+    <a class="cert rv" style="transition-delay:.2s" href="img/cert/scrimba-ai-apps.webp?v=2">
       <div class="ph"><img src="img/cert/scrimba-ai-apps-sm.webp?v=2" alt="Scrimba — Build AI Apps with ChatGPT, DALL-E and GPT-4 sertifikati" loading="lazy" decoding="async"></div>
       <span class="ok">✓ Coursera tasdiqlagan</span>
       <div class="meta"><div><b>Build AI Apps with ChatGPT, DALL·E and GPT-4</b><small>Scrimba · Coursera</small></div><span class="badge">Scrimba</span></div>
