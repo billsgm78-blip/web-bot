@@ -1179,6 +1179,16 @@
     }
     function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = Math.min(140, ta.scrollHeight) + 'px'; }
     $('c-in').addEventListener('input', function () { autoGrow(this); });
+    /* Enter — yuborish, Shift+Enter — yangi qator (telefon klaviaturasida Enter yangi qator bo'lib qoladi) */
+    var touchKb = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    function enterSends(ta, send) {
+        ta.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' || e.shiftKey || e.isComposing || e.keyCode === 229 || touchKb) return;
+            e.preventDefault();
+            send();
+        });
+    }
+    enterSends($('c-in'), function () { sendChat(); });
 
     /* Rasm biriktirish (kamera yoki galereya) */
     var pickTarget = 'chat';
@@ -2003,6 +2013,7 @@
     $('sp-pick').onclick = function () { pickPhoto('support'); };
     $('sp-att-x').onclick = function () { sp.img = null; $('sp-att').hidden = true; };
     $('sp-in').addEventListener('input', function () { autoGrow(this); });
+    enterSends($('sp-in'), function () { $('sp-send').click(); });
     $('sp-send').onclick = async function () {
         var ta = $('sp-in'), text = ta.value.trim();
         if (!text && !sp.img) return;
