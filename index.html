@@ -11516,7 +11516,15 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 #auth-modal#auth-modal .auth-field-pass .auth-field-icon { display: none !important; }
 #auth-modal#auth-modal .auth-eye { right: 9px !important; width: 40px; height: 40px; color: #fff !important; background: transparent !important; }
 #auth-modal#auth-modal .auth-eye svg { width: 24px !important; height: 24px !important; stroke-width: 1.5; }
-#auth-modal#auth-modal input:-webkit-autofill { -webkit-text-fill-color: #fff !important; -webkit-box-shadow: 0 0 0 40px rgba(40, 40, 60, .95) inset !important; caret-color: #fff; }
+/* Brauzer avto-to'ldirgan maydon oq bo'lib qolmasin */
+#auth-modal#auth-modal .auth-field .styled-input:-webkit-autofill,
+#auth-modal#auth-modal .auth-field .styled-input:-webkit-autofill:hover,
+#auth-modal#auth-modal .auth-field .styled-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #fff !important; caret-color: #fff;
+    -webkit-box-shadow: 0 0 0 60px rgba(28, 30, 48, .96) inset !important; box-shadow: 0 0 0 60px rgba(28, 30, 48, .96) inset !important;
+    transition: background-color 600000s 0s, color 600000s 0s !important;
+}
+#auth-modal#auth-modal .auth-field .styled-input:autofill { background: rgba(28, 30, 48, .96) !important; -webkit-text-fill-color: #fff !important; }
 
 /* Tugma: shaffof, oq chiziqli */
 #auth-modal#auth-modal #auth-action-btn {
@@ -11551,6 +11559,29 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 #auth-modal#auth-modal .otp-lbl { color: rgba(255, 255, 255, .7); }
 #auth-modal#auth-modal .otp-circle { border-color: rgba(255, 255, 255, .3); }
 
+/* ===== QR oynalari — xuddi shu shisha uslubda ===== */
+.qrx-overlay#qr-login-view, .qrx-overlay#qr-scan-view { background: rgba(3, 4, 10, .55) !important; -webkit-backdrop-filter: blur(6px) !important; backdrop-filter: blur(6px) !important; }
+#qr-login-view#qr-login-view .qrx-card, #qr-scan-view#qr-scan-view .qrx-card {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .04)) !important; color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, .22) !important; border-radius: 28px !important;
+    -webkit-backdrop-filter: blur(34px) saturate(150%) !important; backdrop-filter: blur(34px) saturate(150%) !important;
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .7), inset 0 1px 0 rgba(255, 255, 255, .18) !important;
+    animation: authGlassIn .6s cubic-bezier(.16, 1, .3, 1) both;
+}
+#qr-login-view#qr-login-view .qrx-title, #qr-scan-view#qr-scan-view .qrx-title { color: #fff !important; font-size: 22px; letter-spacing: -.01em; }
+#qr-login-view#qr-login-view .qrx-sub, #qr-scan-view#qr-scan-view .qrx-sub, #qr-login-view#qr-login-view .qrx-sub b { color: rgba(255, 255, 255, .85) !important; opacity: 1; }
+#qr-login-view#qr-login-view .qrx-status:not(.ok):not(.err):not(.wait) { color: rgba(255, 255, 255, .8) !important; }
+#qr-login-view#qr-login-view .qrx-code { background: #fff !important; box-shadow: 0 0 0 1px rgba(255, 255, 255, .35), 0 16px 40px -14px rgba(147, 197, 253, .55); animation: qrGlassGlow 3s ease-in-out infinite; }
+@keyframes qrGlassGlow { 50% { box-shadow: 0 0 0 1px rgba(255, 255, 255, .5), 0 18px 46px -12px rgba(244, 114, 182, .6); } }
+#qr-login-view#qr-login-view .auth-close, #qr-scan-view#qr-scan-view .auth-close {
+    background: rgba(255, 255, 255, .08) !important; border: 1px solid rgba(255, 255, 255, .2) !important; color: #fff !important;
+    width: 34px; height: 34px; border-radius: 11px; transition: background .25s, transform .25s;
+}
+#qr-login-view#qr-login-view .auth-close:hover, #qr-scan-view#qr-scan-view .auth-close:hover { background: rgba(255, 255, 255, .16) !important; transform: rotate(90deg); }
+#qr-login-view#qr-login-view .qrx-btn, #qr-scan-view#qr-scan-view .qrx-btn {
+    background: rgba(255, 255, 255, .05) !important; border: 1px solid rgba(255, 255, 255, .45) !important; color: #fff !important; box-shadow: none !important; border-radius: 14px !important;
+}
+#qr-scan-view#qr-scan-view .qrx-dev { background: rgba(255, 255, 255, .06) !important; border-color: rgba(255, 255, 255, .18) !important; color: #fff !important; }
 /* ===== Animatsiyalar ===== */
 /* Nurlar tezroq suzadi va "nafas oladi" */
 #auth-modal#auth-modal::before { animation: authGlassDrift 14s ease-in-out infinite alternate, authGlassPulse 6s ease-in-out infinite; }
@@ -11626,6 +11657,194 @@ html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::afte
     new MutationObserver(sync).observe(reg, { attributes: true, attributeFilter: ['class'] });
     new MutationObserver(sync).observe(t, { childList: true, characterData: true, subtree: true });
     sync();
+})();
+</script>
+<!-- ============ 🚨 Tashvish ekrani — xaker terminali uslubi: qizil ASCII, kod yomg'iri, glitch sarlavha, sabab yozilib boradi ============ -->
+<style id="panic-term-style">
+#site-lock.panic { background: #040404 !important; font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; }
+#site-lock.panic .pz-tape, #site-lock.panic .pz-top, #site-lock.panic .lock-ico, #site-lock.panic .lock-brand { display: none !important; }
+#site-lock.panic .pz-siren { background: radial-gradient(55% 45% at 30% 40%, rgba(255, 0, 32, .22), transparent 70%) !important; animation: pzSiren 2.4s ease-in-out infinite !important; }
+#site-lock.panic .pz-scan { z-index: 3; opacity: .35 !important; }
+#site-lock .pz-rain, #site-lock .pz-ascii, #site-lock .pz-win, #site-lock .pz-type, #site-lock .pz-menu { display: none; }
+#site-lock.panic .pz-rain { display: block; position: absolute; inset: 0; width: 100%; height: 100%; opacity: .5; pointer-events: none; }
+/* Chap tomonda nuqtali qizil ASCII bosh suyagi */
+#site-lock.panic .pz-ascii {
+    display: block; position: absolute; left: 4vw; top: 50%; margin: 0; z-index: 1; pointer-events: none;
+    font: 700 clamp(9px, 1.35vw, 17px)/1.05 'JetBrains Mono', ui-monospace, monospace; color: #ff2d3d; white-space: pre;
+    text-shadow: 0 0 10px rgba(255, 30, 50, .8), 0 0 30px rgba(255, 0, 32, .45);
+    -webkit-mask: radial-gradient(circle, #000 52%, transparent 58%) 0 0 / 3px 3px; mask: radial-gradient(circle, #000 52%, transparent 58%) 0 0 / 3px 3px;
+    transform: translateY(-50%); animation: pzFlicker 5s steps(1) infinite, pzAsciiIn 1.2s cubic-bezier(.16, 1, .3, 1) both;
+}
+@keyframes pzFlicker { 0%, 100% { opacity: .95; } 41% { opacity: .55; } 42% { opacity: .95; } 77% { opacity: .7; transform: translate(3px, -50%); } 78% { opacity: .95; transform: translateY(-50%); } }
+@keyframes pzAsciiIn { from { opacity: 0; filter: blur(12px); } to { opacity: .95; filter: none; } }
+/* Terminal oynasi */
+#site-lock.panic .lock-card {
+    max-width: 640px !important; width: calc(100% - 32px); padding: 0 !important; text-align: left; margin-left: auto; margin-right: 6vw;
+    background: rgba(10, 10, 12, .86); border: 1px solid #3a3a40; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 40px 100px -20px #000, 0 0 0 1px rgba(255, 255, 255, .03), 0 0 60px -10px rgba(255, 0, 32, .25);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    animation: pzWinIn .7s cubic-bezier(.16, 1, .3, 1) both, pzShake 7s 1s infinite !important;
+}
+@keyframes pzWinIn { from { opacity: 0; transform: translateY(30px) scale(.96); } to { opacity: 1; transform: none; } }
+#site-lock.panic .pz-win { display: block; }
+#site-lock.panic .pz-bar { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 12px; background: #1c1c20; border-bottom: 1px solid #2c2c32; color: #c9c9cf; font-size: 12.5px; }
+#site-lock.panic .pz-bar b { flex: 1; text-align: center; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#site-lock.panic .pz-bar i { width: 11px; height: 11px; border-radius: 50%; background: #3a3a42; flex: 0 0 11px; }
+#site-lock.panic .pz-bar i.r { background: #ff4d5e; animation: pzBlink 1.1s steps(1) infinite; }
+#site-lock.panic .pz-menu { display: flex; gap: 16px; padding: 6px 14px; background: #141417; color: #9a9aa3; font-size: 12px; border-bottom: 1px solid #222; }
+#site-lock.panic .pz-body { padding: 26px 24px 22px; }
+/* Sarlavha — qora glitch lenta */
+#site-lock.panic h1 {
+    display: inline-block; margin: 0 0 22px !important; padding: 8px 16px; background: #0b0b0b; border: 1px solid #1f1f1f;
+    font: 500 clamp(22px, 4.4vw, 34px)/1.2 'JetBrains Mono', ui-monospace, monospace !important; letter-spacing: .12em !important;
+    color: #f1f1f1 !important; text-shadow: 0 0 14px rgba(255, 255, 255, .35) !important; animation: pzH1 4s steps(1) infinite;
+}
+@keyframes pzH1 { 0%, 88%, 100% { transform: none; } 89% { transform: translate(6px, 0) skewX(-8deg); } 91% { transform: translate(-5px, 0); } 93% { transform: none; filter: hue-rotate(90deg); } }
+#site-lock.panic h1::before, #site-lock.panic h1::after { padding: 8px 16px; }
+/* Sabab: harfma-harf yoziladi */
+#site-lock.panic .lock-card > .pz-src, #site-lock.panic .pz-body > p { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+#site-lock.panic .pz-type { display: block; font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; min-height: 3.4em; color: #ffd0d5; font-size: 15px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+#site-lock.panic .pz-type .k { color: #ff4d63; }
+#site-lock.panic .pz-type::after { content: "█"; color: #ff4d63; margin-left: 2px; animation: pzBlink 1s steps(1) infinite; }
+/* Holat ro'yxati — binafsha ramkada */
+#site-lock.panic .pz-log {
+    display: block !important; max-width: none !important; margin: 20px 0 0 !important; padding: 10px 14px; border: 2px solid #8b3fae; border-radius: 4px;
+    color: #f3f3f3 !important; opacity: 1 !important; font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace !important; font-size: 13px !important; line-height: 1.75 !important; background: rgba(0, 0, 0, .35);
+}
+#site-lock.panic .pz-log div { opacity: 0; animation: pzLine .35s ease-out forwards; }
+#site-lock.panic .pz-log div:nth-child(1) { animation-delay: .5s; } #site-lock.panic .pz-log div:nth-child(2) { animation-delay: .75s; }
+#site-lock.panic .pz-log div:nth-child(3) { animation-delay: 1s; } #site-lock.panic .pz-log div:nth-child(4) { animation-delay: 1.25s; }
+#site-lock.panic .pz-log div:nth-child(5) { animation-delay: 1.5s; }
+@keyframes pzLine { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+#site-lock.panic .pz-log em { font-style: normal; color: #ff4d63; }
+#site-lock.panic .pz-log .pz-time { color: #9a9aa3; }
+#site-lock.panic button {
+    margin-top: 18px !important; border-radius: 4px !important; border: 1px solid #ff4d63 !important; background: transparent !important;
+    color: #ff8a97 !important; font: 600 13px 'JetBrains Mono', ui-monospace, monospace !important; letter-spacing: .06em; transition: background .2s, color .2s;
+}
+#site-lock.panic button:hover { background: #ff4d63 !important; color: #000 !important; }
+@media (max-width: 860px) {
+    #site-lock.panic .pz-ascii { left: 50%; top: 14px; transform: translateX(-50%); font-size: 7px; opacity: .45; }
+    @keyframes pzFlicker { 0%, 100% { opacity: .45; } 41% { opacity: .2; } 42% { opacity: .45; } }
+    #site-lock.panic .lock-card { margin: 0 auto; }
+    #site-lock.panic .pz-body { padding: 20px 16px 18px; }
+    #site-lock.panic .pz-menu { gap: 12px; font-size: 11px; overflow: hidden; white-space: nowrap; }
+}
+@media (prefers-reduced-motion: reduce) { #site-lock.panic .pz-log div { opacity: 1; } }
+</style>
+<script>
+/* Tashvish ekrani: terminal oynasi, kod yomg'iri va sababni harfma-harf yozish */
+(function () {
+    function boot() {
+        var lock = document.getElementById('site-lock');
+        if (!lock) return setTimeout(boot, 400);
+        var card = lock.querySelector('.lock-card'), h1 = card.querySelector('h1'), p = card.querySelector('p'), log = card.querySelector('.pz-log');
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var lite = document.documentElement.classList.contains('lite');
+        function L(uz, ru, en) { var l = document.documentElement.lang || 'uz'; return l === 'ru' ? ru : l === 'en' ? en : uz; }
+
+        var SKULL = [
+            '        ▄▄▄██████████▄▄▄',
+            '     ▄████████████████████▄',
+            '    ████████████████████████',
+            '   ██████████████████████████',
+            '   ████▀▀▀▀▀████████▀▀▀▀▀████',
+            '   ███        ████        ███',
+            '   ███   ██   ████   ██   ███',
+            '   ████▄▄▄▄▄██▀  ▀██▄▄▄▄▄████',
+            '    ████████▀ ▄▄ ▀████████',
+            '      ██████  ██  ██████',
+            '       ████████████████',
+            '       ██ ▀█ ▀█▀ █▀ ██',
+            '       ██  █  █  █  ██',
+            '        ▀████████████▀',
+            '',
+            '   █▀▀ ▀█▀ █▀█ █▀█ █',
+            '   ▀▀█  █  █▄█ █▀▀ ▀',
+            '   ▀▀▀  ▀  ▀▀▀ ▀   ▀'
+        ].join('\n');
+
+        var rain = document.createElement('canvas'); rain.className = 'pz-rain'; rain.setAttribute('aria-hidden', 'true');
+        var ascii = document.createElement('pre'); ascii.className = 'pz-ascii'; ascii.setAttribute('aria-hidden', 'true'); ascii.textContent = SKULL;
+        lock.insertBefore(ascii, lock.firstChild); lock.insertBefore(rain, lock.firstChild);
+
+        var win = document.createElement('div'); win.className = 'pz-win'; win.setAttribute('aria-hidden', 'true');
+        win.innerHTML = '<div class="pz-bar"><i class="r"></i><b>root@bilolsai: ~/tashvish</b><i></i><i></i></div><div class="pz-menu"></div>';
+        card.insertBefore(win, card.firstChild);
+        var body = document.createElement('div'); body.className = 'pz-body';
+        var type = document.createElement('div'); type.className = 'pz-type'; type.setAttribute('aria-hidden', 'true');
+        // sarlavha, sabab, ro'yxat va tugma — terminal tanasiga
+        [h1, p].forEach(function (el) { body.appendChild(el); });
+        body.appendChild(type);
+        [log, card.querySelector('button')].forEach(function (el) { if (el) body.appendChild(el); });
+        card.insertBefore(body, win.nextSibling);
+
+        function paintStatic() {
+            win.querySelector('.pz-menu').textContent = L('Fayl   Amallar   Tahrir   Ko\'rinish   Yordam', 'Файл   Действия   Правка   Вид   Справка', 'File   Actions   Edit   View   Help');
+            var t = log.querySelector('.pz-time'), tt = t ? t.textContent : '';
+            log.innerHTML =
+                '<div>[1] ' + L('SAYT', 'САЙТ', 'WEBSITE') + ' ............ <em>' + L("TO'XTATILDI", 'ОСТАНОВЛЕН', 'STOPPED') + '</em></div>' +
+                '<div>[2] ' + L('ANDROID ILOVA', 'ANDROID-ПРИЛОЖЕНИЕ', 'ANDROID APP') + ' ... <em>' + L("TO'XTATILDI", 'ОСТАНОВЛЕНО', 'STOPPED') + '</em></div>' +
+                '<div>[3] ' + L('APK YUKLASH', 'ЗАГРУЗКА APK', 'APK DOWNLOAD') + ' ..... <em>' + L('YOPIQ', 'ЗАКРЫТА', 'CLOSED') + '</em></div>' +
+                '<div>[4] ' + L("MA'LUMOTLAR", 'ДАННЫЕ', 'DATA') + ' ....... <em>' + L('HIMOYADA', 'ПОД ЗАЩИТОЙ', 'PROTECTED') + '</em></div>' +
+                '<div class="pz-time">' + tt + '</div>';
+        }
+
+        /* Sabab yozilishi */
+        var typeTimer = null, typedFor = null;
+        function typeReason() {
+            var msg = (p.textContent || '').trim();
+            var key = h1.textContent + '|' + msg + '|' + document.documentElement.lang;
+            if (typedFor === key) return;
+            typedFor = key;
+            clearTimeout(typeTimer);
+            var prefix = '> ' + L('SABAB', 'ПРИЧИНА', 'REASON') + ': ';
+            type.innerHTML = '<span class="k"></span><span class="m"></span>';
+            var k = type.querySelector('.k'), m = type.querySelector('.m');
+            if (reduce) { k.textContent = prefix; m.textContent = msg; return; }
+            var full = prefix + msg, i = 0;
+            (function step() {
+                i++;
+                k.textContent = full.slice(0, Math.min(i, prefix.length));
+                m.textContent = i > prefix.length ? full.slice(prefix.length, i) : '';
+                if (i < full.length) typeTimer = setTimeout(step, i < prefix.length ? 55 : 22 + Math.random() * 45);
+            })();
+        }
+
+        /* Kod yomg'iri (qizil) */
+        var ctx = rain.getContext('2d'), cols = [], raf = 0, last = 0, CH = '01アイウエオカキクケコ$#@%&*+=<>/\\|{}[]ABCDEF';
+        function size() {
+            var r = Math.min(window.devicePixelRatio || 1, 2);
+            rain.width = lock.clientWidth * r; rain.height = lock.clientHeight * r; ctx.setTransform(r, 0, 0, r, 0, 0);
+            var n = Math.ceil(lock.clientWidth / 16); cols = [];
+            for (var j = 0; j < n; j++) cols.push(Math.random() * -60);
+        }
+        function frame(ts) {
+            raf = requestAnimationFrame(frame);
+            if (ts - last < 60) return; last = ts;
+            ctx.fillStyle = 'rgba(4, 4, 4, .16)'; ctx.fillRect(0, 0, lock.clientWidth, lock.clientHeight);
+            ctx.font = '600 14px JetBrains Mono, monospace';
+            for (var j = 0; j < cols.length; j++) {
+                var y = cols[j] * 16;
+                ctx.fillStyle = Math.random() < .06 ? '#ffd0d5' : '#c3121f';
+                ctx.fillText(CH.charAt(Math.random() * CH.length | 0), j * 16, y);
+                cols[j] = y > lock.clientHeight && Math.random() > .975 ? 0 : cols[j] + 1;
+            }
+        }
+        function startRain() { if (raf || reduce || lite) return; size(); raf = requestAnimationFrame(frame); }
+        function stopRain() { cancelAnimationFrame(raf); raf = 0; }
+        window.addEventListener('resize', function () { if (raf) size(); });
+
+        function sync() {
+            var on = lock.classList.contains('panic') && lock.classList.contains('show');
+            if (on) { paintStatic(); typeReason(); startRain(); }
+            else { stopRain(); typedFor = null; clearTimeout(typeTimer); }
+        }
+        new MutationObserver(sync).observe(lock, { attributes: true, attributeFilter: ['class'] });
+        new MutationObserver(function () { if (lock.classList.contains('panic')) typeReason(); }).observe(p, { childList: true, characterData: true, subtree: true });
+        sync();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
 </body>
