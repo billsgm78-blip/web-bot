@@ -11551,12 +11551,63 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
 #auth-modal#auth-modal .otp-lbl { color: rgba(255, 255, 255, .7); }
 #auth-modal#auth-modal .otp-circle { border-color: rgba(255, 255, 255, .3); }
 
+/* ===== Animatsiyalar ===== */
+/* Nurlar tezroq suzadi va "nafas oladi" */
+#auth-modal#auth-modal::before { animation: authGlassDrift 14s ease-in-out infinite alternate, authGlassPulse 6s ease-in-out infinite; }
+#auth-modal#auth-modal::after { animation: authGlassDrift2 18s ease-in-out infinite alternate, authGlassPulse 8s ease-in-out -3s infinite; }
+@keyframes authGlassPulse { 0%, 100% { opacity: 1; } 50% { opacity: .7; } }
+/* Karta: kirishda pastdan suzib, xiralikdan aniqlashib chiqadi; keyin sekin tebranadi */
+#auth-modal#auth-modal.active .auth-card-main { animation: authGlassIn .8s cubic-bezier(.16, 1, .3, 1) both, authGlassFloat 7s ease-in-out .8s infinite !important; }
+@keyframes authGlassIn { from { opacity: 0; transform: translateY(40px) scale(.94); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes authGlassFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+/* Karta cheti bo'ylab aylanuvchi yorug'lik */
+#auth-modal#auth-modal .auth-card-main::after {
+    content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 2;
+    background: conic-gradient(from var(--ag-a, 0deg), transparent 0 70%, rgba(255, 255, 255, .9) 80%, rgba(147, 197, 253, .8) 85%, transparent 92%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+    animation: authGlassSpin 6s linear infinite;
+}
+@property --ag-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes authGlassSpin { to { --ag-a: 360deg; } }
+/* Elementlar ketma-ket paydo bo'ladi */
+#auth-modal#auth-modal.active [data-st] { animation: authGlassItem .7s cubic-bezier(.16, 1, .3, 1) backwards !important; animation-delay: calc(var(--i, 0) * 90ms + 250ms) !important; }
+@keyframes authGlassItem { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+/* Sarlavha: yaltiroq nur o'tadi */
+#auth-modal#auth-modal .auth-title {
+    background: linear-gradient(100deg, #fff 0 40%, #c7d2fe 48%, #fff 56% 100%) !important; background-size: 250% 100% !important;
+    -webkit-background-clip: text !important; background-clip: text !important; -webkit-text-fill-color: transparent;
+    animation: authGlassShine 4.5s ease-in-out infinite;
+}
+#auth-modal#auth-modal .auth-title::after { -webkit-text-fill-color: rgba(255, 255, 255, .92); }
+@keyframes authGlassShine { 0% { background-position: 120% 0; } 60%, 100% { background-position: -30% 0; } }
+/* Maydonlar: bosilganda yorug'lik halqasi, belgi biroz kattalashadi */
+#auth-modal#auth-modal .auth-field .styled-input { transition: border-color .3s, background .3s, box-shadow .3s, transform .3s !important; }
+#auth-modal#auth-modal .auth-field .styled-input:focus { transform: translateY(-2px); animation: authGlassGlow 2s ease-in-out infinite; }
+@keyframes authGlassGlow { 0%, 100% { box-shadow: 0 0 0 3px rgba(255, 255, 255, .1), 0 8px 24px -10px rgba(147, 197, 253, .5); } 50% { box-shadow: 0 0 0 5px rgba(255, 255, 255, .16), 0 10px 30px -8px rgba(244, 114, 182, .5); } }
+#auth-modal#auth-modal .auth-field-icon { transition: transform .3s cubic-bezier(.34, 1.6, .5, 1) !important; }
+#auth-modal#auth-modal .auth-field:focus-within .auth-field-icon { transform: translateY(-50%) scale(1.15) !important; }
+#auth-modal#auth-modal .auth-eye svg { transition: transform .35s cubic-bezier(.34, 1.6, .5, 1); }
+#auth-modal#auth-modal .auth-eye:active svg { transform: scale(.8) rotate(-10deg); }
+/* Tugma: ustidan nur o'tib turadi, bosganda yengil siqiladi */
+#auth-modal#auth-modal #auth-action-btn { position: relative; overflow: hidden; }
+#auth-modal#auth-modal #auth-action-btn::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%; pointer-events: none;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .35), transparent); transform: skewX(-20deg);
+    animation: authGlassSweep 3.2s ease-in-out 1.2s infinite;
+}
+@keyframes authGlassSweep { 0% { left: -60%; } 45%, 100% { left: 130%; } }
+#auth-modal#auth-modal #auth-action-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -12px rgba(255, 255, 255, .45) !important; }
+#auth-modal#auth-modal .qr-login-link, #auth-modal#auth-modal .auth-close { transition: background .25s, transform .25s !important; }
+#auth-modal#auth-modal .qr-login-link:hover { transform: translateY(-2px); }
+#auth-modal#auth-modal .auth-close:hover { transform: rotate(90deg); }
+/* Holat xabari sakrab chiqadi */
+#auth-modal#auth-modal #status-box:not(:empty) { animation: authGlassItem .45s cubic-bezier(.16, 1, .3, 1); }
 @media (max-width: 480px) {
     #auth-modal#auth-modal .auth-card-main { padding: 34px 22px 24px !important; border-radius: 26px !important; }
     #auth-modal#auth-modal .auth-title { font-size: 38px !important; }
 }
-@media (prefers-reduced-motion: reduce) { #auth-modal#auth-modal::before, #auth-modal#auth-modal::after { animation: none !important; } }
-html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::after { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { #auth-modal#auth-modal::before, #auth-modal#auth-modal::after, #auth-modal#auth-modal *, #auth-modal#auth-modal *::before, #auth-modal#auth-modal *::after { animation: none !important; } }
+html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::after, html.lite #auth-modal#auth-modal .auth-card-main::after { animation: none !important; }
 </style>
 <script>
 /* Sarlavha ostidagi kichik yozuv: kirishda "Qaytganingizdan xursandmiz", ro'yxatda "Hisob yarating" (3 tilda) */
