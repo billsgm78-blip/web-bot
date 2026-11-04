@@ -827,7 +827,7 @@ select.inp option { background: #12151c; color: var(--text); }
     // ================= PANEL =================
     var TABS = [
         ['stats', '📊', 'Statistika'], ['agent', '🤖', 'Yordamchi'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['aud', '📲', 'Ilova va bot'],
-        ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama']
+        ['card', '💳', "Karta (avto to'lov)"], ['call', '📞', "AI qo'ng'iroq"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama']
     ];
     var tab = 'stats';
     function buildNav() {
@@ -849,7 +849,7 @@ select.inp option { background: #12151c; color: var(--text); }
         // Kirish animatsiyasi faqat sahifa ochilganda (keyingi avto-yangilanishlarda qayta o'ynamaydi)
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
-        var fn = { stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity, aud: vAud, load: vLoad }[t];
+        var fn = { stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity, aud: vAud, load: vLoad }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -1019,6 +1019,136 @@ select.inp option { background: #12151c; color: var(--text); }
     }
 
     // ---------- Karta (avto to'lov) ----------
+    // ================= 📞 AI QO'NG'IROQ =================
+    var callStep = '';
+    async function vCall(view) {
+        var j = await admin('call_get');
+        view.innerHTML = '';
+        if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        var w = j.account || {}, c = j.config || {}, q = j.quota || {};
+        if (w.loginStep && !callStep) callStep = w.loginStep;
+        if (w.connected) callStep = '';
+        function reload() { vCall(view); }
+        function field(label, inp, hint) { return h('label', { class: 'lb' }, [label, inp, hint ? h('small', { text: hint }) : null]); }
+
+        var state = !w.connected ? ['pending', '1-qadam: yangi akkauntni ulang']
+            : !c.target ? ['pending', '2-qadam: kimga qo\'ng\'iroq qilishni yozing']
+            : c.on ? ['done', '✅ Yoqilgan'] : ['off', "O'chirilgan"];
+        view.appendChild(h('div', { class: 'card', style: 'margin-bottom:14px;display:flex;gap:12px;align-items:center' }, [
+            h('div', { class: 'r-ico', text: '📞' }),
+            h('div', { class: 'r-main' }, [h('b', { text: "AI yordamchi sizga qo'ng'iroq qiladi" }),
+                h('small', { text: "Muhim hodisada AI yangi Telegram akkauntdan sizga qo'ng'iroq qiladi. Ko'tarsangiz — ElevenLabs ovozida sababni aytadi; ko'tarmasangiz — o'sha akkauntdan sabab matn va ovozli xabar bo'lib keladi. Bugun yana " + (q.left != null ? q.left : '—') + " ta qo'ng'iroq mumkin." })]),
+            h('span', { class: 'tag ' + state[0], text: state[1] })
+        ]));
+
+        // 1. akkaunt
+        view.appendChild(h('div', { class: 'h', text: "1. Qo'ng'iroq qiladigan Telegram akkaunt (yangi raqam)" }));
+        if (!w.available) view.appendChild(h('div', { class: 'card', text: "⚠️ Serverda telethon o'rnatilmagan." }));
+        if (w.connected) {
+            view.appendChild(h('div', { class: 'card form' }, [
+                h('div', { class: 'row', style: 'border:none' }, [h('div', { class: 'r-ico', text: '🟢' }), h('div', { class: 'r-main' }, [h('b', { text: 'Ulangan: ' + (w.account || '') }), h('small', { text: (w.phone || '') + " · shu akkaunt sizga qo'ng'iroq qiladi" })]),
+                    h('button', { class: 'act red', text: 'Uzish', onclick: async function () {
+                        if (!await dialog({ title: 'Akkauntni uzish', text: "AI qo'ng'iroqlari to'xtaydi.", ok: 'Uzish', danger: true })) return;
+                        await admin('call_logout'); toast('Uzildi'); reload();
+                    } })])
+            ]));
+        } else if (callStep === 'code' || callStep === 'password') {
+            var inp = h('input', { class: 'inp mono', type: callStep === 'password' ? 'password' : 'text', inputmode: callStep === 'code' ? 'numeric' : null, autocomplete: callStep === 'code' ? 'one-time-code' : 'current-password' });
+            var btn = h('button', { class: 'btn', text: callStep === 'code' ? 'Tasdiqlash' : 'Kirish', onclick: async function () {
+                if (!inp.value.trim()) { inp.focus(); return; }
+                btn.disabled = true;
+                var x = await admin(callStep === 'code' ? 'call_login_code' : 'call_login_password', callStep === 'code' ? { code: inp.value } : { password: inp.value });
+                btn.disabled = false;
+                if (!x.success) { toast(x.error || 'Xato'); return; }
+                if (x.need2fa) { callStep = 'password'; toast('2 bosqichli parolni kiriting'); }
+                else { callStep = ''; toast('✅ Akkaunt ulandi'); }
+                reload();
+            } });
+            inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') btn.click(); });
+            view.appendChild(h('div', { class: 'card form' }, [
+                field(callStep === 'code' ? "Kod: yangi akkauntning Telegram ilovasidagi «Telegram» chatiga (yoki SMS bo'lib) keladi" : '🔐 Yangi akkauntning 2 bosqichli paroli', inp),
+                h('div', { style: 'display:flex;gap:8px' }, [h('button', { class: 'btn ghost', text: 'Bekor', onclick: async function () { await admin('call_login_cancel'); callStep = ''; reload(); } }), btn])
+            ]));
+            setTimeout(function () { inp.focus(); }, 60);
+        } else {
+            var apiId = h('input', { class: 'inp mono', inputmode: 'numeric', placeholder: '12345678' }); apiId.value = j.apiId || '';
+            var apiHash = h('input', { class: 'inp mono', placeholder: j.hasApi ? "Bo'sh qoldiring — karta bo'limidagisi ishlatiladi" : '0123456789abcdef0123456789abcdef' });
+            var phone = h('input', { class: 'inp mono', inputmode: 'tel', placeholder: '+998 90 123 45 67' });
+            var send = h('button', { class: 'btn', text: '📨 Kod yuborish', onclick: async function () {
+                send.disabled = true;
+                var x = await admin('call_login_start', { apiId: apiId.value, apiHash: apiHash.value, phone: phone.value });
+                send.disabled = false;
+                if (!x.success) { toast(x.error || 'Xato'); return; }
+                callStep = 'code'; toast("Kod yangi akkauntga yuborildi"); reload();
+            } });
+            view.appendChild(h('div', { class: 'card form' }, [
+                h('div', { class: 'sum', style: 'line-height:1.6' }, [j.hasApi ? "API kalit karta bo'limidan olinadi — faqat yangi raqamni yozing. " : "API kalit: ",
+                    h('a', { href: 'https://my.telegram.org/apps', target: '_blank', rel: 'noopener', style: 'color:#a78bfa', text: 'my.telegram.org/apps' })]),
+                h('div', { class: 'form-row' }, [field('API ID', apiId), field('API HASH', apiHash)]),
+                field("Yangi akkaunt telefon raqami", phone, "Shu raqamli akkaunt sizga qo'ng'iroq qiladi"),
+                send
+            ]));
+        }
+
+        // 2. sozlamalar
+        var target = h('input', { class: 'inp mono', placeholder: j.suggestTarget || '+998 90 123 45 67 yoki @username' }); target.value = c.target || '';
+        var on = !!c.on, incall = c.incall !== false, trig = Object.assign({}, c.triggers || {});
+        function sw(get, set) { var el = h('div', { class: 'switch' + (get() ? ' ok' : ''), role: 'switch', onclick: function () { set(!get()); el.className = 'switch' + (get() ? ' ok' : ''); } }); return el; }
+        function line(title, sub, el) { return h('div', { style: 'display:flex;align-items:center;gap:12px;padding:6px 0' }, [h('div', { style: 'flex:1' }, [h('b', { text: title }), sub ? h('div', { class: 'sum', text: sub }) : null]), el]); }
+        var elKey = h('input', { class: 'inp mono', type: 'password', placeholder: c.elKey ? '•••••••• (saqlangan — almashtirish uchun yangisini yozing)' : 'sk_...' });
+        var elVoice = h('input', { class: 'inp mono', placeholder: 'Voice ID, masalan 21m00Tcm4TlvDq8ikWAM' }); elVoice.value = c.elVoice || '';
+        var elModel = h('input', { class: 'inp mono', placeholder: 'eleven_v3 (bo\'sh qoldirsa ham bo\'ladi)' }); elModel.value = c.elModel || '';
+        var trigBox = h('div');
+        Object.keys(j.triggerNames || {}).forEach(function (k) {
+            trigBox.appendChild(line(j.triggerNames[k], null, sw(function () { return trig[k] !== false; }, function (v) { trig[k] = v; })));
+        });
+        view.appendChild(h('div', { class: 'h', text: "2. Kimga va qachon" }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            field("Sizning asosiy Telegram raqamingiz yoki @username", target, j.suggestTarget ? "Karta akkauntingiz: " + j.suggestTarget : null),
+            line("AI qo'ng'iroqlarini yoqish", "Kuniga ko'pi bilan 8 ta, orasida kamida 10 daqiqa", sw(function () { return on; }, function (v) { on = v; })),
+            h('div', { class: 'sum', style: 'margin-top:6px', text: "Qaysi hodisalarda qo'ng'iroq qilsin:" }), trigBox
+        ]));
+
+        view.appendChild(h('div', { class: 'h', text: "3. Ovoz (ElevenLabs)" }));
+        var voiceRes = h('div', { class: 'sum' });
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'sum', style: 'line-height:1.6' }, ["API kalit: ", h('a', { href: 'https://elevenlabs.io/app/settings/api-keys', target: '_blank', rel: 'noopener', style: 'color:#a78bfa', text: 'elevenlabs.io → API Keys' }),
+                ". Voice ID: Voices bo'limida ovozni tanlang → «ID» ni nusxalang."]),
+            field('ElevenLabs API kaliti', elKey),
+            h('div', { class: 'form-row' }, [field('Voice ID', elVoice), field('Model (ixtiyoriy)', elModel)]),
+            line("Ko'targanimda AI gapirsin", j.voiceCall ? "Qo'ng'iroqni ko'tarsangiz ovoz eshittiriladi" : "Serverda ovozli qo'ng'iroq kutubxonasi yo'q — ovoz qo'ng'iroqdan keyin ovozli xabar bo'lib keladi", sw(function () { return incall; }, function (v) { incall = v; })),
+            h('button', { class: 'btn ghost', text: '🔊 Ovozni eshitib ko\'rish', onclick: async function () {
+                voiceRes.textContent = '⏳ Ovoz yaratilmoqda…';
+                try {
+                    await apiReady;
+                    var r = await fetch(API + '/api/admin/call_voice_test', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token || '' }, body: JSON.stringify({}) });
+                    if (!r.ok) { var e = {}; try { e = await r.json(); } catch (x) {} voiceRes.textContent = '❌ ' + (e.error || 'Xato') + ' (avval saqlang)'; return; }
+                    var url = URL.createObjectURL(await r.blob());
+                    voiceRes.textContent = '';
+                    var au = h('audio', { src: url, controls: true, style: 'width:100%' }); voiceRes.appendChild(au); au.play().catch(function () {});
+                } catch (e) { voiceRes.textContent = "❌ Server bilan bog'lanib bo'lmadi"; }
+            } }), voiceRes
+        ]));
+
+        var testRes = h('div', { class: 'sum' });
+        view.appendChild(h('div', { class: 'card form', style: 'margin-top:12px' }, [
+            h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap' }, [
+                h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+                    var body = { target: target.value, on: on, incall: incall, triggers: trig, elVoice: elVoice.value, elModel: elModel.value };
+                    if (elKey.value.trim()) body.elKey = elKey.value.trim();
+                    var x = await admin('call_set', body);
+                    toast(x.success ? '✅ Saqlandi' : (x.error || 'Xato')); if (x.success) reload();
+                } }),
+                h('button', { class: 'btn ghost', text: "📞 Sinov qo'ng'irog'i", onclick: async function () {
+                    testRes.textContent = "⏳ Qo'ng'iroq qilinmoqda… (telefoningizni tekshiring, 25 soniyagacha)";
+                    var x = await admin('call_test', {});
+                    var how = { spoke: "✅ Ko'tardingiz — AI gapirdi", answered: "✅ Ko'tardingiz", missed: "✅ Jiringladi (ko'tarilmadi)", declined: '✅ Jiringladi (rad etildi)' };
+                    testRes.textContent = x.success ? (how[x.result] || '✅ ' + x.result) + (x.voiceError ? ' · ⚠️ Ovoz: ' + x.voiceError : '') + (x.voiceCallError ? " · ⚠️ Ovozli qo'ng'iroq bo'lmadi, oddiy jiringladi: " + x.voiceCallError : '') : '❌ ' + (x.error || 'Xato');
+                } })
+            ]), testRes
+        ]));
+    }
+
     var cardStep = '';
     async function vCard(view) {
         var j = await admin('card_get');
