@@ -2298,7 +2298,7 @@ select.inp option { background: #12151c; color: var(--text); }
         var RACKS = []; for (var rx = 6; rx < 125; rx += 11) RACKS.push(rx);
         var TABLES = ['users', 'payments', 'chats', 'sessions', 'promos', 'orders', 'support', 'cards', 'settings', 'logs', 'usage'];
         var SPOT = { sit: [38, 73], think: [38, 73], idle: [38, 73], rest: [64, 90], safe: [29, 88], mail: [94, 90], panel: [70, 40],
-                     promo: [120, 93], shop: [141, 67], db: [133, 66], tea: [168, 71], sleep: [20, -24], wc: [68, -22], bath: [97, -21], up: [142, -14] };
+                     promo: [120, 93], shop: [141, 67], db: [133, 66], phone: [104, 60], tea: [168, 71], sleep: [20, -24], wc: [68, -22], bath: [97, -21], up: [142, -14] };
         // o'zi aylanib yuradigan joylar (ikkala qavatda)
         var ROAM = [[100, 60], [56, 40], [20, 44], [106, 72], [88, 52], [62, 66], [180, 84], [36, -12], [140, -14], [128, -20], [150, -9]];
         var bot = { x: 38, y: 73, path: [], step: 0, pose: 'sit', label: '', since: 0 }, t = 0, last = 0, raf = 0, alive = true;
@@ -2368,6 +2368,19 @@ select.inp option { background: #12151c; color: var(--text); }
             // printer
             O(114, 78, 12, 8, '#d1d5db', '#4b5563'); R(116, 76.6, 8, 1.6, '#f9fafb'); R(115, 82, 10, 1, '#6b7280');
             if (cur.state === 'promo' && arrived()) { var pr = (t * .9) % 1; O(116.5, 78 - pr * 7, 7, 4, '#fef3c7', '#d97706'); txt('%', 118.6, 80 - pr * 7, 2.6, '#d97706'); }
+            // telefon stolchasi — AI shu yerdan adminga qo'ng'iroq qiladi
+            O(97, 47, 15, 3, '#9a6440', '#3b271e'); R(97, 47, 15, .8, '#b97a50'); R(98.5, 50, 1.2, 7, '#6b4226'); R(109.3, 50, 1.2, 7, '#6b4226');
+            var onCall = cur.state === 'phone' && arrived();
+            O(100, 43.4, 9, 3.6, '#dc2626', '#450a0a'); R(101, 44.4, 7, .6, '#fca5a5');          // telefon tanasi
+            for (var kb = 0; kb < 6; kb++) R(101.4 + (kb % 3) * 2.3, 45.4 + ((kb / 3) | 0) * .9, 1, .5, '#fee2e2');
+            if (!onCall) { O(99.4, 41.6, 10.2, 1.6, '#b91c1c', '#450a0a'); }                     // go'shak joyida
+            else R(104.3, 41.8, .4, 1.6, '#1f2937');                                              // shnur
+            if (cur.state === 'phone') {                                                          // jiringlash to'lqinlari
+                glow(104.5, 44, 12, 'rgba(248,113,113,.22)');
+                for (var rw = 0; rw < 3; rw++) { var ru = (t * 1.2 + rw / 3) % 1; c.save(); c.globalAlpha = (1 - ru) * .9; c.strokeStyle = '#f87171'; c.lineWidth = .5 * S;
+                    c.beginPath(); c.arc(104.5 * S, 43 * S, (3 + ru * 9) * S, -2.6, -.55); c.stroke(); c.restore(); }
+                if (!onCall && ((t * 8) | 0) % 2) R(99.4, 41.2, 10.2, .4, '#fecaca');           // go'shak titraydi
+            }
             // dam olish burchagi
             O(50, 86, 34, 12, '#7c2d12', '#431407'); R(52, 88, 30, 8, '#9a3412'); for (var g2 = 54; g2 < 82; g2 += 5) R(g2, 96.4, 1.2, 1, '#fdba74');
             O(52, 78, 24, 6, '#3f5e7a'); R(52, 83, 24, 3, '#4d7194'); R(51, 78, 1.6, 8, '#33506a'); R(75.4, 78, 1.6, 8, '#33506a'); R(55, 79, 4, 2.6, '#f2b134'); R(69, 79, 4, 2.6, '#e0457b');
@@ -2515,7 +2528,7 @@ select.inp option { background: #12151c; color: var(--text); }
             c.font = '700 ' + (3.2 * S) + 'px system-ui,-apple-system,sans-serif';
             var tw = c.measureText(lb).width / S, bw = tw + 6, hh2 = 5.4, lx2 = Math.max(1, Math.min(W - bw - 1, x - bw / 2)), ly2 = by - 12;
             c.fillStyle = 'rgba(20,16,14,.9)'; if (c.roundRect) { c.beginPath(); c.roundRect(lx2 * S, ly2 * S, bw * S, hh2 * S, hh2 * S / 2); c.fill(); } else c.fillRect(lx2 * S, ly2 * S, bw * S, hh2 * S);
-            var dot = { think: '#3ddc84', find: '#58a6ff', db: '#58a6ff', mail: '#58a6ff', safe: '#f2b134', panel: '#f85149', promo: '#f2b134', shop: '#f2b134', rest: '#9aa4b2',
+            var dot = { think: '#3ddc84', find: '#58a6ff', db: '#58a6ff', mail: '#58a6ff', phone: '#f87171', safe: '#f2b134', panel: '#f85149', promo: '#f2b134', shop: '#f2b134', rest: '#9aa4b2',
                         sleep: '#818cf8', tea: '#f59e0b', roam: '#9aa4b2', up: '#9aa4b2', wc: '#38bdf8', bath: '#38bdf8' }[cur.state] || '#3ddc84';
             c.fillStyle = dot; c.beginPath(); c.arc((lx2 + 2.2) * S, (ly2 + hh2 / 2) * S, .8 * S, 0, 7); c.fill();
             c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(lb, (lx2 + 3.8) * S, (ly2 + hh2 / 2) * S);
@@ -2542,6 +2555,10 @@ select.inp option { background: #12151c; color: var(--text); }
             if (walk) { var sw = Math.sin(bot.step * 9 * Math.PI / 2) * .8; O(x - 3.7, by + .6 + sw, 1.1, 3, LOOK.shirt, '#2a1d17'); O(x + 2.6, by + .6 - sw, 1.1, 3, LOOK.shirt, '#2a1d17'); }
             else if (cur.state === 'think' && ((t * 7) | 0) % 2) { R(x - 3.6, by + 1.4, 1, 1, LOOK.skin); R(x + 2.6, by + 1.8, 1, 1, LOOK.skin); }   // yozyapti
             else if (cur.state === 'find') { O(x + 2.7, by + .4, 1.1, 3.2, LOOK.shirt, '#2a1d17'); O(x + 3, by - 1, 2, 2.6, '#1f2937'); R(x + 3.3, by - .7, 1.4, 1.8, '#58a6ff'); }   // planshet bilan qidiryapti
+            if (cur.state === 'phone' && !walk) {                                                // go'shakni qulog'iga tutib gapiradi
+                O(x + 2.2, by - 4.4, 1.4, 4.6, '#b91c1c', '#450a0a'); O(x + 2.6, by + .4, 1.1, 2.6, LOOK.shirt, '#2a1d17');
+                if (((t * 3) | 0) % 2) { txt('…', x - 6, by - 7, 3, 'rgba(60,40,30,.7)'); }
+            }
             if (cur.state === 'rest' && !walk) { O(x + 2.8, by + 2, 2, 2, '#f5f5f4', '#78716c'); if ((t % 6) < 3) txt('z', x + 3.4, by - 7 - (t % 3), 3, 'rgba(60,40,30,.6)'); }
             if (cur.state === 'tea' && !walk) { var sip = (t % 5) < 1.4; O(x + 2.6, by + (sip ? -1.6 : 1.6), 1.8, 1.4, '#f8fafc', '#1e3a8a'); if (!sip) R(x + 3.2, by - .4 - (t * 2 % 2), .5, .5, 'rgba(255,255,255,.7)'); }
             if (cur.state === 'tea' && !walk) { var sip = (t % 5) < 1.4; O(x + 2.6, by + (sip ? -1.6 : 1.6), 1.8, 1.4, '#f8fafc', '#1e3a8a'); if (!sip) R(x + 3.2, by - .4 - (t * 2 % 2), .5, .5, 'rgba(255,255,255,.7)'); }
@@ -2562,15 +2579,15 @@ select.inp option { background: #12151c; color: var(--text); }
             pts.push(to); return pts;
         }
         var GOING = { sleep: 'yotoqxonaga boryapti', tea: 'choyxonaga boryapti', roam: 'aylanib yuribdi', up: '2-qavatga chiqyapti', wc: 'hojatxonaga boryapti', bath: 'vannaga boryapti',
-                      rest: 'divanga boryapti', sit: 'stoliga boryapti', find: 'bazaga boryapti', safe: 'seyfga boryapti', mail: 'pochtaga boryapti', panel: 'panelga boryapti', promo: 'printerga boryapti', shop: 'javonga boryapti' };
+                      rest: 'divanga boryapti', sit: 'stoliga boryapti', phone: 'telefonga boryapti', find: 'bazaga boryapti', safe: 'seyfga boryapti', mail: 'pochtaga boryapti', panel: 'panelga boryapti', promo: 'printerga boryapti', shop: 'javonga boryapti' };
         var LBL = { sit: "stolida o'tiribdi", think: 'yozyapti', idle: "stolida o'tiribdi", rest: 'dam olyapti', find: 'bazada qidiryapti', db: "statistikani ko'ryapti",
-                    mail: 'xabar yuboryapti', safe: 'pul bilan ishlayapti', panel: "sozlamalarni o'zgartiryapti", promo: 'promo-kod chiqaryapti', shop: "narxlarni o'zgartiryapti",
+                    mail: 'xabar yuboryapti', phone: "adminga qo'ng'iroq qilyapti", safe: 'pul bilan ishlayapti', panel: "sozlamalarni o'zgartiryapti", promo: 'promo-kod chiqaryapti', shop: "narxlarni o'zgartiryapti",
                     sleep: 'uxlayapti', tea: 'choy ichyapti', roam: 'aylanib yuribdi', up: '2-qavatda', wc: 'hojatxonada', bath: "vannada cho'milyapti" };
-        var CALM = { sit: 1, rest: 1, think: 1, sleep: 1, tea: 1, roam: 1, up: 1, wc: 1, bath: 1 };    // ishdan keyin stolga qaytarilmaydigan holatlar
+        var CALM = { sit: 1, rest: 1, think: 1, sleep: 1, tea: 1, roam: 1, up: 1, wc: 1, bath: 1, phone: 1 };   // phone: qo'ng'iroq tugaguncha (server 'idle' deguncha) telefon oldida turadi    // ishdan keyin stolga qaytarilmaydigan holatlar
         function begin(ev) {
             var st = ev.state === 'wait' ? 'think' : (LBL[ev.state] ? ev.state : 'sit');
             if (st === 'idle') st = 'sit';
-            cur = { state: st, start: t, auto: !!ev.auto, min: { think: 1.2, find: 0, db: 2, mail: 2.4, safe: 2.4, panel: 2.2, promo: 2.4, shop: 2.2 }[st] || (CALM[st] ? .3 : 1) };
+            cur = { state: st, start: t, auto: !!ev.auto, min: { think: 1.2, find: 0, db: 2, mail: 2.4, phone: 6, safe: 2.4, panel: 2.2, promo: 2.4, shop: 2.2 }[st] || (CALM[st] ? .3 : 1) };
             if (!ev.auto && st !== 'sit') { lastAct = t; teaDone = false; }
             bot.label = LBL[st]; bot.since = t; scan.rack = -1;
             if (st === 'find') {                               // javonlar orasida aylanib qidiradi: 3 ta javon, oxirgisida topadi
