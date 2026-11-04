@@ -1032,7 +1032,7 @@ select.inp option { background: #12151c; color: var(--text); }
         function field(label, inp, hint) { return h('label', { class: 'lb' }, [label, inp, hint ? h('small', { text: hint }) : null]); }
 
         var state = !w.connected ? ['pending', '1-qadam: yangi akkauntni ulang']
-            : !c.target ? ['pending', '2-qadam: kimga qo\'ng\'iroq qilishni yozing']
+            : !c.target ? ['pending', '2-qadam: qaysi adminga qo\'ng\'iroq qilishni tanlang']
             : c.on ? ['done', '✅ Yoqilgan'] : ['off', "O'chirilgan"];
         view.appendChild(h('div', { class: 'card', style: 'margin-bottom:14px;display:flex;gap:12px;align-items:center' }, [
             h('div', { class: 'r-ico', text: '📞' }),
@@ -1091,7 +1091,31 @@ select.inp option { background: #12151c; color: var(--text); }
         }
 
         // 2. sozlamalar
-        var target = h('input', { class: 'inp mono', placeholder: j.suggestTarget || '+998 90 123 45 67 yoki @username' }); target.value = c.target || '';
+        var targets = (c.targets || []).map(function (t) { return { name: t.name, to: t.to, on: t.on !== false }; });
+        if (!targets.length) targets.push({ name: 'Admin', to: j.suggestTarget || '', on: true });
+        var tList = h('div');
+        function paintTargets() {
+            tList.innerHTML = '';
+            targets.forEach(function (t, i) {
+                var nm = h('input', { class: 'inp', placeholder: 'Ism (masalan Bilol)', style: 'flex:1 1 120px;min-width:0' }); nm.value = t.name || '';
+                var to = h('input', { class: 'inp mono', placeholder: '+998 90 123 45 67 yoki @username', style: 'flex:2 1 180px;min-width:0' }); to.value = t.to || '';
+                nm.oninput = function () { t.name = nm.value; };
+                to.oninput = function () { t.to = to.value; };
+                var swt = sw(function () { return t.on; }, function (v) { t.on = v; });
+                swt.title = "Shu adminga qo'ng'iroq qilinsin";
+                tList.appendChild(h('div', { style: 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)' }, [
+                    nm, to, swt,
+                    h('button', { class: 'act', text: '📞', title: "Faqat shu adminga sinov qo'ng'irog'i (avval saqlang)", onclick: async function () {
+                        if (!to.value.trim()) { to.focus(); return; }
+                        toast("⏳ " + (t.name || 'Admin') + " ga qo'ng'iroq qilinmoqda…");
+                        var x = await admin('call_test', { to: to.value.trim() });
+                        toast(x.success ? '✅ ' + (t.name || 'Admin') + ': ' + (x.result || 'jiringladi') : '❌ ' + (x.error || 'Xato'));
+                    } }),
+                    h('button', { class: 'act red', text: '✕', title: "O'chirish", onclick: function () { targets.splice(i, 1); paintTargets(); } })
+                ]));
+            });
+            tList.appendChild(h('button', { class: 'btn ghost', text: "➕ Admin qo'shish", style: 'margin-top:8px', onclick: function () { targets.push({ name: '', to: '', on: true }); paintTargets(); } }));
+        }
         var on = !!c.on, incall = c.incall !== false, trig = Object.assign({}, c.triggers || {});
         function sw(get, set) { var el = h('div', { class: 'switch' + (get() ? ' ok' : ''), role: 'switch', onclick: function () { set(!get()); el.className = 'switch' + (get() ? ' ok' : ''); } }); return el; }
         function line(title, sub, el) { return h('div', { style: 'display:flex;align-items:center;gap:12px;padding:6px 0' }, [h('div', { style: 'flex:1' }, [h('b', { text: title }), sub ? h('div', { class: 'sum', text: sub }) : null]), el]); }
@@ -1102,13 +1126,15 @@ select.inp option { background: #12151c; color: var(--text); }
         Object.keys(j.triggerNames || {}).forEach(function (k) {
             trigBox.appendChild(line(j.triggerNames[k], null, sw(function () { return trig[k] !== false; }, function (v) { trig[k] = v; })));
         });
-        view.appendChild(h('div', { class: 'h', text: "2. Kimga va qachon" }));
+        view.appendChild(h('div', { class: 'h', text: "2. Qaysi adminga va qachon" }));
         view.appendChild(h('div', { class: 'card form' }, [
-            field("Sizning asosiy Telegram raqamingiz yoki @username", target, j.suggestTarget ? "Karta akkauntingiz: " + j.suggestTarget : null),
+            h('div', { class: 'sum', style: 'line-height:1.55', text: "Qaysi adminlarning Telegram akkauntiga qo'ng'iroq qilinsin: ism, Telegram raqami yoki @username. Yoqilganlarning hammasiga navbatma-navbat qo'ng'iroq qilinadi." + (j.suggestTarget ? ' Karta akkauntingiz: ' + j.suggestTarget : '') }),
+            tList,
             line("AI qo'ng'iroqlarini yoqish", "Kuniga ko'pi bilan 8 ta, orasida kamida 10 daqiqa", sw(function () { return on; }, function (v) { on = v; })),
             h('div', { class: 'sum', style: 'margin-top:6px', text: "Qaysi hodisalarda qo'ng'iroq qilsin:" }), trigBox
         ]));
 
+        paintTargets();
         view.appendChild(h('div', { class: 'h', text: "3. Ovoz (ElevenLabs)" }));
         var voiceRes = h('div', { class: 'sum' });
         view.appendChild(h('div', { class: 'card form' }, [
@@ -1134,7 +1160,7 @@ select.inp option { background: #12151c; color: var(--text); }
         view.appendChild(h('div', { class: 'card form', style: 'margin-top:12px' }, [
             h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap' }, [
                 h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
-                    var body = { target: target.value, on: on, incall: incall, triggers: trig, elVoice: elVoice.value, elModel: elModel.value };
+                    var body = { targets: targets.filter(function (t) { return (t.to || '').trim(); }), on: on, incall: incall, triggers: trig, elVoice: elVoice.value, elModel: elModel.value };
                     if (elKey.value.trim()) body.elKey = elKey.value.trim();
                     var x = await admin('call_set', body);
                     toast(x.success ? '✅ Saqlandi' : (x.error || 'Xato')); if (x.success) reload();
@@ -1143,6 +1169,7 @@ select.inp option { background: #12151c; color: var(--text); }
                     testRes.textContent = "⏳ Qo'ng'iroq qilinmoqda… (telefoningizni tekshiring, 25 soniyagacha)";
                     var x = await admin('call_test', {});
                     var how = { spoke: "✅ Ko'tardingiz — AI gapirdi", answered: "✅ Ko'tardingiz", missed: "✅ Jiringladi (ko'tarilmadi)", declined: '✅ Jiringladi (rad etildi)' };
+                    if (x.success && (x.results || []).length > 1) { testRes.textContent = x.results.map(function (r) { return (r.success ? (how[r.result] || '✅ ' + r.result) : '❌ ' + r.error) + ' — ' + r.name; }).join(' · '); return; }
                     testRes.textContent = x.success ? (how[x.result] || '✅ ' + x.result) + (x.voiceError ? ' · ⚠️ Ovoz: ' + x.voiceError : '') + (x.voiceCallError ? " · ⚠️ Ovozli qo'ng'iroq bo'lmadi, oddiy jiringladi: " + x.voiceCallError : '') : '❌ ' + (x.error || 'Xato');
                 } })
             ]), testRes
