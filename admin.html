@@ -1147,8 +1147,8 @@ select.inp option { background: #12151c; color: var(--text); }
                 voiceRes.textContent = '⏳ Ovoz yaratilmoqda…';
                 try {
                     await apiReady;
-                    var r = await fetch(API + '/api/admin/call_voice_test', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token || '' }, body: JSON.stringify({}) });
-                    if (!r.ok) { var e = {}; try { e = await r.json(); } catch (x) {} voiceRes.textContent = '❌ ' + (e.error || 'Xato') + ' (avval saqlang)'; return; }
+                    var r = await fetch(API + '/api/admin/call_voice_test', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token || '' }, body: JSON.stringify({ elKey: elKey.value.trim(), elVoice: elVoice.value.trim(), elModel: elModel.value.trim() }) });
+                    if (!r.ok) { var e = {}; try { e = await r.json(); } catch (x) {} voiceRes.textContent = '❌ ' + (e.error || 'Xato'); return; }
                     var url = URL.createObjectURL(await r.blob());
                     voiceRes.textContent = '';
                     var au = h('audio', { src: url, controls: true, style: 'width:100%' }); voiceRes.appendChild(au); au.play().catch(function () {});
