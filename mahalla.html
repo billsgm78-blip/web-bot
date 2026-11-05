@@ -56,7 +56,19 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 .lift button { height: 40px; min-width: 40px; border-radius: 10px; border: 0; background: rgba(255, 255, 255, .1); color: #fff; font: 900 15px/1 inherit; font-family: inherit; cursor: pointer; } #lf-ok { background: var(--gold); color: #241a00; padding: 0 12px; }
 #lf-n { min-width: 64px; text-align: center; font: 900 22px/1 'Courier New', monospace; color: #ff5f5f; text-shadow: 0 0 8px rgba(255, 60, 60, .8); background: #120808; padding: 8px 6px; border-radius: 8px; }
 #lf-go { width: 64px; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: #0e0c1f; color: #fff; text-align: center; font: 800 15px/1 inherit; font-family: inherit; }
-.inbar .in-x { position: fixed; right: 12px; top: auto; bottom: calc(16px + env(safe-area-inset-bottom)); padding: 13px 18px; border-radius: 14px; border: 0; background: var(--gold); color: #241a00; font: 900 15px/1 inherit; font-family: inherit; cursor: pointer; box-shadow: 0 10px 30px rgba(0, 0, 0, .4); }
+.in-x { position: fixed; right: 12px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 7; padding: 13px 18px; border-radius: 14px; border: 0; background: var(--gold); color: #241a00; font: 900 15px/1 inherit; font-family: inherit; cursor: pointer; box-shadow: 0 10px 30px rgba(0, 0, 0, .4); }
+body.inside .in-x { display: block; }
+.in-x[hidden] { display: none; }
+#lf-look { background: rgba(125, 211, 252, .25); }
+/* 🛗 shisha lift kabinasi — ko'chaga qaraganda */
+#cab { position: fixed; inset: 0; z-index: 4; pointer-events: none; box-shadow: inset 0 0 0 14px #2b2f3a, inset 0 0 0 18px #9ca3af, inset 0 0 120px rgba(120, 180, 255, .25); background: linear-gradient(180deg, rgba(160, 200, 255, .08), rgba(160, 200, 255, 0) 30%, rgba(160, 200, 255, .1)); }
+#cab[hidden] { display: none; }
+#cab i { position: absolute; background: linear-gradient(90deg, #4b5563, #d1d5db, #4b5563); box-shadow: 0 0 8px rgba(0, 0, 0, .5); }
+#cab .r1 { left: 33%; top: 0; bottom: 0; width: 8px; } #cab .r2 { left: 66%; top: 0; bottom: 0; width: 8px; } #cab .r3 { left: 0; right: 0; top: 58%; height: 10px; }
+#cab .cab-fl { position: absolute; left: 50%; top: calc(150px + env(safe-area-inset-top)); transform: translateX(-50%); padding: 6px 16px; border-radius: 10px; background: #120808; border: 2px solid #4b5563; text-align: center; }
+#cab .cab-fl small { display: block; font: 800 9px/1 Montserrat, sans-serif; color: #9ca3af; letter-spacing: .2em; } #cab .cab-fl b { font: 900 30px/1.1 'Courier New', monospace; color: #ff5f5f; text-shadow: 0 0 10px rgba(255, 60, 60, .9); }
+body.inside .brand, body.inside .pop { display: none !important; }
+@media (max-width: 520px) { .in-t b { font-size: 14px; } .lift { flex-wrap: wrap; justify-content: center; } #lf-go { width: 56px; } }
 body.inside #labels, body.inside .tools, body.inside .mebar, body.inside .soc, body.inside .wx, body.inside .hol { display: none !important; }
 .tools button.gold { background: var(--gold); color: #241a00; border: 0; font-size: 11px; height: 56px; display: grid; place-items: center; gap: 0; padding-top: 4px; }
 .tools button.on { outline: 2px solid var(--gold); }
@@ -216,7 +228,9 @@ body.inside #labels, body.inside .tools, body.inside .mebar, body.inside .soc, b
   <button type="button" id="t-tour" title="Aylanib chiqish">▶</button>
 </div>
 <div class="ui mebar" id="mebar" hidden></div>
-<div class="ui inbar" id="inbar" hidden><div class="in-t"><b id="in-title">🏠</b><small id="in-sub"></small></div><div class="lift" id="lift" hidden><button type="button" id="lf-dn">▼</button><span id="lf-n">1</span><button type="button" id="lf-up">▲</button><input id="lf-go" inputmode="numeric" placeholder="qavat"><button type="button" id="lf-ok">🛗 Bor</button></div><button type="button" class="in-x" id="in-x">🚪 Chiqish</button></div>
+<div class="ui inbar" id="inbar" hidden><div class="in-t"><b id="in-title">🏠</b><small id="in-sub"></small></div><div class="lift" id="lift" hidden><button type="button" id="lf-dn">▼</button><span id="lf-n">1</span><button type="button" id="lf-up">▲</button><input id="lf-go" inputmode="numeric" placeholder="qavat"><button type="button" id="lf-ok">🛗 Bor</button><button type="button" id="lf-look" title="Ko'chaga qarash">🪟</button></div></div>
+<button type="button" class="ui in-x" id="in-x" hidden>🚪 Chiqish</button>
+<div id="cab" hidden><i class="r1"></i><i class="r2"></i><i class="r3"></i><div class="cab-fl"><small>LIFT</small><b id="cab-n">1</b></div></div>
 <div class="ui soc" id="soc" hidden><button type="button" data-s="rating">🏆<span>Reyting</span></button><button type="button" data-s="chat">💬<span>Chat</span></button><button type="button" data-s="quests">🎯<span>Topshiriq</span></button><button type="button" data-s="oq">🧓<span>Oqsoqol</span></button></div>
 
 <div id="intro">
@@ -1769,6 +1783,22 @@ function openFree(o) {
 
 /* ===================== 🚪 BINOLAR ICHI: uy, choyxona, masjid, kazino... osmono'parda 300 qavat va lift ===================== */
 var INS = null;
+function outCam(dt) {
+    // panoramali shisha lift: bino tashqi devorida, qavat balandligida; sudrab atrofga qaraladi
+    var o = INS.o, p = o.g.getWorldPosition(new THREE.Vector3()), y = .3 + (INS.outF - .5) * FLOOR_U + 1.2;
+    INS.outYaw = (INS.outYaw == null ? Math.atan2(CENTER[0] - p.x, CENTER[1] - p.z) + .45 : INS.outYaw);   // shahar bo'ylab yonlama — uylar, minora va tog'lar
+    var a = INS.outYaw + (view.yaw - INS.yaw0), dx = Math.sin(a), dz = Math.cos(a);
+    cam.position.set(p.x + dx * 6.5, y, p.z + dz * 6.5);
+    var down = Math.min(.95, .14 + y / 200);
+    cam.lookAt(p.x + dx * 80, y - 80 * down, p.z + dz * 80);
+    $('cab-n').textContent = Math.round(INS.outF);
+}
+function lookOut(on) {
+    if (!INS || INS.kind !== 'osmonopar') return;
+    INS.out = on; INS.outF = INS.outF || INS.floor; INS.yaw0 = view.yaw; $('cab').hidden = !on;
+    $('lf-look').textContent = on ? '🏠' : '🪟'; $('lf-look').title = on ? 'Qavatga qaytish' : "Ko'chaga qarash";
+    if (on) { shadowsDirty(); toast('👆 Sudrab atrofga qarang'); }
+}
 TX.wood = ctex(256, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); for (var i = 0; i < 8; i++) { x.fillStyle = 'rgba(0,0,0,' + (.04 + (i % 3) * .03) + ')'; x.fillRect(0, i * 32, n, 31); x.fillStyle = 'rgba(0,0,0,.18)'; x.fillRect(0, i * 32 + 31, n, 1); x.fillRect(((i * 97) % 200) + 20, i * 32, 2, 32); } noise(x, 4000, '60,30,0', '255,255,255', .06); }, 4);
 TX.rug = ctex(256, function (x, n) {
     x.fillStyle = '#9b1c1c'; x.fillRect(0, 0, n, n); x.strokeStyle = '#f2c14e'; x.lineWidth = 10; x.strokeRect(10, 10, n - 20, n - 20); x.strokeStyle = '#1e3a8a'; x.lineWidth = 6; x.strokeRect(26, 26, n - 52, n - 52);
@@ -1923,28 +1953,32 @@ function enterInterior(o) {
     if (!o) return; var src = o.p || o.f; if (!src) return;
     INS = { scene: new THREE.Scene(), kind: src.b, o: o, floor: 1, floors: src.b === 'osmonopar' ? (src.o ? src.o.floors : 20 + (o.k % 4) * 10) : 1, ty: 1.8,
         saved: { v: Object.assign({}, view), g: Object.assign({}, goal) } };
-    closeSheet(); stopTour(); document.body.classList.add('inside'); $('inbar').hidden = false;
+    closeSheet(); stopTour(); document.body.classList.add('inside'); $('inbar').hidden = false; $('in-x').hidden = false; $('lf-look').hidden = INS.kind !== 'osmonopar';
     buildIns(); view.tx = goal.tx = 0; view.tz = goal.tz = 0; goal.dist = 30; view.dist = 60; goal.pitch = .6; goal.yaw = .5;
 }
 function exitInterior() {
     if (!INS) return; view = INS.saved.v; goal = INS.saved.g; spinners = spinners.filter(function (w) { return !w.userData.yspin; }); INS = null;
-    document.body.classList.remove('inside'); $('inbar').hidden = true; shadowsDirty();
+    document.body.classList.remove('inside'); $('inbar').hidden = true; $('in-x').hidden = true; $('cab').hidden = true; shadowsDirty();
 }
 $('in-x').onclick = exitInterior;
 function liftTo(n) {
     if (!INS || INS.kind !== 'osmonopar' || INS.moving) return; n = Math.max(1, Math.min(INS.floors, Math.round(n || 1))); if (n === INS.floor) return;
     INS.moving = { from: INS.floor, to: n, t: 0, ph: 0 };
 }
+$('lf-look').onclick = function () { if (INS) { INS.outF = INS.floor; lookOut(!INS.out); } };
 $('lf-up').onclick = function () { if (INS) liftTo(INS.floor + 1); };
 $('lf-dn').onclick = function () { if (INS) liftTo(INS.floor - 1); };
 $('lf-ok').onclick = function () { liftTo(+$('lf-go').value); $('lf-go').value = ''; };
 $('lf-go').onkeydown = function (e) { if (e.key === 'Enter') $('lf-ok').click(); };
 function insStep(dt) {
     var m = INS.moving; if (!m) return;
-    var D = INS.doors, dur = Math.min(2.2, .6 + Math.abs(m.to - m.from) * .02);
+    var D = INS.doors, dur = Math.min(6, 2.2 + Math.abs(m.to - m.from) * .025);
     m.t += dt;
-    if (m.ph === 0) { var k = Math.min(1, m.t / .45); if (D) { D[0].position.x = -.8 + k * .8; D[1].position.x = .8 - k * .8; } if (k >= 1) { m.ph = 1; m.t = 0; } }
-    else if (m.ph === 1) { var k2 = Math.min(1, m.t / dur), f = Math.round(m.from + (m.to - m.from) * (k2 * k2 * (3 - 2 * k2))); $('lf-n').textContent = f; if (k2 >= 1) { INS.floor = m.to; buildIns(); D = INS.doors; if (D) { D[0].position.x = 0; D[1].position.x = 0; } m.ph = 2; m.t = 0; } }
+    if (m.ph === 0) { var k = Math.min(1, m.t / .45); if (D) { D[0].position.x = -.8 + k * .8; D[1].position.x = .8 - k * .8; } if (k >= 1) { m.ph = 1; m.t = 0; m.wasOut = INS.out; INS.outF = m.from; lookOut(true); } }
+    else if (m.ph === 1) {
+        var k2 = Math.min(1, m.t / dur), e = k2 * k2 * (3 - 2 * k2), ff = m.from + (m.to - m.from) * e; INS.outF = ff; $('lf-n').textContent = Math.round(ff);
+        if (k2 >= 1) { INS.floor = m.to; INS.outF = m.to; buildIns(); if (!m.wasOut) lookOut(false); D = INS.doors; if (D) { D[0].position.x = 0; D[1].position.x = 0; } m.ph = 2; m.t = 0; }
+    }
     else { var k3 = Math.min(1, m.t / .45); if (D) { D[0].position.x = -k3 * .8; D[1].position.x = k3 * .8; } if (k3 >= 1) INS.moving = null; }
 }
 
@@ -2194,7 +2228,7 @@ function frame(now) {
     }
     blinkers.forEach(function (b) { b.material.emissiveIntensity = (Math.sin(time * 3) > 0) ? 1.2 : .1; });
     if (INS) insStep(dt);
-    R.render(INS ? INS.scene : scene, cam);
+    if (INS && INS.out) { outCam(dt); R.render(scene, cam); } else R.render(INS ? INS.scene : scene, cam);
     if (!INS && (fc++ & 1) === 0) paintLabels();
     // avtomatik sifat: kadr sekin bo'lsa piksel zichligi pasayadi, keyin soyalar o'chadi
     perf.t += dt; perf.n++;
