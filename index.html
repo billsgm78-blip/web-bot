@@ -2548,6 +2548,7 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
 .sp-msg.admin { align-self: flex-start; background: rgba(255, 255, 255, 0.07); border: 1px solid var(--border-glass); border-bottom-left-radius: 5px; }
 .sp-msg.admin::before { content: "🛠 Admin"; display: block; font-size: 11px; font-weight: 700; color: #a78bfa; margin-bottom: 2px; }
 .sp-msg.sending { opacity: 0.6; }
+.sp-msg.sp-old { animation: none; }
 .sp-tick { letter-spacing: -3px; margin-left: 2px; }
 .pass-forgot { margin-top: 14px; width: 100%; padding: 12px; border-radius: 14px; border: 1px dashed rgba(255,255,255,0.22); background: transparent;
     color: #c4b5fd; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
@@ -7693,28 +7694,52 @@ window.addEventListener('message', function (e) {
             ['ds-badge', 'set-sup-badge'].forEach(function (id) { var b = $(id); b.textContent = unread; b.classList.toggle('on', unread > 0); });
             var mb = $('open-chats-btn'); if (mb) mb.classList.toggle('has-unread', unread > 0);
         }
+        // Ro'yxat qayta chizilmaydi: bor xabar elementlari qayta ishlatiladi, faqat yangisi animatsiya bilan chiqadi
+        // (oldin har safar hammasi o'chirib qayta yaratilardi — chat miltillab, rasmlar qayta yuklanardi)
+        var nodeCache = {}, seenKeys = {}, previews = {};
         function render() {
-            list.innerHTML = '';
             if (!msgs.length) {
+                nodeCache = {};
                 list.innerHTML = '<div class="sp-empty"><b>👋</b>' + esc(T("Salom! Savolingiz, taklifingiz yoki muammoingiz bo'lsa shu yerga yozing. Admin javobi shu yerda va Telegram botda keladi.",
                     'Hi! Write your question, idea or problem here. The admin will reply here and in the Telegram bot.',
                     'Привет! Напишите сюда вопрос, идею или проблему. Админ ответит здесь и в Telegram-боте.')) + '</div>';
                 return;
             }
-            var lastDay = '';
+            var nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 120, added = false;
+            var want = [], lastDay = '', nextCache = {};
             msgs.forEach(function (m) {
                 var dl = dayLabel(m.at);
-                if (dl !== lastDay) { var d = document.createElement('div'); d.className = 'sp-day'; d.textContent = dl; list.appendChild(d); lastDay = dl; }
-                var el = document.createElement('div');
-                el.className = 'sp-msg ' + (m.sender === 'admin' ? 'admin' : 'me') + (m.sending ? ' sending' : '') + (m.image || m.preview ? ' has-img' : '');
-                var imgSrc = m.preview || (m.image ? RAILWAY_URL + '/api/support/img/' + m.image : '');
-                el.innerHTML = (imgSrc ? '<img alt="" src="' + imgSrc + '">' : '') + (m.text ? '<span class="sp-txt">' + esc(m.text) + '</span>' : '') + '<small>' + (m.sending ? '⏳' : hm(m.at) + (m.sender === 'user' ? (m.read ? ' <span class="sp-tick read">✓✓</span>' : ' <span class="sp-tick">✓</span>') : '')) + '</small>';
-                var im = el.querySelector('img');
-                if (im) { im.onload = function () { list.scrollTop = list.scrollHeight; }; im.onclick = function () { zoom(im.src); }; }
-                list.appendChild(el);
+                if (dl !== lastDay) {
+                    var dk = 'day:' + dl, d = nodeCache[dk] && nodeCache[dk].el;
+                    if (!d) { d = document.createElement('div'); d.className = 'sp-day'; d.textContent = dl; }
+                    nextCache[dk] = { el: d }; want.push(d); lastDay = dl;
+                }
+                var k = 'm:' + m.id, imgSrc = m.preview || previews[m.id] || (m.image ? RAILWAY_URL + '/api/support/img/' + m.image : '');
+                var sig = [m.sender, m.text, imgSrc, m.sending ? 1 : 0, m.read ? 1 : 0, m.at].join('\u0001');
+                var c = nodeCache[k], el;
+                if (c && c.sig === sig) el = c.el;
+                else if (c && c.img === imgSrc) {            // faqat holat o'zgardi (✓ → ✓✓, ⏳ → vaqt) — rasmga tegmaymiz
+                    el = c.el; el.className = 'sp-msg sp-old ' + (m.sender === 'admin' ? 'admin' : 'me') + (m.sending ? ' sending' : '') + (imgSrc ? ' has-img' : '');
+                    el.querySelector('small').innerHTML = stamp(m);
+                } else {
+                    el = document.createElement('div');
+                    el.className = 'sp-msg ' + (seenKeys[k] ? 'sp-old ' : '') + (m.sender === 'admin' ? 'admin' : 'me') + (m.sending ? ' sending' : '') + (imgSrc ? ' has-img' : '');
+                    el.innerHTML = (imgSrc ? '<img alt="" src="' + imgSrc + '">' : '') + (m.text ? '<span class="sp-txt">' + esc(m.text) + '</span>' : '') + '<small>' + stamp(m) + '</small>';
+                    var im = el.querySelector('img');
+                    if (im) { im.onload = function () { if (list.scrollHeight - list.scrollTop - list.clientHeight < 400) list.scrollTop = list.scrollHeight; }; im.onclick = function () { zoom(im.src); }; }
+                    if (!seenKeys[k]) added = true;
+                }
+                seenKeys[k] = 1; nextCache[k] = { el: el, sig: sig, img: imgSrc }; want.push(el);
             });
-            list.scrollTop = list.scrollHeight;
+            var empty = list.querySelector('.sp-empty'); if (empty) empty.remove();
+            want.forEach(function (n, i) { var cur = list.children[i]; if (cur !== n) list.insertBefore(n, cur || null); });
+            while (list.children.length > want.length) list.removeChild(list.lastChild);
+            // keyingi chizishlarda eski xabarlar animatsiyasiz turadi
+            setTimeout(function () { want.forEach(function (n) { if (n.classList.contains('sp-msg')) n.classList.add('sp-old'); }); }, 260);
+            nodeCache = nextCache;
+            if (added || nearBottom) list.scrollTop = list.scrollHeight;
         }
+        function stamp(m) { return m.sending ? '⏳' : hm(m.at) + (m.sender === 'user' ? (m.read ? ' <span class="sp-tick read">✓✓</span>' : ' <span class="sp-tick">✓</span>') : ''); }
         var ver = null, polling = false;
         function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
         // Jonli ulanish: server yangi xabar / ✓✓ / onlayn o'zgarishi bo'lishi bilan darhol javob qaytaradi
@@ -7847,13 +7872,16 @@ window.addEventListener('message', function (e) {
             var text = input.value.trim();
             if (!text && !image) return;
             input.value = ''; grow();
-            var tmp = { id: 'tmp', sender: 'user', text: text, preview: image || '', at: Math.floor(Date.now() / 1000), sending: true };
+            var tmp = { id: 'tmp' + Date.now(), sender: 'user', text: text, preview: image || '', at: Math.floor(Date.now() / 1000), sending: true };
             msgs.push(tmp); render();
             try {
                 var j = await api('/api/support/send', image ? { text: text, image: image } : { text: text });
                 if (!j.success) throw new Error(j.error || 'xato');
-                var ix = msgs.indexOf(tmp);
-                if (ix >= 0) { if (msgs.some(function (m) { return m.id === j.message.id; })) msgs.splice(ix, 1); else msgs[ix] = j.message; }
+                var ix = msgs.indexOf(tmp), real = j.message;
+                if (image) previews[real.id] = image;                       // yuborilgan rasm qayta yuklanmasin
+                if (nodeCache['m:' + tmp.id]) { nodeCache['m:' + real.id] = nodeCache['m:' + tmp.id]; nodeCache['m:' + real.id].sig = ''; nodeCache['m:' + real.id].img = image || ''; }
+                seenKeys['m:' + real.id] = 1;
+                if (ix >= 0) { if (msgs.some(function (m) { return m.id === real.id; })) msgs.splice(ix, 1); else msgs[ix] = real; }
                 presence = j.admin || presence; paintPresence(); render();
             } catch (e) {
                 msgs.splice(msgs.indexOf(tmp), 1); render(); input.value = text; grow();
