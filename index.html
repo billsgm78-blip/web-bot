@@ -8816,6 +8816,7 @@ html[data-design="premium"] body .sh-hub .clear-chat-danger-btn { margin-top: 18
 .apk-x .apk-meta span { font-size: 12px; font-weight: 600; color: #52525b; padding: 5px 11px; border-radius: 999px; background: #f4f4f5; border: 1px solid #ececef; }
 .apk-x .apk-dl { display: block; padding: 15px; border-radius: 14px; background: linear-gradient(135deg, #ff8a3d, #ff6a1f); color: #fff; font-weight: 700; font-size: 16px; text-decoration: none; box-shadow: 0 12px 28px -12px rgba(255, 106, 31, .8); }
 .apk-x .apk-dl[hidden] { display: none; }
+.apk-x .apk-dl.exe-dl { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 12px 28px -12px rgba(37, 99, 235, .8); }
 .apk-x .apk-warn { margin: 0 0 12px; padding: 11px 12px; border-radius: 12px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; font-size: 13px; font-weight: 600; line-height: 1.45; }
 .apk-x .apk-page { display: inline-block; margin-top: 10px; color: #ff6a1f; font-size: 13.5px; font-weight: 600; text-decoration: none; }
 .apk-x .apk-box { margin-top: 14px; padding: 16px; border-radius: 16px; border: 1px solid #ececef; background: #fff; }
@@ -8896,6 +8897,7 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         topup: ic('<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M7 15h3"/>'),
         orders: ic('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'),
         apk: ic('<path d="M12 3v12M7 10l5 5 5-5"/><rect x="6" y="18" width="12" height="3" rx="1.5"/>'),
+        exe: ic('<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M12 7v5M9.5 9.8 12 12.3l2.5-2.5"/>'),
         help: ic('<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7M12 17h.01"/>')
     };
     var built = false, panes = {}, navBtns = {};
@@ -8985,6 +8987,60 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         w.appendChild(box('🍏 ' + T('iPhone uchun', 'For iPhone', 'Для iPhone'), [el('p', 'apk-note', T("iPhone'da APK ishlamaydi. Saytni Safari'da oching → pastdagi Ulashish tugmasi → \"Bosh ekranga qo'shish\". Ilova kabi ochiladi.", 'APK does not work on iPhone. Open the site in Safari → Share → "Add to Home Screen". It opens like an app.', 'На iPhone APK не работает. Откройте сайт в Safari → «Поделиться» → «На экран Домой».'))]));
         return w;
     }
+    // Windows dasturi (EXE) — /kompyuter sahifasi bilan bir xil ma'lumot; versiya, hajm va SHA-256 build.json'dan olinadi
+    function exePane() {
+        var w = document.createElement('div'); w.className = 'apk-x';
+        function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+        function steps(list) { var ol = el('ol', 'apk-steps'); list.forEach(function (t) { var li = el('li'); li.innerHTML = t; ol.appendChild(li); }); return ol; }
+        function box(title, nodes) { var c = el('div', 'apk-box'); c.appendChild(el('h4', '', title)); nodes.forEach(function (n) { c.appendChild(n); }); return c; }
+        var hero = el('div', 'apk-hero');
+        var logo = el('img', 'apk-logo'); logo.src = '/icons/icon-192.png'; logo.alt = 'Bilols AI'; hero.appendChild(logo);
+        var h = el('h3'); h.innerHTML = 'Bilols AI <span></span>'; h.querySelector('span').textContent = T('kompyuterda', 'for Windows', 'для Windows'); hero.appendChild(h);
+        hero.appendChild(el('p', 'apk-sub', T("Ilovadagi o'sha dizayn — endi kompyuteringizda, alohida oynada. AI chat, rasm yaratish, Stars va Premium, hamyon. Brauzersiz.",
+            'The same design as the app — now on your computer, in its own window. AI chat, images, Stars and Premium, wallet. No browser.',
+            'Тот же дизайн, что в приложении — теперь на компьютере, в отдельном окне. AI-чат, изображения, Stars и Premium, кошелёк. Без браузера.')));
+        var meta = el('div', 'apk-meta'), mVer = el('span', '', T('Versiya ', 'Version ', 'Версия ') + '1.0.0'), mSize = el('span', '', '~1 MB');
+        [el('span', '', 'Windows 10 / 11'), mVer, mSize, el('span', '', T('Bepul', 'Free', 'Бесплатно'))].forEach(function (n) { meta.appendChild(n); });
+        hero.appendChild(meta);
+        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) hero.appendChild(el('div', 'apk-warn', T("📱 Siz telefondasiz — EXE faqat Windows kompyuterda ishlaydi. Telefon uchun «APK yuklash» bo'limini oching.", '📱 You are on a phone — the EXE works only on a Windows PC. For your phone, open "Download APK".', '📱 Вы на телефоне — EXE работает только на компьютере с Windows. Для телефона откройте «Скачать APK».')));
+        var dl = el('a', 'apk-dl exe-dl'); dl.href = '/download/bilols-ai-setup.exe'; dl.setAttribute('download', 'Bilols-AI-Setup.exe');
+        dl.textContent = '⬇️ ' + T('Yuklab olish', 'Download', 'Скачать') + ' · EXE'; dl.hidden = true;
+        hero.appendChild(dl);
+        var mt = el('div', 'apk-warn', T('Tekshirilmoqda…', 'Checking…', 'Проверка…')); hero.appendChild(mt);
+        var pg = el('a', 'apk-page', T("Kompyuter dasturi sahifasini ochish →", 'Open the Windows app page →', 'Открыть страницу программы для Windows →')); pg.href = '/kompyuter'; hero.appendChild(pg);
+        w.appendChild(hero);
+        var hashBtn = el('button', 'apk-hash'); hashBtn.type = 'button'; hashBtn.appendChild(el('small', '', 'EXE SHA-256')); var hCode = el('code', '', '—'); hashBtn.appendChild(hCode);
+        hashBtn.onclick = function () { try { navigator.clipboard.writeText(hCode.textContent); hashBtn.classList.add('ok'); setTimeout(function () { hashBtn.classList.remove('ok'); }, 1500); } catch (e) {} };
+        // build.json — GitHub Actions yig'gan EXE: versiya, hajm, SHA-256. Fayl bo'lmasa — "tez orada"
+        fetch('/download/bilols-ai-setup.json', { cache: 'no-store' }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
+            if (!j || !j.sha256) throw 0;
+            mVer.textContent = T('Versiya ', 'Version ', 'Версия ') + j.version;
+            if (j.size) mSize.textContent = (j.size / 1048576).toFixed(1).replace('.', ',') + ' MB';
+            hashBtn.querySelector('small').textContent = 'EXE SHA-256 (v' + j.version + ')'; hCode.textContent = j.sha256;
+            dl.hidden = false; mt.hidden = true;
+        }).catch(function () { mt.textContent = '🛠 ' + T("Kompyuter versiyasi tayyorlanmoqda. Hozircha saytdan foydalanishingiz mumkin.", 'The Windows version is being prepared. You can use the website for now.', 'Версия для Windows готовится. Пока пользуйтесь сайтом.'); });
+
+        w.appendChild(box('💻 ' + T("Qanday o'rnatiladi", 'How to install', 'Как установить'), [steps([
+            T('<b>"Yuklab olish"</b> tugmasini bosing va fayl yuklanishini kuting.', 'Click <b>"Download"</b> and wait for the file.', 'Нажмите <b>«Скачать»</b> и дождитесь загрузки.'),
+            T('Yuklangan <b>Bilols-AI-Setup.exe</b> faylini oching.', 'Open the downloaded <b>Bilols-AI-Setup.exe</b>.', 'Откройте скачанный <b>Bilols-AI-Setup.exe</b>.'),
+            T('Windows <b>"Windows protected your PC"</b> deb ko\'rsatsa — <b>"More info"</b> → <b>"Run anyway"</b> ni bosing. Bu yangi dasturlar uchun oddiy ogohlantirish.', 'If Windows shows <b>"Windows protected your PC"</b> — click <b>"More info"</b> → <b>"Run anyway"</b>. It is a normal warning for new apps.', 'Если Windows покажет <b>«Windows защитила ваш компьютер»</b> — нажмите <b>«Подробнее»</b> → <b>«Выполнить в любом случае»</b>.'),
+            T("O'rnatish bir necha soniyada tugaydi. <b>Bilols AI</b> ish stolida va Start menyusida paydo bo'ladi.", 'Installation takes a few seconds. <b>Bilols AI</b> appears on the desktop and in the Start menu.', 'Установка занимает несколько секунд. <b>Bilols AI</b> появится на рабочем столе и в меню «Пуск».'),
+            T('Telefon raqamingiz va parolingiz bilan kiring yoki <b>QR kod</b> orqali telefondan tasdiqlang — hisobingiz va balansingiz o\'sha.', 'Log in with your phone and password, or confirm with a <b>QR code</b> from your phone — same account and balance.', 'Войдите по номеру и паролю или подтвердите <b>QR-кодом</b> с телефона — аккаунт и баланс те же.')
+        ])]));
+        var feat = el('div', 'apk-feat');
+        [['💬', T('AI chat va rejimlar', 'AI chat & modes', 'AI-чат и режимы')], ['🎨', T('Rasm yaratish', 'Image generation', 'Генерация изображений')],
+         ['⭐', T('Stars va Premium', 'Stars & Premium', 'Stars и Premium')], ['💳', T('Hamyon, karta orqali', 'Wallet, card top-up', 'Кошелёк, по карте')],
+         ['📱', T('QR orqali tez kirish', 'Quick QR login', 'Быстрый вход по QR')], ['🔄', T("O'zi yangilanadi", 'Updates itself', 'Обновляется сам')]
+        ].forEach(function (f) { var d = el('div'); d.appendChild(el('i', '', f[0])); d.appendChild(document.createTextNode(f[1])); feat.appendChild(d); });
+        w.appendChild(box('⚡ ' + T('Dasturda nimalar bor', "What's inside", 'Что в программе'), [feat]));
+        w.appendChild(box('🛡 ' + T('Xavfsizlik', 'Security', 'Безопасность'), [
+            el('p', 'apk-note', T("Dastur kompyuteringizdagi fayllarni ko'rmaydi va qo'shimcha ma'lumot yig'maydi — u sayt bilan bir xil ishlaydi. Fayl asl ekanini SHA-256 orqali tekshiring (bossangiz — nusxa olinadi).",
+                'The app does not see your files and collects no extra data — it works like the website. Verify the file with SHA-256 (tap to copy).',
+                'Программа не видит ваши файлы и не собирает лишних данных — работает как сайт. Проверьте файл по SHA-256 (нажмите, чтобы скопировать).')),
+            hashBtn, el('pre', 'apk-cmd', 'certutil -hashfile Bilols-AI-Setup.exe SHA256')
+        ]));
+        return w;
+    }
     function card(id) { var el = $(id); return el ? (el.closest('.settings-card') || el) : null; }
     function group(title, nodes) {
         var g = document.createElement('div'); g.className = 'sh-group';
@@ -9058,6 +9114,8 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         // 6) APK yuklash — /apkyuklash sahifasi uslubida, to'liq ma'lumot bilan
         var pK = pane('apk', T('APK yuklash', 'Download APK', 'Скачать APK'), T('Bilols AI Android ilovasi — bepul, tez va xavfsiz.', 'Bilols AI for Android — free, fast and safe.', 'Bilols AI для Android — бесплатно, быстро и безопасно.'));
         pK.appendChild(apkPane());
+        var pX = pane('exe', T('EXE yuklash', 'Download EXE', 'Скачать EXE'), T('Bilols AI Windows dasturi — bepul, yengil va xavfsiz.', 'Bilols AI for Windows — free, light and safe.', 'Bilols AI для Windows — бесплатно, легко и безопасно.'));
+        pX.appendChild(exePane());
 
         // 7) Yordam
         var pH = pane('help', T('Yordam', 'Help', 'Помощь'));
@@ -9070,7 +9128,7 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         var sections = [
             [T("Do'kon", 'Shop', 'Магазин'), [['shop', T("Do'kon", 'Shop', 'Магазин')], ['orders', T('Buyurtmalarim', 'My orders', 'Мои заказы')]], 'shop'],
             [T('Hisob', 'Account', 'Аккаунт'), [['profile', T('Profil', 'Profile', 'Профиль')], ['app', T('Ilova', 'App', 'Приложение')]], 'settings'],
-            [T('Ilova yuklash', 'Get the app', 'Приложение'), [['apk', T('APK yuklash', 'Download APK', 'Скачать APK')]], 'settings'],
+            [T('Ilova yuklash', 'Get the app', 'Приложение'), [['apk', T('APK yuklash', 'Download APK', 'Скачать APK')], ['exe', T('EXE yuklash', 'Download EXE', 'Скачать EXE')]], 'settings'],
             [T('Boshqa', 'Other', 'Другое'), [['help', T('Yordam', 'Help', 'Помощь')]], 'settings']
         ];
         sections.forEach(function (s) {
@@ -9082,7 +9140,7 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
                 nav.appendChild(b); navBtns[it[0]] = b;
             });
         });
-        ['shop', 'orders', 'profile', 'app', 'apk', 'help'].forEach(function (k) { main.appendChild(panes[k]); });
+        ['shop', 'orders', 'profile', 'app', 'apk', 'exe', 'help'].forEach(function (k) { main.appendChild(panes[k]); });
         scroll.appendChild(hub);
         sm.classList.add('sh-on');
     }
