@@ -47,6 +47,11 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 .pk { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 42vh; overflow-y: auto; padding: 2px; }
 .pk button { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 4px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255, 255, 255, .05); color: var(--text); font: 700 11.5px/1.15 inherit; font-family: inherit; cursor: pointer; text-align: center; }
 .pk button span { font-size: 26px; }
+.dl { font-size: 12px; font-weight: 800; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; margin: 12px 0 6px; }
+.dsw { display: grid; grid-template-columns: repeat(11, 1fr); gap: 6px; }
+.dsw button { aspect-ratio: 1; border-radius: 9px; border: 2px solid rgba(255, 255, 255, .15); cursor: pointer; padding: 0; }
+.dsw button.rs { background: rgba(255, 255, 255, .08); color: #fff; font-weight: 900; }
+.dsw button.on { border-color: #fff; box-shadow: 0 0 0 2px var(--gold); }
 .pk button.on { border-color: var(--gold); background: rgba(255, 210, 87, .2); box-shadow: 0 0 0 2px var(--gold) inset; }
 #pk-ok:disabled { opacity: .55; }
 /* intro */
@@ -215,12 +220,12 @@ if (typeof THREE === 'undefined') { $('load').textContent = "3D yuklanmadi. Inte
 var canvas = $('c');
 var R = new THREE.WebGLRenderer({ canvas: canvas, antialias: !mobile, powerPreference: 'high-performance' });
 var PR = Math.min(devicePixelRatio || 1, mobile ? 1.5 : 2); R.setPixelRatio(PR);
-R.shadowMap.enabled = !mobile; R.shadowMap.type = THREE.PCFShadowMap; R.shadowMap.autoUpdate = false;
+R.shadowMap.enabled = !mobile; R.shadowMap.type = THREE.PCFSoftShadowMap; R.shadowMap.autoUpdate = false;
 function shadowsDirty() { R.shadowMap.needsUpdate = true; }
 R.outputEncoding = THREE.sRGBEncoding;
-R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = .9;
+R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.05;
 var scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x8e6e84, 260, 760);
+scene.fog = new THREE.Fog(0x9a7a8a, 480, 1150);
 var cam = new THREE.PerspectiveCamera(45, 1, 1, 2000);
 
 // osmon: shom (shaftoli → binafsha)
@@ -231,10 +236,10 @@ var cam = new THREE.PerspectiveCamera(45, 1, 1, 2000);
         fragmentShader: 'uniform vec3 a,b,c;varying vec3 p;void main(){float h=p.y;vec3 col=h>0.1?mix(b,a,smoothstep(.1,.75,h)):mix(c,b,smoothstep(-.02,.1,h));gl_FragColor=vec4(col,1.);}' });
     scene.add(new THREE.Mesh(g, m));
 })();
-scene.add(new THREE.HemisphereLight(0xffd9c4, 0x2e2850, .62));
-var sun = new THREE.DirectionalLight(0xffb98a, .95);
+scene.add(new THREE.HemisphereLight(0xffe2cf, 0x3a3150, .48));
+var sun = new THREE.DirectionalLight(0xffc293, 1.45);
 sun.position.set(-160, 140, -120); sun.castShadow = !mobile;
-sun.shadow.mapSize.set(1024, 1024); sun.shadow.bias = -.0004; sun.shadow.normalBias = .4; var sc = sun.shadow.camera; sc.left = sc.bottom = -170; sc.right = sc.top = 170; sc.far = 600;
+sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -.0004; sun.shadow.normalBias = .4; var sc = sun.shadow.camera; sc.left = sc.bottom = -170; sc.right = sc.top = 170; sc.far = 600;
 scene.add(sun); scene.add(sun.target);
 
 // materiallar (bir xil rangdagi narsalar bitta materialni bo'lishadi)
@@ -244,6 +249,22 @@ var GEO = { box: new THREE.BoxGeometry(1, 1, 1), cyl: new THREE.CylinderGeometry
 function box(w, h, d, c, o, x, y, z, parent) { var m = new THREE.Mesh(GEO.box, typeof c === 'object' ? c : mat(c, o)); m.scale.set(w, h, d); m.position.set(x || 0, (y || 0) + h / 2, z || 0); m.castShadow = !mobile && h > 2.2 && w > 2.5 && d > 2.5; m.receiveShadow = !mobile && h < 1.2 && w > 4; m.matrixAutoUpdate = true; (parent || scene).add(m); return m; }
 var WIN = mat(0xffd27a, { emissive: 0xffb347, emissiveIntensity: .9 });
 var WIN2 = mat(0xb9e6ff, { emissive: 0x7cc8ff, emissiveIntensity: .55 });
+
+/* ---------- teksturalar: rasm yuklamasdan, kanvasda chiziladi ---------- */
+function ctex(size, draw, rep) {
+    var cv = document.createElement('canvas'); cv.width = cv.height = size; var x = cv.getContext('2d'); draw(x, size);
+    var t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; if (rep) t.repeat.set(rep, rep); return t;
+}
+function noise(x, n, a, b, alpha) { for (var i = 0; i < n; i++) { x.fillStyle = 'rgba(' + (Math.random() < .5 ? a : b) + ',' + (Math.random() * alpha).toFixed(3) + ')'; x.fillRect(Math.random() * x.canvas.width, Math.random() * x.canvas.height, 1 + Math.random() * 2, 1 + Math.random() * 2); } }
+var TX = {
+    plaster: ctex(256, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); noise(x, 9000, '0,0,0', '255,255,255', .07); }),
+    tile: ctex(256, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); for (var r = 0; r < 8; r++) { x.fillStyle = 'rgba(0,0,0,.18)'; x.fillRect(0, r * 32 + 28, n, 4); for (var c = 0; c < 8; c++) { x.fillStyle = 'rgba(0,0,0,.12)'; x.fillRect(c * 32 + (r % 2) * 16, r * 32, 3, 32); } } noise(x, 3000, '0,0,0', '255,255,255', .08); }),
+    asphalt: ctex(512, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); noise(x, 40000, '0,0,0', '255,255,255', .12); }, 220),
+    grass: ctex(256, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); for (var i = 0; i < 5000; i++) { x.strokeStyle = 'rgba(' + (Math.random() < .5 ? '20,60,10' : '220,255,180') + ',' + (Math.random() * .25).toFixed(2) + ')'; var px = Math.random() * n, py = Math.random() * n; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.random() * 2 - 1, py - 3 - Math.random() * 3); x.stroke(); } }, 2),
+    paving: ctex(256, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); x.strokeStyle = 'rgba(0,0,0,.16)'; x.lineWidth = 3; for (var i = 0; i <= 8; i++) { x.beginPath(); x.moveTo(i * 32, 0); x.lineTo(i * 32, n); x.stroke(); x.beginPath(); x.moveTo(0, i * 32); x.lineTo(n, i * 32); x.stroke(); } noise(x, 4000, '0,0,0', '255,255,255', .06); }, 3)
+};
+var TMC = {};
+function tmat(c, tex, o) { var k = c + tex + JSON.stringify(o || {}); if (!TMC[k]) TMC[k] = new THREE.MeshStandardMaterial(Object.assign({ color: c, map: TX[tex], roughness: .9 }, o || {})); return TMC[k]; }
 
 // tog'lar
 (function mountains() {
@@ -281,7 +302,7 @@ var WIN2 = mat(0xb9e6ff, { emissive: 0x7cc8ff, emissiveIntensity: .55 });
     });
 })();
 // yer: asfalt (yo'llar) — hovlilar ustiga qo'yiladi
-var ground = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1600), mat(0x2b2838, { roughness: .95 }));
+var ground = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1600), tmat(0x34323c, 'asphalt', { roughness: .95 }));
 ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
 
 /* ---------- hovlilar joylashuvi: 2×2 kvartallar, oralarida yo'l. Markaziy kvartal — agentlar binosi ---------- */
@@ -626,10 +647,10 @@ function makePlot(p, cell, k, f) {
     var row = ((cell.j % 2) + 2) % 2;
     g.rotation.y = row ? 0 : Math.PI;                         // darvoza ko'cha tomonga qaraydi
     var H = (CELL - 1) / 2;
-    var lawn = box(CELL - 1, .3, CELL - 1, p ? 0xb9ab9c : (f ? 0xa69bb0 : 0x6f8a5a), null, 0, 0, 0, g); lawn.userData.plot = k; pickables.push(lawn);
+    var lawn = box(CELL - 1, .3, CELL - 1, p ? tmat(0xc9b9a6, 'paving') : (f ? tmat(0xb7aec0, 'paving') : tmat(0x5f9441, 'grass')), null, 0, 0, 0, g); g.userData.plot = k; lawn.userData.plot = k; pickables.push(g);
     if (f) { box(CELL - .4, .18, CELL - .4, 0xcfc6d6, null, 0, 0, 0, g); }
     if (p) {
-        box(5.6, .06, 4.6, 0x5f9a4f, null, -3.2, .3, -3.4, g);                       // o'tloq
+        box(5.6, .06, 4.6, tmat(0x4f9a3a, 'grass'), null, -3.2, .3, -3.4, g);                       // o'tloq
         box(2.4, .06, 4.2, 0xd8ccbc, null, 0, .3, H - 2.2, g);                         // yo'lak
         var wc = WALLC[k % 4], pc = new THREE.Color(wc).multiplyScalar(.82).getHex(), WH = 2.7, T = .45;
         box(CELL - 1, WH, T, wc, null, 0, .3, -H, g);
@@ -650,7 +671,41 @@ function makePlot(p, cell, k, f) {
     var tp = p ? (BUILD[p.b] || BUILD.uy)(house, k, p.o) : (f ? (BUILD[f.b] || BUILD.uy)(house, k, f.o) : null);
     city.add(g);
     var o = { g: g, house: house, p: p, f: f, cell: cell, k: k, lawn: lawn, top: (p || f) ? (typeof tp === 'number' ? tp : topOf((p || f).b)) : 2 };
-    plotObjs[k] = o; return o;
+    plotObjs[k] = o;
+    if (p || f) finishHouse(o, (p || f).d);
+    return o;
+}
+var WALL_SW = ['#f3e6d3', '#e9c9a8', '#d98b6a', '#c9d6e3', '#b7d3b0', '#f2d06b', '#e7b3c4', '#9aa7b8', '#5b6474', '#ffffff'];
+var ROOF_SW = ['#b5483b', '#7a3326', '#3f5f8f', '#2f6f5a', '#6b4a8a', '#8a5a3a', '#2b2b33', '#c9a24a', '#1aa6a0', '#d8d2c8'];
+var TOPS = [['', '🚫', "Yo'q"], ['quyosh', '☀️', 'Quyosh paneli'], ['tarelka', '📡', 'Antenna-tarelka'], ['suvbak', '🛢', 'Suv baki'], ['bayroq', '🇺🇿', 'Bayroq'], ['bog', '🌿', "Tom bog'i"], ['konditsioner', '❄️', 'Konditsioner']];
+function meshesOf(g) { var a = []; g.traverse(function (m) { if (m.isMesh && m.geometry) a.push(m); }); return a; }
+function finishHouse(o, d) {
+    // realizm: asosiy devorga suvoq, tomga cherepitsa teksturasi; bezatish ranglari shu yerda qo'llanadi
+    d = d || {}; var ms = meshesOf(o.house); if (!ms.length) return;
+    o.house.updateMatrixWorld(true);
+    var info = ms.map(function (m) { var bb = new THREE.Box3().setFromObject(m), sz = bb.getSize(new THREE.Vector3()); return { m: m, bb: bb, vol: sz.x * sz.y * sz.z, area: sz.x * sz.z }; });
+    var body = info.slice().sort(function (a, b) { return b.vol - a.vol; })[0];
+    var glowM = function (m) { return !m || m.transparent || (m.emissive && m.emissive.getHex() !== 0 && m.emissiveIntensity > .3); };
+    var big = info.filter(function (i) { return i !== body && i.area > body.area * .3 && !glowM(i.m.material); });
+    var roof = big.sort(function (a, b) { return b.bb.max.y - a.bb.max.y; })[0];
+    var mc = body.m.material && body.m.material.color ? '#' + body.m.material.color.getHexString() : '#eeeeee';
+    if (!glowM(body.m.material)) body.m.material = tmat(new THREE.Color(d.wall || mc).getHex(), 'plaster', { roughness: .88, metalness: body.m.material.metalness || 0 });
+    if (roof && roof.bb.max.y >= body.bb.max.y - .2) { var rc = roof.m.material.color ? '#' + roof.m.material.color.getHexString() : '#b5483b'; roof.m.material = tmat(new THREE.Color(d.roof || rc).getHex(), 'tile', { roughness: .75, metalness: roof.m.material.metalness || 0 }); }
+    if (d.top) {
+        var top = (roof ? roof.bb.max.y : body.bb.max.y), bx = body.bb.getCenter(new THREE.Vector3()), w = body.bb.getSize(new THREE.Vector3());
+        var tg = new THREE.Group(); var lp = o.house.worldToLocal(new THREE.Vector3(bx.x, top, bx.z)); tg.position.copy(lp); o.house.add(tg); topItem(tg, d.top, Math.min(w.x, w.z));
+        o.top = Math.max(o.top, top + 4);
+    }
+    shadowsDirty();
+}
+function topItem(g, t, w) {
+    var s = Math.max(.6, Math.min(1.2, w / 7));
+    if (t === 'quyosh') { for (var i = 0; i < 4; i++) { var pn = box(1.6 * s, .1, 1.1 * s, mat(0x1e3a6e, { metalness: .6, roughness: .2, emissive: 0x0b1f4a, emissiveIntensity: .3 }), null, (i % 2 ? .9 : -.9) * s, .5, (i < 2 ? .7 : -.7) * s, g); pn.rotation.x = -.35; box(.1, .5, .1, 0x888888, null, (i % 2 ? .9 : -.9) * s, 0, (i < 2 ? .7 : -.7) * s, g); } }
+    else if (t === 'tarelka') { var dish = new THREE.Mesh(GEO.sph, mat(0xeeeeee, { metalness: .4, roughness: .3 })); dish.scale.set(2.2 * s, 1.1 * s, 2.2 * s); dish.rotation.x = -2.2; dish.position.set(0, 1.3 * s, 0); g.add(dish); box(.15, 1.2 * s, .15, 0x777777, null, 0, 0, 0, g); }
+    else if (t === 'suvbak') { var tk = new THREE.Mesh(GEO.cyl, mat(0x3b82f6, { metalness: .3, roughness: .4 })); tk.scale.set(1.8 * s, 1.6 * s, 1.8 * s); tk.position.y = 1.6 * s; g.add(tk); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box(.15, .9 * s, .15, 0x555555, null, c[0] * .6 * s, 0, c[1] * .6 * s, g); }); }
+    else if (t === 'bayroq') { box(.12, 4.5 * s, .12, 0xdddddd, null, 0, 0, 0, g); [0x1eb6e8, 0xffffff, 0x1ea23a].forEach(function (c, i) { box(2 * s, .4 * s, .05, c, null, 1 * s, (4.1 - i * .4) * s, 0, g); }); }
+    else if (t === 'bog') { box(w * .7, .3, w * .7, tmat(0x4f9a3a, 'grass'), null, 0, 0, 0, g); [[-1, -1], [1, 1], [1, -1]].forEach(function (c, i) { var tr = tree(g, c[0] * w * .2, c[1] * w * .2, i, .35 * s); tr.position.y = .3; }); }
+    else if (t === 'konditsioner') { [-1, 1].forEach(function (k2) { box(1.4 * s, .9 * s, 1 * s, 0xe5e7eb, null, k2 * 1.2 * s, 0, 0, g); var fan = new THREE.Mesh(GEO.cyl, mat(0x374151)); fan.scale.set(.7 * s, .05, .7 * s); fan.position.set(k2 * 1.2 * s, .92 * s, 0); g.add(fan); }); }
 }
 function topOf(b) { return { uy: 8, hovli: 9.5, dokon: 7, choyhona: 7, bog: 6, masjid: 27, osmonopar: 48 }[b] || 8; }
 function rebuild(o, b, anim, opts) {
@@ -658,13 +713,14 @@ function rebuild(o, b, anim, opts) {
     o.house.clear();
     o.p.b = b; o.p.o = opts || (b === 'osmonopar' ? o.p.o : null);
     var tp = BUILD[b](o.house, o.k, o.p.o); o.top = typeof tp === 'number' ? tp : topOf(b);
+    finishHouse(o, o.p.d);
     o.house.userData.b = b + JSON.stringify(o.p.o || '');
     if (anim && !reduce) { o.house.scale.set(1, .01, 1); o.grow = 0; dust(o.g.position); }
 }
 
 /* ---------- trotuar va yo'l chiziqlari ---------- */
 function roads(maxR) {
-    var side = mat(0x6e6880), curb = mat(0x9c95ab), seen = {};
+    var side = tmat(0x8d8798, 'paving'), curb = mat(0xb6b0c0), seen = {};
     plotObjs.forEach(function (o) {
         var bi = Math.floor(o.cell.i / 2), bj = Math.floor(o.cell.j / 2), key = bi + ',' + bj; if (seen[key]) return; seen[key] = 1;
         var a = cellPos(bi * 2, bj * 2), b = cellPos(bi * 2 + 1, bj * 2 + 1), cx = (a[0] + b[0]) / 2, cz = (a[1] + b[1]) / 2, w = CELL * 2 + 3;
@@ -842,7 +898,7 @@ async function load() {
     if (!j.success) { $('load').textContent = "Server javob bermadi. Birozdan keyin qayta urinib ko'ring."; return false; }
     S.plots = j.plots || []; S.free = j.free || []; S.buildings = j.buildings || []; S.sky = j.sky || S.sky; S.me = j.me; S.balance = j.balance || 0; S.total = j.total || 0; S.joined = j.joined || 0;
     if (j.auth === false) S.logged = false;
-    S.bmap = {}; S.buildings.forEach(function (b) { S.bmap[b.id] = b; });
+    S.bmap = {}; S.buildings.forEach(function (b) { if (b.id === 'choyhona' && b.emoji === '🫖') b.emoji = '🍵'; S.bmap[b.id] = b; });
     return true;
 }
 function clearCity() {
@@ -907,7 +963,7 @@ function openPlot(k) {
 }
 function myActions() {
     if (!S.me.joined) return '<div class="note">Mahallaga qo\'shilsangiz, hovlingizda nikingiz ko\'rinadi va unga bino qura olasiz.</div><button type="button" class="big" data-act="join">🙋 Mahallaga qo\'shilish</button>';
-    return '<button type="button" class="big" data-act="build">🏗 Bino qurish</button><button type="button" class="big ghost" data-act="join">✏️ Nik va darvoza rangini o\'zgartirish</button><button type="button" class="big ghost" data-act="share">🔗 Havolani nusxalash</button>';
+    return '<button type="button" class="big" data-act="build">🏗 Bino qurish</button><button type="button" class="big alt" data-act="deco">🎨 Bezatish: rang va tom</button><button type="button" class="big ghost" data-act="join">✏️ Nik va darvoza rangini o\'zgartirish</button><button type="button" class="big ghost" data-act="share">🔗 Havolani nusxalash</button>';
 }
 function wire(k) {
     sb.querySelectorAll('[data-act]').forEach(function (b) {
@@ -915,6 +971,7 @@ function wire(k) {
             var a = b.dataset.act;
             if (a === 'join') openJoin();
             if (a === 'build') openBuild();
+            if (a === 'deco') openDeco(plotObjs[S.me.c]);
             if (a === 'share') { var u = location.origin + '/mahalla#h' + (k + 1); try { navigator.clipboard.writeText(u); toast('🔗 Havola nusxalandi'); } catch (e) { toast(u); } }
         };
     });
@@ -1094,9 +1151,35 @@ function findYard(q) {
     hideIntro(); openPlot(hit.k);
 }
 
+/* ===================== 🎨 BEZATISH: devor rangi, tom rangi, tomdagi narsa ===================== */
+function openDeco(o) {
+    var src = o.f || o.p, d0 = Object.assign({}, src.d || {}), d = Object.assign({}, d0), saved = false;
+    function redraw(dd) { o.house.clear(); var tp = BUILD[src.b](o.house, o.k, src.o); o.top = typeof tp === 'number' ? tp : topOf(src.b); finishHouse(o, dd); }
+    function sw(list, key) { return '<div class="dsw">' + ['<button type="button" data-' + key + '="" title="Asl rang" class="rs' + (!d[key] ? ' on' : '') + '">↺</button>'].concat(list.map(function (c) { return '<button type="button" data-' + key + '="' + c + '" style="background:' + c + '"' + (d[key] === c ? ' class="on"' : '') + '></button>'; })).join('') + '</div>'; }
+    function paint() {
+        openSheet('<div class="sh-t">🎨 Bezatish</div><div class="sh-m">Tanlaganingiz 3D\'da darhol ko\'rinadi. Bezatish tekin.</div>' +
+            '<div class="dl">Devor rangi</div>' + sw(WALL_SW, 'wall') + '<div class="dl">Tom rangi</div>' + sw(ROOF_SW, 'roof') +
+            '<div class="dl">Tomida nima bo\'lsin</div><div class="pk">' + TOPS.map(function (t) { return '<button type="button" data-top="' + t[0] + '"' + ((d.top || '') === t[0] ? ' class="on"' : '') + '><span>' + t[1] + '</span>' + t[2] + '</button>'; }).join('') + '</div>' +
+            '<button type="button" class="big" id="dc-ok" style="margin-top:14px">💾 Saqlash</button><button type="button" class="big ghost" id="dc-no">Bekor qilish</button>');
+        sb.querySelectorAll('[data-wall]').forEach(function (b) { b.onclick = function () { if (b.dataset.wall) d.wall = b.dataset.wall; else delete d.wall; redraw(d); paint(); }; });
+        sb.querySelectorAll('[data-roof]').forEach(function (b) { b.onclick = function () { if (b.dataset.roof) d.roof = b.dataset.roof; else delete d.roof; redraw(d); paint(); }; });
+        sb.querySelectorAll('[data-top]').forEach(function (b) { b.onclick = function () { if (b.dataset.top) d.top = b.dataset.top; else delete d.top; redraw(d); paint(); }; });
+        $('dc-ok').onclick = async function () {
+            this.disabled = true;
+            var j = {}; try { j = await api('deco', Object.assign(creds(), { deco: d }, o.f ? { k: o.k } : {})); } catch (e) { j = { error: 'Internet bilan muammo' }; }
+            if (!j.success) { this.disabled = false; toast('⚠️ ' + (j.error || 'Xato')); return; }
+            saved = true; src.d = j.deco; PLACE_CANCEL = null; closeSheet(); toast('🎨 Saqlandi');
+        };
+        $('dc-no').onclick = function () { PLACE_CANCEL(); PLACE_CANCEL = null; closeSheet(); };
+    }
+    PLACE_CANCEL = function () { if (!saved) redraw(d0); };
+    flyTo(o.g.position.x, o.g.position.z, Math.max(55, o.top * 2), .5);
+    paint();
+}
+
 /* ===================== 🛠 KONSTRUKTOR REJIMI: ruxsat berilgan odam bo'sh yerga tekin quradi ===================== */
 var EMPTY_HI = mat(0x9be37a, { emissive: 0x4caf50, emissiveIntensity: .45 }), PLACE_CANCEL = null;
-function paintEmpty(on) { plotObjs.forEach(function (o) { if (!o.p && !o.f) { o.lawn.material = on ? EMPTY_HI : mat(0x6f8a5a); } }); }
+function paintEmpty(on) { plotObjs.forEach(function (o) { if (!o.p && !o.f) { o.lawn.material = on ? EMPTY_HI : tmat(0x5f9441, 'grass'); } }); }
 function setBmode(on) {
     S.bmode = !!on; paintEmpty(S.bmode); paintMe();
     if (S.bmode) { toast('🛠 Konstruktor: yashil bo\'sh yerni bosing — tekin qurasiz'); flyTo(view.tx, view.tz, Math.max(goal.dist, 170), .75); }
@@ -1104,12 +1187,12 @@ function setBmode(on) {
 function bAll() { return S.buildings.filter(function (b) { return b.on && b.id !== 'uy'; }); }
 function previewOn(o, b) {
     o.house.clear(); spinners = spinners.filter(function (w) { return w.parent && w.parent.parent; });
-    if (b) { var tp = BUILD[b](o.house, o.k, b === 'osmonopar' ? { floors: 40, style: 'shisha', top: 'antenna', color: o.k % 8 } : null); o.top = typeof tp === 'number' ? tp : topOf(b); }
+    if (b) { var tp = BUILD[b](o.house, o.k, b === 'osmonopar' ? { floors: 40, style: 'shisha', top: 'antenna', color: o.k % 8 } : null); o.top = typeof tp === 'number' ? tp : topOf(b); finishHouse(o, o.f && o.f.b === b ? o.f.d : null); }
     shadowsDirty();
 }
 function replacePlot(k, f) {
     var old = plotObjs[k]; if (!old) return;
-    city.remove(old.g); pickables = pickables.filter(function (m) { return m !== old.lawn; });
+    city.remove(old.g); pickables = pickables.filter(function (m) { return m !== old.g; });
     labels = labels.filter(function (l) { if (l.k === k) { l.el.remove(); return false; } return true; });
     var o = makePlot(null, CELLS[k], k, f || null);
     if (f) { var b = S.bmap[f.b] || { emoji: '🏗', name: f.b }; var l = addLabel('bl mine', b.emoji + ' ' + esc(f.l || b.name), function () { return { x: o.g.position.x, y: o.top + 2, z: o.g.position.z }; }, function () { openPlot(o.k); }); l.k = k; }
@@ -1123,7 +1206,7 @@ function openPlace(o, cur) {
     openSheet('<div class="sh-t">🛠 ' + (cur ? 'Binoni o\'zgartirish' : 'Konstruktor') + '</div><div class="sh-m">Tekin · ' + (bl.used + (cur ? 0 : 1)) + ' / ' + bl.limit + ' ta bino. Istalgan binoni tanlang.</div>' +
         '<div class="pk">' + bAll().map(function (b) { return '<button type="button" data-k="' + b.id + '"' + (b.id === sel ? ' class="on"' : '') + '><span>' + b.emoji + '</span>' + esc(b.name) + '</button>'; }).join('') + '</div>' +
         '<input class="inp" id="pk-l" maxlength="24" placeholder="Nomi (ixtiyoriy) — masalan «Lucky»" style="padding-left:14px;margin:12px 0 4px">' +
-        '<button type="button" class="big" id="pk-ok">' + (cur ? '💾 Saqlash' : '🛠 Qurish · tekin') + '</button>' + (cur ? '<button type="button" class="big ghost" id="pk-del">🗑 Olib tashlash</button>' : '') +
+        '<button type="button" class="big" id="pk-ok">' + (cur ? '💾 Saqlash' : '🛠 Qurish · tekin') + '</button>' + (cur ? '<button type="button" class="big alt" id="pk-deco">🎨 Bezatish: rang va tom</button><button type="button" class="big ghost" id="pk-del">🗑 Olib tashlash</button>' : '') +
         '<button type="button" class="big ghost" id="pk-x">Konstruktordan chiqish</button>');
     $('pk-l').value = label || '';
     var okBtn = $('pk-ok');
@@ -1151,6 +1234,7 @@ function openPlace(o, cur) {
         closeSheet(); paintMe(); toast('✅ ' + S.bmap[sel].name + ' qurildi · ' + S.me.builder.used + ' / ' + S.me.builder.limit);
     }
     okBtn.onclick = build;
+    if ($('pk-deco')) $('pk-deco').onclick = function () { restore(); done = true; PLACE_CANCEL = null; openDeco(o); };
     if ($('pk-del')) $('pk-del').onclick = async function () {
         var j = await api('unplace', Object.assign(creds(), { k: o.k }));
         if (!j.success) { toast(j.error || 'Xato'); return; }
@@ -1256,7 +1340,7 @@ function frame(now) {
     perf.t += dt; perf.n++;
     if (perf.t > 2.5) {
         var avg = perf.t / perf.n; perf.t = 0; perf.n = 0;
-        if (avg > .03 && PR > .75) { PR = Math.max(.75, PR - .25); R.setPixelRatio(PR); resize(); }
+        if (avg > .03 && PR > 1) { PR = Math.max(1, PR - .25); R.setPixelRatio(PR); resize(); }
     }
     requestAnimationFrame(frame);
 }
