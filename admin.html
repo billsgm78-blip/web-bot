@@ -827,7 +827,7 @@ select.inp option { background: #12151c; color: var(--text); }
     // ================= PANEL =================
     var TABS = [
         ['stats', '📊', 'Statistika'], ['agent', '🤖', 'Yordamchi'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['aud', '📲', 'Ilova va bot'],
-        ['card', '💳', "Karta (avto to'lov)"], ['call', '📞', "AI qo'ng'iroq"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama']
+        ['card', '💳', "Karta (avto to'lov)"], ['call', '📞', "AI qo'ng'iroq"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['mahalla', '🏘', 'Mahalla'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama']
     ];
     var tab = 'stats';
     function buildNav() {
@@ -849,7 +849,7 @@ select.inp option { background: #12151c; color: var(--text); }
         // Kirish animatsiyasi faqat sahifa ochilganda (keyingi avto-yangilanishlarda qayta o'ynamaydi)
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
-        var fn = { stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity, aud: vAud, load: vLoad }[t];
+        var fn = { stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, mahalla: vMahalla, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, security: vSecurity, aud: vAud, load: vLoad }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -1527,6 +1527,51 @@ select.inp option { background: #12151c; color: var(--text); }
                 if (x.success) vShop(view);
             } })
         ]));
+    }
+
+    // 🏘 Mahalla: foydalanuvchilar hamyondagi balansdan o'z hovlisiga bino quradi — narx va ro'yxat shu yerda
+    async function vMahalla(view) {
+        var j = await admin('mahalla_get');
+        view.innerHTML = '';
+        if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        var st = j.stats || {}, per = st.perBuilding || {};
+        var items = j.buildings.map(function (x) { return Object.assign({}, x); });
+        view.appendChild(h('div', { class: 'grid kpis' }, [
+            ['🏘 Aholi (hovlilar)', st.total], ['🙋 Mahallaga qo\'shilgan', st.joined], ['🏗 Qurilgan binolar', Object.keys(per).filter(function (k) { return k !== 'uy'; }).reduce(function (s, k) { return s + per[k]; }, 0)], ['💰 Binolardan tushum', money(st.revenue || 0) + " so'm"]
+        ].map(function (c) { return h('div', { class: 'kpi' }, [h('b', { text: String(c[1] == null ? 0 : c[1]) }), h('small', { text: c[0] })]); })));
+        var box = h('div');
+        function paint() {
+            box.innerHTML = '';
+            box.appendChild(h('div', { class: 'shop-row shop-hd' }, [h('span', { class: 'nm', text: 'Bino' }), h('span', { text: "Narx, so'm" }), h('span', { text: 'Belgi' }), h('span', { text: 'Faol' }), h('span', { text: 'Qurilgan' })]));
+            items.forEach(function (it) {
+                var nm = h('input', { class: 'inp nm' }); nm.value = it.name; nm.oninput = function () { it.name = nm.value; };
+                var pr = h('input', { class: 'inp mono', inputmode: 'numeric' }); pr.value = it.price; pr.oninput = function () { it.price = parseInt(pr.value.replace(/\D/g, ''), 10) || 0; };
+                var em = h('input', { class: 'inp', style: 'text-align:center' }); em.value = it.emoji; em.oninput = function () { it.emoji = em.value; };
+                var base = it.id === 'uy';
+                if (base) { pr.disabled = true; pr.title = "Oddiy uy — bepul (hamma shu bilan boshlaydi)"; }
+                var sw = h('div', { class: 'switch' + (it.on ? ' ok' : ''), role: 'switch', title: base ? "Oddiy uyni o'chirib bo'lmaydi" : '', onclick: function () { if (base) return; it.on = !it.on; paint(); } });
+                box.appendChild(h('div', { class: 'shop-row' + (it.on ? '' : ' off') }, [nm, pr, em, sw, h('span', { class: 'mono', style: 'text-align:center', text: String(per[it.id] || 0) })]));
+            });
+        }
+        paint();
+        view.appendChild(h('div', { class: 'sum', style: 'margin:14px 0 10px', text: "bilolsai.uz/mahalla — har bir foydalanuvchining o'z hovlisi bor (kim oldin ro'yxatdan o'tgan bo'lsa, markazga — agentlar binosiga — yaqinroq). Foydalanuvchi «Mahallaga qo'shilish»ni bosib nik yozadi, keyin hamyondagi balansdan hovlisiga shu binolardan birini quradi. Narxni o'zgartirsangiz, saytda darhol yangilanadi; o'chirilgan bino ro'yxatdan yo'qoladi (qurib bo'lganlarniki qoladi)." }));
+        view.appendChild(h('div', { class: 'card form' }, [box,
+            h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+                for (var i = 0; i < items.length; i++) if (!items[i].name.trim()) { toast((i + 1) + '-qator: nomini yozing'); return; }
+                var x = await admin('mahalla_save', { buildings: items });
+                toast(x.success ? '✅ Saqlandi — saytda darhol yangilandi' : (x.error || 'Xato'));
+                if (x.success) vMahalla(view);
+            } }),
+            h('a', { class: 'act', href: '/mahalla', target: '_blank', style: 'text-align:center;text-decoration:none', text: '🏘 Mahallani ochish →' })
+        ]));
+        if ((st.recent || []).length) {
+            var bmap = {}; items.forEach(function (b) { bmap[b.id] = b; });
+            view.appendChild(h('div', { class: 'h', text: "So'nggi qurilishlar" }));
+            view.appendChild(h('div', { class: 'card' }, st.recent.map(function (r) {
+                var b = bmap[r.building] || { emoji: '🏠', name: r.building };
+                return h('div', { class: 'row' }, [h('div', { class: 'r-main' }, [h('b', { text: b.emoji + ' ' + b.name + ' · @' + (r.nick || '—') }), h('small', { text: fmtDate(r.built_at) })])]);
+            })));
+        }
     }
 
     // Raqam 0 dan sanab chiqadi (faqat raqamli qiymatlar; 0.7 s, requestAnimationFrame — qotmaydi)

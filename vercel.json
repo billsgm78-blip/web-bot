@@ -49,6 +49,10 @@
       "destination": "/maxfiylik.html"
     },
     {
+      "source": "/mahalla",
+      "destination": "/mahalla.html"
+    },
+    {
       "source": "/sizuchun",
       "destination": "/sizuchun.html"
     }
