@@ -94,6 +94,47 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 .mebar button { padding: 13px 18px; border-radius: 14px; border: 0; background: var(--gold); color: #241a00; font: 800 14px/1 inherit; font-family: inherit; cursor: pointer; box-shadow: 0 10px 30px rgba(0, 0, 0, .35); white-space: nowrap; }
 .mebar button.dk { background: var(--card); color: var(--text); border: 1px solid var(--line); }
 .mebar[hidden], .tools[hidden] { display: none; }
+.srch { display: grid; gap: 10px; margin-bottom: 4px; }
+.srch .inp { padding-left: 16px; text-align: center; font-size: 17px; border-color: rgba(255, 210, 87, .55); }
+.wz-h { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; gap: 8px; text-align: center; }
+.wz-h b { display: block; font-size: 22px; font-weight: 900; }
+.wz-h small { color: var(--muted); font-size: 12.5px; font-weight: 600; }
+.wz-h a { color: var(--gold); }
+.wz-b { width: 40px; height: 40px; border-radius: 12px; border: 0; background: rgba(255, 255, 255, .08); color: var(--text); font-size: 22px; cursor: pointer; }
+#sb .wz-h + .wz-dots { margin-top: 8px; }
+.wz-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; }
+.wz-dots i { width: 22px; height: 4px; border-radius: 4px; background: rgba(255, 255, 255, .18); }
+.wz-dots i.on { background: var(--gold); }
+.wz-p { text-align: center; font-size: clamp(24px, 6vw, 30px); font-weight: 900; color: var(--gold); margin-top: 4px; }
+.wz-s { text-align: center; color: var(--muted); font-size: 12.5px; font-weight: 600; margin: 2px 0 12px; }
+.wz-s em { font-style: normal; color: #22d3ee; font-weight: 800; }
+.wz-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; border-radius: 14px; background: rgba(255, 255, 255, .06); margin-bottom: 14px; }
+.wz-tabs button { padding: 11px 4px; border: 0; border-radius: 10px; background: transparent; color: var(--text); font: 700 13.5px/1 inherit; font-family: inherit; cursor: pointer; }
+.wz-tabs button.on { background: #f8f1e1; color: #241a00; }
+.wz-sl { display: grid; grid-template-columns: 44px 1fr 44px; gap: 12px; align-items: center; margin-bottom: 12px; }
+.wz-pm { height: 44px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, .06); color: var(--text); font: 800 22px/1 inherit; font-family: inherit; cursor: pointer; }
+#wz-r { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 8px; background: linear-gradient(90deg, var(--gold) var(--v, 30%), rgba(255, 255, 255, .15) var(--v, 30%)); outline: none; }
+#wz-r::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 5px solid var(--gold); box-shadow: 0 2px 8px rgba(0, 0, 0, .4); cursor: pointer; }
+#wz-r::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 5px solid var(--gold); cursor: pointer; }
+.wz-q { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 8px; }
+.wz-q button, .wz-t div { padding: 11px 4px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, .04); color: var(--text); font: 800 14px/1 inherit; font-family: inherit; cursor: pointer; text-align: center; }
+.wz-q button.on { border-color: var(--gold); }
+.wz-q button:disabled { opacity: .35; }
+.wz-t { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.wz-t div { padding: 9px 4px; }
+.wz-t small { display: block; color: var(--muted); font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+.wz-t div.on { background: var(--gold); color: #241a00; border-color: var(--gold); }
+.wz-t div.on small { color: #5a4300; }
+.wz-n { color: var(--muted); font-size: 12px; font-weight: 600; margin: 10px 0 4px; line-height: 1.45; }
+.wz-c { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.wz-c button { display: flex; align-items: center; gap: 10px; padding: 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255, 255, 255, .04); color: var(--text); font: 800 14px/1.2 inherit; font-family: inherit; cursor: pointer; text-align: left; }
+.wz-c button span { font-size: 24px; }
+.wz-c button.on { border-color: var(--gold); background: rgba(255, 210, 87, .1); }
+.wz-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.wz-col button { height: 52px; border-radius: 14px; border: 3px solid transparent; cursor: pointer; }
+.wz-col button.on { border-color: #fff; box-shadow: 0 0 0 2px var(--gold); }
+.wz-go { margin-top: 16px; }
+.wz-go:disabled { opacity: .45; }
 #load { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: var(--ink); color: var(--muted); font-weight: 700; transition: opacity .5s; }
 #load.hide { opacity: 0; pointer-events: none; }
 @media (max-width: 520px) { .pop b { font-size: 18px; } .brand { font-size: 11px; } .tools button { width: 42px; height: 42px; } }
@@ -106,6 +147,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 <div class="ui pop"><small>AHOLI</small><b id="pop">…</b></div>
 <div class="ui tools" id="tools" hidden>
   <button type="button" class="gold" id="t-me" title="Mening hovlim">🏠<span style="font-size:10px">Hovlim</span></button>
+  <button type="button" id="t-find" title="Hovlimni top">🔎</button>
   <button type="button" id="t-in" title="Yaqinlashtirish">+</button>
   <button type="button" id="t-out" title="Uzoqlashtirish">−</button>
   <button type="button" id="t-home" title="Markaz">⌂</button>
@@ -118,6 +160,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
     <span class="chip">1 foydalanuvchi = 1 hovli</span>
     <h1>Bilols AI mahallasiga xush kelibsiz</h1>
     <p>Har bir foydalanuvchining o'z hovlisi bor. Kim oldin qo'shilgan bo'lsa, markazga — AI agentlar ishlaydigan binoga — yaqinroq yashaydi. Hamyoningizdagi balansdan hovlingizga choyhona, masjid yoki osmono'par quring.</p>
+    <form class="srch" id="i-find" autocomplete="off"><input class="inp" id="i-q" placeholder="Nik yoki telefon raqamingiz" aria-label="Nik yoki telefon raqam"><button type="submit" class="big">Hovlimni top</button></form>
     <div id="i-act"></div>
     <div class="chips">
       <button type="button" class="tw" data-go="tower">🤖 Agentlar binosi</button>
@@ -143,7 +186,8 @@ var $ = function (id) { return document.getElementById(id); };
 var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 var mobile = innerWidth < 760;
 function ls(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
-function creds() { return { phone: ls('bilol_ai_phone').replace(/\D/g, ''), password: ls('bilol_ai_password') }; }
+var TEMP = null;   // "Hovlimni top" orqali kiritilgan raqam+parol — faqat shu sahifa ochiq turganda, hech qayerga saqlanmaydi
+function creds() { return TEMP || { phone: ls('bilol_ai_phone').replace(/\D/g, ''), password: ls('bilol_ai_password') }; }
 function money(n) { return Number(n || 0).toLocaleString('ru-RU').replace(/ /g, ' '); }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function toast(t) { var e = $('toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(function () { e.classList.remove('on'); }, 2600); }
@@ -167,15 +211,15 @@ R.shadowMap.enabled = !mobile; R.shadowMap.type = THREE.PCFSoftShadowMap;
 R.outputEncoding = THREE.sRGBEncoding;
 R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = .82;
 var scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x6a557e, 240, 720);
+scene.fog = new THREE.Fog(0x8e6e84, 260, 760);
 var cam = new THREE.PerspectiveCamera(45, 1, 1, 2000);
 
 // osmon: shom (shaftoli → binafsha)
 (function sky() {
-    var g = new THREE.SphereGeometry(1200, 32, 16), m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false,
-        uniforms: { a: { value: new THREE.Color(0x1d1a3c) }, b: { value: new THREE.Color(0xc9839b) }, c: { value: new THREE.Color(0xf7b27a) } },
+    var g = new THREE.SphereGeometry(1400, 32, 16), m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false,
+        uniforms: { a: { value: new THREE.Color(0x6a4a66) }, b: { value: new THREE.Color(0xc4837f) }, c: { value: new THREE.Color(0xf4a46c) } },
         vertexShader: 'varying vec3 p;void main(){p=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-        fragmentShader: 'uniform vec3 a,b,c;varying vec3 p;void main(){float h=p.y;vec3 col=h>0.12?mix(b,a,smoothstep(.12,.6,h)):mix(c,b,smoothstep(-.02,.12,h));gl_FragColor=vec4(col,1.);}' });
+        fragmentShader: 'uniform vec3 a,b,c;varying vec3 p;void main(){float h=p.y;vec3 col=h>0.1?mix(b,a,smoothstep(.1,.75,h)):mix(c,b,smoothstep(-.02,.1,h));gl_FragColor=vec4(col,1.);}' });
     scene.add(new THREE.Mesh(g, m));
 })();
 scene.add(new THREE.HemisphereLight(0xffd9c4, 0x2e2850, .62));
@@ -194,11 +238,38 @@ var WIN2 = mat(0xb9e6ff, { emissive: 0x7cc8ff, emissiveIntensity: .55 });
 
 // tog'lar
 (function mountains() {
-    for (var i = 0; i < 46; i++) {
-        var a = i / 46 * Math.PI * 2 + Math.random() * .1, r = 640 + Math.random() * 120, h = 70 + Math.random() * 120;
-        var m = new THREE.Mesh(new THREE.ConeGeometry(60 + Math.random() * 60, h, 5), new THREE.MeshBasicMaterial({ color: i % 3 ? 0x5b4f7e : 0x6c5f8f }));
-        m.position.set(Math.cos(a) * r, h / 2 - 4, Math.sin(a) * r); m.rotation.y = Math.random() * 3; scene.add(m);
+    // yorug' tomon — shaftoli-pushti, soya tomoni — ko'kish-binafsha; cho'qqida qor. Uzoqdagi qatorlar tumanli.
+    var L = new THREE.Vector3(-.55, .55, -.35).normalize(), HAZE = new THREE.Color(0xd59a94), mm = new THREE.MeshBasicMaterial({ vertexColors: true, fog: false, toneMapped: false });
+    function paint(geo, lit, shade, haze) {
+        geo = geo.toNonIndexed(); var pos = geo.attributes.position, cols = [], a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), n = new THREE.Vector3();
+        for (var i = 0; i < pos.count; i += 3) {
+            a.fromBufferAttribute(pos, i); b.fromBufferAttribute(pos, i + 1); c.fromBufferAttribute(pos, i + 2);
+            n.subVectors(c, b).cross(a.clone().sub(b)).normalize();
+            var k = Math.max(0, Math.min(1, n.dot(L) * 1.6 + .35)), col = new THREE.Color(shade).lerp(new THREE.Color(lit), k).lerp(HAZE, haze);
+            for (var j = 0; j < 3; j++) cols.push(col.r, col.g, col.b);
+        }
+        geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3)); return geo;
     }
+    function peak(ang, r, w, h, haze, snow) {
+        var g = new THREE.Group(), seg = 5 + Math.floor(Math.random() * 3);
+        var body = new THREE.Mesh(paint(new THREE.ConeGeometry(w, h, seg, 1, true), 0xc2949f, 0x56608f, haze), mm); body.position.y = h / 2; g.add(body);
+        if (snow) {
+            var ch = h * .36, cw = w * .36 * 1.04;
+            var cap = new THREE.Mesh(paint(new THREE.ConeGeometry(cw, ch, seg, 1, true), 0xf6e6e3, 0x9aa5d6, haze * .8), mm); cap.position.y = h - ch / 2 + .3; g.add(cap);
+        }
+        g.rotation.y = Math.random() * 6; g.position.set(Math.cos(ang) * r, -10, Math.sin(ang) * r); scene.add(g);
+    }
+    [[1080, 30, 150, 150, .42, true], [990, 34, 115, 118, .2, true], [910, 44, 70, 48, .06, false]].forEach(function (row) {
+        for (var i = 0; i < row[1]; i++) {
+            var ang = i / row[1] * Math.PI * 2 + Math.random() * .12, h = row[3] * (.65 + Math.random() * .5);
+            peak(ang, row[0] + (Math.random() - .5) * 60, row[2] * (.7 + Math.random() * .5), h, row[4], row[5] && h > row[3] * .75);
+        }
+    });
+    // uzun "linza" bulut
+    [[.6, 300, 0], [2.4, 260, 1], [4.1, 330, 0]].forEach(function (c) {
+        var m = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 8), new THREE.MeshBasicMaterial({ color: c[2] ? 0xb98289 : 0xa5737f, transparent: true, opacity: .85, fog: false, toneMapped: false }));
+        m.scale.set(190, 5, 28); m.position.set(Math.cos(c[0]) * 1120, c[1], Math.sin(c[0]) * 1120); m.rotation.y = -c[0] + Math.PI / 2; scene.add(m);
+    });
 })();
 // yer: asfalt (yo'llar) — hovlilar ustiga qo'yiladi
 var ground = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1600), mat(0x2b2838, { roughness: .95 }));
@@ -228,6 +299,8 @@ function windows(g, w, h, d, floors, y0, mat2) {
         box(1.9, .18, .4, 0xf7f3ea, null, k * w * .25, wy - .3, d / 2 + .15, g);
     }
 }
+var FLOOR_U = 1.1, SKYC = [0x2c3e66, 0x2f6f8f, 0x6b3fa0, 0x1f7a5a, 0x9a3b4f, 0x3a3a4a, 0xb07a2a, 0x2a5aa8];
+var TOWER_M = Math.round((2 + 5 * 8) / 1.1 * 3);      // agentlar binosi balandligi, metr (1 qavat ≈ 3 m)
 var BUILD = {
     uy: function (g, s) {
         box(7, 4, 6, WALLS[s % 6], null, 0, 0, -1, g);
@@ -273,29 +346,60 @@ var BUILD = {
         [[-2.6, 3.4], [2.6, 3.4]].forEach(function (p) { box(2.2, .5, .7, 0x8a5a3a, null, p[0], 0, p[1], g); });
     },
     masjid: function (g, s) {
-        box(8, 5, 7, 0xf4efe6, null, 0, 0, -1, g);
-        box(8.4, .4, 7.4, 0x2a8f86, null, 0, 5, -1, g);
-        var dm = new THREE.Mesh(GEO.sph, mat(0x1aa6a0, { roughness: .35, metalness: .2 })); dm.scale.setScalar(5.2); dm.position.set(0, 5.4, -1); dm.castShadow = !mobile; g.add(dm);
-        var tip = new THREE.Mesh(GEO.cyl, mat(0xffd257, { emissive: 0xc79100, emissiveIntensity: .4 })); tip.scale.set(.2, 1.4, .2); tip.position.set(0, 8.4, -1); g.add(tip);
-        [-4.6, 4.6].forEach(function (x) {
-            var mn = new THREE.Mesh(GEO.cyl, mat(0xf4efe6)); mn.scale.set(1, 11, 1); mn.position.set(x, 5.5, 2.4); mn.castShadow = !mobile; g.add(mn);
-            box(1.5, .4, 1.5, 0x2a8f86, null, x, 9, 2.4, g);
-            var c = new THREE.Mesh(GEO.cone4, mat(0x1aa6a0)); c.scale.set(1.2, 2, 1.2); c.position.set(x, 12, 2.4); g.add(c);
+        // katta jome masjidi: osmono'par bilan bir xil o'lchamda — keng gumbaz va baland minoralar
+        var stone = 0xf4efe6, tq = 0x1aa6a0, tq2 = 0x2a8f86;
+        box(11, 8, 9.5, stone, null, 0, .3, -.8, g);
+        box(11.6, .6, 10.1, tq2, null, 0, 8.3, -.8, g);
+        var drum = new THREE.Mesh(GEO.cyl, mat(stone)); drum.scale.set(7, 2.4, 7); drum.position.set(0, 10.1, -.8); g.add(drum);
+        var dm = new THREE.Mesh(GEO.sph, mat(tq, { roughness: .3, metalness: .25 })); dm.scale.setScalar(7.4); dm.position.set(0, 11.3, -.8); dm.castShadow = !mobile; g.add(dm);
+        var tip = new THREE.Mesh(GEO.cyl, mat(0xffd257, { emissive: 0xc79100, emissiveIntensity: .45 })); tip.scale.set(.25, 2.2, .25); tip.position.set(0, 16.2, -.8); g.add(tip);
+        var cr = new THREE.Mesh(new THREE.TorusGeometry(.55, .12, 8, 20, Math.PI * 1.6), mat(0xffd257, { emissive: 0xc79100, emissiveIntensity: .45 })); cr.position.set(0, 17.8, -.8); cr.rotation.z = .9; g.add(cr);
+        [[-5.4, 3.6], [5.4, 3.6], [-5.4, -5.2], [5.4, -5.2]].forEach(function (q, i) {
+            var hgt = i < 2 ? 24 : 18;
+            var mn = new THREE.Mesh(GEO.cyl, mat(stone)); mn.scale.set(1.2, hgt, 1.2); mn.position.set(q[0], .3 + hgt / 2, q[1]); mn.castShadow = !mobile; g.add(mn);
+            [.55, .82].forEach(function (f) { var bal = new THREE.Mesh(GEO.cyl, mat(tq2)); bal.scale.set(2, .45, 2); bal.position.set(q[0], .3 + hgt * f, q[1]); g.add(bal); });
+            var lit = new THREE.Mesh(GEO.cyl, mat(0xffe1a1, { emissive: 0xffb347, emissiveIntensity: .8 })); lit.scale.set(1.25, 1.2, 1.25); lit.position.set(q[0], .3 + hgt * .88, q[1]); g.add(lit);
+            var c = new THREE.Mesh(new THREE.ConeGeometry(.9, 3, 12), mat(tq)); c.position.set(q[0], .3 + hgt + 1.5, q[1]); g.add(c);
         });
-        var arch = box(2.2, 3.2, .3, 0x2a8f86, null, 0, 0, 2.55, g);
-        box(1.6, 2.6, .2, mat(0xffe1a1, { emissive: 0xffb347, emissiveIntensity: .6 }), null, 0, 0, 2.75, g);
-        windows(g, 8, 5, 7, 1, .6, mat(0xffe1a1, { emissive: 0xffb347, emissiveIntensity: .7 }));
+        box(4, 6, .4, tq2, null, 0, .3, 4.1, g);
+        box(3, 5, .2, mat(0xffe1a1, { emissive: 0xffb347, emissiveIntensity: .65 }), null, 0, .3, 4.32, g);
+        [-3.6, 3.6].forEach(function (x) { box(1.4, 2.4, .2, mat(0xffe1a1, { emissive: 0xffb347, emissiveIntensity: .7 }), null, x, 3, 4.0, g); });
+        return 27;
     },
-    osmonopar: function (g, s) {
-        var h = 34 + (s % 4) * 6;
-        box(8, h, 8, 0x2c3e66, { roughness: .4, metalness: .3 }, 0, 0, -.5, g);
-        var stripes = Math.floor(h / 3);
-        for (var f = 1; f < stripes; f++) {
-            box(8.1, .55, 8.1, f % 3 ? WIN2 : WIN, null, 0, f * 3, -.5, g);
+    osmonopar: function (g, s, o) {
+        o = o || { floors: 20 + (s % 4) * 10, style: 'shisha', top: 'antenna', color: s % 8 };
+        var h = o.floors * FLOOR_U, col = SKYC[o.color % 8], z = -.5, W = 8, st = o.style;
+        var sec = st === 'zinapoya' ? [[1, .45], [.78, .3], [.58, .25]] : [[1, 1]], y = .3, topW = W;
+        sec.forEach(function (q) {
+            var w = W * q[0], hh = h * q[1];
+            if (st === 'neon') box(w, hh, w, 0x16142c, { roughness: .35, metalness: .4 }, 0, y, z, g);
+            else if (st === 'klassik') box(w, hh, w, new THREE.Color(col).lerp(new THREE.Color(0xf1e6d6), .55).getHex(), null, 0, y, z, g);
+            else box(w, hh, w, col, { roughness: .18, metalness: .55 }, 0, y, z, g);
+            var step = st === 'klassik' ? FLOOR_U * 2 : FLOOR_U * 3, wm = st === 'neon' ? mat(col, { emissive: col, emissiveIntensity: 1.1 }) : (st === 'klassik' ? WIN : WIN2);
+            for (var f = step; f < hh - .5; f += step) {
+                if (st === 'klassik') { [-1, 1].forEach(function (k) { box(w * .3, FLOOR_U * .9, .1, WIN, null, k * w * .22, y + f - FLOOR_U, z + w / 2 + .03, g); box(.1, FLOOR_U * .9, w * .3, WIN, null, w / 2 + .03, y + f - FLOOR_U, z + k * w * .22, g); }); }
+                else if (st === 'neon') { if (Math.round(f / step) % 3 === 0) box(w + .12, .22, w + .12, wm, null, 0, y + f, z, g); }
+                else box(w + .1, .45, w + .1, Math.round(f / step) % 4 ? WIN2 : WIN, null, 0, y + f, z, g);
+            }
+            if (st === 'neon') [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box(.25, hh, .25, wm, null, c[0] * w / 2, y, z + c[1] * w / 2, g); });
+            y += hh; topW = w;
+        });
+        box(topW + .4, .5, topW + .4, 0x23203a, null, 0, y, z, g); y += .5;
+        var t = o.top;
+        if (t === 'vertolyot') {
+            var pad = new THREE.Mesh(GEO.cyl, mat(0x2a2744)); pad.scale.set(topW * .95, .35, topW * .95); pad.position.set(0, y + .17, z); g.add(pad);
+            box(.5, .06, 2.6, mat(0xffd257, { emissive: 0xffb000, emissiveIntensity: .8 }), null, -.8, y + .35, z, g); box(.5, .06, 2.6, mat(0xffd257, { emissive: 0xffb000, emissiveIntensity: .8 }), null, .8, y + .35, z, g); box(1.6, .06, .5, mat(0xffd257, { emissive: 0xffb000, emissiveIntensity: .8 }), null, 0, y + .35, z, g);
+            y += 1;
+        } else if (t === 'shpil') {
+            var sp = new THREE.Mesh(new THREE.ConeGeometry(topW * .32, topW * 1.6, 8), mat(0xd9d4e6, { metalness: .6, roughness: .3 })); sp.position.set(0, y + topW * .8, z); g.add(sp); y += topW * 1.6;
+        } else if (t === 'toj') {
+            for (var i = 0; i < 8; i++) { var a = i / 8 * Math.PI * 2; box(.5, 2.2, .5, mat(0xffd257, { emissive: 0xffb000, emissiveIntensity: .9 }), null, Math.cos(a) * topW * .42, y, z + Math.sin(a) * topW * .42, g); }
+            var gem = new THREE.Mesh(GEO.ball, mat(col, { emissive: col, emissiveIntensity: 1 })); gem.scale.setScalar(1.6); gem.position.set(0, y + 1.6, z); g.add(gem); y += 3;
+        } else {
+            var ant = new THREE.Mesh(GEO.cyl, mat(0xffffff)); ant.scale.set(.2, 6, .2); ant.position.set(0, y + 3, z); g.add(ant);
+            var bl = new THREE.Mesh(GEO.ball, mat(0xff3355, { emissive: 0xff2244, emissiveIntensity: 1 })); bl.scale.setScalar(.7); bl.position.set(0, y + 6.2, z); g.add(bl); y += 7;
         }
-        box(4, 3, 4, 0x1d2a48, null, 0, h, -.5, g);
-        var ant = new THREE.Mesh(GEO.cyl, mat(0xffffff)); ant.scale.set(.2, 6, .2); ant.position.set(0, h + 6, -.5); g.add(ant);
-        var bl = new THREE.Mesh(GEO.ball, mat(0xff3355, { emissive: 0xff2244, emissiveIntensity: 1 })); bl.scale.setScalar(.7); bl.position.set(0, h + 9, -.5); g.add(bl); g.userData.blink = bl;
+        return y;
     }
 };
 var TREES = [[0x3f6b3a, 0x6f9a4a], [0x7a7a2a, 0xc9b23a], [0x2f5a3a, 0x5f8f5a], [0x8a6a2a, 0xe0a63a]];
@@ -370,15 +474,17 @@ function makePlot(p, cell, k) {
         if (k % 2 === 0) tree(g, -4.4, 2.6, k, .62); else tree(g, 4.4, 2.8, k, .55);
     } else if (k % 3 === 0) tree(g, 0, 0, k, .7);
     var house = new THREE.Group(); g.add(house);
-    if (p) BUILD[p.b] ? BUILD[p.b](house, k) : BUILD.uy(house, k);
+    var tp = p ? (BUILD[p.b] || BUILD.uy)(house, k, p.o) : null;
     scene.add(g);
-    var o = { g: g, house: house, p: p, cell: cell, k: k, top: p ? topOf(p.b) : 2 };
+    var o = { g: g, house: house, p: p, cell: cell, k: k, top: p ? (typeof tp === 'number' ? tp : topOf(p.b)) : 2 };
     plotObjs[k] = o; return o;
 }
-function topOf(b) { return { uy: 8, hovli: 9.5, dokon: 7, choyhona: 7, bog: 6, masjid: 15, osmonopar: 48 }[b] || 8; }
-function rebuild(o, b, anim) {
+function topOf(b) { return { uy: 8, hovli: 9.5, dokon: 7, choyhona: 7, bog: 6, masjid: 27, osmonopar: 48 }[b] || 8; }
+function rebuild(o, b, anim, opts) {
     o.house.clear();
-    o.p.b = b; BUILD[b](o.house, o.k); o.top = topOf(b);
+    o.p.b = b; o.p.o = opts || (b === 'osmonopar' ? o.p.o : null);
+    var tp = BUILD[b](o.house, o.k, o.p.o); o.top = typeof tp === 'number' ? tp : topOf(b);
+    o.house.userData.b = b + JSON.stringify(o.p.o || '');
     if (anim && !reduce) { o.house.scale.set(1, .01, 1); o.grow = 0; dust(o.g.position); }
 }
 
@@ -553,7 +659,7 @@ async function load() {
     var c = creds(), j = {};
     try { j = await api('list', S.logged ? c : {}); } catch (e) {}
     if (!j.success) { $('load').textContent = "Server javob bermadi. Birozdan keyin qayta urinib ko'ring."; return false; }
-    S.plots = j.plots || []; S.buildings = j.buildings || []; S.me = j.me; S.balance = j.balance || 0; S.total = j.total || 0; S.joined = j.joined || 0;
+    S.plots = j.plots || []; S.buildings = j.buildings || []; S.sky = j.sky || S.sky; S.me = j.me; S.balance = j.balance || 0; S.total = j.total || 0; S.joined = j.joined || 0;
     if (j.auth === false) S.logged = false;
     S.bmap = {}; S.buildings.forEach(function (b) { S.bmap[b.id] = b; });
     return true;
@@ -576,16 +682,18 @@ function populate() {
 
 /* ===================== oynalar ===================== */
 var sheet = $('sheet'), sb = $('sb');
-function openSheet(html) { sb.innerHTML = html; sheet.classList.add('open'); }
+function openSheet(html) { sb.innerHTML = html; sheet.classList.add('open'); $('sx').style.display = /class="wz-h"/.test(html) ? 'none' : ''; }
 function closeSheet() { sheet.classList.remove('open'); }
-$('sx').onclick = closeSheet;
+$('sx').onclick = function () { if (SKY && SKY.step < 3) skyRevert(); SKY = null; closeSheet(); };
 function addr(i) { return (Math.floor(i / 10) + 1) + "-ko'cha, " + (i % 10 + 1) + '-uy'; }
 function neighbor(i) { var p = S.plots[i]; return p ? (p.n ? '@' + esc(p.n) : '— nomsiz —') : "— bo'sh —"; }
 function openPlot(k) {
     var o = plotObjs[k]; if (!o) return;
+    if (SKY && SKY.step < 3) skyRevert(); SKY = null;
     flyTo(o.g.position.x, o.g.position.z, Math.max(55, o.top * 2.2), .55);
     if (!o.p) { openSheet('<div class="sh-t">🌱 Bo\'sh yer</div><div class="sh-a">' + addr(k) + '</div><div class="sh-m">Bu yer yangi qo\'shiladigan foydalanuvchini kutyapti. Do\'stingizni Bilols AI\'ga taklif qiling — u shu yerda yashaydi.</div><a class="big" href="/">Bilols AI\'ni ochish</a>'); return; }
     var p = o.p, b = S.bmap[p.b] || { emoji: '🏠', name: 'Oddiy uy' }, mine = !!p.me;
+    if (p.b === 'osmonopar' && p.o) b = { emoji: b.emoji, name: b.name + ' · ' + p.o.floors + ' qavat (≈' + p.o.floors * 3 + ' m)' };
     var html = '<div class="sh-t"><i style="background:' + GATE[p.g % 8] + '"></i>' + (p.n ? '@' + esc(p.n) : (mine ? 'Sizning hovlingiz' : 'Nomsiz hovli')) + '</div>' +
         '<div class="sh-a">' + addr(k) + '</div><div class="sh-m">' + (k + 1) + '-aholi · ' + b.emoji + ' ' + esc(b.name) + '</div>' +
         '<div class="nb"><div><small>Chap qo\'shni</small><b>' + neighbor(k - 1) + '</b></div><div><small>O\'ng qo\'shni</small><b>' + neighbor(k + 1) + '</b></div></div>';
@@ -633,6 +741,11 @@ function openJoin() {
 function openBuild() {
     var cur = S.me.building;
     var list = S.buildings.filter(function (b) { return b.on || b.id === cur; }).map(function (b) {
+        if (b.id === 'osmonopar') {
+            var mine = cur === 'osmonopar' && S.me.opts;
+            return '<button type="button" class="bo' + (mine ? ' cur' : '') + '" data-b="osmonopar"><span class="e">' + b.emoji + '</span><span><b>' + esc(b.name) + '</b><small>' +
+                (mine ? 'Hozir ' + S.me.opts.floors + ' qavat · kengaytirish' : S.sky.min + '–' + S.sky.max + " qavat · o'zingiz loyihalang") + '</small></span><span class="p">' + money(skyCost(S.sky.min)) + "+ so'm</span></button>";
+        }
         var isCur = b.id === cur, can = isCur || b.price <= S.balance;
         return '<button type="button" class="bo' + (isCur ? ' cur' : '') + '" data-b="' + b.id + '"' + (isCur ? ' disabled' : '') + '><span class="e">' + b.emoji + '</span><span><b>' + esc(b.name) + '</b><small>' +
             (isCur ? 'Hozir hovlingizda' : (can ? 'Balansdan yechiladi' : 'Balans yetmaydi')) + '</small></span><span class="p">' + (isCur ? '✓' : (b.price ? money(b.price) + " so'm" : 'Bepul')) + '</span></button>';
@@ -642,6 +755,7 @@ function openBuild() {
     sb.querySelectorAll('.bo[data-b]').forEach(function (btn) {
         btn.onclick = function () {
             var b = S.bmap[btn.dataset.b];
+            if (b.id === 'osmonopar') { openSky(); return; }
             if (b.price > S.balance) { toast("Balans yetmaydi: " + money(b.price) + " so'm kerak"); return; }
             openSheet('<div class="sh-t">' + b.emoji + ' ' + esc(b.name) + '</div><div class="sh-m">Hovlingizdagi bino almashtiriladi. ' + (b.price ? 'Balansingizdan <b style="color:var(--gold)">' + money(b.price) + " so'm</b> yechiladi." : 'Bu bepul.') + '</div>' +
                 '<button type="button" class="big" id="b-ok">✅ Qurish</button><button type="button" class="big ghost" id="b-no">Orqaga</button>');
@@ -650,14 +764,133 @@ function openBuild() {
                 this.disabled = true; this.textContent = '⏳ Qurilmoqda…';
                 var j = await api('build', Object.assign(creds(), { type: b.id }));
                 if (!j.success) { toast(j.error || 'Xato'); openBuild(); return; }
-                S.balance = j.balance; S.me.building = b.id;
-                var o = plotObjs[S.me.i]; rebuild(o, b.id, true);
+                S.balance = j.balance; S.me.building = b.id; S.me.opts = null;
+                var o = plotObjs[S.me.i]; rebuild(o, b.id, true, null);
                 closeSheet(); flyTo(o.g.position.x, o.g.position.z, Math.max(60, o.top * 2.4), .5);
                 toast('🎉 ' + b.name + ' qurildi! Balans: ' + money(j.balance) + " so'm");
             };
         };
     });
 }
+/* ===================== 🏙 OSMONO'PAR KONSTRUKTORI ===================== */
+S.sky = { tiers: [{ to: 20, price: 1000 }, { to: 40, price: 2000 }, { to: 60, price: 5000 }, { to: 80, price: 10000 }, { to: 100, price: 20000 }], min: 10, max: 100, styles: ['shisha', 'klassik', 'neon', 'zinapoya'], tops: ['antenna', 'vertolyot', 'shpil', 'toj'] };
+var STYLE_N = { shisha: ['🪟', 'Shisha'], klassik: ['🏛', 'Klassik'], neon: ['🌃', 'Neon'], zinapoya: ['📐', 'Zinapoya'] };
+var TOP_N = { antenna: ['📡', 'Antenna'], vertolyot: ['🚁', 'Vertolyot maydoni'], shpil: ['🗼', 'Shpil'], toj: ['👑', 'Toj'] };
+function floorPrice(n) { var t = S.sky.tiers; for (var i = 0; i < t.length; i++) if (n <= t[i].to) return t[i].price; return t[t.length - 1].price; }
+function skyCost(n) { var s = 0; for (var i = 1; i <= n; i++) s += floorPrice(i); return s; }
+var SKY = null;
+function openSky() {
+    var o = plotObjs[S.me.i], old = S.me.building === 'osmonopar' && S.me.opts ? Object.assign({}, S.me.opts) : null;
+    SKY = { o: o, old: old, prevB: o.p.b, prevO: o.p.o, cfg: old ? Object.assign({}, old) : { floors: 30, style: 'shisha', top: 'antenna', color: 0 }, tab: 'f', step: 1 };
+    skyPaint(); skyPreview();
+}
+function skyRevert() { if (!SKY) return; var o = SKY.o; rebuild(o, SKY.prevB, false, SKY.prevO); SKY = null; }
+function skyPreview() { var o = SKY.o; rebuild(o, 'osmonopar', false, Object.assign({}, SKY.cfg)); flyTo(o.g.position.x, o.g.position.z, Math.max(70, o.top * 1.9), .32); }
+function skyPrice() { return skyCost(SKY.cfg.floors) - (SKY.old ? skyCost(SKY.old.floors) : 0); }
+function skyPaint() {
+    var c = SKY.cfg, price = skyPrice(), m = c.floors * 3, minF = SKY.old ? SKY.old.floors : S.sky.min, tiers = S.sky.tiers;
+    var head = '<div class="wz-h"><button type="button" class="wz-b" id="wz-back" aria-label="Orqaga">‹</button><div><b>Osmono\'par</b><small>' + (S.me.nick ? '@' + esc(S.me.nick) + ' · ' : '') + addr(S.me.i) + ' · <a href="#" id="wz-nick">o\'zgartirish</a></small></div><button type="button" class="wz-b" id="wz-x" aria-label="Yopish">×</button></div>' +
+        '<div class="wz-dots">' + [1, 2, 3].map(function (i) { return '<i' + (i <= SKY.step ? ' class="on"' : '') + '></i>'; }).join('') + '</div>';
+    if (SKY.step === 1) {
+        var body = '';
+        if (SKY.tab === 'f') {
+            body = '<div class="wz-sl"><button type="button" class="wz-pm" data-d="-1">−</button><input type="range" id="wz-r" min="' + minF + '" max="' + S.sky.max + '" value="' + c.floors + '"><button type="button" class="wz-pm" data-d="1">+</button></div>' +
+                '<div class="wz-q">' + [10, 25, 50, 75, 100].map(function (n) { return '<button type="button" data-f="' + n + '"' + (n === c.floors ? ' class="on"' : '') + (n < minF ? ' disabled' : '') + '>' + n + '</button>'; }).join('') + '</div>' +
+                '<div class="wz-t">' + tiers.map(function (t, i) { var from = i ? tiers[i - 1].to + 1 : S.sky.min, on = c.floors >= from && c.floors <= t.to; return '<div' + (on ? ' class="on"' : '') + '><small>' + from + '–' + t.to + '</small><b>' + money(t.price) + '</b></div>'; }).join('') + '</div>' +
+                '<div class="wz-n">Har bir qavat o\'z narxida — baland qavatlar qimmatroq (so\'m / qavat)' + (SKY.old ? '. Hozirgi ' + SKY.old.floors + ' qavat uchun qayta to\'lamaysiz — faqat yangi qavatlar.' : '') + '</div>';
+        } else if (SKY.tab === 's') {
+            body = '<div class="wz-c">' + S.sky.styles.map(function (k) { var n = STYLE_N[k] || ['🏢', k]; return '<button type="button" data-s="' + k + '"' + (c.style === k ? ' class="on"' : '') + '><span>' + n[0] + '</span>' + n[1] + '</button>'; }).join('') + '</div>';
+        } else if (SKY.tab === 'c') {
+            body = '<div class="wz-col">' + SKYC.map(function (h, i) { return '<button type="button" data-c="' + i + '" style="background:#' + h.toString(16).padStart(6, '0') + '"' + (c.color === i ? ' class="on"' : '') + '></button>'; }).join('') + '</div>';
+        } else {
+            body = '<div class="wz-c">' + S.sky.tops.map(function (k) { var n = TOP_N[k] || ['⬆️', k]; return '<button type="button" data-t="' + k + '"' + (c.top === k ? ' class="on"' : '') + '><span>' + n[0] + '</span>' + n[1] + '</button>'; }).join('') + '</div>';
+        }
+        var cmp = m > TOWER_M ? '<em>Agentlar minorasidan baland!</em>' : 'agentlar minorasigacha ' + (TOWER_M - m) + ' m';
+        openSheet(head + '<div class="wz-p">' + c.floors + ' qavat · ' + money(price) + ' so\'m</div><div class="wz-s">≈ ' + m + ' metr · ' + cmp + (c.floors < S.sky.max ? ' · keyingi qavat ' + money(floorPrice(c.floors + 1)) + ' so\'m' : '') + '</div>' +
+            '<div class="wz-tabs">' + [['f', 'Qavatlar'], ['s', 'Uslub'], ['c', 'Rang'], ['t', 'Tepasi']].map(function (t) { return '<button type="button" data-tab="' + t[0] + '"' + (SKY.tab === t[0] ? ' class="on"' : '') + '>' + t[1] + '</button>'; }).join('') + '</div>' +
+            body + '<button type="button" class="big wz-go" id="wz-next"' + (SKY.old && JSON.stringify(SKY.old) === JSON.stringify(c) ? ' disabled' : '') + '>Davom etish · ' + money(price) + ' so\'m</button>');
+        sb.querySelectorAll('[data-tab]').forEach(function (b) { b.onclick = function () { SKY.tab = b.dataset.tab; skyPaint(); }; });
+        var set = function (k, v) { SKY.cfg[k] = v; skyPaint(); skyPreview(); };
+        if ($('wz-r')) {
+            var r = $('wz-r'), fill = function () { r.style.setProperty('--v', ((SKY.cfg.floors - minF) / Math.max(1, S.sky.max - minF) * 100) + '%'); };
+            fill();
+            // surish paytida oyna qayta chizilmaydi (aks holda surish uziladi) — faqat narx va belgilar yangilanadi
+            r.oninput = function () {
+                var f = +r.value, pr; SKY.cfg.floors = f; pr = skyPrice(); fill();
+                var mm = f * 3;
+                sb.querySelector('.wz-p').textContent = f + ' qavat · ' + money(pr) + " so'm";
+                sb.querySelector('.wz-s').innerHTML = '≈ ' + mm + ' metr · ' + (mm > TOWER_M ? '<em>Agentlar minorasidan baland!</em>' : 'agentlar minorasigacha ' + (TOWER_M - mm) + ' m') + (f < S.sky.max ? ' · keyingi qavat ' + money(floorPrice(f + 1)) + " so'm" : '');
+                sb.querySelectorAll('.wz-t div').forEach(function (d, i) { var t = S.sky.tiers, from = i ? t[i - 1].to + 1 : S.sky.min; d.classList.toggle('on', f >= from && f <= t[i].to); });
+                sb.querySelectorAll('[data-f]').forEach(function (b2) { b2.classList.toggle('on', +b2.dataset.f === f); });
+                $('wz-next').textContent = 'Davom etish · ' + money(pr) + " so'm"; $('wz-next').disabled = !!(SKY.old && JSON.stringify(SKY.old) === JSON.stringify(SKY.cfg));
+                clearTimeout(skyPaint._t); skyPaint._t = setTimeout(skyPreview, 90);
+            };
+            r.onchange = function () { skyPaint(); };
+        }
+        sb.querySelectorAll('.wz-pm').forEach(function (b) { b.onclick = function () { set('floors', Math.max(minF, Math.min(S.sky.max, c.floors + +b.dataset.d))); }; });
+        sb.querySelectorAll('[data-f]').forEach(function (b) { b.onclick = function () { set('floors', Math.max(minF, +b.dataset.f)); }; });
+        sb.querySelectorAll('[data-s]').forEach(function (b) { b.onclick = function () { set('style', b.dataset.s); }; });
+        sb.querySelectorAll('[data-c]').forEach(function (b) { b.onclick = function () { set('color', +b.dataset.c); }; });
+        sb.querySelectorAll('[data-t]').forEach(function (b) { b.onclick = function () { set('top', b.dataset.t); }; });
+        $('wz-next').onclick = function () { var pr = skyPrice(); if (pr > S.balance) { toast("Balans yetmaydi: " + money(pr) + " so'm kerak"); return; } SKY.step = 2; skyPaint(); };
+    } else if (SKY.step === 2) {
+        var sn = STYLE_N[c.style] || ['', c.style], tn = TOP_N[c.top] || ['', c.top];
+        openSheet(head + '<div class="wz-p">' + money(price) + ' so\'m</div><div class="wz-s">Tasdiqlang — pul hamyondagi balansdan yechiladi</div>' +
+            '<div class="nb"><div><small>Qavatlar</small><b>' + c.floors + (SKY.old ? ' (+' + (c.floors - SKY.old.floors) + ')' : '') + '</b></div><div><small>Balandlik</small><b>≈ ' + c.floors * 3 + ' m</b></div>' +
+            '<div><small>Uslub</small><b>' + sn[0] + ' ' + sn[1] + '</b></div><div><small>Tepasi</small><b>' + tn[0] + ' ' + tn[1] + '</b></div></div>' +
+            '<div class="bal">💰 Balans <b>' + money(S.balance) + ' → ' + money(S.balance - price) + ' so\'m</b></div>' +
+            '<button type="button" class="big wz-go" id="wz-ok">✅ Qurish · ' + money(price) + ' so\'m</button>');
+        $('wz-ok').onclick = async function () {
+            this.disabled = true; this.textContent = '⏳ Qurilmoqda…';
+            var j = await api('build', Object.assign(creds(), { type: 'osmonopar', opts: c }));
+            if (!j.success) { toast(j.error || 'Xato'); SKY.step = 1; skyPaint(); return; }
+            S.balance = j.balance; S.me.building = 'osmonopar'; S.me.opts = j.opts;
+            var o = SKY.o; SKY.prevB = 'osmonopar'; SKY.prevO = j.opts; rebuild(o, 'osmonopar', true, j.opts);
+            SKY.step = 3; skyPaint();
+        };
+    } else {
+        openSheet(head + '<div class="wz-p">🎉 Qurildi!</div><div class="wz-s">' + c.floors + ' qavatli osmono\'paringiz mahallada turibdi' + (c.floors * 3 > TOWER_M ? ' — agentlar minorasidan ham baland!' : '.') + '</div>' +
+            '<div class="bal">💰 Balans <b>' + money(S.balance) + ' so\'m</b></div><button type="button" class="big" id="wz-done">Ajoyib</button><button type="button" class="big ghost" id="wz-share">🔗 Havolani nusxalash</button>');
+        $('wz-done').onclick = function () { SKY = null; closeSheet(); };
+        $('wz-share').onclick = function () { var u = location.origin + '/mahalla#h' + (S.me.i + 1); try { navigator.clipboard.writeText(u); toast('🔗 Havola nusxalandi'); } catch (e) { toast(u); } };
+    }
+    $('wz-x').onclick = function () { if (SKY && SKY.step < 3) skyRevert(); SKY = null; closeSheet(); };
+    $('wz-back').onclick = function () { if (SKY.step === 2) { SKY.step = 1; skyPaint(); } else { skyRevert(); openBuild(); } };
+    $('wz-nick').onclick = function (e) { e.preventDefault(); skyRevert(); openJoin(); };
+}
+
+/* ===================== 🔎 HOVLIMNI TOP: nik (ochiq) yoki raqam + parol (faqat o'z hovlingiz) ===================== */
+function findYard(q) {
+    q = String(q || '').trim(); if (!q) { toast('Nik yoki telefon raqamingizni yozing'); return; }
+    var digits = q.replace(/\D/g, '');
+    if (/^[+\d\s()-]+$/.test(q) && digits.length >= 9) {
+        var mine = creds().phone;
+        if (S.me && mine && mine.slice(-9) === digits.slice(-9)) { hideIntro(); openPlot(S.me.i); return; }
+        hideIntro();
+        openSheet('<div class="sh-t">🔑 Hovlingizni ochish</div><div class="sh-m">Telefon raqam bo\'yicha faqat o\'z hovlingizni ochasiz — Bilols AI parolingizni yozing. Parol hech qayerda saqlanmaydi.</div>' +
+            '<div class="inpw"><span>📱</span><input class="inp" id="f-ph" inputmode="tel" autocomplete="username"></div>' +
+            '<div class="inpw"><span>🔒</span><input class="inp" id="f-pw" type="password" placeholder="Parol" autocomplete="current-password"></div>' +
+            '<button type="button" class="big" id="f-ok">🏠 Hovlimni ochish</button><a class="big ghost" href="/" style="display:block">Hali ro\'yxatdan o\'tmaganmisiz? →</a>');
+        $('f-ph').value = '+' + (digits.length === 9 ? '998' + digits : digits);
+        setTimeout(function () { try { $('f-pw').focus(); } catch (e) {} }, 300);
+        var go = async function () {
+            var c = { phone: $('f-ph').value.replace(/\D/g, ''), password: $('f-pw').value };
+            if (!c.password) { toast('Parolni yozing'); return; }
+            $('f-ok').disabled = true;
+            var j = await api('list', c);
+            $('f-ok').disabled = false;
+            if (!j.success || !j.me) { toast(j.auth === false ? "Raqam yoki parol noto'g'ri" : (j.error || "Raqam yoki parol noto'g'ri")); return; }
+            TEMP = c; S.logged = true; await refresh(); openPlot(S.me.i); toast('🏠 Hovlingiz: ' + addr(S.me.i));
+        };
+        $('f-ok').onclick = go; $('f-pw').onkeydown = function (e) { if (e.key === 'Enter') go(); };
+        return;
+    }
+    var n = q.replace(/^@/, '').toLowerCase(), hit = plotObjs.filter(function (o) { return o.p && o.p.n && o.p.n.toLowerCase() === n; })[0] ||
+        plotObjs.filter(function (o) { return o.p && o.p.n && o.p.n.toLowerCase().indexOf(n) === 0; })[0];
+    if (!hit) { toast('@' + n + ' mahallada topilmadi'); return; }
+    hideIntro(); openPlot(hit.k);
+}
+
 function openTower() {
     flyTo(CENTER[0], CENTER[1], 95, .38);
     openSheet('<div class="sh-t">🤖 Agentlar binosi</div><div class="sh-a">Mahalla markazi</div><div class="sh-m">Bilols AI\'ning yuragi. Har qavatda AI agentlar ishlaydi: Rahbar vazifani bo\'ladi, Kodchi kod yozadi, Dizayner chizadi, Tarjimon tarjima qiladi, Matematik masala yechadi. Shisha oynadan ularning yurganini ko\'ring.</div>' +
@@ -675,21 +908,29 @@ function goType(t) {
 /* ---------- pastki panel va intro ---------- */
 function paintMe() {
     var bar = $('mebar');
-    if (!S.logged || !S.me) { bar.innerHTML = '<button type="button" onclick="location.href=\'/\'">🔑 Kirish va hovlimni olish</button>'; $('t-me').style.display = 'none'; }
+    $('t-me').style.display = (!S.logged || !S.me) ? 'none' : '';
+    if (!S.logged || !S.me) bar.innerHTML = '<button type="button" id="m-find">🔎 Hovlimni top</button>';
     else if (!S.me.joined) bar.innerHTML = '<button type="button" id="m-join">🙋 Mahallaga qo\'shilish</button>';
     else bar.innerHTML = '<button type="button" id="m-build">🏗 Bino qurish</button><button type="button" class="dk" id="m-home">🏠 Hovlim</button>';
+    if ($('m-find')) $('m-find').onclick = function () { $('t-find').click(); };
     if ($('m-join')) $('m-join').onclick = function () { openPlot(S.me.i); openJoin(); };
     if ($('m-build')) $('m-build').onclick = function () { openPlot(S.me.i); openBuild(); };
     if ($('m-home')) $('m-home').onclick = function () { openPlot(S.me.i); };
     $('t-me').onclick = function () { if (S.me) openPlot(S.me.i); };
     var act = $('i-act');
-    if (!S.logged || !S.me) act.innerHTML = '<a class="big" href="/">🔑 Kirish — hovlimni olish</a>';
-    else act.innerHTML = '<button type="button" class="big" id="i-mine">🏠 Hovlimni top · ' + addr(S.me.i) + '</button>' + (S.me.joined ? '<button type="button" class="big alt" id="i-build">🏗 Hovlimga bino qurish ›</button>' : '<button type="button" class="big alt" id="i-join">🙋 Mahallaga qo\'shilish ›</button>');
+    if (!S.logged || !S.me) act.innerHTML = '<a class="big ghost" href="/" style="display:block">Hali akkauntingiz yo\'qmi? Ro\'yxatdan o\'ting →</a>';
+    else act.innerHTML = '<button type="button" class="big" id="i-mine" style="margin-top:10px">🏠 Mening hovlim · ' + addr(S.me.i) + '</button>' + (S.me.joined ? '<button type="button" class="big alt" id="i-build">🏗 Hovlimga bino qurish ›</button>' : '<button type="button" class="big alt" id="i-join">🙋 Mahallaga qo\'shilish ›</button>');
     if ($('i-mine')) $('i-mine').onclick = function () { hideIntro(); openPlot(S.me.i); };
     if ($('i-build')) $('i-build').onclick = function () { hideIntro(); openPlot(S.me.i); openBuild(); };
     if ($('i-join')) $('i-join').onclick = function () { hideIntro(); openPlot(S.me.i); openJoin(); };
 }
 function hideIntro() { $('intro').classList.add('hide'); $('tools').hidden = false; $('mebar').hidden = false; goal.dist = Math.min(goal.dist, 240); }
+$('i-find').onsubmit = function (e) { e.preventDefault(); findYard($('i-q').value); };
+$('t-find').onclick = function () {
+    openSheet('<div class="sh-t">🔎 Hovlimni top</div><div class="sh-m">Nik yozing — har qanday hovlini topadi. Telefon raqam yozsangiz — parol bilan o\'z hovlingiz ochiladi.</div><form id="t-f"><input class="inp" id="t-q" placeholder="Nik yoki telefon raqam" style="padding-left:14px;margin:6px 0 10px"><button type="submit" class="big">Topish</button></form>');
+    setTimeout(function () { try { $('t-q').focus(); } catch (e) {} }, 300);
+    $('t-f').onsubmit = function (e) { e.preventDefault(); findYard($('t-q').value); };
+};
 $('i-walk').onclick = function () { hideIntro(); tour = true; $('t-tour').classList.add('on'); goal.dist = 160; goal.pitch = .45; };
 document.querySelectorAll('[data-go]').forEach(function (b) { b.onclick = function () { goType(b.dataset.go); }; });
 async function refresh() {
@@ -697,7 +938,7 @@ async function refresh() {
     plotObjs.forEach(function (o) { if (o.p) o.p = S.plots[o.k] || o.p; });
     labels.forEach(function (l) { l.el.remove(); }); labels = [];
     // yorliqlar va hovlilar holatini yangilaymiz (bino o'zgargan bo'lsa qayta chizamiz)
-    plotObjs.forEach(function (o) { var p = S.plots[o.k]; if (p && o.house.userData.b !== p.b) { rebuild(o, p.b, false); o.house.userData.b = p.b; } });
+    plotObjs.forEach(function (o) { var p = S.plots[o.k]; if (p && o.house.userData.b !== p.b + JSON.stringify(p.o || '')) rebuild(o, p.b, false, p.o); });
     plotObjs.forEach(function (o) {
         if (!o.p || !o.p.n) return;
         addLabel(o.p.me ? 'me' : '', '<i style="background:' + GATE[o.p.g % 8] + '"></i>' + esc(o.p.n), function () { return { x: o.g.position.x, y: o.top + 2, z: o.g.position.z }; }, function () { openPlot(o.k); });
@@ -747,7 +988,7 @@ var blinkers = [];
     var ok = await load();
     if (!ok) { S.plots = []; S.total = 0; }
     populate(); paintMe();
-    plotObjs.forEach(function (o) { if (o.house.userData) o.house.userData.b = o.p && o.p.b; });
+    plotObjs.forEach(function (o) { if (o.p) o.house.userData.b = o.p.b + JSON.stringify(o.p.o || ''); });
     var bl = MC[0xff3355 + JSON.stringify({ emissive: 0xff2244, emissiveIntensity: 1 })]; if (bl) blinkers.push({ material: bl });
     $('load').classList.add('hide');
     view.dist = 520; view.pitch = .9; goal.dist = 300; goal.pitch = .55;

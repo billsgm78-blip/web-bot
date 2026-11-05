@@ -1536,6 +1536,7 @@ select.inp option { background: #12151c; color: var(--text); }
         if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
         var st = j.stats || {}, per = st.perBuilding || {};
         var items = j.buildings.map(function (x) { return Object.assign({}, x); });
+        var tiers = (j.tiers || []).map(function (x) { return Object.assign({}, x); });
         view.appendChild(h('div', { class: 'grid kpis' }, [
             ['🏘 Aholi (hovlilar)', st.total], ['🙋 Mahallaga qo\'shilgan', st.joined], ['🏗 Qurilgan binolar', Object.keys(per).filter(function (k) { return k !== 'uy'; }).reduce(function (s, k) { return s + per[k]; }, 0)], ['💰 Binolardan tushum', money(st.revenue || 0) + " so'm"]
         ].map(function (c) { return h('div', { class: 'kpi' }, [h('b', { text: String(c[1] == null ? 0 : c[1]) }), h('small', { text: c[0] })]); })));
@@ -1549,16 +1550,40 @@ select.inp option { background: #12151c; color: var(--text); }
                 var em = h('input', { class: 'inp', style: 'text-align:center' }); em.value = it.emoji; em.oninput = function () { it.emoji = em.value; };
                 var base = it.id === 'uy';
                 if (base) { pr.disabled = true; pr.title = "Oddiy uy — bepul (hamma shu bilan boshlaydi)"; }
+                if (it.id === 'osmonopar') { pr.disabled = true; pr.value = 'qavatlar ↓'; pr.title = "Osmono'par narxi pastdagi qavat narxlaridan hisoblanadi"; }
                 var sw = h('div', { class: 'switch' + (it.on ? ' ok' : ''), role: 'switch', title: base ? "Oddiy uyni o'chirib bo'lmaydi" : '', onclick: function () { if (base) return; it.on = !it.on; paint(); } });
                 box.appendChild(h('div', { class: 'shop-row' + (it.on ? '' : ' off') }, [nm, pr, em, sw, h('span', { class: 'mono', style: 'text-align:center', text: String(per[it.id] || 0) })]));
             });
         }
         paint();
+        var tbox = h('div');
+        function paintT() {
+            tbox.innerHTML = '';
+            tbox.appendChild(h('div', { class: 'shop-row shop-hd' }, [h('span', { class: 'nm', text: 'Qavatlar' }), h('span', { text: "Har qavat narxi, so'm" }), h('span', { text: '' }), h('span', { text: '' }), h('span', { text: '' })]));
+            tiers.forEach(function (t, i) {
+                var from = i ? tiers[i - 1].to + 1 : 1;
+                var to = h('input', { class: 'inp mono', inputmode: 'numeric', title: 'Shu qavatgacha' }); to.value = t.to; to.oninput = function () { t.to = parseInt(to.value.replace(/\D/g, ''), 10) || 0; };
+                to.onchange = paintT;
+                var pr = h('input', { class: 'inp mono', inputmode: 'numeric' }); pr.value = t.price; pr.oninput = function () { t.price = parseInt(pr.value.replace(/\D/g, ''), 10) || 0; calc(); };
+                tbox.appendChild(h('div', { class: 'shop-row' }, [h('span', { class: 'nm', text: from + ' – ' }), to, pr, h('span'), h('button', { class: 'sq', title: "O'chirish", text: '✖', onclick: function () { if (tiers.length > 1) { tiers.splice(i, 1); paintT(); } } })]));
+            });
+            calc();
+        }
+        var ex = h('div', { class: 'sum', style: 'margin-top:8px' });
+        function calc() {
+            function cost(n) { var s = 0; for (var i = 1; i <= n; i++) { var p = tiers[tiers.length - 1].price; for (var k = 0; k < tiers.length; k++) if (i <= tiers[k].to) { p = tiers[k].price; break; } s += p; } return s; }
+            ex.textContent = 'Misol: 10 qavat = ' + money(cost(10)) + " so'm · 30 qavat = " + money(cost(30)) + " so'm · 50 qavat = " + money(cost(50)) + " so'm · 100 qavat = " + money(cost(100)) + " so'm";
+        }
+        paintT();
+        view.appendChild(h('div', { class: 'h', text: "🏙 Osmono'par — qavat narxlari (10–100 qavat)" }));
+        view.appendChild(h('div', { class: 'card form' }, [tbox, h('button', { class: 'act', text: "＋ Oraliq qo'shish", onclick: function () { var last = tiers[tiers.length - 1] || { to: 0, price: 1000 }; tiers.push({ to: Math.min(100, last.to + 20), price: last.price * 2 }); paintT(); } }), ex,
+            h('div', { class: 'sum', text: "Har bir qavat o'z oralig'i narxida (baland qavatlar qimmatroq). Qavat qo'shgan foydalanuvchi faqat yangi qavatlar uchun to'laydi. Saqlash — yuqoridagi «💾 Saqlash» tugmasi." })]));
         view.appendChild(h('div', { class: 'sum', style: 'margin:14px 0 10px', text: "bilolsai.uz/mahalla — har bir foydalanuvchining o'z hovlisi bor (kim oldin ro'yxatdan o'tgan bo'lsa, markazga — agentlar binosiga — yaqinroq). Foydalanuvchi «Mahallaga qo'shilish»ni bosib nik yozadi, keyin hamyondagi balansdan hovlisiga shu binolardan birini quradi. Narxni o'zgartirsangiz, saytda darhol yangilanadi; o'chirilgan bino ro'yxatdan yo'qoladi (qurib bo'lganlarniki qoladi)." }));
         view.appendChild(h('div', { class: 'card form' }, [box,
             h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
                 for (var i = 0; i < items.length; i++) if (!items[i].name.trim()) { toast((i + 1) + '-qator: nomini yozing'); return; }
-                var x = await admin('mahalla_save', { buildings: items });
+                for (var t = 1; t < tiers.length; t++) if (tiers[t].to <= tiers[t - 1].to) { toast('Qavat oraliqlari o\'sib borishi kerak'); return; }
+                var x = await admin('mahalla_save', { buildings: items, tiers: tiers });
                 toast(x.success ? '✅ Saqlandi — saytda darhol yangilandi' : (x.error || 'Xato'));
                 if (x.success) vMahalla(view);
             } }),
