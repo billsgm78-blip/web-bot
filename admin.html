@@ -1286,7 +1286,13 @@ select.inp option { background: #12151c; color: var(--text); }
                 if (blob.type === 'application/pdf') { window.open(url, '_blank'); return; }
                 var card = $('m-card'); card.innerHTML = '';
                 card.appendChild(h('h3', { text: '🧾 Chek · ' + money(p.amount) + " so'm" + (p.pid ? ' · ID ' + p.pid : '') }));
-                card.appendChild(h('img', { src: url, style: 'width:100%;max-height:65vh;object-fit:contain;border-radius:12px;margin:8px 0 12px;background:#000' }));
+                var dlLink = function () { return h('a', { href: url, download: 'chek-' + (p.pid || p.id), class: 'btn', style: 'display:block;text-align:center;margin:8px 0 12px;text-decoration:none', text: "⬇️ Chekni yuklab olish (rasm sifatida ko'rsatib bo'lmadi)" }); };
+                if (!/^image\//.test(blob.type)) card.appendChild(dlLink());
+                else {
+                    var rimg = h('img', { src: url, style: 'width:100%;max-height:65vh;object-fit:contain;border-radius:12px;margin:8px 0 12px;background:#000' });
+                    rimg.onerror = function () { rimg.replaceWith(dlLink()); };   // brauzer formatni ocholmasa — yuklab olish
+                    card.appendChild(rimg);
+                }
                 card.appendChild(h('div', { class: 'm-btns' }, [h('button', { class: 'btn', text: 'Yopish', onclick: function () { $('modal').classList.remove('open'); URL.revokeObjectURL(url); } })]));
                 $('modal').classList.add('open');
             } catch (e) { toast("Server bilan bog'lanib bo'lmadi"); }
