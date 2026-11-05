@@ -1572,7 +1572,7 @@ select.inp option { background: #12151c; color: var(--text); }
         var ex = h('div', { class: 'sum', style: 'margin-top:8px' });
         function calc() {
             function cost(n) { var s = 0; for (var i = 1; i <= n; i++) { var p = tiers[tiers.length - 1].price; for (var k = 0; k < tiers.length; k++) if (i <= tiers[k].to) { p = tiers[k].price; break; } s += p; } return s; }
-            ex.textContent = 'Misol: 10 qavat = ' + money(cost(10)) + " so'm · 30 qavat = " + money(cost(30)) + " so'm · 50 qavat = " + money(cost(50)) + " so'm · 100 qavat = " + money(cost(100)) + " so'm";
+            ex.textContent = 'Misol: 10 qavat = ' + money(cost(10)) + " so'm · 30 qavat = " + money(cost(30)) + " so'm · 100 qavat = " + money(cost(100)) + " so'm · 300 qavat = " + money(cost(300)) + " so'm";
         }
         paintT();
         // 🛠 Konstruktor rejimi: kimga ruxsat — o'sha odam bo'sh yerlarga tekin bino qo'yadi
@@ -1602,8 +1602,49 @@ select.inp option { background: #12151c; color: var(--text); }
                 toast(x.success ? '✅ Ruxsat berildi' : (x.error || 'Xato')); if (x.success) { bPh.value = ''; paintB(x.builders); }
             } })])
         ]));
-        view.appendChild(h('div', { class: 'h', text: "🏙 Osmono'par — qavat narxlari (10–100 qavat)" }));
-        view.appendChild(h('div', { class: 'card form' }, [tbox, h('button', { class: 'act', text: "＋ Oraliq qo'shish", onclick: function () { var last = tiers[tiers.length - 1] || { to: 0, price: 1000 }; tiers.push({ to: Math.min(100, last.to + 20), price: last.price * 2 }); paintT(); } }), ex,
+        // 📢 reklama, 🎁 mukofotlar, 💬 chat moderatsiyasi
+        var mx = await admin('mahalla_extra_get');
+        if (mx.success) {
+            var ads = (mx.ads || []).map(function (a) { return Object.assign({}, a); }), rw = Object.assign({ chest: 1000, quest: 500 }, mx.rewards || {});
+            var adBox = h('div');
+            function paintAds() {
+                adBox.innerHTML = '';
+                ads.forEach(function (a, i) {
+                    var t = h('input', { class: 'inp', placeholder: 'Matn (28 belgi)', maxlength: '28' }); t.value = a.text || ''; t.oninput = function () { a.text = t.value; };
+                    var sub = h('input', { class: 'inp', placeholder: 'Pastki yozuv (ixtiyoriy)', maxlength: '40' }); sub.value = a.sub || ''; sub.oninput = function () { a.sub = sub.value; };
+                    var c = h('input', { class: 'inp', type: 'color', style: 'max-width:60px;padding:2px' }); c.value = a.color || '#ffd257'; c.oninput = function () { a.color = c.value; };
+                    var sw = h('div', { class: 'switch' + (a.on !== false ? ' ok' : ''), role: 'switch', onclick: function () { a.on = a.on === false; paintAds(); } });
+                    adBox.appendChild(h('div', { class: 'shop-row' }, [t, sub, c, sw, h('button', { class: 'sq', text: '✖', onclick: function () { ads.splice(i, 1); paintAds(); } })]));
+                });
+            }
+            paintAds();
+            var chI = h('input', { class: 'inp mono', inputmode: 'numeric' }); chI.value = rw.chest; var qI = h('input', { class: 'inp mono', inputmode: 'numeric' }); qI.value = rw.quest;
+            view.appendChild(h('div', { class: 'h', text: '📢 Reklama bannerlari va 🎁 mukofotlar' }));
+            view.appendChild(h('div', { class: 'card form' }, [
+                h('div', { class: 'sum', text: "Bannerlar mahalla yo'llari bo'yidagi bilbordlarda chiqadi (6 tagacha). Bosilganda matn va «reklama uchun admin bilan bog'laning» ko'rinadi." }),
+                adBox, h('button', { class: 'act', text: "＋ Banner qo'shish", onclick: function () { if (ads.length >= 6) { toast('6 tagacha'); return; } ads.push({ text: '', sub: '', color: '#ffd257', on: true }); paintAds(); } }),
+                h('div', { style: 'display:grid;grid-template-columns:1fr 160px;gap:12px;align-items:center;margin:6px 0' }, [h('div', {}, [h('b', { text: '🎁 Kunlik sandiq mukofoti, so\'m' }), h('div', { class: 'sum', style: 'margin:2px 0 0', text: 'Har kuni mahallada bitta sandiq; birinchi topgan oladi' })]), chI]),
+                h('div', { style: 'display:grid;grid-template-columns:1fr 160px;gap:12px;align-items:center;margin:6px 0' }, [h('div', {}, [h('b', { text: '🎯 Kunlik topshiriqlar mukofoti, so\'m' }), h('div', { class: 'sum', style: 'margin:2px 0 0', text: '3 ta salom + 1 yoqtirish + 1 chat xabari' })]), qI]),
+                h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+                    var x = await admin('mahalla_extra_save', { ads: ads.filter(function (a) { return (a.text || '').trim(); }), rewards: { chest: parseInt(chI.value, 10) || 0, quest: parseInt(qI.value, 10) || 0 } });
+                    toast(x.success ? '✅ Saqlandi' : (x.error || 'Xato'));
+                } })
+            ]));
+            var chBox = h('div');
+            function paintChat(list) {
+                chBox.innerHTML = '';
+                if (!list.length) chBox.appendChild(h('div', { class: 'sum', text: 'Hali xabar yo\'q' }));
+                list.forEach(function (m) {
+                    chBox.appendChild(h('div', { class: 'row', style: m.deleted ? 'opacity:.4' : '' }, [h('div', { class: 'r-main' }, [h('b', { text: '@' + m.nick + ': ' + m.text }), h('small', { text: fmtDate(m.created) + (m.deleted ? ' · o\'chirilgan' : '') })]),
+                        m.deleted ? null : h('button', { class: 'sq', text: '🗑', title: "O'chirish", onclick: async function () { var x = await admin('mahalla_chat_del', { id: m.id }); if (x.success) paintChat(x.chat); } })]));
+                });
+            }
+            paintChat(mx.chat || []);
+            view.appendChild(h('div', { class: 'h', text: '💬 Mahalla chati — moderatsiya' }));
+            view.appendChild(h('div', { class: 'card' }, [h('div', { class: 'sum', text: "Havolalar va so'kinishlar avtomatik bloklanadi; 8 soniyada bitta xabar. Nojo'ya xabarni shu yerdan o'chiring." }), chBox]));
+        }
+        view.appendChild(h('div', { class: 'h', text: "🏙 Osmono'par — qavat narxlari (10–300 qavat)" }));
+        view.appendChild(h('div', { class: 'card form' }, [tbox, h('button', { class: 'act', text: "＋ Oraliq qo'shish", onclick: function () { var last = tiers[tiers.length - 1] || { to: 0, price: 1000 }; tiers.push({ to: Math.min(300, last.to + 50), price: last.price * 2 }); paintT(); } }), ex,
             h('div', { class: 'sum', text: "Har bir qavat o'z oralig'i narxida (baland qavatlar qimmatroq). Qavat qo'shgan foydalanuvchi faqat yangi qavatlar uchun to'laydi. Saqlash — yuqoridagi «💾 Saqlash» tugmasi." })]));
         view.appendChild(h('div', { class: 'sum', style: 'margin:14px 0 10px', text: "bilolsai.uz/mahalla — har bir foydalanuvchining o'z hovlisi bor (kim oldin ro'yxatdan o'tgan bo'lsa, markazga — agentlar binosiga — yaqinroq). Foydalanuvchi «Mahallaga qo'shilish»ni bosib nik yozadi, keyin hamyondagi balansdan hovlisiga shu binolardan birini quradi. Narxni o'zgartirsangiz, saytda darhol yangilanadi; o'chirilgan bino ro'yxatdan yo'qoladi (qurib bo'lganlarniki qoladi)." }));
         view.appendChild(h('div', { class: 'card form' }, [box,

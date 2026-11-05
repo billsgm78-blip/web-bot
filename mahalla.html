@@ -28,6 +28,36 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 .pop b { font-size: 22px; font-weight: 900; }
 .tools { right: 12px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; }
 .tools button { width: 46px; height: 46px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: 800 18px/1 inherit; font-family: inherit; cursor: pointer; backdrop-filter: blur(8px); }
+.wx { top: calc(70px + env(safe-area-inset-top)); right: 12px; padding: 6px 11px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); font-weight: 800; font-size: 13px; backdrop-filter: blur(8px); }
+.hol { top: calc(64px + env(safe-area-inset-top)); left: 12px; padding: 7px 12px; border-radius: 12px; background: linear-gradient(135deg, #16a34a, #0ea5e9); font-weight: 900; font-size: 13px; box-shadow: 0 8px 24px rgba(0, 0, 0, .3); }
+.soc { left: 12px; bottom: calc(80px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 8px; }
+.soc button { width: 56px; padding: 7px 0 5px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: 800 18px/1 inherit; font-family: inherit; cursor: pointer; backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.soc button span { font-size: 9.5px; font-weight: 800; color: var(--muted); }
+.soc[hidden] { display: none; }
+.lb em.lk { font-style: normal; font-size: 10.5px; margin-left: 4px; color: #e11d48; }
+.lvb { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; } .lvb span { padding: 5px 9px; border-radius: 9px; background: rgba(255, 255, 255, .07); font-size: 12.5px; font-weight: 800; } .lvb .pr { background: linear-gradient(135deg, #d4a017, #fde68a); color: #3a2600; }
+.vis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .vis .big { margin-top: 0; padding: 13px 6px; font-size: 15px; }
+.lvl2 { padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, .05); border: 1px solid var(--line); margin: 6px 0 10px; } .lvl2 b { display: block; font-size: 14px; } .lvl2 small { color: var(--muted); font-size: 12px; font-weight: 600; }
+.lvl2 .bar { height: 8px; border-radius: 8px; background: rgba(255, 255, 255, .12); margin: 6px 0 4px; overflow: hidden; } .lvl2 .bar i { display: block; height: 100%; background: linear-gradient(90deg, #22c55e, #ffd257); border-radius: 8px; }
+.rks { display: grid; gap: 6px; } .rk { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, .04); color: var(--text); font: inherit; text-align: left; cursor: pointer; } .rk .n { font-size: 18px; font-weight: 900; text-align: center; } .rk .v { color: var(--gold); font-weight: 900; font-size: 13px; }
+.ch-list { height: min(46vh, 380px); overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 14px; background: rgba(0, 0, 0, .25); margin: 8px 0; }
+.cm { align-self: flex-start; max-width: 85%; padding: 7px 11px; border-radius: 14px 14px 14px 4px; background: rgba(255, 255, 255, .09); font-size: 14px; line-height: 1.35; } .cm b { display: block; font-size: 11.5px; color: var(--gold); } .cm small { display: block; font-size: 10px; color: var(--muted); text-align: right; }
+.cm.me { align-self: flex-end; background: rgba(139, 92, 246, .35); border-radius: 14px 14px 4px 14px; }
+.ch-f { display: grid; grid-template-columns: 1fr 56px; gap: 8px; } .ch-f .inp { padding-left: 14px; } .ch-f .big { padding: 0; font-size: 20px; }
+.oq-q { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; } .oq-q button { padding: 7px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, .06); color: var(--text); font: 700 12px/1 inherit; font-family: inherit; cursor: pointer; }
+.oq-go { display: inline-block; margin-top: 6px; padding: 6px 10px; border-radius: 9px; border: 0; background: var(--gold); color: #241a00; font: 800 12px/1 inherit; font-family: inherit; cursor: pointer; text-decoration: none; }
+.qs { display: grid; grid-template-columns: 26px 1fr auto; gap: 8px; align-items: center; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--line); margin: 6px 0; } .qs.ok { border-color: #86efac; } .qs small { color: var(--muted); font-weight: 800; }
+.ag-l { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 10px 0; } .ag { display: flex; align-items: center; gap: 7px; padding: 9px 10px; border-radius: 11px; background: rgba(255, 255, 255, .06); color: var(--text); text-decoration: none; font-weight: 800; font-size: 13px; } .ag i { width: 9px; height: 9px; border-radius: 50%; }
+.inbar { left: 50%; top: calc(12px + env(safe-area-inset-top)); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 6; width: min(520px, calc(100% - 24px)); }
+.inbar[hidden] { display: none; }
+.in-t { padding: 8px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); text-align: center; backdrop-filter: blur(8px); } .in-t b { display: block; font-size: 16px; } .in-t small { color: var(--muted); font-size: 12px; font-weight: 700; }
+.lift { display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 14px; background: rgba(15, 12, 30, .92); border: 1px solid var(--line); }
+.lift[hidden] { display: none; }
+.lift button { height: 40px; min-width: 40px; border-radius: 10px; border: 0; background: rgba(255, 255, 255, .1); color: #fff; font: 900 15px/1 inherit; font-family: inherit; cursor: pointer; } #lf-ok { background: var(--gold); color: #241a00; padding: 0 12px; }
+#lf-n { min-width: 64px; text-align: center; font: 900 22px/1 'Courier New', monospace; color: #ff5f5f; text-shadow: 0 0 8px rgba(255, 60, 60, .8); background: #120808; padding: 8px 6px; border-radius: 8px; }
+#lf-go { width: 64px; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: #0e0c1f; color: #fff; text-align: center; font: 800 15px/1 inherit; font-family: inherit; }
+.inbar .in-x { position: fixed; right: 12px; top: auto; bottom: calc(16px + env(safe-area-inset-bottom)); padding: 13px 18px; border-radius: 14px; border: 0; background: var(--gold); color: #241a00; font: 900 15px/1 inherit; font-family: inherit; cursor: pointer; box-shadow: 0 10px 30px rgba(0, 0, 0, .4); }
+body.inside #labels, body.inside .tools, body.inside .mebar, body.inside .soc, body.inside .wx, body.inside .hol { display: none !important; }
 .tools button.gold { background: var(--gold); color: #241a00; border: 0; font-size: 11px; height: 56px; display: grid; place-items: center; gap: 0; padding-top: 4px; }
 .tools button.on { outline: 2px solid var(--gold); }
 #labels { position: fixed; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
@@ -145,11 +175,11 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 #wz-r { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 8px; background: linear-gradient(90deg, var(--gold) var(--v, 30%), rgba(255, 255, 255, .15) var(--v, 30%)); outline: none; }
 #wz-r::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 5px solid var(--gold); box-shadow: 0 2px 8px rgba(0, 0, 0, .4); cursor: pointer; }
 #wz-r::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 5px solid var(--gold); cursor: pointer; }
-.wz-q { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 8px; }
+.wz-q { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 8px; }
 .wz-q button, .wz-t div { padding: 11px 4px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, .04); color: var(--text); font: 800 14px/1 inherit; font-family: inherit; cursor: pointer; text-align: center; }
 .wz-q button.on { border-color: var(--gold); }
 .wz-q button:disabled { opacity: .35; }
-.wz-t { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.wz-t { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .wz-t div { padding: 9px 4px; }
 .wz-t small { display: block; color: var(--muted); font-size: 11px; font-weight: 700; margin-bottom: 4px; }
 .wz-t div.on { background: var(--gold); color: #241a00; border-color: var(--gold); }
@@ -174,15 +204,20 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 <div id="labels"></div>
 <a class="ui brand" href="/"><img src="/icons/icon-192.png" alt="">BILOLS AI MAHALLASI</a>
 <div class="ui pop"><small>AHOLI</small><b id="pop">…</b></div>
+<div class="ui wx" id="wx" hidden></div>
+<div class="ui hol" id="hol" hidden></div>
 <div class="ui tools" id="tools" hidden>
   <button type="button" class="gold" id="t-me" title="Mening hovlim">🏠<span style="font-size:10px">Hovlim</span></button>
   <button type="button" id="t-find" title="Hovlimni top">🔎</button>
+  <button type="button" id="t-time" title="Kun / tun">🌗</button>
   <button type="button" id="t-in" title="Yaqinlashtirish">+</button>
   <button type="button" id="t-out" title="Uzoqlashtirish">−</button>
   <button type="button" id="t-home" title="Markaz">⌂</button>
   <button type="button" id="t-tour" title="Aylanib chiqish">▶</button>
 </div>
 <div class="ui mebar" id="mebar" hidden></div>
+<div class="ui inbar" id="inbar" hidden><div class="in-t"><b id="in-title">🏠</b><small id="in-sub"></small></div><div class="lift" id="lift" hidden><button type="button" id="lf-dn">▼</button><span id="lf-n">1</span><button type="button" id="lf-up">▲</button><input id="lf-go" inputmode="numeric" placeholder="qavat"><button type="button" id="lf-ok">🛗 Bor</button></div><button type="button" class="in-x" id="in-x">🚪 Chiqish</button></div>
+<div class="ui soc" id="soc" hidden><button type="button" data-s="rating">🏆<span>Reyting</span></button><button type="button" data-s="chat">💬<span>Chat</span></button><button type="button" data-s="quests">🎯<span>Topshiriq</span></button><button type="button" data-s="oq">🧓<span>Oqsoqol</span></button></div>
 
 <div id="intro">
   <div class="ibox">
@@ -248,14 +283,15 @@ scene.fog = new THREE.Fog(0x9a7a8a, 480, 1150);
 var cam = new THREE.PerspectiveCamera(45, 1, 1, 2000);
 
 // osmon: shom (shaftoli → binafsha)
+var SKYM = null;
 (function sky() {
     var g = new THREE.SphereGeometry(1400, 32, 16), m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false,
         uniforms: { a: { value: new THREE.Color(0x6a4a66) }, b: { value: new THREE.Color(0xc4837f) }, c: { value: new THREE.Color(0xf4a46c) } },
         vertexShader: 'varying vec3 p;void main(){p=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
         fragmentShader: 'uniform vec3 a,b,c;varying vec3 p;void main(){float h=p.y;vec3 col=h>0.1?mix(b,a,smoothstep(.1,.75,h)):mix(c,b,smoothstep(-.02,.1,h));gl_FragColor=vec4(col,1.);}' });
-    scene.add(new THREE.Mesh(g, m));
+    SKYM = m; scene.add(new THREE.Mesh(g, m));
 })();
-scene.add(new THREE.HemisphereLight(0xffe2cf, 0x3a3150, .48));
+var HEMI = new THREE.HemisphereLight(0xffe2cf, 0x3a3150, .48); scene.add(HEMI);
 var sun = new THREE.DirectionalLight(0xffc293, 1.45);
 sun.position.set(-160, 140, -120); sun.castShadow = !mobile;
 sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -.0004; sun.shadow.normalBias = .4; var sc = sun.shadow.camera; sc.left = sc.bottom = -170; sc.right = sc.top = 170; sc.far = 600;
@@ -268,6 +304,7 @@ var GEO = { box: new THREE.BoxGeometry(1, 1, 1), cyl: new THREE.CylinderGeometry
 function box(w, h, d, c, o, x, y, z, parent) { var m = new THREE.Mesh(GEO.box, typeof c === 'object' ? c : mat(c, o)); m.scale.set(w, h, d); m.position.set(x || 0, (y || 0) + h / 2, z || 0); m.castShadow = !mobile && h > 2.2 && w > 2.5 && d > 2.5; m.receiveShadow = !mobile && h < 1.2 && w > 4; m.matrixAutoUpdate = true; (parent || scene).add(m); return m; }
 var WIN = mat(0xffd27a, { emissive: 0xffb347, emissiveIntensity: .9 });
 var WIN2 = mat(0xb9e6ff, { emissive: 0x7cc8ff, emissiveIntensity: .55 });
+var BULB = mat(0xfff0c8, { emissive: 0xffd28a, emissiveIntensity: 2 });
 
 /* ---------- teksturalar: rasm yuklamasdan, kanvasda chiziladi ---------- */
 function ctex(size, draw, rep) {
@@ -280,15 +317,17 @@ var TX = {
     tile: ctex(256, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); for (var r = 0; r < 8; r++) { x.fillStyle = 'rgba(0,0,0,.18)'; x.fillRect(0, r * 32 + 28, n, 4); for (var c = 0; c < 8; c++) { x.fillStyle = 'rgba(0,0,0,.12)'; x.fillRect(c * 32 + (r % 2) * 16, r * 32, 3, 32); } } noise(x, 3000, '0,0,0', '255,255,255', .08); }),
     asphalt: ctex(512, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); noise(x, 40000, '0,0,0', '255,255,255', .12); }, 220),
     grass: ctex(256, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); for (var i = 0; i < 5000; i++) { x.strokeStyle = 'rgba(' + (Math.random() < .5 ? '20,60,10' : '220,255,180') + ',' + (Math.random() * .25).toFixed(2) + ')'; var px = Math.random() * n, py = Math.random() * n; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.random() * 2 - 1, py - 3 - Math.random() * 3); x.stroke(); } }, 2),
+    ftile: ctex(256, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); x.strokeStyle = 'rgba(0,0,0,.12)'; x.lineWidth = 2; for (var i = 0; i <= 4; i++) { x.beginPath(); x.moveTo(i * 64, 0); x.lineTo(i * 64, n); x.stroke(); x.beginPath(); x.moveTo(0, i * 64); x.lineTo(n, i * 64); x.stroke(); } }, 6),
     paving: ctex(256, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); x.strokeStyle = 'rgba(0,0,0,.16)'; x.lineWidth = 3; for (var i = 0; i <= 8; i++) { x.beginPath(); x.moveTo(i * 32, 0); x.lineTo(i * 32, n); x.stroke(); x.beginPath(); x.moveTo(0, i * 32); x.lineTo(n, i * 32); x.stroke(); } noise(x, 4000, '0,0,0', '255,255,255', .06); }, 3)
 };
 var TMC = {};
 function tmat(c, tex, o) { var k = c + tex + JSON.stringify(o || {}); if (!TMC[k]) TMC[k] = new THREE.MeshStandardMaterial(Object.assign({ color: c, map: TX[tex], roughness: .9 }, o || {})); return TMC[k]; }
 
 // tog'lar
+var MOUNT_M = null, CLOUD_M = [];
 (function mountains() {
     // yorug' tomon — shaftoli-pushti, soya tomoni — ko'kish-binafsha; cho'qqida qor. Uzoqdagi qatorlar tumanli.
-    var L = new THREE.Vector3(-.55, .55, -.35).normalize(), HAZE = new THREE.Color(0xd59a94), mm = new THREE.MeshBasicMaterial({ vertexColors: true, fog: false, toneMapped: false });
+    var L = new THREE.Vector3(-.55, .55, -.35).normalize(), HAZE = new THREE.Color(0xd59a94), mm = MOUNT_M = new THREE.MeshBasicMaterial({ vertexColors: true, fog: false, toneMapped: false });
     function paint(geo, lit, shade, haze) {
         geo = geo.toNonIndexed(); var pos = geo.attributes.position, cols = [], a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), n = new THREE.Vector3();
         for (var i = 0; i < pos.count; i += 3) {
@@ -317,7 +356,7 @@ function tmat(c, tex, o) { var k = c + tex + JSON.stringify(o || {}); if (!TMC[k
     // uzun "linza" bulut
     [[.6, 300, 0], [2.4, 260, 1], [4.1, 330, 0]].forEach(function (c) {
         var m = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 8), new THREE.MeshBasicMaterial({ color: c[2] ? 0xb98289 : 0xa5737f, transparent: true, opacity: .85, fog: false, toneMapped: false }));
-        m.scale.set(190, 5, 28); m.position.set(Math.cos(c[0]) * 1120, c[1], Math.sin(c[0]) * 1120); m.rotation.y = -c[0] + Math.PI / 2; scene.add(m);
+        CLOUD_M.push(m.material); m.scale.set(190, 5, 28); m.position.set(Math.cos(c[0]) * 1120, c[1], Math.sin(c[0]) * 1120); m.rotation.y = -c[0] + Math.PI / 2; scene.add(m);
     });
 })();
 // yer: asfalt (yo'llar) — hovlilar ustiga qo'yiladi
@@ -820,6 +859,17 @@ function makePlot(p, cell, k, f) {
         var gm = gateTex(GATE[p.g % 8]), gt = new THREE.Mesh(PLANE, gm); gt.scale.set(3.3, 2.9, 1); gt.position.set(0, .3 + 1.45, H + .02); g.add(gt);
         var gb = new THREE.Mesh(PLANE, gm); gb.scale.set(3.3, 2.9, 1); gb.position.set(0, .3 + 1.45, H - .02); g.add(gb);
         if (p.n) { var pl = new THREE.Mesh(PLANE, plateMat('@' + p.n, GATE[p.g % 8])); pl.scale.set(2.8, .56, 1); pl.position.set(4.3, 1.9, H + T / 2 + .02); g.add(pl); }
+        if (p.pr) {                                                 // ⭐ obunachi: oltin darvoza va hoshiya
+            var gld = gateTex(0xd4a017); gt.material = gld; gb.material = gld;
+            [[-2.1, H], [2.1, H]].forEach(function (q) { var st = new THREE.Mesh(new THREE.OctahedronGeometry(.45), glow(0xffd257, 1.4)); st.position.set(q[0], .3 + WH + 1.4, q[1]); g.add(st); });
+        }
+        if (p.lv >= 2) {                                            // 2-daraja: hovlida favvoracha
+            var fb = new THREE.Mesh(GEO.cyl, mat(0xd6d0c4)); fb.scale.set(2.2, .6, 2.2); fb.position.set(-4.3, .6, -4.3); g.add(fb);
+            var fw = new THREE.Mesh(GEO.cyl, mat(0x3fa9f5, { emissive: 0x1d6fb8, emissiveIntensity: .4 })); fw.scale.set(1.9, .1, 1.9); fw.position.set(-4.3, .92, -4.3); g.add(fw);
+        }
+        if (p.lv >= 3) {                                            // 3-daraja: devorda chiroqlar gulchambari
+            for (var li = 0; li < 14; li++) { var lb = new THREE.Mesh(GEO.ball, glow([0xffd257, 0xff6b9a, 0x7dd3fc][li % 3], 1.5)); lb.scale.setScalar(.28); lb.position.set(-H + li * (CELL - 1) / 13, .3 + WH + .35, H + .2); g.add(lb); }
+        }
         if (k % 2 === 0) tree(g, -4.4, 2.6, k, .62); else tree(g, 4.4, 2.8, k, .55);
     } else if (!f && k % 3 === 0) tree(g, 0, 0, k, .7);
     var house = new THREE.Group(); g.add(house);
@@ -951,7 +1001,7 @@ function roads(maxR) {
 
 /* ---------- ko'cha chiroqlari ---------- */
 function streetLights(maxR) {
-    var pole = mat(0x2a2638, { metalness: .5, roughness: .4 }), bulb = mat(0xfff0c8, { emissive: 0xffd28a, emissiveIntensity: 2 });
+    var pole = mat(0x2a2638, { metalness: .5, roughness: .4 }), bulb = BULB;
     for (var i = -16; i <= 16; i += 2) for (var j = -16; j <= 16; j += 4) {
         var p = cellPos(i, j); var x = p[0] - CELL / 2 - GAP / 2, z = p[1];
         if (Math.hypot(x - CENTER[0], z - CENTER[1]) > maxR) continue;
@@ -993,7 +1043,7 @@ var tower = new THREE.Group(), agents = [], FLOORS = 5, FH = 8, TW = 26;
     box(1.4, .1, 6, mat(0xffd257, { emissive: 0xffb000, emissiveIntensity: .8 }), null, -1.6, top + 1.1, 0, tower);
     box(1.4, .1, 6, mat(0xffd257, { emissive: 0xffb000, emissiveIntensity: .8 }), null, 1.6, top + 1.1, 0, tower);
     box(3.2, .1, 1.2, mat(0xffd257, { emissive: 0xffb000, emissiveIntensity: .8 }), null, 0, top + 1.1, 0, tower);
-    var sign = box(18, 3, .6, mat(0x111024), null, 0, top + 1.2, TW / 2 - 1, tower);
+    box(18, 3, .6, mat(0x111024), null, 0, top + 1.2, TW / 2 - 1, tower);
     var cv = document.createElement('canvas'); cv.width = 512; cv.height = 86; var cx = cv.getContext('2d');
     var gr = cx.createLinearGradient(0, 0, 512, 0); gr.addColorStop(0, '#a78bfa'); gr.addColorStop(1, '#22d3ee');
     cx.fillStyle = gr; cx.font = '900 54px Montserrat, sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('BILOLS AI', 256, 46);
@@ -1004,6 +1054,11 @@ var tower = new THREE.Group(), agents = [], FLOORS = 5, FH = 8, TW = 26;
     beam.position.y = top + 100; tower.add(beam);
     // kirish
     box(8, 5, .4, mat(0xb9e6ff, { emissive: 0x7cc8ff, emissiveIntensity: .7 }), null, 0, 2, TW / 2 + .4, tower);
+    // 💬 Mahalla qo'mitasi (chat) — maydon burchagida
+    var cm = new THREE.Group(); cm.position.set(-TW / 2 - 1, 0, TW / 2 + 1); cm.userData.committee = true; tower.add(cm);
+    box(7, 4.6, 5, 0xf1e6d6, null, 0, .6, 0, cm); box(7.6, .4, 5.6, 0x1e3a5f, null, 0, 5.2, 0, cm);
+    box(2, 2.6, .2, 0x7c4a28, null, 0, .6, 2.55, cm); sign(cm, "💬 MAHALLA QO'MITASI", '#1e3a5f', '#ffd257', 6.6, 4.4, 2.62);
+    var fp = box(.15, 7, .15, 0xdddddd, null, -3.2, .6, 2.4, cm); [0x1eb6e8, 0xffffff, 0x1ea23a].forEach(function (c, k) { box(1.8, .35, .05, c, null, -2.3, 7.1 - k * .35, 2.4, cm); });
     // agentlar: har qavatda 2 tadan, stollar orasida yuradi
     AGENTS.forEach(function (a, i) {
         var f = Math.floor(i / 2), y = 2 + f * FH;
@@ -1014,6 +1069,7 @@ var tower = new THREE.Group(), agents = [], FLOORS = 5, FH = 8, TW = 26;
         [-.25, .25].forEach(function (ex) { var e = new THREE.Mesh(GEO.ball, eyeM); e.scale.setScalar(.18); e.position.set(ex, 3.3, .58); g.add(e); });
         [-.75, .75].forEach(function (lx) { var l = new THREE.Mesh(GEO.box, mat(0x2b2440)); l.scale.set(.4, .8, .4); l.position.set(lx * .45, .4, 0); g.add(l); g.userData['leg' + (lx < 0 ? 'L' : 'R')] = l; });
         g.position.set((Math.random() - .5) * 18, y, (Math.random() - .5) * 18); tower.add(g);
+        g.userData.agent = a[0];
         agents.push({ g: g, name: a[0], col: a[1], y: y, tx: 0, tz: 0, wait: Math.random() * 2, speed: 3 + Math.random() * 2, ph: Math.random() * 6 });
     });
 })();
@@ -1028,11 +1084,178 @@ function dust(pos) {
     }
 }
 
+/* ===================== 🌗 KUN VA TUN (Toshkent vaqti) ===================== */
+var STARS = (function () {
+    var n = 1400, pos = new Float32Array(n * 3);
+    for (var i = 0; i < n; i++) { var th = Math.random() * Math.PI * 2, ph = Math.acos(Math.random() * .9 + .08), r = 1300; pos[i * 3] = Math.cos(th) * Math.sin(ph) * r; pos[i * 3 + 1] = Math.cos(ph) * r; pos[i * 3 + 2] = Math.sin(th) * Math.sin(ph) * r; }
+    var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    var m = new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffffff, size: 2.2, sizeAttenuation: false, transparent: true, opacity: 0, fog: false, depthWrite: false }));
+    scene.add(m); return m;
+})();
+var MOON = (function () { var m = new THREE.Mesh(new THREE.SphereGeometry(26, 24, 16), new THREE.MeshBasicMaterial({ color: 0xfff6dc, fog: false, transparent: true, opacity: 0 })); m.position.set(500, 420, -700); scene.add(m); return m; })();
+// [soat, osmon tepa, o'rta, ufq, quyosh rangi, quyosh kuchi, hemi, tuman, tunlik(0..1)]
+var TIMES = [
+    [0, 0x060914, 0x101a3a, 0x1d2a55, 0x8fa8ff, .28, .22, 0x111a33, 1],
+    [5, 0x0b1230, 0x3a3f6e, 0x9a6f8a, 0xa8b8ff, .35, .26, 0x2a2a48, .85],
+    [6.5, 0x5a4a7a, 0xd28a8a, 0xffb37a, 0xffb98a, 1.0, .42, 0x9a7a8a, .3],
+    [9, 0x3d7bd9, 0x8fc0ee, 0xe6f0fb, 0xfff1dc, 1.6, .62, 0xbcd3ea, 0],
+    [16, 0x3d7bd9, 0x8fc0ee, 0xe6f0fb, 0xfff1dc, 1.55, .6, 0xbcd3ea, 0],
+    [18.3, 0x6a4a66, 0xc4837f, 0xf4a46c, 0xffc293, 1.45, .48, 0x9a7a8a, .15],
+    [20, 0x1c1638, 0x4a3060, 0x8a4a5a, 0xc2a0ff, .55, .3, 0x3a2a48, .7],
+    [22, 0x060914, 0x101a3a, 0x1d2a55, 0x8fa8ff, .28, .22, 0x111a33, 1],
+    [24, 0x060914, 0x101a3a, 0x1d2a55, 0x8fa8ff, .28, .22, 0x111a33, 1]
+];
+var TMODE = 0, TMODES = [null, 13, 18.6, 23], TMODE_N = ['🕒 Hozirgi vaqt', '☀️ Kunduz', '🌇 Shom', '🌙 Tun'], NIGHT = 0;
+function tashkentHour() { var d = new Date(Date.now() + (d0 = 0)); var u = d.getUTCHours() + d.getUTCMinutes() / 60 + 5; return u >= 24 ? u - 24 : u; }
+var d0 = 0;
+function applyTime(h) {
+    var a, b; for (var i = 0; i < TIMES.length - 1; i++) if (h >= TIMES[i][0] && h <= TIMES[i + 1][0]) { a = TIMES[i]; b = TIMES[i + 1]; break; }
+    var t = (h - a[0]) / Math.max(.001, b[0] - a[0]), C = function (x, y) { return new THREE.Color(x).lerp(new THREE.Color(y), t); }, L = function (x, y) { return x + (y - x) * t; };
+    if (SKYM) { SKYM.uniforms.a.value.copy(C(a[1], b[1])); SKYM.uniforms.b.value.copy(C(a[2], b[2])); SKYM.uniforms.c.value.copy(C(a[3], b[3])); }
+    sun.color.copy(C(a[4], b[4])); sun.intensity = L(a[5], b[5]); HEMI.intensity = L(a[6], b[6]); scene.fog.color.copy(C(a[7], b[7]));
+    NIGHT = L(a[8], b[8]);
+    var ang = (h - 6) / 12 * Math.PI;                         // quyosh harakati
+    sun.position.set(CENTER[0] - Math.cos(ang) * 200, Math.max(40, Math.sin(Math.max(.15, ang)) * 220), CENTER[1] - 120);
+    var dim = 1 - NIGHT * .78; if (MOUNT_M) MOUNT_M.color.setRGB(dim, dim, dim * 1.08); CLOUD_M.forEach(function (c) { c.opacity = .85 * (1 - NIGHT * .7); });
+    STARS.material.opacity = Math.max(0, NIGHT - .25); MOON.material.opacity = Math.max(0, NIGHT - .2);
+    WIN.emissiveIntensity = .9 + NIGHT * 1.4; WIN2.emissiveIntensity = .55 + NIGHT * .9; BULB.emissiveIntensity = 1.2 + NIGHT * 2.2; HALO.opacity = .35 + NIGHT * .65;
+    Object.keys(TWC).forEach(function (k) { var m = TWC[k]; if (m && m.isMaterial) m.emissiveIntensity = .6 + NIGHT * 1.3; });
+    R.toneMappingExposure = 1.05 - NIGHT * .15;
+    shadowsDirty();
+}
+function tick() { applyTime(TMODE ? TMODES[TMODE] : tashkentHour()); }
+$('t-time').onclick = function () { TMODE = (TMODE + 1) % 4; tick(); toast(TMODE_N[TMODE]); };
+setInterval(function () { if (!TMODE) tick(); }, 60000);
+
+/* ===================== 🌦 OB-HAVO (Toshkent, Open-Meteo) ===================== */
+var WX = { kind: '', parts: null };
+function weatherParts(kind) {
+    if (WX.parts) { scene.remove(WX.parts); WX.parts.geometry.dispose(); WX.parts = null; }
+    if (kind !== 'rain' && kind !== 'snow') return;
+    var n = mobile ? 1200 : 2600, pos = new Float32Array(n * 3);
+    for (var i = 0; i < n; i++) { pos[i * 3] = (Math.random() - .5) * 260; pos[i * 3 + 1] = Math.random() * 140; pos[i * 3 + 2] = (Math.random() - .5) * 260; }
+    var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    WX.parts = new THREE.Points(g, new THREE.PointsMaterial({ color: kind === 'snow' ? 0xffffff : 0xaecbff, size: kind === 'snow' ? 1.1 : .55, transparent: true, opacity: kind === 'snow' ? .95 : .6, depthWrite: false }));
+    scene.add(WX.parts);
+}
+function wxStep(dt) {
+    if (!WX.parts) return; var p = WX.parts.geometry.attributes.position, a = p.array, sp = WX.kind === 'snow' ? 9 : 90;
+    for (var i = 0; i < a.length; i += 3) { a[i + 1] -= sp * dt; if (WX.kind === 'snow') a[i] += Math.sin(time + i) * dt * 2; if (a[i + 1] < 0) a[i + 1] = 140; }
+    p.needsUpdate = true; WX.parts.position.set(view.tx, 0, view.tz);
+}
+function loadWeather() {
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=41.31&longitude=69.28&current=weather_code,temperature_2m&timezone=Asia%2FTashkent')
+        .then(function (r) { return r.json(); }).then(function (j) {
+            var c = j.current.weather_code, t = Math.round(j.current.temperature_2m), kind = '', ic = '☀️';
+            if ([45, 48].indexOf(c) >= 0) { kind = 'fog'; ic = '🌫'; } else if ((c >= 51 && c <= 67) || (c >= 80 && c <= 82) || c >= 95) { kind = 'rain'; ic = '🌧'; }
+            else if ((c >= 71 && c <= 77) || c === 85 || c === 86) { kind = 'snow'; ic = '❄️'; } else if (c >= 1 && c <= 3) ic = '⛅';
+            WX.kind = kind; weatherParts(kind); if (kind === 'fog') { scene.fog.near = 120; scene.fog.far = 520; }
+            $('wx').textContent = ic + ' Toshkent ' + (t > 0 ? '+' : '') + t + '°'; $('wx').hidden = false;
+        }).catch(function () {});
+}
+
+/* ===================== 🚗 KO'CHADAGI HAYOT: mashinalar, odamlar, kabutarlar, mushuklar ===================== */
+var LIFE = { cars: [], people: [], birds: null };
+function roadLines() { var a = []; for (var bi = -4; bi <= 3; bi++) a.push(cellPos(bi * 2 + 1, 0)[0] + CELL / 2 + GAP / 2); return a; }
+function makeLife(maxR) {
+    var lines = roadLines(), cols = [0xdc2626, 0xf5f5f4, 0x111827, 0x2563eb, 0xfacc15, 0x16a34a, 0x9ca3af];
+    for (var i = 0; i < (mobile ? 6 : 12); i++) {
+        var g = new THREE.Group(); city.add(g); car(g, 0, 0, cols[i % cols.length], 0);
+        var hl = new THREE.Mesh(GEO.ball, BULB); hl.scale.set(.35, .25, .35); hl.position.set(1.75, .9, .5); g.add(hl); var hl2 = hl.clone(); hl2.position.z = -.5; g.add(hl2);
+        LIFE.cars.push({ g: g, axis: i % 2, line: lines[i % lines.length] + (i % 4 < 2 ? 2 : -2), dir: i % 4 < 2 ? 1 : -1, t: (Math.random() - .5) * maxR * 2, sp: 9 + Math.random() * 7, R: maxR });
+    }
+    var shirts = [0xef4444, 0x3b82f6, 0x22c55e, 0xf59e0b, 0xa855f7, 0xffffff, 0x0f766e];
+    var masjids = plotObjs.filter(function (o) { return (o.p && o.p.b === 'masjid') || (o.f && o.f.b === 'masjid'); });
+    var friday = new Date(Date.now() + 5 * 3600e3).getUTCDay() === 5, n = (mobile ? 10 : 22) + (friday ? masjids.length * 6 : 0);
+    for (var k = 0; k < n; k++) {
+        var pg = new THREE.Group(); city.add(pg);
+        var body = new THREE.Mesh(GEO.cyl, mat(shirts[k % shirts.length])); body.scale.set(.7, 1.3, .7); body.position.y = 1.05; pg.add(body);
+        var head = new THREE.Mesh(GEO.ball, mat(0xe0b48a)); head.scale.setScalar(.6); head.position.y = 2; pg.add(head);
+        if (k % 3 === 0) { var cap = new THREE.Mesh(GEO.sph, mat(k % 2 ? 0x111111 : 0x1d4ed8)); cap.scale.set(.62, .5, .62); cap.position.y = 2.15; pg.add(cap); }   // do'ppi
+        var near = friday && masjids.length && k >= n - masjids.length * 6 ? masjids[k % masjids.length] : null;
+        var o = near || plotObjs[Math.floor(Math.random() * plotObjs.length)], c = o.g.position;
+        LIFE.people.push({ g: pg, cx: c.x, cz: c.z, a: Math.random() * 6.28, r: CELL / 2 + 1.6, sp: (.25 + Math.random() * .3) * (Math.random() < .5 ? 1 : -1), ph: Math.random() * 6 });
+    }
+    // kabutarlar (markaz tepasida aylanadi)
+    var bg = new THREE.Group(); city.add(bg); LIFE.birds = bg;
+    for (var b2 = 0; b2 < (mobile ? 8 : 16); b2++) { var bird = new THREE.Group(); var w1 = box(.9, .06, .35, 0xe5e7eb, null, -.45, 0, 0, bird), w2 = box(.9, .06, .35, 0xe5e7eb, null, .45, 0, 0, bird); box(.35, .3, .7, 0x9ca3af, null, 0, -.15, 0, bird); bird.userData = { w1: w1, w2: w2, r: 30 + Math.random() * 40, a: Math.random() * 6.28, h: 45 + Math.random() * 25, s: .25 + Math.random() * .2 }; bg.add(bird); }
+    // mushuklar devorda
+    plotObjs.filter(function (o, i) { return o.p && i % 5 === 2; }).slice(0, 6).forEach(function (o) {
+        var cg = new THREE.Group(); var c2 = [0xf59e0b, 0x111827, 0xffffff, 0x9ca3af][o.k % 4];
+        box(.9, .55, .45, c2, null, 0, 0, 0, cg); box(.45, .4, .45, c2, null, .55, .35, 0, cg); box(.08, .5, .08, c2, null, -.5, .35, 0, cg);
+        cg.position.set(-(CELL - 1) / 2 + 2, 3.05, -(CELL - 1) / 2); o.g.add(cg);
+    });
+}
+function lifeStep(dt) {
+    LIFE.cars.forEach(function (c) {
+        c.t += c.sp * c.dir * dt; if (c.t > c.R) c.t = -c.R; if (c.t < -c.R) c.t = c.R;
+        if (c.axis) { c.g.position.set(c.line, 0, CENTER[1] + c.t); c.g.rotation.y = c.dir > 0 ? -Math.PI / 2 : Math.PI / 2; }
+        else { c.g.position.set(CENTER[0] + c.t, 0, c.line); c.g.rotation.y = c.dir > 0 ? 0 : Math.PI; }
+    });
+    LIFE.people.forEach(function (p) {
+        p.a += p.sp * dt * .5; p.ph += dt * 8; var x = p.cx + Math.cos(p.a) * p.r, z = p.cz + Math.sin(p.a) * p.r;
+        p.g.position.set(x, .3 + Math.abs(Math.sin(p.ph)) * .12, z); p.g.rotation.y = -p.a + (p.sp > 0 ? 0 : Math.PI);
+    });
+    if (LIFE.birds) LIFE.birds.children.forEach(function (b) { var u = b.userData; u.a += u.s * dt; b.position.set(CENTER[0] + Math.cos(u.a) * u.r, u.h + Math.sin(u.a * 3) * 2, CENTER[1] + Math.sin(u.a) * u.r); b.rotation.y = -u.a; var f = Math.sin(time * 14 + u.r) * .5; u.w1.rotation.z = f; u.w2.rotation.z = -f; });
+}
+
+/* ===================== 🎉 BAYRAMLAR ===================== */
+var HOLIDAY = null, FIREWORKS = [];
+function holidayToday() {
+    var q = (location.search.match(/[?&]bayram=(\w+)/) || [])[1]; if (q) return q;
+    var d = new Date(Date.now() + 5 * 3600e3), m = d.getUTCMonth() + 1, day = d.getUTCDate(), y = d.getUTCFullYear(), md = m * 100 + day;
+    if (md >= 319 && md <= 323) return 'navruz';
+    if (md >= 829 && md <= 902) return 'mustaqillik';
+    if (md >= 1220 || md <= 107) return 'yangiyil';
+    var RAM = { 2026: [218, 319], 2027: [208, 309], 2028: [128, 226], 2029: [116, 214] }, r = RAM[y];
+    if (r && md >= r[0] && md <= r[1]) return 'ramazon';
+    return null;
+}
+function holidayDecor() {
+    HOLIDAY = holidayToday(); if (!HOLIDAY) return;
+    var N = { navruz: "🌷 Navro'z muborak!", mustaqillik: '🇺🇿 Mustaqillik kuni muborak!', yangiyil: '🎄 Yangi yil muborak!', ramazon: '🌙 Ramazon muborak!' };
+    $('hol').textContent = N[HOLIDAY] || ''; $('hol').hidden = false;
+    var cx = CENTER[0], cz = CENTER[1] + TW / 2 + 9, g = new THREE.Group(); g.position.set(cx, 0, cz); city.add(g);
+    if (HOLIDAY === 'navruz') {
+        [-6, 0, 6].forEach(function (x) { var q = new THREE.Mesh(GEO.sph, mat(0x1f2937, { metalness: .6 })); q.scale.set(4, 3, 4); q.rotation.x = Math.PI; q.position.set(x, 3, 0); g.add(q);
+            var su = new THREE.Mesh(GEO.cyl, mat(0x7c2d12)); su.scale.set(3.6, .2, 3.6); su.position.set(x, 2.95, 0); g.add(su); var fire = new THREE.Mesh(GEO.ball, glow(0xff7a1a, 1.6)); fire.scale.set(2.4, 1, 2.4); fire.position.set(x, .6, 0); g.add(fire); });
+        for (var i = 0; i < 18; i++) { var t = tree(g, -12 + (i % 9) * 3, i < 9 ? -5 : 5, 1, .5); t.children[1].material = mat(0xf9a8d4); }
+    } else if (HOLIDAY === 'yangiyil') {
+        var tr = new THREE.Group(); g.add(tr);
+        [[7, 6, 0], [5.5, 5, 4.2], [4, 4.2, 7.6], [2.5, 3.2, 10.4]].forEach(function (c) { var cn = new THREE.Mesh(new THREE.ConeGeometry(c[0], c[1], 16), mat(0x166534)); cn.position.y = c[2] + c[1] / 2 + 1; tr.add(cn); });
+        for (var j = 0; j < 40; j++) { var bb = new THREE.Mesh(GEO.ball, glow([0xef4444, 0xfacc15, 0x60a5fa, 0xf472b6][j % 4], 1.5)); bb.scale.setScalar(.6); var a = j * 2.4, hh = 1.5 + (j / 40) * 10; bb.position.set(Math.cos(a) * (6.5 - hh * .5), hh + 1, Math.sin(a) * (6.5 - hh * .5)); tr.add(bb); }
+        var st = new THREE.Mesh(new THREE.OctahedronGeometry(1.2), glow(0xffd257, 2)); st.position.y = 15.2; tr.add(st);
+    } else if (HOLIDAY === 'mustaqillik' || HOLIDAY === 'ramazon') {
+        roadLines().forEach(function (x, i) { for (var z = -60; z <= 60; z += 20) {
+            var fg = new THREE.Group(); fg.position.set(x - 4.5, 0, CENTER[1] + z); city.add(fg);
+            box(.15, 7, .15, 0xd1d5db, null, 0, 0, 0, fg);
+            if (HOLIDAY === 'mustaqillik') [0x1eb6e8, 0xffffff, 0x1ea23a].forEach(function (c, k) { box(2.4, .45, .05, c, null, 1.2, 6.4 - k * .45, 0, fg); });
+            else { var ln = new THREE.Mesh(GEO.ball, glow([0xfacc15, 0x22c55e, 0xf97316][i % 3], 1.6)); ln.scale.set(.8, 1.1, .8); ln.position.set(.8, 6.2, 0); fg.add(ln); }
+        } });
+        if (HOLIDAY === 'ramazon') { var cr = new THREE.Mesh(new THREE.TorusGeometry(3, .5, 8, 30, Math.PI * 1.4), glow(0xfacc15, 1.4)); cr.position.set(0, 2 + FLOORS * FH + 22, -cz + CENTER[1]); cr.rotation.z = .6; g.add(cr); }
+    }
+}
+function fireworksStep(dt) {
+    if (HOLIDAY !== 'yangiyil' && HOLIDAY !== 'mustaqillik' && HOLIDAY !== 'navruz') return;
+    if (NIGHT > .5 && Math.random() < dt * 1.2 && FIREWORKS.length < 6) {
+        var n = 60, pos = new Float32Array(n * 3), vel = []; for (var i = 0; i < n; i++) { var th = Math.random() * 6.28, ph = Math.random() * 3.14; vel.push(new THREE.Vector3(Math.cos(th) * Math.sin(ph), Math.cos(ph), Math.sin(th) * Math.sin(ph)).multiplyScalar(14 + Math.random() * 6)); }
+        var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        var pt = new THREE.Points(g, new THREE.PointsMaterial({ color: [0xff4d6d, 0xfacc15, 0x60a5fa, 0x34d399, 0xf472b6][Math.floor(Math.random() * 5)], size: 1.6, transparent: true, depthWrite: false, fog: false }));
+        pt.position.set(CENTER[0] + (Math.random() - .5) * 160, 70 + Math.random() * 40, CENTER[1] + (Math.random() - .5) * 160); scene.add(pt); FIREWORKS.push({ p: pt, v: vel, t: 0 });
+    }
+    for (var k = FIREWORKS.length - 1; k >= 0; k--) {
+        var f = FIREWORKS[k], a = f.p.geometry.attributes.position.array; f.t += dt;
+        for (var j = 0; j < f.v.length; j++) { f.v[j].y -= 9 * dt; a[j * 3] += f.v[j].x * dt; a[j * 3 + 1] += f.v[j].y * dt; a[j * 3 + 2] += f.v[j].z * dt; }
+        f.p.geometry.attributes.position.needsUpdate = true; f.p.material.opacity = Math.max(0, 1 - f.t / 1.8);
+        if (f.t > 1.8) { scene.remove(f.p); f.p.geometry.dispose(); FIREWORKS.splice(k, 1); }
+    }
+}
+
 /* ===================== kamera boshqaruvi (aylantirish, yaqinlashtirish, surish) ===================== */
 var view = { tx: CENTER[0], tz: CENTER[1], yaw: .7, pitch: .62, dist: 330 }, goal = Object.assign({}, view), tour = false, flying = null;
 function applyCam() {
     var cy = Math.cos(view.pitch), x = view.tx + Math.sin(view.yaw) * cy * view.dist, z = view.tz + Math.cos(view.yaw) * cy * view.dist, y = Math.sin(view.pitch) * view.dist;
-    cam.position.set(x, Math.max(6, y), z); cam.lookAt(view.tx, 6, view.tz);
+    var ty = INS ? INS.ty : 6; cam.position.set(x, Math.max(INS ? 1.5 : 6, y + (INS ? ty * .4 : 0)), z); cam.lookAt(view.tx, ty, view.tz);
 }
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 function flyTo(x, z, dist, pitch) { tour = false; $('t-tour').classList.remove('on'); goal.tx = x; goal.tz = z; goal.dist = dist || 60; if (pitch) goal.pitch = pitch; }
@@ -1054,7 +1277,7 @@ function pan(dx, dy) { var s = goal.dist / 600, c = Math.cos(goal.yaw), si = Mat
 function up(e) { delete ptrs[e.pointerId]; lastPinch = 0; if (!Object.keys(ptrs).length) canvas.classList.remove('drag'); if (moved < 8 && downAt) pick(e.clientX, e.clientY); }
 canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', function (e) { delete ptrs[e.pointerId]; lastPinch = 0; });
 canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-canvas.addEventListener('wheel', function (e) { e.preventDefault(); stopTour(); goal.dist = clamp(goal.dist * (1 + Math.sign(e.deltaY) * .12), 25, 520); }, { passive: false });
+canvas.addEventListener('wheel', function (e) { e.preventDefault(); stopTour(); goal.dist = clamp(goal.dist * (1 + Math.sign(e.deltaY) * .12), INS ? 8 : 25, INS ? 40 : 520); }, { passive: false });
 $('t-in').onclick = function () { goal.dist = clamp(goal.dist * .7, 25, 520); };
 $('t-out').onclick = function () { goal.dist = clamp(goal.dist * 1.4, 25, 520); };
 $('t-home').onclick = function () { flyTo(CENTER[0], CENTER[1], 200, .62); };
@@ -1064,10 +1287,15 @@ function stopTour() { if (tour) { tour = false; $('t-tour').classList.remove('on
 /* ---------- bosish: hovli yoki agentlar binosi ---------- */
 var ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), GROUND_PL = new THREE.Plane(new THREE.Vector3(0, 1, 0), -.3);
 function pick(x, y) {
+    if (INS) return;
     ndc.set(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1); ray.setFromCamera(ndc, cam);
     var hit = ray.intersectObjects(pickables.concat([tower]), true)[0];
     if (hit) {
-        var o = hit.object; while (o && o.userData.plot == null && o !== tower) o = o.parent;
+        var o = hit.object; while (o && o.userData.plot == null && o !== tower && !o.userData.chest && !o.userData.agent && !o.userData.committee && !o.userData.ad) o = o.parent;
+        if (o && o.userData.chest) { claimChest(); return; }
+        if (o && o.userData.committee) { openChat(); return; }
+        if (o && o.userData.agent) { openAgent(o.userData.agent); return; }
+        if (o && o.userData.ad) { openAd(o.userData.ad); return; }
         if (o === tower) { openTower(); return; }
         if (o && o.userData.plot != null) { openPlot(o.userData.plot); return; }
     }
@@ -1107,7 +1335,7 @@ async function load() {
     try { j = await api('list', S.logged ? c : {}); } catch (e) {}
     if (j.auth === false && TGW) { TEMP = null; S.logged = false; try { j = await api('list', {}); } catch (e) {} toast("Bu Telegram akkaunt Bilols AI'ga ulanmagan — botda /start bosib, raqamingizni yuboring"); }
     if (!j.success) { $('load').textContent = "Server javob bermadi. Birozdan keyin qayta urinib ko'ring."; return false; }
-    S.plots = j.plots || []; S.free = j.free || []; S.buildings = j.buildings || []; S.sky = j.sky || S.sky; S.me = j.me; S.balance = j.balance || 0; S.total = j.total || 0; S.joined = j.joined || 0;
+    S.plots = j.plots || []; S.free = j.free || []; S.ads = j.ads || []; S.chest = j.chest || null; S.buildings = j.buildings || []; S.sky = j.sky || S.sky; S.me = j.me; S.balance = j.balance || 0; S.total = j.total || 0; S.joined = j.joined || 0;
     if (j.auth === false) S.logged = false;
     S.bmap = {}; S.buildings.forEach(function (b) { if (b.id === 'choyhona' && b.emoji === '🫖') b.emoji = '🍵'; S.bmap[b.id] = b; });
     return true;
@@ -1128,12 +1356,13 @@ function populate() {
         addLabel(f.mine ? 'bl mine' : 'bl', b.emoji + ' ' + esc(f.l || b.name), function () { return { x: o.g.position.x, y: o.top + 2, z: o.g.position.z }; }, function () { openPlot(o.k); }).k = f.k;
     });
     if (S.bmode) paintEmpty(true);
+    LIFE.cars = []; LIFE.people = []; LIFE.birds = null; makeLife(CELLS[count - 1].d + 10); holidayDecor(); placeAds(); placeChest();
     shadowsDirty();
     streetLights(CELLS[count - 1].d + 6);
     roads(CELLS[count - 1].d + 20);
     plotObjs.forEach(function (o) {
         if (!o.p || !o.p.n) return;
-        addLabel(o.p.me ? 'me' : '', '<i style="background:' + GATE[o.p.g % 8] + '"></i>' + esc(o.p.n), function () { return { x: o.g.position.x, y: o.top + 2, z: o.g.position.z }; }, function () { openPlot(o.k); });
+        addLabel(o.p.me ? 'me' : '', '<i style="background:' + GATE[o.p.g % 8] + '"></i>' + (o.p.pr ? '⭐ ' : '') + esc(o.p.n) + (o.p.lk ? ' <em class="lk">❤️' + o.p.lk + '</em>' : ''), function () { return { x: o.g.position.x, y: o.top + 2, z: o.g.position.z }; }, function () { openPlot(o.k); });
     });
     var me = S.me && plotObjs[S.me.c];
     if (me && !(me.p && me.p.n)) addLabel('me', '🏠 Sizning hovlingiz', function () { return { x: me.g.position.x, y: me.top + 2, z: me.g.position.z }; }, function () { openPlot(me.k); });
@@ -1168,13 +1397,19 @@ function openPlot(k) {
         '<div class="sh-a">' + addr(p.i) + '</div><div class="sh-m">' + (p.i + 1) + '-aholi · ' + b.emoji + ' ' + esc(b.name) + '</div>' +
         '<div class="nb"><div><small>Chap qo\'shni</small><b>' + neighbor(p.i - 1) + '</b></div><div><small>O\'ng qo\'shni</small><b>' + neighbor(p.i + 1) + '</b></div></div>';
     if (!p.n && !mine) html += '<div class="note">Bu hovli egasi hali mahallaga qo\'shilmagan — shuning uchun uning ismi ko\'rsatilmaydi.</div>';
+    if (p.n) html += '<div class="lvb"><span>🏡 Hovli ' + (p.lv || 1) + '/3</span><span>⭐ Daraja ' + (p.xl || 1) + '</span><span>❤️ ' + (p.lk || 0) + '</span>' + (p.pr ? '<span class="pr">💎 Premium</span>' : '') + '</div>';
+    if (p.n && !mine) html += '<div class="vis"><button type="button" class="big" data-act="salom">🙋 Salom berish</button><button type="button" class="big alt" data-act="like">❤️ Yoqdi</button></div>';
+    if (p.b !== 'bog' && p.b !== 'futbol' && p.b !== 'sayilgoh' && (mine || p.b !== 'uy' && p.b !== 'hovli')) html += '<button type="button" class="big ghost" data-act="enter">🚪 Ichkariga kirish</button>';
     if (mine) html += myActions();
     else html += '<button type="button" class="big ghost" data-act="share">🔗 Havolani nusxalash</button>';
     openSheet(html); wire(p.i);
 }
 function myActions() {
     if (!S.me.joined) return '<div class="note">Mahallaga qo\'shilsangiz, hovlingizda nikingiz ko\'rinadi va unga bino qura olasiz.</div><button type="button" class="big" data-act="join">🙋 Mahallaga qo\'shilish</button>';
-    return '<button type="button" class="big" data-act="build">🏗 Bino qurish</button><button type="button" class="big alt" data-act="deco">🎨 Bezatish: rang va tom</button><button type="button" class="big ghost" data-act="join">✏️ Nik va darvoza rangini o\'zgartirish</button><button type="button" class="big ghost" data-act="share">🔗 Havolani nusxalash</button>';
+    var me = S.me, lvl = me.level || 1, nx = me.nextRefs || 0;
+    var lv = '<div class="lvl2"><b>🏡 Hovli darajasi: ' + lvl + '/3</b><div class="bar"><i style="width:' + (lvl / 3 * 100) + '%"></i></div><small>' + (nx ? 'Do\'stlar: ' + (me.refs || 0) + ' / ' + nx + ' — keyingi darajaga' : 'Eng yuqori daraja! 🎉') + '</small>' +
+        '<b style="margin-top:8px">⭐ Daraja ' + (me.xpLevel || 1) + ' · ' + (me.xp || 0) + ' XP</b><div class="bar"><i style="width:' + (me.xpNext ? Math.min(100, (me.xp || 0) / me.xpNext * 100) : 100) + '%;background:linear-gradient(90deg,#a78bfa,#22d3ee)"></i></div><small>' + (me.xpNext ? 'Keyingi daraja: ' + me.xpNext + ' XP' : 'Maksimal daraja') + ' · ❤️ ' + (me.likes || 0) + ' ta yoqtirish</small></div>';
+    return lv + '<button type="button" class="big" data-act="build">🏗 Bino qurish</button><button type="button" class="big alt" data-act="invite">👥 Do\'stlarni chaqirish</button><button type="button" class="big alt" data-act="deco">🎨 Bezatish: rang va tom</button><button type="button" class="big ghost" data-act="join">✏️ Nik va darvoza rangini o\'zgartirish</button><button type="button" class="big ghost" data-act="share">🔗 Havolani nusxalash</button>';
 }
 function wire(k) {
     sb.querySelectorAll('[data-act]').forEach(function (b) {
@@ -1183,6 +1418,9 @@ function wire(k) {
             if (a === 'join') openJoin();
             if (a === 'build') openBuild();
             if (a === 'deco') openDeco(plotObjs[S.me.c]);
+            if (a === 'salom' || a === 'like') doVisit(k, a, b);
+            if (a === 'invite') invite();
+            if (a === 'enter') enterInterior(plotObjs[S.plots[k] ? S.plots[k].c : k]);
             if (a === 'share') { var u = location.origin + '/mahalla#h' + (k + 1); try { navigator.clipboard.writeText(u); toast('🔗 Havola nusxalandi'); } catch (e) { toast(u); } }
         };
     });
@@ -1252,7 +1490,7 @@ function openBuild() {
     });
 }
 /* ===================== 🏙 OSMONO'PAR KONSTRUKTORI ===================== */
-S.sky = { tiers: [{ to: 20, price: 1000 }, { to: 40, price: 2000 }, { to: 60, price: 5000 }, { to: 80, price: 10000 }, { to: 100, price: 20000 }], min: 10, max: 100, styles: ['shisha', 'klassik', 'neon', 'zinapoya', 'aylana', 'buralgan', 'egizak'], tops: ['antenna', 'vertolyot', 'shpil', 'toj'] };
+S.sky = { tiers: [{ to: 20, price: 1000 }, { to: 40, price: 2000 }, { to: 60, price: 5000 }, { to: 80, price: 10000 }, { to: 100, price: 20000 }, { to: 150, price: 30000 }, { to: 200, price: 40000 }, { to: 300, price: 50000 }], min: 10, max: 300, styles: ['shisha', 'klassik', 'neon', 'zinapoya', 'aylana', 'buralgan', 'egizak'], tops: ['antenna', 'vertolyot', 'shpil', 'toj'] };
 var STYLE_N = { shisha: ['🪟', 'Shisha'], klassik: ['🏛', 'Klassik'], neon: ['🌃', 'Neon'], zinapoya: ['📐', 'Zinapoya'], aylana: ['⭕', 'Aylana'], buralgan: ['🌀', 'Buralgan'], egizak: ['🏙', 'Egizak minora'] };
 var TOP_N = { antenna: ['📡', 'Antenna'], vertolyot: ['🚁', 'Vertolyot maydoni'], shpil: ['🗼', 'Shpil'], toj: ['👑', 'Toj'] };
 function floorPrice(n) { var t = S.sky.tiers; for (var i = 0; i < t.length; i++) if (n <= t[i].to) return t[i].price; return t[t.length - 1].price; }
@@ -1274,7 +1512,7 @@ function skyPaint() {
         var body = '';
         if (SKY.tab === 'f') {
             body = '<div class="wz-sl"><button type="button" class="wz-pm" data-d="-1">−</button><input type="range" id="wz-r" min="' + minF + '" max="' + S.sky.max + '" value="' + c.floors + '"><button type="button" class="wz-pm" data-d="1">+</button></div>' +
-                '<div class="wz-q">' + [10, 25, 50, 75, 100].map(function (n) { return '<button type="button" data-f="' + n + '"' + (n === c.floors ? ' class="on"' : '') + (n < minF ? ' disabled' : '') + '>' + n + '</button>'; }).join('') + '</div>' +
+                '<div class="wz-q">' + [10, 25, 50, 100, 200, 300].filter(function (n) { return n <= S.sky.max; }).map(function (n) { return '<button type="button" data-f="' + n + '"' + (n === c.floors ? ' class="on"' : '') + (n < minF ? ' disabled' : '') + '>' + n + '</button>'; }).join('') + '</div>' +
                 '<div class="wz-t">' + tiers.map(function (t, i) { var from = i ? tiers[i - 1].to + 1 : S.sky.min, on = c.floors >= from && c.floors <= t.to; return '<div' + (on ? ' class="on"' : '') + '><small>' + from + '–' + t.to + '</small><b>' + money(t.price) + '</b></div>'; }).join('') + '</div>' +
                 '<div class="wz-n">Har bir qavat o\'z narxida — baland qavatlar qimmatroq (so\'m / qavat)' + (SKY.old ? '. Hozirgi ' + SKY.old.floors + ' qavat uchun qayta to\'lamaysiz — faqat yangi qavatlar.' : '') + '</div>';
         } else if (SKY.tab === 's') {
@@ -1529,11 +1767,347 @@ function openFree(o) {
     openSheet('<div class="sh-t">' + b.emoji + ' ' + esc(f.l || b.name) + '</div><div class="sh-a">' + esc(b.name) + (f.o ? ' · ' + f.o.floors + ' qavat' : '') + '</div><div class="sh-m">Mahalla konstruktori tomonidan qurilgan.</div>');
 }
 
+/* ===================== 🚪 BINOLAR ICHI: uy, choyxona, masjid, kazino... osmono'parda 300 qavat va lift ===================== */
+var INS = null;
+TX.wood = ctex(256, function (x, n) { x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); for (var i = 0; i < 8; i++) { x.fillStyle = 'rgba(0,0,0,' + (.04 + (i % 3) * .03) + ')'; x.fillRect(0, i * 32, n, 31); x.fillStyle = 'rgba(0,0,0,.18)'; x.fillRect(0, i * 32 + 31, n, 1); x.fillRect(((i * 97) % 200) + 20, i * 32, 2, 32); } noise(x, 4000, '60,30,0', '255,255,255', .06); }, 4);
+TX.rug = ctex(256, function (x, n) {
+    x.fillStyle = '#9b1c1c'; x.fillRect(0, 0, n, n); x.strokeStyle = '#f2c14e'; x.lineWidth = 10; x.strokeRect(10, 10, n - 20, n - 20); x.strokeStyle = '#1e3a8a'; x.lineWidth = 6; x.strokeRect(26, 26, n - 52, n - 52);
+    for (var i = 0; i < 4; i++) for (var j = 0; j < 4; j++) { var cx = 56 + i * 48, cy = 56 + j * 48; x.fillStyle = (i + j) % 2 ? '#f2c14e' : '#1e3a8a'; x.beginPath(); x.moveTo(cx, cy - 16); x.lineTo(cx + 16, cy); x.lineTo(cx, cy + 16); x.lineTo(cx - 16, cy); x.fill(); x.fillStyle = '#fff7e0'; x.fillRect(cx - 3, cy - 3, 6, 6); }
+}, 1);
+TX.suzani = ctex(256, function (x, n) { x.fillStyle = '#f5ead2'; x.fillRect(0, 0, n, n); for (var i = 0; i < 9; i++) { var cx = 40 + (i % 3) * 88, cy = 40 + Math.floor(i / 3) * 88; x.fillStyle = ['#b91c1c', '#7c2d12', '#1e3a8a'][i % 3]; x.beginPath(); x.arc(cx, cy, 30, 0, 6.29); x.fill(); x.fillStyle = '#f5ead2'; x.beginPath(); x.arc(cx, cy, 18, 0, 6.29); x.fill(); x.fillStyle = '#b91c1c'; x.beginPath(); x.arc(cx, cy, 9, 0, 6.29); x.fill(); } x.strokeStyle = '#1e3a8a'; x.lineWidth = 8; x.strokeRect(4, 4, n - 8, n - 8); }, 1);
+function art(seed) {   // "AI galereya" — har rasm turlicha abstrakt kartina
+    var c = document.createElement('canvas'); c.width = 256; c.height = 192; var x = c.getContext('2d'), r = function (k) { return (Math.sin(seed * 9.1 + k * 3.7) + 1) / 2; };
+    var g = x.createLinearGradient(0, 0, 256, 192); g.addColorStop(0, 'hsl(' + (r(1) * 360) + ',70%,55%)'); g.addColorStop(1, 'hsl(' + (r(2) * 360) + ',70%,35%)'); x.fillStyle = g; x.fillRect(0, 0, 256, 192);
+    for (var i = 0; i < 7; i++) { x.fillStyle = 'hsla(' + (r(i + 3) * 360) + ',80%,' + (40 + r(i) * 40) + '%,.75)'; x.beginPath(); x.arc(r(i + 5) * 256, r(i + 7) * 192, 14 + r(i + 9) * 50, 0, 6.29); x.fill(); }
+    var t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return new THREE.MeshBasicMaterial({ map: t, toneMapped: false });
+}
+function rnd(seed) { var s0 = seed * 9301 + 49297; return function () { s0 = (s0 * 9301 + 49297) % 233280; return s0 / 233280; }; }
+function chair(g, x, z, r, c) { var q = new THREE.Group(); q.position.set(x, 0, z); q.rotation.y = r || 0; g.add(q); box(1.1, .12, 1.1, c || 0x7c4a28, null, 0, 1, 0, q); box(1.1, 1.2, .12, c || 0x7c4a28, null, 0, 1.1, -.5, q); [[-.45, -.45], [.45, -.45], [-.45, .45], [.45, .45]].forEach(function (l) { box(.1, 1, .1, 0x3f2a18, null, l[0], 0, l[1], q); }); }
+function table(g, x, z, w, d, c, top) { box(w, .12, d, top || c || 0x8a5a3a, null, x, 1.55, z, g); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (l) { box(.14, 1.55, .14, c || 0x5a3418, null, x + l[0] * (w / 2 - .2), 0, z + l[1] * (d / 2 - .2), g); }); }
+function plant(g, x, z, s) { s = s || 1; box(.8 * s, .9 * s, .8 * s, 0xb45309, null, x, 0, z, g); var l = new THREE.Mesh(GEO.ball, mat(0x2f7a3a)); l.scale.setScalar(1.6 * s); l.position.set(x, 1.6 * s, z); g.add(l); }
+function lampHang(g, x, z, y, c) { box(.05, 1.6, .05, 0x333333, null, x, y - 1.6, z, g); var b = new THREE.Mesh(GEO.ball, glow(c || 0xffe2a8, 1.6)); b.scale.set(.9, .6, .9); b.position.set(x, y - 1.8, z); g.add(b); var pl = new THREE.PointLight(c || 0xffd8a0, .6, 14); pl.position.set(x, y - 2.2, z); g.add(pl); }
+function sofa(g, x, z, r, c) { var q = new THREE.Group(); q.position.set(x, 0, z); q.rotation.y = r || 0; g.add(q); box(4, .9, 1.6, c, null, 0, .2, 0, q); box(4, 1.2, .45, c, null, 0, .9, -.6, q); [-1.9, 1.9].forEach(function (k) { box(.35, 1.1, 1.6, c, null, k, .2, 0, q); }); [-1, 0, 1].forEach(function (k) { box(1.2, .25, 1.2, new THREE.Color(c).lerp(new THREE.Color(0xffffff), .2).getHex(), null, k * 1.25, 1.1, .1, q); }); }
+function shelf(g, x, z, w, r, items) { var q = new THREE.Group(); q.position.set(x, 0, z); q.rotation.y = r || 0; g.add(q); box(w, 5, .6, 0x5a3a22, null, 0, 0, 0, q); for (var i = 0; i < 4; i++) { box(w, .1, .7, 0x3f2a18, null, 0, .9 + i * 1.1, .05, q); var R2 = rnd(i + w); for (var j = 0; j < Math.floor(w * 2); j++) box(.3, .55 + R2() * .3, .45, items ? items[j % items.length] : [0xb91c1c, 0x1d4ed8, 0x15803d, 0xca8a04, 0x7c3aed][j % 5], null, -w / 2 + .3 + j * .45, 1 + i * 1.1, .1, q); } }
+function shell(R0, W, D, H, floorTex, wallC, opt) {
+    opt = opt || {}; var g = new THREE.Group(); R0.add(g);
+    box(W, .3, D, opt.floor || tmat(0xb88a5a, floorTex || 'wood'), null, 0, -.3, 0, g);
+    box(W, H, .3, tmat(wallC, 'plaster'), null, 0, 0, -D / 2, g);
+    box(.3, H, D, tmat(new THREE.Color(wallC).multiplyScalar(.92).getHex(), 'plaster'), null, -W / 2, 0, 0, g);
+    box(.3, H * .35, D, tmat(new THREE.Color(wallC).multiplyScalar(.92).getHex(), 'plaster'), null, W / 2, 0, 0, g);
+    box(W, .25, .35, 0xffffff, null, 0, H - .25, -D / 2 + .1, g);
+    if (opt.window !== false) { var wm = new THREE.MeshBasicMaterial({ color: NIGHT > .5 ? 0x1d2a55 : 0x9fd2ff, toneMapped: false }); [-W / 4, W / 4].forEach(function (x) { box(4, 3.2, .1, 0xffffff, null, x, 2.3, -D / 2 + .2, g); box(3.6, 2.8, .12, wm, null, x, 2.5, -D / 2 + .22, g); }); }
+    return g;
+}
+var KITS = {
+    home: function (R0, seed) {
+        var g = shell(R0, 22, 16, 7, 'wood', [0xf3e6d3, 0xdfe8ee, 0xe9dccb, 0xf2e2e6][seed % 4]);
+        box(8, .05, 6, tmat(0xffffff, 'rug'), null, -3, 0, 1, g);
+        sofa(g, -3, 4.2, Math.PI, [0x475569, 0x7c2d12, 0x1e3a8a, 0x3f6212][seed % 4]); table(g, -3, 1, 3.4, 1.8, 0x3f2a18, 0x8a5a3a);
+        box(5, 1.6, .9, 0x2b2b33, null, -3, 0, -7.3, g); var tv = box(4.6, 2.6, .15, new THREE.MeshBasicMaterial({ color: 0x4f7cff, toneMapped: false }), null, -3, 2.6, -7.5, g);
+        shelf(g, -10.5, -3, 3.8, Math.PI / 2); plant(g, -10, 6.5, 1); plant(g, 9.5, -6.8, .9);
+        table(g, 5.5, 2, 4.4, 2.6, 0x5a3418, 0xe7d3b5); chair(g, 4.2, .4, 0); chair(g, 6.8, .4, 0); chair(g, 4.2, 3.6, Math.PI); chair(g, 6.8, 3.6, Math.PI);
+        box(6, 2.1, 1.4, 0xf5f5f4, null, 6.5, 0, -7, g); box(6, .15, 1.5, 0x44403c, null, 6.5, 2.1, -7, g); box(1.7, 4.2, 1.4, 0xd6d3d1, null, 10.2, 0, -7, g);
+        for (var k = 0; k < 3; k++) { var fr = box(2.6, 2, .1, 0x3f2a18, null, -9 + k * 3.4, 4, -7.75, g); box(2.3, 1.7, .12, art(seed * 3 + k), null, -9 + k * 3.4, 4.15, -7.72, g); }
+        sign(g, '🖼 AI GALEREYA', '#3f2a18', '#ffd257', 4.6, 6.3, -7.7);
+        lampHang(g, -3, 1, 7); lampHang(g, 5.5, 2, 7);
+        return { title: '🏠 Uyingiz ichida', sub: 'Mehmonxona · oshxona · AI galereya' };
+    },
+    choyhona: function (R0) {
+        var g = shell(R0, 24, 18, 7.5, 'wood', 0xf2dcb6, { window: false });
+        [[-7, 2], [0, 2], [7, 2], [-3.5, -4], [3.5, -4]].forEach(function (q, i) {
+            box(4.6, .9, 3.4, 0x8a4b2a, null, q[0], 0, q[1], g); box(4.4, .12, 3.2, tmat(0xffffff, 'rug'), null, q[0], .9, q[1], g);
+            [-1, 1].forEach(function (k) { box(4.2, .5, .5, 0x7c2d12, null, q[0], .95, q[1] + k * 1.3, g); });
+            box(2, .08, 1.3, 0xfef3c7, null, q[0], 1.05, q[1], g);
+            var tp = new THREE.Mesh(GEO.ball, mat(0x1d4ed8, { roughness: .35 })); tp.scale.setScalar(.55); tp.position.set(q[0] - .4, 1.4, q[1]); g.add(tp);
+            for (var c = 0; c < 3; c++) { var pi = new THREE.Mesh(GEO.cyl, mat(0xffffff)); pi.scale.set(.35, .25, .35); pi.position.set(q[0] + .3 + c * .4, 1.22, q[1] + .3); g.add(pi); }
+            var non = new THREE.Mesh(GEO.cyl, mat(0xd9a05b)); non.scale.set(.9, .15, .9); non.position.set(q[0] + .5, 1.15, q[1] - .3); g.add(non);
+        });
+        var sm = new THREE.Group(); sm.position.set(10, 0, -7); g.add(sm); box(3, 2, 1.6, 0x7c4a28, null, 0, 0, 0, sm);
+        var b1 = new THREE.Mesh(GEO.cyl, mat(0xd4a017, { metalness: .8, roughness: .25 })); b1.scale.set(1, 1.6, 1); b1.position.set(0, 2.8, 0); sm.add(b1); var b2 = new THREE.Mesh(GEO.sph, mat(0xd4a017, { metalness: .8 })); b2.position.set(0, 3.6, 0); sm.add(b2);
+        var qz = new THREE.Mesh(GEO.sph, mat(0x1f2937, { metalness: .6 })); qz.scale.set(3, 2, 3); qz.rotation.x = Math.PI; qz.position.set(-10, 2, -6.5); g.add(qz); var fire = new THREE.Mesh(GEO.ball, glow(0xff7a1a, 1.6)); fire.scale.set(2, .7, 2); fire.position.set(-10, .4, -6.5); g.add(fire);
+        var pl = new THREE.Mesh(GEO.cyl, mat(0xe0a63a)); pl.scale.set(2.6, .2, 2.6); pl.position.set(-10, 1.95, -6.5); g.add(pl);
+        [-6, 0, 6].forEach(function (x) { box(4.5, 3.2, .1, tmat(0xffffff, 'suzani'), null, x, 2.8, -8.8, g); });
+        [-7, 0, 7].forEach(function (x) { lampHang(g, x, 2, 7.5, 0xffc87a); });
+        return { title: '🍵 Choyxona', sub: "So'rilar · samovar · qozonda palov" };
+    },
+    masjid: function (R0) {
+        var g = shell(R0, 26, 20, 10, 'wood', 0xf7f2e7, { floor: tmat(0x2f6b4f, 'ftile') });
+        for (var r = 0; r < 6; r++) box(24, .06, 2.4, r % 2 ? 0x2f7a5a : 0x235e45, null, 0, 0, -6 + r * 2.6, g);
+        var mh = new THREE.Mesh(new THREE.TorusGeometry(2.2, .35, 8, 24, Math.PI), mat(0xd4a017, { metalness: .7, roughness: .25 })); mh.position.set(0, 4.6, -9.7); g.add(mh);
+        box(4.4, 4.6, .2, glow(0x1aa6a0, .5), null, 0, 0, -9.75, g);
+        for (var s2 = 0; s2 < 6; s2++) box(1.6, .5, 1.2, 0x7c4a28, null, 7, s2 * .5, -7 + s2 * .5, g);
+        [-9, 9].forEach(function (x) { [-4, 4].forEach(function (z) { var c = new THREE.Mesh(GEO.cyl, mat(0xffffff)); c.scale.set(1, 10, 1); c.position.set(x, 5, z); g.add(c); }); });
+        var ring = new THREE.Mesh(new THREE.TorusGeometry(4, .15, 8, 40), mat(0xd4a017, { metalness: .7 })); ring.rotation.x = Math.PI / 2; ring.position.set(0, 7.5, 0); g.add(ring);
+        for (var l = 0; l < 12; l++) { var b = new THREE.Mesh(GEO.ball, glow(0xffe8b0, 1.6)); b.scale.setScalar(.45); var a = l / 12 * 6.28; b.position.set(Math.cos(a) * 4, 7.2, Math.sin(a) * 4); g.add(b); }
+        var pl = new THREE.PointLight(0xffe2a8, .9, 30); pl.position.set(0, 7, 0); g.add(pl);
+        return { title: '🕌 Masjid ichi', sub: 'Mehrob · minbar · qandil' };
+    },
+    kazino: function (R0) {
+        var g = shell(R0, 26, 20, 8, 'wood', 0x3b0d2f, { floor: tmat(0x7f1d1d, 'rug') });
+        var wh = new THREE.Group(); wh.position.set(0, 1.6, 0); g.add(wh); table(g, 0, 0, 5, 5, 0x3f2a18, 0x166534);
+        var rw = new THREE.Mesh(GEO.cyl, mat(0x1f2937)); rw.scale.set(3.2, .25, 3.2); rw.position.y = 1.75; g.add(rw);
+        var spin = new THREE.Group(); spin.position.y = 1.95; g.add(spin); for (var i = 0; i < 18; i++) { var sg = box(.2, .05, 1.4, i % 2 ? 0xdc2626 : 0x111111, null, Math.cos(i / 18 * 6.28) * .9, 0, Math.sin(i / 18 * 6.28) * .9, spin); sg.rotation.y = -i / 18 * 6.28; }
+        spinners.push(spin); spin.userData.yspin = 1;
+        [[-8, 3], [8, 3], [-8, -4], [8, -4]].forEach(function (q) { table(g, q[0], q[1], 4, 2.6, 0x3f2a18, 0x166534); for (var c = 0; c < 3; c++) chair(g, q[0] - 1.3 + c * 1.3, q[1] + 2, Math.PI, 0x7f1d1d); });
+        for (var m2 = 0; m2 < 7; m2++) { var sx = -10 + m2 * 3.3; box(2, 3.4, 1.4, 0x312e81, null, sx, 0, -8.8, g); box(1.6, 1.4, .1, glow([0xf472b6, 0xfacc15, 0x22d3ee][m2 % 3], 1.3), null, sx, 1.8, -8.05, g); }
+        sign(g, '🎰 JACKPOT', '#2a0a3a', '#ffd257', 8, 6.4, -9.6);
+        [-6, 0, 6].forEach(function (x) { lampHang(g, x, 1, 8, 0xffd257); });
+        return { title: '🎰 Kazino ichi', sub: 'Ruletka · karta stollari · avtomatlar' };
+    },
+    cafe: function (R0, seed, kind) {
+        var g = shell(R0, 22, 16, 7, 'wood', kind === 'restoran' ? 0xf2d0bf : 0xf6e7d6);
+        for (var i = 0; i < 6; i++) { var x = -7 + (i % 3) * 6, z = i < 3 ? -1 : 4; var rt = new THREE.Mesh(GEO.cyl, mat(kind === 'restoran' ? 0xffffff : 0x8a5a3a)); rt.scale.set(2.6, .12, 2.6); rt.position.set(x, 1.6, z); g.add(rt); box(.2, 1.6, .2, 0x333333, null, x, 0, z, g); chair(g, x - 1.6, z, Math.PI / 2, 0x334155); chair(g, x + 1.6, z, -Math.PI / 2, 0x334155); var cup = new THREE.Mesh(GEO.cyl, mat(0xffffff)); cup.scale.set(.35, .4, .35); cup.position.set(x, 1.85, z); g.add(cup); }
+        box(9, 2.4, 1.6, 0x5a3418, null, 4, 0, -6.4, g); box(9.2, .2, 1.8, 0xe7e5e4, null, 4, 2.4, -6.4, g); box(1.4, 1.6, 1, 0x1f2937, null, 2, 2.6, -6.6, g);
+        if (kind === 'novvoyxona') for (var b = 0; b < 8; b++) { var n = new THREE.Mesh(GEO.cyl, mat(0xd9a05b)); n.scale.set(.9, .2, .9); n.position.set(1.5 + (b % 4) * 1.4, 2.7 + Math.floor(b / 4) * .3, -6.3); g.add(n); }
+        sign(g, kind === 'restoran' ? '🍽 MENYU' : (kind === 'novvoyxona' ? '🥖 ISSIQ NON' : '☕ MENYU'), '#1f2937', '#fef3c7', 6, 5, -7.8);
+        lampHang(g, -7, -1, 7, 0xffc87a); lampHang(g, -1, -1, 7, 0xffc87a); lampHang(g, 5, 4, 7, 0xffc87a);
+        return { title: kind === 'restoran' ? '🍽 Restoran' : (kind === 'novvoyxona' ? '🥖 Novvoyxona' : '☕ Kafe'), sub: 'Stollar · peshtaxta · menyu' };
+    },
+    shop: function (R0, seed, kind) {
+        var g = shell(R0, 22, 16, 7, 'ftile', 0xf5f5f4, { floor: tmat(0xd6d3d1, 'paving') });
+        var T = { dokon: '🏪', guldokon: '💐', bank: '🏦', avtosalon: '🚗', fotostudiya: '📸', mehmonxona: '🏨', kasalxona: '🏥', maktab: '🏫', sportzal: '🏋', kinoteatr: '🎬', toyxona: '💒' };
+        if (kind === 'avtosalon') { [[-5, 0, 0xdc2626], [4, 1, 0x111827], [0, 5, 0x2563eb]].forEach(function (c) { var pd = new THREE.Mesh(GEO.cyl, mat(0xe5e7eb)); pd.scale.set(6, .3, 6); pd.position.set(c[0], 0, c[1]); g.add(pd); car(g, c[0], c[1], c[2], .5); }); }
+        else if (kind === 'kinoteatr') { box(16, 7, .2, new THREE.MeshBasicMaterial({ color: 0xbfdbfe, toneMapped: false }), null, 0, .8, -7.6, g); for (var r = 0; r < 4; r++) for (var c2 = 0; c2 < 7; c2++) box(1.4, 1.4, 1.2, 0x991b1b, null, -6 + c2 * 2, r * .6, -1 + r * 2.4, g); }
+        else if (kind === 'maktab') { box(10, 3.6, .15, 0x14532d, null, 0, 2, -7.8, g); for (var r2 = 0; r2 < 3; r2++) for (var c3 = 0; c3 < 4; c3++) { table(g, -6 + c3 * 4, -2 + r2 * 3.2, 2.6, 1.2, 0x5a3418, 0xe7d3b5); chair(g, -6 + c3 * 4, -.9 + r2 * 3.2, Math.PI, 0x1d4ed8); } }
+        else if (kind === 'kasalxona') { for (var bd = 0; bd < 4; bd++) { var x = -8 + bd * 5.2; box(2.4, 1.2, 4.4, 0xffffff, null, x, 0, -3, g); box(2.4, .5, 1, 0xbfdbfe, null, x, 1.2, -4.8, g); box(.1, 4, 4.6, 0x93c5fd, null, x + 1.9, 0, -3, g); } box(6, 2.2, 1.4, 0xffffff, null, 6, 0, 4, g); }
+        else if (kind === 'sportzal') { for (var t = 0; t < 4; t++) { box(1.6, .5, 3.6, 0x111827, null, -8 + t * 3, 0, -5, g); box(.2, 2.6, .2, 0x6b7280, null, -8 + t * 3, 0, -6.6, g); } box(8, 3, .5, 0x374151, null, 5, 0, -7.5, g); for (var d2 = 0; d2 < 6; d2++) { var db = new THREE.Mesh(GEO.cyl, mat(0x111111)); db.scale.set(.5, .9, .5); db.rotation.z = Math.PI / 2; db.position.set(2 + d2 * 1.2, 2.2, -7.2); g.add(db); } box(10, .1, 5, 0x2563eb, null, 0, 0, 3, g); }
+        else if (kind === 'toyxona') { for (var tt = 0; tt < 6; tt++) { var x2 = -7 + (tt % 3) * 7, z2 = tt < 3 ? -2 : 4; var rt = new THREE.Mesh(GEO.cyl, mat(0xffffff)); rt.scale.set(3.6, 1.6, 3.6); rt.position.set(x2, .8, z2); g.add(rt); var fl = new THREE.Mesh(GEO.ball, mat(0xf472b6)); fl.scale.setScalar(.8); fl.position.set(x2, 1.9, z2); g.add(fl); } box(10, .8, 3, 0xe8c77a, null, 0, 0, -7, g); }
+        else if (kind === 'fotostudiya') { box(10, 6, .2, 0xe5e7eb, null, 0, 0, -7.5, g); box(10, .1, 5, 0xe5e7eb, null, 0, 0, -5, g); [-5, 5].forEach(function (x) { box(.1, 4, .1, 0x111111, null, x, 0, -2, g); box(2, 2, .4, glow(0xffffff, 1.2), null, x, 4, -2, g); }); var tri = new THREE.Group(); tri.position.set(0, 0, 4); g.add(tri); box(.08, 3, .08, 0x111111, null, 0, 0, 0, tri); box(1, .7, .8, 0x111111, null, 0, 3, 0, tri); }
+        else if (kind === 'bank') { for (var w2 = 0; w2 < 4; w2++) { box(4, 2.4, 1.2, 0x7c4a28, null, -7 + w2 * 4.6, 0, -4, g); box(4, 1.6, .08, mat(0xbfe6ff, { transparent: true, opacity: .4 }), null, -7 + w2 * 4.6, 2.4, -4.5, g); } var vd = new THREE.Mesh(GEO.cyl, mat(0x9ca3af, { metalness: .8, roughness: .3 })); vd.scale.set(4.6, .5, 4.6); vd.rotation.x = Math.PI / 2; vd.position.set(0, 3, -7.6); g.add(vd); }
+        else if (kind === 'mehmonxona') { box(8, 2.4, 1.6, 0x5a3418, null, 0, 0, -5, g); sofa(g, -6, 4, Math.PI, 0x1e3a8a); sofa(g, 6, 4, Math.PI, 0x1e3a8a); box(3, 5, .3, 0x9ca3af, { metalness: .7 }, 8, 0, -7.7, g); }
+        else if (kind === 'guldokon') { for (var f = 0; f < 12; f++) { box(1, .9, 1, 0x6b7280, null, -8 + (f % 6) * 3, 0, f < 6 ? -6 : -2, g); for (var b2 = 0; b2 < 4; b2++) { var bl = new THREE.Mesh(GEO.ball, mat([0xf472b6, 0xef4444, 0xfacc15, 0xffffff, 0xa78bfa][(f + b2) % 5])); bl.scale.setScalar(.5); bl.position.set(-8 + (f % 6) * 3 + (b2 - 1.5) * .25, 1.3 + (b2 % 2) * .3, (f < 6 ? -6 : -2) + (b2 % 2 ? .2 : -.2)); g.add(bl); } } }
+        else { shelf(g, -6, -7.2, 7); shelf(g, 3, -7.2, 7); shelf(g, -10.5, 0, 6, Math.PI / 2); box(5, 2.2, 1.6, 0x5a3418, null, 5, 0, 3, g); box(1, .8, .8, 0x1f2937, null, 4.5, 2.2, 3, g); }
+        sign(g, (T[kind] || '🏢') + ' ' + ((S.bmap[kind] || {}).name || kind).toUpperCase(), '#1f2937', '#ffd257', 8, 6, -7.75);
+        lampHang(g, -5, 0, 7); lampHang(g, 5, 0, 7);
+        return { title: (T[kind] || '🏢') + ' ' + ((S.bmap[kind] || {}).name || kind), sub: 'Ichki ko\'rinish' };
+    },
+    sky: function (R0, seed, kind, floor, floors) {
+        var top = floor === floors, R2 = rnd(seed * 1000 + floor), types = ['ofis', 'kvartira', 'kafe', 'sport', 'zal', 'galereya'], t = floor === 1 ? 'lobbi' : (top ? 'tom' : types[Math.floor(R2() * types.length)]);
+        var g = top ? new THREE.Group() : shell(R0, 26, 20, 6.5, t === 'sport' ? 'paving' : 'wood', [0xf5f5f4, 0xe7e5e4, 0xdbeafe, 0xfef3c7][floor % 4], { window: false });
+        if (top) { R0.add(g); box(26, .3, 20, tmat(0x9ca3af, 'paving'), null, 0, -.3, 0, g); }
+        // panorama oynasi: kechasi shahar chiroqlari, kunduzi osmon
+        if (!top) { var pc = document.createElement('canvas'); pc.width = 512; pc.height = 128; var px = pc.getContext('2d'); var gr = px.createLinearGradient(0, 0, 0, 128); gr.addColorStop(0, NIGHT > .5 ? '#0b1230' : '#7fb3ef'); gr.addColorStop(1, NIGHT > .5 ? '#2a2550' : '#dcecfb'); px.fillStyle = gr; px.fillRect(0, 0, 512, 128);
+            for (var b = 0; b < 40; b++) { var bh = 20 + R2() * (60 + floor / 3); px.fillStyle = NIGHT > .5 ? '#151a33' : '#8aa3c2'; px.fillRect(b * 13, 128 - bh * (1 - Math.min(.8, floor / 400)), 12, bh); if (NIGHT > .5) for (var w = 0; w < 6; w++) { px.fillStyle = R2() < .4 ? '#ffd27a' : '#2a3052'; px.fillRect(b * 13 + 2 + (w % 2) * 5, 128 - bh + 6 + Math.floor(w / 2) * 8, 3, 4); } }
+            var pt = new THREE.CanvasTexture(pc); pt.encoding = THREE.sRGBEncoding; box(25, 5, .1, new THREE.MeshBasicMaterial({ map: pt, toneMapped: false }), null, 0, .6, -9.78, g); }
+        // lift (markaz orqasida)
+        var lg = new THREE.Group(); lg.position.set(9, 0, -9.4); g.add(lg); box(4.4, 5.8, .6, 0x9ca3af, { metalness: .7, roughness: .3 }, 0, 0, 0, lg);
+        var dl = box(1.6, 4.2, .1, 0xd1d5db, { metalness: .8, roughness: .2 }, -.8, .2, .35, lg), dr = box(1.6, 4.2, .1, 0xd1d5db, { metalness: .8, roughness: .2 }, .8, .2, .35, lg);
+        sign(lg, floor + '-QAVAT', '#120808', '#ff5f5f', 2.6, 5, .36);
+        INS.doors = [dl, dr];
+        if (t === 'lobbi') { box(8, 2.4, 2, 0x1f2937, null, -4, 0, -4, g); sign(g, '🏙 LOBBI', '#1f2937', '#ffd257', 6, 5, -9.7); sofa(g, -7, 5, Math.PI, 0x334155); sofa(g, 2, 5, Math.PI, 0x334155); plant(g, -11, -7); plant(g, 11, 6); box(5, .05, 4, tmat(0xffffff, 'rug'), null, -2, 0, 2, g); }
+        else if (t === 'ofis') { for (var r = 0; r < 3; r++) for (var c = 0; c < 4; c++) { var x = -9 + c * 5, z = -5 + r * 4.5; table(g, x, z, 3.2, 1.6, 0xd6d3d1, 0xf5f5f4); box(1.4, 1, .1, new THREE.MeshBasicMaterial({ color: [0x4f7cff, 0x22d3ee, 0xa78bfa][(r + c) % 3], toneMapped: false }), null, x, 1.7, z - .4, g); chair(g, x, z + 1.3, Math.PI, 0x111827); } plant(g, 11, -7); plant(g, -11, 7); }
+        else if (t === 'kvartira') { sofa(g, -5, 4, Math.PI, [0x7c2d12, 0x1e3a8a, 0x3f6212][floor % 3]); table(g, -5, 1, 3, 1.6); box(5, 1.2, 7, 0xffffff, null, 6, 0, -2, g); box(5, .6, 2, 0x93c5fd, null, 6, 1.2, -5, g); shelf(g, -11.5, -2, 4, Math.PI / 2); plant(g, 10, 6); box(6, .05, 4, tmat(0xffffff, 'rug'), null, -5, 0, 2, g); for (var a2 = 0; a2 < 2; a2++) box(2.6, 2, .12, art(floor * 7 + a2), null, -6 + a2 * 3.6, 3.2, -9.6, g); }
+        else if (t === 'kafe') { for (var i = 0; i < 6; i++) { var x2 = -8 + (i % 3) * 6, z2 = i < 3 ? -3 : 3; var rt = new THREE.Mesh(GEO.cyl, mat(0xffffff)); rt.scale.set(2.4, .12, 2.4); rt.position.set(x2, 1.6, z2); g.add(rt); box(.2, 1.6, .2, 0x333333, null, x2, 0, z2, g); chair(g, x2 - 1.5, z2, Math.PI / 2); chair(g, x2 + 1.5, z2, -Math.PI / 2); } box(7, 2.3, 1.4, 0x5a3418, null, -6, 0, -8, g); }
+        else if (t === 'sport') { for (var tr = 0; tr < 5; tr++) { box(1.6, .5, 3.6, 0x111827, null, -9 + tr * 3, 0, -5, g); } for (var m = 0; m < 4; m++) box(2, .1, 4, 0x2563eb, null, -6 + m * 3, 0, 4, g); box(.4, .4, 6, 0x6b7280, null, 7, 1.6, 2, g); }
+        else if (t === 'zal') { table(g, 0, 0, 12, 4, 0x3f2a18, 0x5a3418); for (var cc = 0; cc < 6; cc++) { chair(g, -5 + cc * 2, -2.6, 0, 0x111827); chair(g, -5 + cc * 2, 2.6, Math.PI, 0x111827); } box(8, 4, .1, new THREE.MeshBasicMaterial({ color: 0x1e293b, toneMapped: false }), null, -5, 1.6, -9.7, g); }
+        else if (t === 'galereya') { for (var ga = 0; ga < 6; ga++) { box(3, 2.4, .12, art(floor * 11 + ga), null, -10 + ga * 4, 2.6, -9.6, g); } for (var pd = 0; pd < 3; pd++) { box(1.4, 1.8, 1.4, 0xffffff, null, -5 + pd * 5, 0, 1, g); var sc2 = new THREE.Mesh(GEO.ball, mat([0xd4a017, 0x0ea5e9, 0xe11d48][pd], { metalness: .6 })); sc2.position.set(-5 + pd * 5, 2.4, 1); g.add(sc2); } }
+        else if (t === 'tom') { box(10, .2, 6, mat(0x38bdf8, { emissive: 0x0e7490, emissiveIntensity: .35, roughness: .1 }), null, -5, 0, -2, g); for (var l = 0; l < 4; l++) box(1.8, .4, 4, 0xffffff, null, 3 + l * 2.4, 0, 2, g); [-12, 12].forEach(function (x) { for (var z3 = -9; z3 <= 9; z3 += 3) box(.15, 1.2, .15, 0x9ca3af, null, x, 0, z3, g); }); box(24, .1, .1, 0xd1d5db, null, 0, 1.2, -9.8, g);
+            var hp = new THREE.Mesh(GEO.cyl, mat(0x374151)); hp.scale.set(8, .2, 8); hp.position.set(6, 0, -5); g.add(hp); box(1, .05, 4, 0xfacc15, null, 5, .25, -5, g); box(1, .05, 4, 0xfacc15, null, 7, .25, -5, g); box(2, .05, 1, 0xfacc15, null, 6, .25, -5, g); }
+        if (!top) { lampHang(g, -6, -2, 6.5); lampHang(g, 4, 2, 6.5); }
+        var N = { lobbi: 'Lobbi · resepshn', ofis: 'Ofis · ish stollari', kvartira: 'Kvartira · yotoqxona', kafe: 'Kafe qavati', sport: 'Sport zal', zal: 'Majlislar zali', galereya: 'San\'at galereyasi', tom: 'Tom: basseyn · vertolyot maydoni' };
+        return { title: '🏙 ' + floor + '-qavat / ' + floors, sub: N[t] + ' · ≈ ' + floor * 3 + ' m balandlikda' };
+    }
+};
+function insKit(kind) { return kind === 'uy' || kind === 'hovli' ? 'home' : kind === 'choyhona' ? 'choyhona' : kind === 'masjid' ? 'masjid' : kind === 'kazino' ? 'kazino' : kind === 'osmonopar' ? 'sky' : (['kafe', 'restoran', 'novvoyxona'].indexOf(kind) >= 0 ? 'cafe' : 'shop'); }
+function buildIns() {
+    var sc = INS.scene; while (sc.children.length) sc.remove(sc.children[0]);
+    spinners = spinners.filter(function (w) { return !w.userData.yspin; });
+    sc.background = new THREE.Color(NIGHT > .5 ? 0x0b1020 : 0x2a2340);
+    sc.add(new THREE.HemisphereLight(0xfff4e6, 0x3a3150, .85)); var dl = new THREE.DirectionalLight(0xffe2c4, .7); dl.position.set(-10, 20, 12); sc.add(dl);
+    var R0 = new THREE.Group(); sc.add(R0); INS.doors = null;
+    var info = KITS[insKit(INS.kind)](R0, INS.o.k, INS.kind, INS.floor, INS.floors);
+    $('in-title').textContent = info.title; $('in-sub').textContent = info.sub;
+    $('lift').hidden = INS.kind !== 'osmonopar'; $('lf-n').textContent = INS.floor;
+}
+function enterInterior(o) {
+    if (!o) return; var src = o.p || o.f; if (!src) return;
+    INS = { scene: new THREE.Scene(), kind: src.b, o: o, floor: 1, floors: src.b === 'osmonopar' ? (src.o ? src.o.floors : 20 + (o.k % 4) * 10) : 1, ty: 1.8,
+        saved: { v: Object.assign({}, view), g: Object.assign({}, goal) } };
+    closeSheet(); stopTour(); document.body.classList.add('inside'); $('inbar').hidden = false;
+    buildIns(); view.tx = goal.tx = 0; view.tz = goal.tz = 0; goal.dist = 30; view.dist = 60; goal.pitch = .6; goal.yaw = .5;
+}
+function exitInterior() {
+    if (!INS) return; view = INS.saved.v; goal = INS.saved.g; spinners = spinners.filter(function (w) { return !w.userData.yspin; }); INS = null;
+    document.body.classList.remove('inside'); $('inbar').hidden = true; shadowsDirty();
+}
+$('in-x').onclick = exitInterior;
+function liftTo(n) {
+    if (!INS || INS.kind !== 'osmonopar' || INS.moving) return; n = Math.max(1, Math.min(INS.floors, Math.round(n || 1))); if (n === INS.floor) return;
+    INS.moving = { from: INS.floor, to: n, t: 0, ph: 0 };
+}
+$('lf-up').onclick = function () { if (INS) liftTo(INS.floor + 1); };
+$('lf-dn').onclick = function () { if (INS) liftTo(INS.floor - 1); };
+$('lf-ok').onclick = function () { liftTo(+$('lf-go').value); $('lf-go').value = ''; };
+$('lf-go').onkeydown = function (e) { if (e.key === 'Enter') $('lf-ok').click(); };
+function insStep(dt) {
+    var m = INS.moving; if (!m) return;
+    var D = INS.doors, dur = Math.min(2.2, .6 + Math.abs(m.to - m.from) * .02);
+    m.t += dt;
+    if (m.ph === 0) { var k = Math.min(1, m.t / .45); if (D) { D[0].position.x = -.8 + k * .8; D[1].position.x = .8 - k * .8; } if (k >= 1) { m.ph = 1; m.t = 0; } }
+    else if (m.ph === 1) { var k2 = Math.min(1, m.t / dur), f = Math.round(m.from + (m.to - m.from) * (k2 * k2 * (3 - 2 * k2))); $('lf-n').textContent = f; if (k2 >= 1) { INS.floor = m.to; buildIns(); D = INS.doors; if (D) { D[0].position.x = 0; D[1].position.x = 0; } m.ph = 2; m.t = 0; } }
+    else { var k3 = Math.min(1, m.t / .45); if (D) { D[0].position.x = -k3 * .8; D[1].position.x = k3 * .8; } if (k3 >= 1) INS.moving = null; }
+}
+
+/* ===================== 👥 IJTIMOIY ===================== */
+async function doVisit(i, kind, btn) {
+    if (!S.logged || !S.me) { toast("Avval kiring — 🔑 Kirish"); openLogin(''); return; }
+    if (!S.me.joined) { toast("Avval mahallaga qo'shiling"); return; }
+    btn.disabled = true;
+    var j = {}; try { j = await api('visit', Object.assign(creds(), { i: i, kind: kind })); } catch (e) {}
+    btn.disabled = false;
+    if (!j.success) { toast('⚠️ ' + (j.error || 'Xato')); return; }
+    toast(kind === 'like' ? '❤️ Yoqtirdingiz! Egasiga xabar ketdi' : '🙋 Salom yetkazildi!');
+    var pl = S.plots[i]; if (kind === 'like' && pl) pl.lk = (pl.lk || 0) + 1;
+    var o = plotObjs[pl ? pl.c : i]; if (o) { for (var q = 0; q < 6; q++) setTimeout(function () { heart(o); }, q * 120); }
+    if (S.me) S.me.xp = (S.me.xp || 0) + 2;
+}
+var HEARTS = [];
+function heart(o) { var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: emojiTex('❤️'), transparent: true, depthWrite: false })); sp.scale.set(2.4, 2.4, 1); sp.position.set(o.g.position.x + (Math.random() - .5) * 4, o.top, o.g.position.z + (Math.random() - .5) * 4); scene.add(sp); HEARTS.push({ s: sp, t: 0 }); }
+var EMT = {};
+function emojiTex(e) { if (EMT[e]) return EMT[e]; var c = document.createElement('canvas'); c.width = c.height = 128; var x = c.getContext('2d'); x.font = '100px serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(e, 64, 72); return (EMT[e] = new THREE.CanvasTexture(c)); }
+function invite() {
+    var u = S.me && S.me.refUrl;
+    if (!u) { toast("Taklif havolasi: saytda 🎁 Bonuslar bo'limida"); return; }
+    var txt = "Bilols AI mahallasiga qo'shil — o'z hovlingni ol! " + u;
+    if (TGW && TGW.openTelegramLink) { TGW.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(u) + '&text=' + encodeURIComponent("Bilols AI mahallasiga qo'shil — o'z hovlingni ol! 🏘")); return; }
+    if (navigator.share) { navigator.share({ text: txt }).catch(function () {}); return; }
+    try { navigator.clipboard.writeText(txt); toast('🔗 Taklif havolasi nusxalandi'); } catch (e) { toast(u); }
+}
+
+/* ---------- 🏆 reyting ---------- */
+async function openRating(tab) {
+    tab = tab || 'tall'; openSheet('<div class="sh-t">🏆 Mahalla reytingi</div><div class="sh-m">Yuklanmoqda…</div>');
+    var j = {}; try { j = await api('rating', {}); } catch (e) {}
+    if (!j.success) { openSheet('<div class="sh-t">🏆 Mahalla reytingi</div><div class="sh-m">Yuklab bo\'lmadi</div>'); return; }
+    var T = { tall: ['🏙 Eng baland', 'qavat'], liked: ['❤️ Eng chiroyli', 'yoqtirish'], active: ['🔥 Eng faol', 'XP'] };
+    var rows = (j[tab] || []).map(function (r, i) { return '<button type="button" class="rk" data-i="' + r.i + '"><span class="n">' + (i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1)) + '</span><b>@' + esc(r.n) + '</b><span class="v">' + r.v + ' ' + T[tab][1] + '</span></button>'; }).join('') || '<div class="sh-m">Hali hech kim yo\'q — birinchi bo\'ling!</div>';
+    openSheet('<div class="sh-t">🏆 Mahalla reytingi</div><div class="wz-tabs" style="grid-template-columns:repeat(3,1fr)">' + Object.keys(T).map(function (k) { return '<button type="button" data-rt="' + k + '"' + (k === tab ? ' class="on"' : '') + '>' + T[k][0] + '</button>'; }).join('') + '</div><div class="rks">' + rows + '</div>');
+    sb.querySelectorAll('[data-rt]').forEach(function (b) { b.onclick = function () { openRating(b.dataset.rt); }; });
+    sb.querySelectorAll('.rk').forEach(function (b) { b.onclick = function () { var p = S.plots[+b.dataset.i]; if (p) openPlot(p.c); }; });
+}
+
+/* ---------- 💬 mahalla chati (Mahalla qo'mitasi) ---------- */
+var CHAT = { last: 0, timer: 0, msgs: [] };
+async function chatPull() {
+    var j = {}; try { j = await api('chat_list', { after: CHAT.last }); } catch (e) {}
+    if (!j.success || !$('ch-list')) return;
+    (j.messages || []).forEach(function (m) { CHAT.msgs.push(m); CHAT.last = Math.max(CHAT.last, m.id); });
+    CHAT.msgs = CHAT.msgs.slice(-80);
+    var box = $('ch-list'), atB = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
+    box.innerHTML = CHAT.msgs.map(function (m) { var mine = S.me && S.me.nick && m.nick === S.me.nick; return '<div class="cm' + (mine ? ' me' : '') + '"><b>@' + esc(m.nick) + '</b><span>' + esc(m.text) + '</span><small>' + new Date(m.created * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</small></div>'; }).join('') || '<div class="sh-m">Hali xabar yo\'q — birinchi bo\'lib salom yozing!</div>';
+    if (atB || j.messages.length) box.scrollTop = box.scrollHeight;
+}
+function openChat() {
+    flyTo(CENTER[0] - 15, CENTER[1] + 15, 70, .45);
+    openSheet('<div class="sh-t">💬 Mahalla chati</div><div class="sh-m">Mahalla qo\'mitasi · odobli bo\'ling, havola yuborib bo\'lmaydi</div><div class="ch-list" id="ch-list"></div>' +
+        (S.logged && S.me && S.me.joined ? '<form class="ch-f" id="ch-f"><input class="inp" id="ch-in" maxlength="300" placeholder="Xabar yozing…" autocomplete="off"><button type="submit" class="big">➤</button></form>' : '<div class="note">Yozish uchun kiring va mahallaga qo\'shiling.</div>'));
+    CHAT.last = 0; CHAT.msgs = []; chatPull(); clearInterval(CHAT.timer); CHAT.timer = setInterval(function () { if (!$('ch-list')) { clearInterval(CHAT.timer); return; } chatPull(); }, 5000);
+    if ($('ch-f')) $('ch-f').onsubmit = async function (e) {
+        e.preventDefault(); var t = $('ch-in').value.trim(); if (!t) return;
+        var j = {}; try { j = await api('chat_send', Object.assign(creds(), { text: t })); } catch (er) {}
+        if (!j.success) { toast('⚠️ ' + (j.error || 'Xato')); return; }
+        $('ch-in').value = ''; chatPull();
+    };
+}
+
+/* ---------- 📢 reklama bannerlari ---------- */
+function openAd(a) { openSheet('<div class="sh-t">📢 ' + esc(a.text) + '</div><div class="sh-m">' + esc(a.sub || '') + '</div><div class="note">Bu yerda sizning reklamangiz ham turishi mumkin — admin bilan bog\'laning: @bilolsaiuz</div>'); }
+function placeAds() {
+    var ads = S.ads || []; if (!ads.length) return;
+    var lines = roadLines(), spots = [[lines[3] + 3.6, -38], [lines[4] - 3.6, 38], [lines[2] + 3.6, 44], [lines[5] - 3.6, -44], [lines[3] + 3.6, 70], [lines[4] - 3.6, -70]];
+    ads.slice(0, 6).forEach(function (a, i) {
+        var g = new THREE.Group(); g.position.set(spots[i][0], 0, CENTER[1] + spots[i][1]); g.rotation.y = i % 2 ? -Math.PI / 2 : Math.PI / 2; g.userData.ad = a; city.add(g); pickables.push(g);
+        [-3, 3].forEach(function (x) { box(.4, 8, .4, 0x374151, null, x, 0, 0, g); });
+        box(9, 4, .5, 0x111827, null, 0, 7, 0, g);
+        sign(g, a.text, a.color || '#ffd257', '#111018', 8.6, 9.4, .27);
+        if (a.sub) { var sp = sign(g, a.sub, '#111827', '#ffffff', 8.2, 7.7, .27); }
+        var lp = new THREE.Mesh(GEO.ball, BULB); lp.scale.setScalar(.4); lp.position.set(0, 11.4, .6); g.add(lp);
+    });
+}
+
+/* ---------- 🎁 kunlik sandiq ---------- */
+var CHEST = null;
+function placeChest() {
+    if (!S.chest) return; var o = plotObjs[S.chest.k]; if (!o) return;
+    var g = new THREE.Group(); g.userData.chest = true; g.position.set(o.g.position.x + 4, .3, o.g.position.z + 4); city.add(g); pickables.push(g);
+    box(2.2, 1.3, 1.5, 0x8b5a2b, null, 0, 0, 0, g); var lid = box(2.3, .5, 1.6, 0xa16207, null, 0, 1.3, 0, g);
+    [-0.8, .8].forEach(function (x) { box(.25, 1.85, 1.55, 0xfacc15, { metalness: .7, roughness: .3 }, x, 0, 0, g); });
+    var gl = new THREE.Sprite(HALO.clone()); gl.material.opacity = 1; gl.scale.set(9, 9, 1); gl.position.y = 1.4; g.add(gl);
+    CHEST = { g: g, gl: gl, o: o };
+}
+async function claimChest() {
+    if (!S.logged || !S.me) { toast('🎁 Sandiqni ochish uchun kiring'); openLogin(''); return; }
+    var j = {}; try { j = await api('chest', Object.assign(creds(), { k: S.chest.k })); } catch (e) {}
+    if (!j.success) { toast('⚠️ ' + (j.error || 'Xato')); return; }
+    if (CHEST) { dust(CHEST.g.position); city.remove(CHEST.g); CHEST = null; } S.chest = null;
+    if (j.balance != null) S.balance = j.balance;
+    openSheet('<div class="sh-t">🎁 Sandiq topildi!</div><div class="wz-p">+' + money(j.amount) + ' so\'m</div><div class="sh-m" style="text-align:center">Balansingizga qo\'shildi. Ertaga yangi sandiq mahallaning boshqa joyida paydo bo\'ladi.</div>');
+}
+
+/* ---------- 🎯 topshiriqlar va XP ---------- */
+async function openQuests() {
+    if (!S.logged || !S.me) { openLogin(''); return; }
+    openSheet('<div class="sh-t">🎯 Bugungi topshiriqlar</div><div class="sh-m">Yuklanmoqda…</div>');
+    var j = {}; try { j = await api('quests', creds()); } catch (e) {}
+    if (!j.success) { openSheet('<div class="sh-t">🎯 Topshiriqlar</div><div class="sh-m">' + esc(j.error || "Yuklab bo'lmadi") + '</div>'); return; }
+    var me = S.me;
+    openSheet('<div class="sh-t">🎯 Bugungi topshiriqlar</div><div class="sh-m">Hammasini bajarsangiz +' + money(j.reward) + ' so\'m va 25 XP. Har kuni yangilanadi.</div>' +
+        j.items.map(function (q) { var ok = q.have >= q.need; return '<div class="qs' + (ok ? ' ok' : '') + '"><span>' + (ok ? '✅' : '⬜') + '</span><b>' + esc(q.t) + '</b><small>' + q.have + ' / ' + q.need + '</small></div>'; }).join('') +
+        '<div class="lvl2" style="margin-top:12px"><b>⭐ Daraja ' + (me.xpLevel || 1) + ' · ' + (me.xp || 0) + ' XP</b><div class="bar"><i style="width:' + (me.xpNext ? Math.min(100, (me.xp || 0) / me.xpNext * 100) : 100) + '%;background:linear-gradient(90deg,#a78bfa,#22d3ee)"></i></div><small>Salom +2 · yoqtirish olish +3 · chat +1 · sandiq +10 · topshiriqlar +25</small></div>' +
+        (j.claimed ? '<div class="note">✅ Bugungi mukofot olingan — ertaga yana!</div>' : '<button type="button" class="big" id="q-ok"' + (j.done ? '' : ' disabled') + '>🎁 Mukofotni olish · +' + money(j.reward) + ' so\'m</button>'));
+    if ($('q-ok')) $('q-ok').onclick = async function () { var r = await api('quest_claim', creds()); if (!r.success) { toast('⚠️ ' + (r.error || 'Xato')); return; } if (r.balance != null) S.balance = r.balance; toast('🎉 +' + money(r.amount) + " so'm"); refresh(); openQuests(); };
+}
+
+/* ---------- 🧓 mahalla oqsoqoli (yordamchi) ---------- */
+var BW = { choyhona: ['choyxona', 'choyhona'], masjid: ['masjid'], kafe: ['kafe', 'qahva'], restoran: ['restoran', 'ovqat'], dokon: ["do'kon", 'dokon', 'magazin'], kazino: ['kazino'], maktab: ['maktab'], kasalxona: ['kasalxona', 'shifoxona', 'doktor'], bank: ['bank'], sportzal: ['sport', 'zal'], fotostudiya: ['foto'], kinoteatr: ['kino'], toyxona: ["to'yxona", 'toyxona', "to'y"], novvoyxona: ['non', 'novvoy'], guldokon: ['gul'], futbol: ['futbol'], sayilgoh: ['charxpalak', 'sayilgoh'], mehmonxona: ['mehmonxona', 'hotel'], avtosalon: ['mashina', 'avto'], osmonopar: ["osmono'par", 'osmonopar', 'baland'] };
+function oqsoqolAnswer(q) {
+    var t = q.toLowerCase().replace(/[ʻʼ’`]/g, "'"), from = S.me ? plotObjs[S.me.c] : null, fx = from ? from.g.position : { x: CENTER[0], z: CENTER[1] };
+    for (var id in BW) if (BW[id].some(function (w) { return t.indexOf(w) >= 0; })) {
+        var list = plotObjs.filter(function (o) { return (o.p && o.p.b === id) || (o.f && o.f.b === id); }).sort(function (a, b) { return Math.hypot(a.g.position.x - fx.x, a.g.position.z - fx.z) - Math.hypot(b.g.position.x - fx.x, b.g.position.z - fx.z); });
+        var nm = S.bmap[id] ? S.bmap[id].emoji + ' ' + S.bmap[id].name : id;
+        if (!list.length) return { a: nm + ' hali mahallada yo\'q, bolam. Birinchi bo\'lib siz quring!' };
+        var o = list[0], who = o.p && o.p.n ? '@' + o.p.n : (o.f && o.f.l ? '«' + o.f.l + '»' : 'mahalla'), d = Math.round(Math.hypot(o.g.position.x - fx.x, o.g.position.z - fx.z) / CELL);
+        return { a: 'Eng yaqin ' + nm + ' — ' + who + 'niki, ' + (from ? 'uyingizdan taxminan ' + d + ' hovli narida' : 'markazdan ' + d + ' hovli narida') + '. Mahallada jami ' + list.length + ' ta.', go: o.k };
+    }
+    if (/qo'shni|qoshni|yonim/.test(t) && S.me) { var a1 = S.plots[S.me.i - 1], b1 = S.plots[S.me.i + 1]; return { a: 'Chap qo\'shningiz: ' + (a1 && a1.n ? '@' + a1.n : 'nomsiz') + ', o\'ng qo\'shningiz: ' + (b1 && b1.n ? '@' + b1.n : 'nomsiz') + '. Borib salom bering — topshiriq ham bajariladi!' }; }
+    if (/necha|qancha odam|aholi/.test(t)) return { a: 'Mahallamizda ' + S.total + ' xonadon bor, ' + S.joined + ' tasi mahallaga qo\'shilgan.' };
+    if (/sandiq|xazina|bonus/.test(t)) { if (!S.chest) return { a: 'Bugungi sandiqni allaqachon kimdir topib oldi. Ertaga tongda yangisi chiqadi!' }; var c = plotObjs[S.chest.k]; return { a: 'Sandiq ' + (Math.floor(S.chest.k / 10) + 1) + '-ko\'cha atrofida yashiringan… yaltirab turadi, diqqat bilan qarang 😉', go: S.chest.k }; }
+    if (/qanday qur|bino qur|qurish/.test(t)) return { a: 'Hovlingizni oching → «🏗 Bino qurish». Pul hamyondan yechiladi. Osmono\'parni qavatma-qavat o\'zingiz loyihalaysiz (300 qavatgacha)!' };
+    if (/daraja|xp/.test(t)) return { a: 'Salom bering (+2 XP), yoqtirishlar oling (+3), chatda yozing (+1), sandiq toping (+10), kunlik topshiriqlarni bajaring (+25). Do\'st chaqirsangiz hovlingiz kattalashadi.' };
+    if (/salom|assalom/.test(t)) return { a: 'Va alaykum assalom, bolam! Mahallamizga xush kelibsiz. Choyxona, masjid, sandiq yoki qo\'shnilar haqida so\'rang.' };
+    return { a: 'Buni bilmayman, bolam. Mahalla haqida so\'rang: choyxona, masjid, qo\'shnilar, sandiq… Boshqa savollarga Bilols AI chatida javob beradi.', ai: true };
+}
+function openOqsoqol() {
+    var log = [{ me: 0, t: 'Assalomu alaykum! Men mahalla oqsoqoliman 🧓 Nimani bilmoqchisiz?' }];
+    function paint() {
+        openSheet('<div class="sh-t">🧓 Mahalla oqsoqoli</div><div class="ch-list" id="oq-l">' + log.map(function (m) { return '<div class="cm' + (m.me ? ' me' : '') + '"><span>' + esc(m.t) + '</span>' + (m.go != null ? '<button type="button" class="oq-go" data-go="' + m.go + '">📍 Ko\'rsatish</button>' : '') + (m.ai ? '<a class="oq-go" href="/">💬 Bilols AI chatda so\'rash</a>' : '') + '</div>'; }).join('') + '</div>' +
+            '<div class="oq-q">' + ['☕ Eng yaqin choyxona?', '🕌 Masjid qayerda?', '👋 Qo\'shnilarim kim?', '🎁 Sandiq qayerda?', '🏗 Qanday quraman?'].map(function (q) { return '<button type="button" data-q="' + q + '">' + q + '</button>'; }).join('') + '</div>' +
+            '<form class="ch-f" id="oq-f"><input class="inp" id="oq-in" maxlength="200" placeholder="Savolingiz…" autocomplete="off"><button type="submit" class="big">➤</button></form>');
+        var l = $('oq-l'); l.scrollTop = l.scrollHeight;
+        sb.querySelectorAll('[data-q]').forEach(function (b) { b.onclick = function () { ask(b.dataset.q); }; });
+        sb.querySelectorAll('[data-go]').forEach(function (b) { b.onclick = function () { openPlot(+b.dataset.go); }; });
+        $('oq-f').onsubmit = function (e) { e.preventDefault(); ask($('oq-in').value); };
+    }
+    function ask(q) { q = String(q || '').trim(); if (!q) return; log.push({ me: 1, t: q }); var r = oqsoqolAnswer(q); log.push({ me: 0, t: r.a, go: r.go, ai: r.ai }); paint(); }
+    paint();
+}
+
+/* ---------- 🤖 agentlar: bosilsa — o'sha rejimda chat ---------- */
+var AGENT_MODE = { Rahbar: ['', '🤖', 'Har qanday savolga javob beradi'], Kodchi: ['coder', '💻', 'Kod yozadi va xatolarni topadi'], Dizayner: ['', '🎨', 'G\'oya va dizayn maslahatlari'], Tarjimon: ['translator', '🌐', 'Uz / Ru / En tarjima'], Rassom: ['gen', '🖼', 'Rasm chizib beradi'], Matematik: ['teacher', '📐', 'Masalani bosqichma-bosqich yechadi'], Muharrir: ['essay', '✍️', 'Insho, maqola, xat yozadi'], Qidiruvchi: ['', '🔎', 'Internetdan qidiradi'], Yordamchi: ['', '🤝', 'Kundalik yordamchi'], Tester: ['exam', '📝', 'Imtihonga tayyorlaydi'] };
+function agentUrl(n) { var m = AGENT_MODE[n] || ['']; return m[0] === 'gen' ? '/?gen=1' : (m[0] ? '/?mode=' + m[0] : '/'); }
+function openAgent(n) {
+    var m = AGENT_MODE[n] || ['', '🤖', ''], a = agents.filter(function (x) { return x.name === n; })[0];
+    if (a) { var p = a.g.getWorldPosition(new THREE.Vector3()); flyTo(p.x, p.z, 30, .3); }
+    openSheet('<div class="sh-t">' + m[1] + ' ' + esc(n) + '</div><div class="sh-a">Agentlar binosi · ' + (a ? Math.round((a.y - 2) / FH) + 1 : 1) + '-qavat</div><div class="sh-m">' + esc(m[2]) + '</div><a class="big" href="' + agentUrl(n) + '">💬 ' + esc(n) + ' bilan gaplashish</a>');
+}
+
 function openTower() {
     flyTo(CENTER[0], CENTER[1], 95, .38);
     openSheet('<div class="sh-t">🤖 Agentlar binosi</div><div class="sh-a">Mahalla markazi</div><div class="sh-m">Bilols AI\'ning yuragi. Har qavatda AI agentlar ishlaydi: Rahbar vazifani bo\'ladi, Kodchi kod yozadi, Dizayner chizadi, Tarjimon tarjima qiladi, Matematik masala yechadi. Shisha oynadan ularning yurganini ko\'ring.</div>' +
         '<div class="nb">' + AGENTS.slice(0, 6).map(function (a) { return '<div><small style="color:' + a[1] + '">● agent</small><b>' + a[0] + '</b></div>'; }).join('') + '</div>' +
-        '<a class="big" href="/">💬 Agentlar bilan gaplashish</a>');
+        '<div class="ag-l">' + AGENTS.map(function (a) { return '<a class="ag" href="' + agentUrl(a[0]) + '"><i style="background:' + a[1] + '"></i>' + (AGENT_MODE[a[0]] || ['', '🤖'])[1] + ' ' + a[0] + '</a>'; }).join('') + '</div>' +
+        '<button type="button" class="big alt" id="tw-in">🔭 Ichkariga qarash</button><a class="big" href="/">💬 Agentlar bilan gaplashish</a>');
+    $('tw-in').onclick = function () { closeSheet(); flyTo(CENTER[0], CENTER[1] + 4, 26, .2); toast('👆 Agentni bosing — u bilan gaplashasiz'); };
 }
 function goType(t) {
     if (t === 'tower') { hideIntro(); openTower(); return; }
@@ -1569,7 +2143,8 @@ function paintMe() {
     if ($('i-build')) $('i-build').onclick = function () { hideIntro(); openPlot(S.me.c); openBuild(); };
     if ($('i-join')) $('i-join').onclick = function () { hideIntro(); openPlot(S.me.c); openJoin(); };
 }
-function hideIntro() { $('intro').classList.add('hide'); $('tools').hidden = false; $('mebar').hidden = false; goal.dist = Math.min(goal.dist, 240); }
+function hideIntro() { $('intro').classList.add('hide'); $('tools').hidden = false; $('mebar').hidden = false; $('soc').hidden = false; goal.dist = Math.min(goal.dist, 240); }
+document.querySelectorAll('#soc [data-s]').forEach(function (b) { b.onclick = function () { var k = b.dataset.s; if (k === 'rating') openRating(); else if (k === 'chat') openChat(); else if (k === 'quests') openQuests(); else openOqsoqol(); }; });
 $('i-find').onsubmit = function (e) { e.preventDefault(); findYard($('i-q').value); };
 $('t-find').onclick = function () {
     openSheet('<div class="sh-t">🔎 Hovlimni top</div><div class="sh-m">Nik yozing — har qanday hovlini topadi. Telefon raqam yozsangiz — parol bilan o\'z hovlingiz ochiladi.</div><form id="t-f"><input class="inp" id="t-q" placeholder="Nik yoki telefon raqam" style="padding-left:14px;margin:6px 0 10px"><button type="submit" class="big">Topish</button></form>');
@@ -1606,7 +2181,10 @@ function frame(now) {
         g.userData.legL.position.y = .4 + Math.max(0, Math.sin(a.ph)) * .35; g.userData.legR.position.y = .4 + Math.max(0, -Math.sin(a.ph)) * .35;
         g.position.y = a.y + Math.abs(Math.sin(a.ph)) * .12;
     });
-    spinners.forEach(function (w) { w.rotation.z += dt * .25; w.children.forEach(function (c) { if (c.userData.cab) c.rotation.z = -w.rotation.z; }); });
+    lifeStep(dt); wxStep(dt); fireworksStep(dt);
+    if (CHEST) { CHEST.g.position.y = .3 + Math.abs(Math.sin(time * 2)) * .5; CHEST.g.rotation.y += dt * .6; CHEST.gl.material.opacity = .6 + Math.sin(time * 4) * .4; }
+    for (var hi = HEARTS.length - 1; hi >= 0; hi--) { var hh = HEARTS[hi]; hh.t += dt; hh.s.position.y += dt * 6; hh.s.material.opacity = Math.max(0, 1 - hh.t / 1.6); if (hh.t > 1.6) { scene.remove(hh.s); HEARTS.splice(hi, 1); } }
+    spinners.forEach(function (w) { if (w.userData.yspin) { w.rotation.y += dt * 2.4; return; } w.rotation.z += dt * .25; w.children.forEach(function (c) { if (c.userData.cab) c.rotation.z = -w.rotation.z; }); });
     plotObjs.forEach(function (o) {
         if (o.grow != null) { shadowsDirty(); o.grow += dt / .9; var e = Math.min(1, o.grow), b = 1 + Math.sin(e * Math.PI) * .12; o.house.scale.set(b, Math.max(.01, e * e * (3 - 2 * e)) * (e < 1 ? 1.06 : 1), b); if (e >= 1) { o.grow = null; o.house.scale.set(1, 1, 1); } }
     });
@@ -1615,8 +2193,9 @@ function frame(now) {
         if (p.t > 1.2) { scene.remove(p.m); p.m.material.dispose(); puffs.splice(i, 1); }
     }
     blinkers.forEach(function (b) { b.material.emissiveIntensity = (Math.sin(time * 3) > 0) ? 1.2 : .1; });
-    R.render(scene, cam);
-    if ((fc++ & 1) === 0) paintLabels();
+    if (INS) insStep(dt);
+    R.render(INS ? INS.scene : scene, cam);
+    if (!INS && (fc++ & 1) === 0) paintLabels();
     // avtomatik sifat: kadr sekin bo'lsa piksel zichligi pasayadi, keyin soyalar o'chadi
     perf.t += dt; perf.n++;
     if (perf.t > 2.5) {
@@ -1631,7 +2210,7 @@ var blinkers = [], fc = 0, perf = { t: 0, n: 0 };
 (async function start() {
     var ok = await load();
     if (!ok) { S.plots = []; S.total = 0; }
-    populate(); paintMe(); shadowsDirty();
+    populate(); paintMe(); tick(); loadWeather(); shadowsDirty();
 
     var bl = MC[0xff3355 + JSON.stringify({ emissive: 0xff2244, emissiveIntensity: 1 })]; if (bl) blinkers.push({ material: bl });
     $('load').classList.add('hide');
