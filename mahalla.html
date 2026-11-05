@@ -1209,7 +1209,16 @@ function openJoin() {
         if (j.success) { toast('Nikingiz olib tashlandi'); await refresh(); closeSheet(); } else toast(j.error || 'Xato');
     };
 }
+async function freshBalance(need) {
+    // balans har doim serverdan qayta olinadi (sahifa ochiq turganda hisob to'ldirilgan bo'lishi mumkin)
+    try { var j = await api('list', creds()); if (j.success && j.balance != null) { S.balance = j.balance; if (j.me) S.me = Object.assign(S.me || {}, j.me); } } catch (e) {}
+    if (need != null && need > S.balance) { toast("Balans yetmaydi: " + money(need) + " so'm kerak, hisobingizda " + money(S.balance) + " so'm"); return false; }
+    return true;
+}
+document.addEventListener('visibilitychange', function () { if (!document.hidden && S.logged && S.me) freshBalance(); });
+addEventListener('focus', function () { if (S.logged && S.me) freshBalance(); });
 function openBuild() {
+    if (S.logged && S.me && !openBuild._f) { openBuild._f = 1; freshBalance().then(function () { openBuild._f = 0; var bl = sb.querySelector('.bal b'); if (bl && sheet.classList.contains('open')) bl.textContent = money(S.balance) + " so'm"; }); }
     var cur = S.me.building;
     var list = S.buildings.filter(function (b) { return b.on || b.id === cur; }).map(function (b) {
         if (b.id === 'osmonopar') {
@@ -1222,11 +1231,11 @@ function openBuild() {
     openSheet('<div class="sh-t">🏗 Nima quramiz?</div><div class="sh-m">' + (S.me.nick ? '@' + esc(S.me.nick) + ' · ' : '') + addr(S.me.i) + '. Pul hamyondagi balansdan yechiladi, bino darhol paydo bo\'ladi.</div>' +
         '<div class="bal">💰 Balans <b>' + money(S.balance) + " so'm</b></div><div class=\"bcs\">" + list + '</div><a class="big ghost" href="/" style="display:block">Balansni to\'ldirish →</a>');
     sb.querySelectorAll('.bc[data-b]').forEach(function (btn) {
-        btn.onclick = function () {
+        btn.onclick = async function () {
             var b = S.bmap[btn.dataset.b];
             if (b.id === 'osmonopar') { openSky(); return; }
             if (btn.classList.contains('cur')) { toast('✓ Bu bino hovlingizda turibdi — 🎨 Bezatish orqali o\'zgartiring'); return; }
-            if (b.price > S.balance) { toast("Balans yetmaydi: " + money(b.price) + " so'm kerak"); return; }
+            if (b.price > S.balance && !(await freshBalance(b.price))) return;
             openSheet('<div class="sh-t">' + b.emoji + ' ' + esc(b.name) + '</div><div class="sh-m">Hovlingizdagi bino almashtiriladi. ' + (b.price ? 'Balansingizdan <b style="color:var(--gold)">' + money(b.price) + " so'm</b> yechiladi." : 'Bu bepul.') + '</div>' +
                 '<button type="button" class="big" id="b-ok">✅ Qurish</button><button type="button" class="big ghost" id="b-no">Orqaga</button>');
             $('b-no').onclick = openBuild;
@@ -1302,7 +1311,7 @@ function skyPaint() {
         sb.querySelectorAll('[data-s]').forEach(function (b) { b.onclick = function () { set('style', b.dataset.s); }; });
         sb.querySelectorAll('[data-c]').forEach(function (b) { b.onclick = function () { set('color', +b.dataset.c); }; });
         sb.querySelectorAll('[data-t]').forEach(function (b) { b.onclick = function () { set('top', b.dataset.t); }; });
-        $('wz-next').onclick = function () { var pr = skyPrice(); if (pr > S.balance) { toast("Balans yetmaydi: " + money(pr) + " so'm kerak"); return; } SKY.step = 2; skyPaint(); };
+        $('wz-next').onclick = async function () { var pr = skyPrice(); if (pr > S.balance && !(await freshBalance(pr))) return; SKY.step = 2; skyPaint(); };
     } else if (SKY.step === 2) {
         var sn = STYLE_N[c.style] || ['', c.style], tn = TOP_N[c.top] || ['', c.top];
         openSheet(head + '<div class="wz-p">' + money(price) + ' so\'m</div><div class="wz-s">Tasdiqlang — pul hamyondagi balansdan yechiladi</div>' +
@@ -1313,7 +1322,7 @@ function skyPaint() {
         $('wz-ok').onclick = async function () {
             this.disabled = true; this.textContent = '⏳ Qurilmoqda…';
             var j = await api('build', Object.assign(creds(), { type: 'osmonopar', opts: c }));
-            if (!j.success) { toast(j.error || 'Xato'); SKY.step = 1; skyPaint(); return; }
+            if (!j.success) { if (j.balance != null) S.balance = j.balance; toast((j.error || 'Xato') + (j.balance != null ? ' · hisobingizda ' + money(j.balance) + " so'm" : '')); SKY.step = 1; skyPaint(); return; }
             S.balance = j.balance; S.me.building = 'osmonopar'; S.me.opts = j.opts;
             var o = SKY.o; SKY.prevB = 'osmonopar'; SKY.prevO = j.opts; rebuild(o, 'osmonopar', true, j.opts);
             SKY.step = 3; skyPaint();
