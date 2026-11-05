@@ -1575,6 +1575,33 @@ select.inp option { background: #12151c; color: var(--text); }
             ex.textContent = 'Misol: 10 qavat = ' + money(cost(10)) + " so'm · 30 qavat = " + money(cost(30)) + " so'm · 50 qavat = " + money(cost(50)) + " so'm · 100 qavat = " + money(cost(100)) + " so'm";
         }
         paintT();
+        // 🛠 Konstruktor rejimi: kimga ruxsat — o'sha odam bo'sh yerlarga tekin bino qo'yadi
+        var bldBox = h('div');
+        function paintB(list) {
+            bldBox.innerHTML = '';
+            if (!list.length) bldBox.appendChild(h('div', { class: 'sum', text: "Hali hech kimga ruxsat berilmagan. O'zingizning raqamingizni ham shu yerga qo'shing — admin sifatida tekin qurasiz." }));
+            list.forEach(function (b) {
+                var lim = h('input', { class: 'inp mono', inputmode: 'numeric', style: 'max-width:90px' }); lim.value = b.limit;
+                bldBox.appendChild(h('div', { class: 'row' }, [
+                    h('div', { class: 'r-main' }, [h('b', { text: '+' + String(b.phone).replace(/\D/g, '') + (b.nick ? ' · @' + b.nick : '') + (b.name ? ' · ' + b.name : '') }), h('small', { text: 'Qurgan: ' + b.used + ' / ' + b.limit + ' ta bino' })]),
+                    lim,
+                    h('button', { class: 'act', text: '💾', title: 'Limitni saqlash', onclick: async function () { var x = await admin('mahalla_builder', { phone: b.phone, limit: parseInt(lim.value, 10) || 0 }); toast(x.success ? '✅ Saqlandi' : (x.error || 'Xato')); if (x.success) paintB(x.builders); } }),
+                    h('button', { class: 'sq', text: '✖', title: 'Ruxsatni olib tashlash', onclick: async function () { var x = await admin('mahalla_builder', { phone: b.phone, limit: 0 }); toast(x.success ? 'Ruxsat olib tashlandi' : (x.error || 'Xato')); if (x.success) paintB(x.builders); } })
+                ]));
+            });
+        }
+        paintB(j.builders || []);
+        var bPh = h('input', { class: 'inp', inputmode: 'tel', placeholder: 'Telefon raqam: +998 90 123 45 67' }), bLim = h('input', { class: 'inp mono', inputmode: 'numeric', style: 'max-width:90px' }); bLim.value = '20';
+        view.appendChild(h('div', { class: 'h', text: '🛠 Konstruktor rejimi — ruxsatlar' }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'sum', text: "Ruxsat berilgan odam mahalladagi bo'sh yerlarga istalgan binoni (kazino, fotostudiya, masjid, osmono'par…) TEKIN qo'yadi — limitgacha (odatda 20 ta). Saytda «🛠 Konstruktor» tugmasi chiqadi." }),
+            bldBox,
+            h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;align-items:center' }, [bPh, bLim, h('button', { class: 'btn', text: "＋ Ruxsat berish", onclick: async function () {
+                if (bPh.value.replace(/\D/g, '').length < 9) { toast('Telefon raqamni yozing'); return; }
+                var x = await admin('mahalla_builder', { phone: bPh.value, limit: parseInt(bLim.value, 10) || 20 });
+                toast(x.success ? '✅ Ruxsat berildi' : (x.error || 'Xato')); if (x.success) { bPh.value = ''; paintB(x.builders); }
+            } })])
+        ]));
         view.appendChild(h('div', { class: 'h', text: "🏙 Osmono'par — qavat narxlari (10–100 qavat)" }));
         view.appendChild(h('div', { class: 'card form' }, [tbox, h('button', { class: 'act', text: "＋ Oraliq qo'shish", onclick: function () { var last = tiers[tiers.length - 1] || { to: 0, price: 1000 }; tiers.push({ to: Math.min(100, last.to + 20), price: last.price * 2 }); paintT(); } }), ex,
             h('div', { class: 'sum', text: "Har bir qavat o'z oralig'i narxida (baland qavatlar qimmatroq). Qavat qo'shgan foydalanuvchi faqat yangi qavatlar uchun to'laydi. Saqlash — yuqoridagi «💾 Saqlash» tugmasi." })]));
