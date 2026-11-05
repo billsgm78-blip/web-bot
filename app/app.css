@@ -893,3 +893,9 @@ html.desk .au.qr .au-qr:not([hidden]) { display: block !important; text-align: c
 #lock.panic .pz-log div:last-child::after { content: "_"; animation: pzBlink 1s steps(1) infinite; }
 #lock.panic .btn { border-color: rgba(255,31,61,.6); background: rgba(255,0,32,.12); color: #fecdd3; margin-top: 22px; }
 @media (prefers-reduced-motion: reduce) { #lock.panic *, #lock.panic::after { animation: none !important; } }
+
+/* ✈️ Admin Telegrami (@bilolsaiuz) */
+.sp-tg { margin-left: auto; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 99px; font-size: 12px; font-weight: 700;
+    color: #fff; background: #229ED9; text-decoration: none; white-space: nowrap; }
+.adm-tg { display: inline-block; margin-top: 14px; font-size: 13px; font-weight: 700; color: #229ED9; text-decoration: none; }
+.adm-tg:hover { text-decoration: underline; }

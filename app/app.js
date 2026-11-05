@@ -435,6 +435,7 @@
 
     /* ================= Kirish sahifasi (landing) va menyu ================= */
     var BOT_URL = 'https://t.me/BilolsAIbot';
+    var ADMIN_TG = 'https://t.me/bilolsaiuz';   // admin Telegrami — yordam joylarida
     function lpMenuOpen() { return $('lp-menu').classList.contains('on'); }
     function openLpMenu() { $('lp-menu').classList.add('on'); $('lp-menu').setAttribute('aria-hidden', 'false'); haptic(); }
     function closeLpMenu() { var m = $('lp-menu'); if (!m) return; m.classList.remove('on'); m.setAttribute('aria-hidden', 'true'); }
@@ -576,11 +577,17 @@
             [L("Hisobni qanday to'ldiraman?", 'Как пополнить баланс?', 'How do I top up?'), L("Ilovadagi Hamyon bo'limida Click yoki Payme orqali.", 'В разделе Кошелёк через Click или Payme.', 'In the Wallet section via Click or Payme.')],
             [L("Ma'lumotlarim xavfsizmi?", 'Мои данные в безопасности?', 'Is my data safe?'), L("Ha. Parolingiz shifrlangan holda saqlanadi, suhbatlaringizni boshqalar ko'rmaydi.", 'Да. Пароль хранится в зашифрованном виде, ваши чаты никто не видит.', 'Yes. Your password is stored encrypted and nobody else sees your chats.')]
         ];
+        Q.push([L('Admin bilan qanday bog\'lanaman?', 'Как связаться с админом?', 'How do I contact the admin?'),
+                L("Telegram'da yozing: @bilolsaiuz — yoki ilova ichidagi «Admin bilan chat» orqali.", 'Напишите в Telegram: @bilolsaiuz — или через «Чат с админом» в приложении.', 'Message on Telegram: @bilolsaiuz — or use “Chat with admin” in the app.')]);
         var qb = $('lp-q'); qb.innerHTML = '';
         Q.forEach(function (q) {
             var d = document.createElement('details'); d.innerHTML = '<summary></summary><p></p>';
             d.querySelector('summary').textContent = q[0]; d.querySelector('p').textContent = q[1]; qb.appendChild(d);
         });
+        var adm = document.createElement('a'); adm.className = 'adm-tg'; adm.href = ADMIN_TG; adm.target = '_blank'; adm.rel = 'noopener';
+        adm.textContent = '✈️ ' + L('Admin: ', 'Админ: ', 'Admin: ') + '@bilolsaiuz';
+        adm.onclick = function (e) { e.preventDefault(); openExternal(ADMIN_TG); };
+        qb.appendChild(adm);
         $('lp-a-h').textContent = L('BIZ HAQIMIZDA', 'О НАС', 'ABOUT US');
         $('lp-a').textContent = L("Bilols AI — O'zbekistonda yaratilgan shaxsiy AI yordamchi. Maqsadimiz — sun'iy intellektni har bir kishi uchun oddiy, arzon va o'z tilida qulay qilish.",
             'Bilols AI — персональный ИИ-помощник, созданный в Узбекистане. Наша цель — сделать ИИ простым, доступным и удобным на родном языке.', 'Bilols AI is a personal AI assistant made in Uzbekistan. Our goal is to make AI simple, affordable and native-language friendly for everyone.');
@@ -1817,6 +1824,8 @@
             { text: state.balance == null ? '—' : money(state.balance) + ' ' + T('sum') }, state.tab === 'wallet' ? 'on' : ''));
         acc.appendChild(drItem(IC.help, L('Admin bilan chat', 'Чат с админом', 'Chat with admin'), function () { closeDrawer(); openSupport(); },
             sp.unread > 0 ? { text: String(sp.unread), cls: 'badge' } : null));
+        acc.appendChild(drItem(IC.help, L('Admin Telegrami', 'Админ в Telegram', 'Admin on Telegram'), function () { closeDrawer(); openExternal(ADMIN_TG); },
+            { text: '@bilolsaiuz' }));
         $('dr-ava').textContent = (state.name || 'B').trim().charAt(0).toUpperCase() || 'B';
         $('dr-name').textContent = state.name || 'Bilols AI';
         $('dr-phone').textContent = state.phone ? '+' + state.phone : '';
@@ -1934,6 +1943,7 @@
     }
 
     /* ================= YORDAM CHATI ================= */
+    if ($('sp-tg')) $('sp-tg').onclick = function (e) { e.preventDefault(); openExternal(ADMIN_TG); };   // ilova ichida ham Telegram ochilsin
     var sp = { open: false, ver: null, msgs: [], img: null, unread: 0, loop: 0 };
     var TPL = [
         ["🔑 Parolni unutdim", '🔑 Забыл пароль', '🔑 Forgot password'],

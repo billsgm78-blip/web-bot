@@ -3112,6 +3112,7 @@ window.addEventListener('message', function (e) {
     <div class="pd-foot-row">
       <span>© Bilols AI</span>
       <a href="/maxfiylik" target="_blank" rel="noopener"><span class="pm-t" data-l="uz">Maxfiylik siyosati</span><span class="pm-t" data-l="ru">Конфиденциальность</span><span class="pm-t" data-l="en">Privacy</span></a>
+      <a href="https://t.me/bilolsaiuz" target="_blank" rel="noopener">Admin: @bilolsaiuz</a>
       <a href="https://t.me/BilolsAIbot" target="_blank" rel="noopener">Telegram</a>
       <a href="/apk">Android</a>
       <a href="/kompyuter">Windows</a>
@@ -3502,6 +3503,7 @@ window.addEventListener('message', function (e) {
             <button type="button" class="modal-close" id="sp-back">‹</button>
             <div class="sp-ava">🛠<i id="sp-dot"></i></div>
             <div class="sp-who"><b id="sp-title">Bilols AI — Yordam</b><small id="sp-presence">…</small></div>
+            <a class="sp-tg" href="https://t.me/bilolsaiuz" target="_blank" rel="noopener" title="Admin Telegrami"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.6-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.1 1.8 11.6c-1-.3-1-1 .2-1.5L20.6 3c.9-.3 1.6.2 1.3 1.3z"/></svg><span>@bilolsaiuz</span></a>
         </div>
         <div class="sp-list" id="sp-list"></div>
         <div class="sp-quick" id="sp-quick"></div>
@@ -3620,6 +3622,13 @@ window.addEventListener('message', function (e) {
                 <span class="set-arrow">›</span>
             </div>
 
+            <a class="settings-card clickable" id="admin-tg-card" href="https://t.me/bilolsaiuz" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+                <div class="settings-info">
+                    <h4>✈️ <span id="lang-admin-tg">Admin Telegrami</span>: @bilolsaiuz</h4>
+                    <p id="lang-admin-tg-sub">Savol yoki muammo bo'lsa — to'g'ridan-to'g'ri yozing</p>
+                </div>
+                <span class="set-arrow">›</span>
+            </a>
             <a class="settings-card clickable" href="/maxfiylik" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
                 <div class="settings-info">
                     <h4>🔒 <span class="lang-privacy">Maxfiylik siyosati</span></h4>
@@ -9047,7 +9056,7 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         // 7) Yordam
         var pH = pane('help', T('Yordam', 'Help', 'Помощь'));
         var priv = scroll.querySelector('a.settings-card[href="/maxfiylik"]');
-        pH.appendChild(group(T('Aloqa', 'Contact', 'Связь'), [card('support-entry'), priv]));
+        pH.appendChild(group(T('Aloqa', 'Contact', 'Связь'), [card('support-entry'), card('admin-tg-card'), priv]));
 
         // qolgan kartalar (yangi qo'shilganlari) — Ilova bo'limiga
         Array.prototype.slice.call(scroll.children).forEach(function (n) { if (n !== hub) pA.appendChild(n); });
@@ -11843,6 +11852,57 @@ html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::afte
         new MutationObserver(sync).observe(lock, { attributes: true, attributeFilter: ['class'] });
         new MutationObserver(function () { if (lock.classList.contains('panic')) typeReason(); }).observe(p, { childList: true, characterData: true, subtree: true });
         sync();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
+<!-- ============ ✈️ Admin Telegrami (@bilolsaiuz) — yordam joylarida kichik havola ============ -->
+<style id="admin-tg-style">
+.sp-tg { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 99px; font-size: 12px; font-weight: 700;
+    color: #fff; background: #229ED9; text-decoration: none; white-space: nowrap; box-shadow: 0 4px 14px -6px rgba(34,158,217,.7); }
+.sp-tg:hover { filter: brightness(1.08); }
+@media (max-width: 380px) { .sp-tg span { display: none; } }
+.adm-tg-line { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12.5px; font-weight: 600; color: #7dd3fc; text-decoration: none; }
+.adm-tg-line:hover { text-decoration: underline; }
+#site-lock .adm-tg-line { margin-top: 16px; }
+#site-lock.panic .adm-tg-line { color: #ff8a97; font-family: 'JetBrains Mono', ui-monospace, monospace; }
+#auth-modal .adm-tg-line { display: flex; justify-content: center; color: rgba(255,255,255,.75) !important; }
+</style>
+<script>
+(function () {
+    var TG = 'https://t.me/bilolsaiuz', U = '@bilolsaiuz', ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.6-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.1 1.8 11.6c-1-.3-1-1 .2-1.5L20.6 3c.9-.3 1.6.2 1.3 1.3z"/></svg>';
+    function T(uz, en, ru) { var l = document.documentElement.lang || 'uz'; return l === 'en' ? en : l === 'ru' ? ru : uz; }
+    function line(text) {
+        var a = document.createElement('a'); a.className = 'adm-tg-line'; a.href = TG; a.target = '_blank'; a.rel = 'noopener';
+        a.innerHTML = ICON + '<span></span>'; a.querySelector('span').textContent = text; return a;
+    }
+    var items = [];
+    function put(parent, mk, after) { if (!parent || parent.querySelector(':scope > .adm-tg-line')) return; var el = line(''); el._mk = mk; items.push(el);
+        if (after && after.parentNode === parent) parent.insertBefore(el, after.nextSibling); else parent.appendChild(el); }
+    function paint() {
+        items.forEach(function (el) { el.querySelector('span').textContent = el._mk(); });
+        var a = document.getElementById('lang-admin-tg'), b = document.getElementById('lang-admin-tg-sub');
+        if (a) a.textContent = T('Admin Telegrami', 'Admin on Telegram', 'Админ в Telegram');
+        if (b) b.textContent = T("Savol yoki muammo bo'lsa — to'g'ridan-to'g'ri yozing", 'Questions or problems — message directly', 'Вопрос или проблема — напишите напрямую');
+    }
+    function boot() {
+        // parolni almashtirish va tiklash oynalari
+        var pf = document.getElementById('pass-forgot'); if (pf) put(pf.parentNode, function () { return T('Admin: ', 'Admin: ', 'Админ: ') + U; }, pf);
+        var rc = document.querySelector('#reset-modal .auth-card'); if (rc) put(rc, function () { return T('Muammo bo\'lsa — admin: ', 'Need help? Admin: ', 'Нужна помощь? Админ: ') + U; });
+        // kirish oynasi (pastida, maxfiylik havolasi oldidan)
+        var am = document.querySelector('#auth-modal .auth-card-main'), pl = am && am.querySelector('.privacy-link');
+        if (am && pl) { var el = line(''); el._mk = function () { return T('Kira olmayapsizmi? Admin: ', "Can't log in? Admin: ", 'Не получается войти? Админ: ') + U; }; items.push(el); am.insertBefore(el, pl); }
+        // eski bosh sahifa savollari
+        var fq = document.querySelector('.pd-faq'); if (fq) put(fq, function () { return T('Javob topmadingizmi? Admin: ', "Didn't find an answer? Admin: ", 'Не нашли ответ? Админ: ') + U; });
+        // texnik ishlar / tashvish ekrani (keyinroq yaratiladi)
+        (function lockWait(n) {
+            var lc = document.querySelector('#site-lock .lock-card');
+            if (lc) put(lc, function () { return T('Savollar bo\'lsa — admin: ', 'Questions? Admin: ', 'Вопросы? Админ: ') + U; });
+            else if (n < 40) setTimeout(function () { lockWait(n + 1); }, 500);
+            paint();
+        })(0);
+        paint();
+        new MutationObserver(paint).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
