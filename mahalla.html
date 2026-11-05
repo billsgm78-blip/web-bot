@@ -190,6 +190,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 <div class="toast" id="toast"></div>
 <div id="load">Mahalla yuklanmoqda…</div>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function () {
@@ -199,7 +200,9 @@ var $ = function (id) { return document.getElementById(id); };
 var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 var mobile = innerWidth < 760;
 function ls(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
-var TEMP = null;   // "Hovlimni top" orqali kiritilgan raqam+parol — faqat shu sahifa ochiq turganda, hech qayerga saqlanmaydi
+var TGW = window.Telegram && Telegram.WebApp && Telegram.WebApp.initData ? Telegram.WebApp : null;
+if (TGW) { try { TGW.ready(); TGW.expand(); TGW.setHeaderColor && TGW.setHeaderColor('#15122a'); } catch (e) {} }
+var TEMP = TGW ? { tg: TGW.initData } : null;   // "Hovlimni top" orqali kiritilgan raqam+parol — faqat shu sahifa ochiq turganda, hech qayerga saqlanmaydi
 function creds() { return TEMP || { phone: ls('bilol_ai_phone').replace(/\D/g, ''), password: ls('bilol_ai_password') }; }
 function money(n) { return Number(n || 0).toLocaleString('ru-RU').replace(/ /g, ' '); }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -213,7 +216,7 @@ async function api(op, body) {
 
 var GATE = ['#e11d48', '#2563eb', '#16a34a', '#f59e0b', '#7c3aed', '#0891b2', '#db2777', '#1f2937'];
 var AGENTS = [['Rahbar', '#ffd23f'], ['Kodchi', '#3ce07a'], ['Dizayner', '#ff8a1f'], ['Tarjimon', '#38bdf8'], ['Rassom', '#c86bff'], ['Matematik', '#f472b6'], ['Muharrir', '#a3e635'], ['Qidiruvchi', '#22d3ee'], ['Yordamchi', '#a78bfa'], ['Tester', '#ff6b6b']];
-var S = { plots: [], buildings: [], bmap: {}, me: null, balance: 0, total: 0, joined: 0, logged: !!(creds().phone && creds().password) };
+var S = { plots: [], buildings: [], bmap: {}, me: null, balance: 0, total: 0, joined: 0, logged: !!(TGW || (creds().phone && creds().password)) };
 
 /* ===================== 3D ===================== */
 if (typeof THREE === 'undefined') { $('load').textContent = "3D yuklanmadi. Internetni tekshirib, sahifani yangilang."; return; }
@@ -895,6 +898,7 @@ function paintLabels() {
 async function load() {
     var c = creds(), j = {};
     try { j = await api('list', S.logged ? c : {}); } catch (e) {}
+    if (j.auth === false && TGW) { TEMP = null; S.logged = false; try { j = await api('list', {}); } catch (e) {} toast("Bu Telegram akkaunt Bilols AI'ga ulanmagan — botda /start bosib, raqamingizni yuboring"); }
     if (!j.success) { $('load').textContent = "Server javob bermadi. Birozdan keyin qayta urinib ko'ring."; return false; }
     S.plots = j.plots || []; S.free = j.free || []; S.buildings = j.buildings || []; S.sky = j.sky || S.sky; S.me = j.me; S.balance = j.balance || 0; S.total = j.total || 0; S.joined = j.joined || 0;
     if (j.auth === false) S.logged = false;
@@ -1120,34 +1124,40 @@ function skyPaint() {
 }
 
 /* ===================== 🔎 HOVLIMNI TOP: nik (ochiq) yoki raqam + parol (faqat o'z hovlingiz) ===================== */
+function openLogin(pre) {
+    hideIntro();
+    openSheet('<div class="sh-t">🔑 Hovlimga kirish</div><div class="sh-m">Bilols AI akkauntingiz bilan kiring: <b>telefon raqam</b> yoki mahalladagi <b>nik</b> va parol. Parol hech qayerda saqlanmaydi.</div>' +
+        '<div class="inpw"><span>👤</span><input class="inp" id="f-ph" autocomplete="username" placeholder="+998 90 123 45 67 yoki @nik"></div>' +
+        '<div class="inpw"><span>🔒</span><input class="inp" id="f-pw" type="password" placeholder="Parol" autocomplete="current-password"></div>' +
+        '<button type="button" class="big" id="f-ok">🏠 Hovlimni ochish</button><a class="big ghost" href="/" style="display:block">Hali ro\'yxatdan o\'tmaganmisiz? →</a>' +
+        '<div class="sh-m" style="margin-top:8px">Telegramda bo\'lsangiz, @BilolsAIbot\'dagi <b>🏘 Mahallam</b> tugmasi parolsiz ochadi.</div>');
+    if (pre) $('f-ph').value = pre;
+    setTimeout(function () { try { (pre ? $('f-pw') : $('f-ph')).focus(); } catch (e) {} }, 300);
+    var go = async function () {
+        var login = $('f-ph').value.trim(), pw = $('f-pw').value;
+        if (!login || !pw) { toast('Raqam yoki nik va parolni yozing'); return; }
+        $('f-ok').disabled = true;
+        var j = {}; try { j = await api('list', { login: login, password: pw }); } catch (e) {}
+        $('f-ok').disabled = false;
+        if (!j.success || !j.me) { toast(j.error || "Raqam/nik yoki parol noto'g'ri"); return; }
+        TEMP = { phone: String(j.loginPhone || '').replace(/\D/g, ''), password: pw }; S.logged = true;
+        await refresh(); openPlot(S.me.c); toast('🏠 Hovlingiz: ' + addr(S.me.i));
+    };
+    $('f-ok').onclick = go; $('f-pw').onkeydown = function (e) { if (e.key === 'Enter') go(); };
+}
 function findYard(q) {
     q = String(q || '').trim(); if (!q) { toast('Nik yoki telefon raqamingizni yozing'); return; }
     var digits = q.replace(/\D/g, '');
     if (/^[+\d\s()-]+$/.test(q) && digits.length >= 9) {
         var mine = creds().phone;
         if (S.me && mine && mine.slice(-9) === digits.slice(-9)) { hideIntro(); openPlot(S.me.c); return; }
-        hideIntro();
-        openSheet('<div class="sh-t">🔑 Hovlingizni ochish</div><div class="sh-m">Telefon raqam bo\'yicha faqat o\'z hovlingizni ochasiz — Bilols AI parolingizni yozing. Parol hech qayerda saqlanmaydi.</div>' +
-            '<div class="inpw"><span>📱</span><input class="inp" id="f-ph" inputmode="tel" autocomplete="username"></div>' +
-            '<div class="inpw"><span>🔒</span><input class="inp" id="f-pw" type="password" placeholder="Parol" autocomplete="current-password"></div>' +
-            '<button type="button" class="big" id="f-ok">🏠 Hovlimni ochish</button><a class="big ghost" href="/" style="display:block">Hali ro\'yxatdan o\'tmaganmisiz? →</a>');
-        $('f-ph').value = '+' + (digits.length === 9 ? '998' + digits : digits);
-        setTimeout(function () { try { $('f-pw').focus(); } catch (e) {} }, 300);
-        var go = async function () {
-            var c = { phone: $('f-ph').value.replace(/\D/g, ''), password: $('f-pw').value };
-            if (!c.password) { toast('Parolni yozing'); return; }
-            $('f-ok').disabled = true;
-            var j = await api('list', c);
-            $('f-ok').disabled = false;
-            if (!j.success || !j.me) { toast(j.auth === false ? "Raqam yoki parol noto'g'ri" : (j.error || "Raqam yoki parol noto'g'ri")); return; }
-            TEMP = c; S.logged = true; await refresh(); openPlot(S.me.c); toast('🏠 Hovlingiz: ' + addr(S.me.i));
-        };
-        $('f-ok').onclick = go; $('f-pw').onkeydown = function (e) { if (e.key === 'Enter') go(); };
+        openLogin('+' + (digits.length === 9 ? '998' + digits : digits));
         return;
     }
     var n = q.replace(/^@/, '').toLowerCase(), hit = plotObjs.filter(function (o) { return o.p && o.p.n && o.p.n.toLowerCase() === n; })[0] ||
         plotObjs.filter(function (o) { return o.p && o.p.n && o.p.n.toLowerCase().indexOf(n) === 0; })[0];
     if (!hit) { toast('@' + n + ' mahallada topilmadi'); return; }
+    if (hit.p && hit.p.me) { hideIntro(); openPlot(hit.k); return; }
     hideIntro(); openPlot(hit.k);
 }
 
@@ -1268,7 +1278,7 @@ function goType(t) {
 function paintMe() {
     var bar = $('mebar');
     $('t-me').style.display = (!S.logged || !S.me) ? 'none' : '';
-    if (!S.logged || !S.me) bar.innerHTML = '<button type="button" id="m-find">🔎 Hovlimni top</button>';
+    if (!S.logged || !S.me) bar.innerHTML = '<button type="button" id="m-find">🔎 Hovlimni top</button><button type="button" class="dk" id="m-login">🔑 Kirish</button>';
     else if (!S.me.joined) bar.innerHTML = '<button type="button" id="m-join">🙋 Mahallaga qo\'shilish</button>';
     else bar.innerHTML = '<button type="button" id="m-build">🏗 Bino qurish</button><button type="button" class="dk" id="m-home">🏠 Hovlim</button>';
     if (S.me && S.me.builder) {
@@ -1276,14 +1286,16 @@ function paintMe() {
         bb.textContent = S.bmode ? '✅ Tugatish' : '🛠 Konstruktor ' + S.me.builder.used + '/' + S.me.builder.limit;
         bb.onclick = function () { setBmode(!S.bmode); }; bar.appendChild(bb);
     }
+    if ($('m-login')) $('m-login').onclick = function () { openLogin(''); };
     if ($('m-find')) $('m-find').onclick = function () { $('t-find').click(); };
     if ($('m-join')) $('m-join').onclick = function () { openPlot(S.me.c); openJoin(); };
     if ($('m-build')) $('m-build').onclick = function () { openPlot(S.me.c); openBuild(); };
     if ($('m-home')) $('m-home').onclick = function () { openPlot(S.me.c); };
     $('t-me').onclick = function () { if (S.me) openPlot(S.me.c); };
     var act = $('i-act');
-    if (!S.logged || !S.me) act.innerHTML = '<a class="big ghost" href="/" style="display:block">Hali akkauntingiz yo\'qmi? Ro\'yxatdan o\'ting →</a>';
+    if (!S.logged || !S.me) act.innerHTML = '<button type="button" class="big alt" id="i-login" style="margin-top:10px">🔑 Raqam yoki nik + parol bilan kirish</button><a class="big ghost" href="/" style="display:block">Hali akkauntingiz yo\'qmi? Ro\'yxatdan o\'ting →</a>';
     else act.innerHTML = '<button type="button" class="big" id="i-mine" style="margin-top:10px">🏠 Mening hovlim · ' + addr(S.me.i) + '</button>' + (S.me.joined ? '<button type="button" class="big alt" id="i-build">🏗 Hovlimga bino qurish ›</button>' : '<button type="button" class="big alt" id="i-join">🙋 Mahallaga qo\'shilish ›</button>');
+    if ($('i-login')) $('i-login').onclick = function () { openLogin(''); };
     if ($('i-mine')) $('i-mine').onclick = function () { hideIntro(); openPlot(S.me.c); };
     if ($('i-build')) $('i-build').onclick = function () { hideIntro(); openPlot(S.me.c); openBuild(); };
     if ($('i-join')) $('i-join').onclick = function () { hideIntro(); openPlot(S.me.c); openJoin(); };
@@ -1359,6 +1371,8 @@ var blinkers = [], fc = 0, perf = { t: 0, n: 0 };
     var m = location.hash.match(/^#h(\d+)$/);
     var hp = m && S.plots[+m[1] - 1];
     if (hp && plotObjs[hp.c]) { hideIntro(); openPlot(hp.c); }
+    else if (S.me && (TGW || location.hash === '#me')) { hideIntro(); setTimeout(function () { openPlot(S.me.c); }, 400); }
+    else if (TGW && !S.me) { openLogin(''); }
 })();
 })();
 </script>

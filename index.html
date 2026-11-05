@@ -8736,6 +8736,7 @@ html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background
         var foot = document.createElement('div'); foot.className = 'cg-foot cg-only';
         foot.innerHTML = '<button type="button" data-k="shop">' + ic('<path d="M3 7h18l-1.5 11a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2z"/><path d="M8 7a4 4 0 0 1 8 0"/>') + '<span></span></button>' +
             '<button type="button" data-k="apk">' + ic('<path d="M12 3v12M7 10l5 5 5-5"/><rect x="6" y="18" width="12" height="3" rx="1.5"/>') + '<span></span></button>' +
+            '<button type="button" data-k="mh">' + ic('<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/>') + '<span></span></button>' +
             '<button type="button" data-k="pf">' + ic('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>') + '<span></span></button>' +
             '<button type="button" data-k="set">' + ic('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>') + '<span></span></button>' +
             '<button type="button" class="cg-user" data-k="me"><span class="cg-ava"></span><div><b></b><small></small></div>' + ic('<path d="m7 15 5 5 5-5M7 9l5-5 5 5"/>') + '</button>';
@@ -8753,6 +8754,7 @@ html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background
             else if (k === 'shop') { close(); window.__openSettingsHub ? window.__openSettingsHub('shop') : ($('open-wallet-btn') && $('open-wallet-btn').click()); }
             else if (k === 'apk') { close(); if (window.__isIOS) { location.href = '/iphone'; return; } window.__openSettingsHub ? window.__openSettingsHub('apk') : (location.href = '/apkyuklash'); }
             else if (k === 'pf') { location.href = '/portfolio'; }
+            else if (k === 'mh') { location.href = '/mahalla#me'; }
             else if (k === 'me') { close(); $('open-wallet-btn') && $('open-wallet-btn').click(); }
         }
         [nav, foot].forEach(function (box) { box.addEventListener('click', function (e) { var b = e.target.closest('button[data-k]'); if (b) { e.stopPropagation(); act(b.getAttribute('data-k')); } }); });
@@ -8766,8 +8768,8 @@ html[data-design="premium"] body #chat-screen .suggest-card .sg-ico { background
     function paint() {
         var nav = $('cg-nav'); if (!nav) return;
         var L = { gen: T('Rasm yaratish', 'Create images', 'Создать изображение'), doc: T('Hujjat tahlili', 'Analyse a document', 'Анализ документа'),
-            mode: T('AI rejimlari', 'AI modes', 'Режимы ИИ'), sup: T('Yordam — admin', 'Support', 'Поддержка'), set: T('Sozlamalar', 'Settings', 'Настройки'), shop: T("Do'kon", 'Shop', 'Магазин'), apk: T('APK yuklash', 'Download APK', 'Скачать APK'), pf: T('Mening portfoliom', 'My portfolio', 'Моё портфолио') };
-        document.querySelectorAll('.cg-nav button, .cg-foot button[data-k="set"], .cg-foot button[data-k="shop"], .cg-foot button[data-k="apk"], .cg-foot button[data-k="pf"]').forEach(function (b) { var s = b.querySelector('span'); if (s) s.textContent = L[b.getAttribute('data-k')] || ''; });
+            mode: T('AI rejimlari', 'AI modes', 'Режимы ИИ'), sup: T('Yordam — admin', 'Support', 'Поддержка'), set: T('Sozlamalar', 'Settings', 'Настройки'), shop: T("Do'kon", 'Shop', 'Магазин'), apk: T('APK yuklash', 'Download APK', 'Скачать APK'), pf: T('Mening portfoliom', 'My portfolio', 'Моё портфолио'), mh: T('🏘 Mahallam — hovlim', '🏘 My mahalla', '🏘 Моя махалля') };
+        document.querySelectorAll('.cg-nav button, .cg-foot button[data-k="set"], .cg-foot button[data-k="shop"], .cg-foot button[data-k="apk"], .cg-foot button[data-k="pf"], .cg-foot button[data-k="mh"]').forEach(function (b) { var s = b.querySelector('span'); if (s) s.textContent = L[b.getAttribute('data-k')] || ''; });
         var name = (typeof currentName !== 'undefined' && currentName) || localStorage.getItem('bilol_ai_name') || 'Bilols AI';
         var u = document.querySelector('.cg-user');
         if (u) {
