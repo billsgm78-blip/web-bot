@@ -362,25 +362,130 @@ function venue(g, o) {   // umumiy bino: devor, oyna, tom va peshtoq yozuvi
     if (o.text) sign(g, o.text, o.sb || '#16142c', o.sf || '#ffd257', Math.min(o.w * .92, 9), .3 + o.h - 1.1, z + o.d / 2 + .12);
     return .3 + o.h + .45;
 }
+var SKY_ALT = {
+    aylana: function (g, h, col, z) {               // silindr minora, halqa chiroqlar
+        var c = new THREE.Mesh(GEO.cyl, mat(col, { roughness: .15, metalness: .6 })); c.scale.set(7.6, h, 7.6); c.position.set(0, .3 + h / 2, z); c.castShadow = !mobile; g.add(c);
+        for (var f = FLOOR_U * 2; f < h - .4; f += FLOOR_U * 2) { var r = new THREE.Mesh(GEO.cyl, Math.round(f / FLOOR_U / 2) % 5 ? WIN2 : WIN); r.scale.set(7.75, .35, 7.75); r.position.set(0, .3 + f, z); g.add(r); }
+        return { y: .3 + h, w: 6 };
+    },
+    buralgan: function (g, h, col, z) {             // har segment biroz buriladi
+        var seg = FLOOR_U * 3, n = Math.max(3, Math.round(h / seg));
+        for (var i = 0; i < n; i++) {
+            var b = box(7, seg - .25, 7, i % 2 ? col : new THREE.Color(col).lerp(new THREE.Color(0xffffff), .25).getHex(), { roughness: .2, metalness: .5 }, 0, .3 + i * seg, z, g); b.rotation.y = i * .07;
+            var w = box(7.15, .22, 7.15, i % 4 ? WIN2 : WIN, null, 0, .3 + i * seg + seg - .25, z, g); w.rotation.y = i * .07;
+        }
+        return { y: .3 + n * seg, w: 6.6 };
+    },
+    egizak: function (g, h, col, z) {               // ikki minora + osma ko'prik
+        var tA = new THREE.Group(); tA.position.x = -3; g.add(tA); var tB = new THREE.Group(); tB.position.x = 3.2; g.add(tB);
+        [[tA, h], [tB, h * .86]].forEach(function (q) {
+            box(4.6, q[1], 4.6, col, { roughness: .18, metalness: .55 }, 0, .3, z, q[0]);
+            for (var f = FLOOR_U * 3; f < q[1] - .5; f += FLOOR_U * 3) box(4.7, .35, 4.7, Math.round(f / FLOOR_U / 3) % 4 ? WIN2 : WIN, null, 0, .3 + f, z, q[0]);
+            box(5, .45, 5, 0x23203a, null, 0, .3 + q[1], z, q[0]);
+        });
+        var by = .3 + h * .62; box(2, 2, 3, mat(0xbfe6ff, { transparent: true, opacity: .55, roughness: .05 }), null, .1, by, z, g); box(2.2, .3, 3.2, 0x23203a, null, .1, by, z, g);
+        return { y: .3 + h + .45, w: 4.6, g: tA };
+    }
+};
+function lobby(g, z, W, col) {                       // kirish: soyabon, ustunlar, chiroqlar, gul tuvaklar
+    var fz = z + W / 2 + 1.6;
+    box(6.4, .3, 3.2, 0x1f1d2e, null, 0, 3.6, fz, g); box(6.4, .12, .2, glow(new THREE.Color(col).lerp(new THREE.Color(0xffffff), .4).getHex(), .9), null, 0, 3.55, fz + 1.6, g);
+    [-2.8, 2.8].forEach(function (x) { box(.3, 3.3, .3, 0xd4d4d8, null, x, .3, fz + 1.3, g); });
+    box(4, 2.8, .12, WIN2, null, 0, .3, z + W / 2 + .07, g);
+    [-4.6, 4.6].forEach(function (x) { box(1, .8, 1, 0x57534e, null, x, .3, fz + 1.2, g); var b = new THREE.Mesh(GEO.ball, mat(0x3f7f2f)); b.scale.setScalar(1.2); b.position.set(x, 1.6, fz + 1.2); g.add(b); });
+    box(5, .06, 3, 0x7f1d1d, null, 0, .3, fz + .4, g);
+}
 var FLOOR_U = 1.1, SKYC = [0x2c3e66, 0x2f6f8f, 0x6b3fa0, 0x1f7a5a, 0x9a3b4f, 0x3a3a4a, 0xb07a2a, 0x2a5aa8];
 var TOWER_M = Math.round((2 + 5 * 8) / 1.1 * 3);      // agentlar binosi balandligi, metr (1 qavat ≈ 3 m)
+/* ---------- 🏠 uy dizaynlari (6 xil) va hovli aksessuarlari ---------- */
+function gable(g, w, h, d, c, x, y, z) {          // uchburchak tom (ikki qiyalik), oldi-orqasi uchburchak
+    var sh = new THREE.Shape(); sh.moveTo(-w / 2, 0); sh.lineTo(w / 2, 0); sh.lineTo(0, h); sh.lineTo(-w / 2, 0);
+    var m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: d, bevelEnabled: false }), mat(c)); m.position.set(x || 0, y, (z || 0) - d / 2); m.castShadow = !mobile; g.add(m); return m;
+}
+function door(g, x, z, c) { box(1.5, 2.5, .2, c || 0x5b3a26, null, x, .3, z, g); box(.12, .12, .1, 0xd4a017, null, x + .5, 1.5, z + .15, g); }
+function rail(g, w, x, y, z) { box(w, .9, .08, mat(0xbfe6ff, { transparent: true, opacity: .45, roughness: .05 }), null, x, y, z, g); box(w, .08, .12, 0x333333, null, x, y + .9, z, g); }
+var HOUSE = [
+    function (g, s) {                                   // 0 · klassik: to'rt qiyalik tom, ayvon
+        box(7, 4, 6, WALLS[s % 6], null, 0, .3, -1, g);
+        var roof = new THREE.Mesh(GEO.cone4, mat(ROOFS[s % 5])); roof.scale.set(7.2, 3, 6.6); roof.rotation.y = Math.PI / 4; roof.position.set(0, 5.8, -1); roof.castShadow = !mobile; g.add(roof);
+        door(g, 0, 2.05); windows(g, 7, 4, 6, 1, .3, null);
+        box(4.2, .25, 2.2, 0x8a5a3a, null, 0, 3.3, 3, g); [-1.9, 1.9].forEach(function (x) { box(.25, 3, .25, 0xf7f3ea, null, x, .3, 3.9, g); });
+        box(3.4, .35, 1.4, 0xd8cfc4, null, 0, .3, 2.9, g);
+        yardAcc(g, s); return 7.6;
+    },
+    function (g, s, big) {                              // 1 · zamonaviy: tekis tom, katta oynalar, balkon
+        var c = [0xf5f5f4, 0xe7e5e4, 0x44403c, 0xd6d3d1][s % 4];
+        box(8.4, 3.6, 6.4, c, null, 0, .3, -1.2, g); box(8.8, 3.4, 5.6, c === 0x44403c ? 0xe7e5e4 : 0x57534e, null, .3, 3.9, -1.6, g);
+        box(5.6, 2.6, .12, WIN2, null, -1, .7, 2.04, g); box(3.6, 2.4, .12, WIN2, null, 1.8, 4.3, 1.24, g);
+        box(4.2, .25, 1.6, 0xd6d3d1, null, 1.8, 3.9, 2, g); rail(g, 4.2, 1.8, 4.15, 2.8);
+        box(9.2, .35, 6.6, 0x292524, null, .3, 7.3, -1.6, g);
+        for (var i = 0; i < 6; i++) box(.18, 3.2, .1, 0x9a6b3f, null, -4 + i * .3, 4, 1.25, g);      // yog'och planka
+        door(g, 3.2, 2.05, 0x292524); yardAcc(g, s + 1); return 8;
+    },
+    function (g, s) {                                   // 2 · kottej: ikki qiyalik tom, mo'ri, mansard oynasi
+        box(7.4, 4.2, 6, [0xf2e8d5, 0xe8d4c0, 0xdbe4ea, 0xe7dccf][s % 4], null, 0, .3, -1, g);
+        gable(g, 8.2, 3.6, 6.8, ROOFS[(s + 1) % 5], 0, 4.5, -1);
+        box(1, 3.4, 1, 0x9a4a3a, null, 2.2, 5, -2.2, g); box(1.2, .25, 1.2, 0x5a2a1a, null, 2.2, 8.4, -2.2, g);
+        box(1.6, 1.4, 1.2, 0xf7f3ea, null, -1.4, 5.3, 1.4, g); box(1.1, .9, .1, WIN, null, -1.4, 5.5, 2.02, g);
+        door(g, 1.4, 2.05, 0x2f5f4a); windows(g, 7.4, 4.2, 6, 1, .3, null);
+        [-3.2, -2.4].forEach(function (x, i) { var fl = new THREE.Mesh(GEO.ball, mat([0xf472b6, 0xfbbf24][i], { emissive: 0x220011, emissiveIntensity: .2 })); fl.scale.setScalar(.7); fl.position.set(x, .9, 2.5); g.add(fl); });
+        yardAcc(g, s + 2); return 8.6;
+    },
+    function (g, s) {                                   // 3 · an'anaviy o'zbek uyi: tekis tom, o'ymakor ustunli keng ayvon, ishkom
+        box(10, 3.8, 4.6, [0xf0e1c6, 0xe9d3b0, 0xf5ead8][s % 3], null, 0, .3, -2.6, g);
+        box(10.8, .45, 8, 0x8a5a3a, null, 0, 4.1, -1, g); box(10.8, .2, 8, 0x6b4428, null, 0, 4.55, -1, g);
+        [-4.6, -1.55, 1.55, 4.6].forEach(function (x) {
+            var col = new THREE.Mesh(GEO.cyl, mat(0x7a4a28)); col.scale.set(.42, 3.8, .42); col.position.set(x, 2.2, 2.6); g.add(col);
+            box(.9, .45, .9, 0x5a3418, null, x, 3.65, 2.6, g); box(.7, .3, .7, 0x5a3418, null, x, .3, 2.6, g);
+        });
+        for (var i = 0; i < 4; i++) { box(1.6, 2.4, .12, i % 3 ? WIN : 0x5b3a26, null, -3.6 + i * 2.4, .6, -.28, g); box(1.8, .25, .2, 0x7a4a28, null, -3.6 + i * 2.4, 3, -.25, g); }
+        tapchan(g, 3, 4.6, 0); yardAcc(g, s + 3, 'ishkom'); return 5;
+    },
+    function (g, s, big) {                              // 4 · garajli uy: L-shakl, garaj eshigi, ikki qiyalik tom
+        var c = WALLS[(s + 3) % 6];
+        box(6.6, big ? 6.8 : 4.4, 6, c, null, -1.6, .3, -1.2, g); gable(g, 7.4, 3, 6.8, ROOFS[(s + 2) % 5], -1.6, big ? 7.1 : 4.7, -1.2);
+        box(4.6, 3.4, 6.4, new THREE.Color(c).multiplyScalar(.9).getHex(), null, 3.6, .3, -.6, g); box(5, .3, 6.8, 0x3f3f46, null, 3.6, 3.7, -.6, g);
+        for (var i = 0; i < 5; i++) box(3.8, .5, .1, 0xd4d4d8, null, 3.6, .5 + i * .55, 2.66, g);
+        door(g, -1.6, 1.85); windows(g, 6.6, big ? 6.8 : 4.4, 6, big ? 2 : 1, .3, null);
+        car(g, 3.6, 4.6, [0xdc2626, 0x111827, 0xf5f5f4, 0x2563eb][s % 4], Math.PI / 2);
+        yardAcc(g, s + 4, 'gul'); return big ? 10.4 : 8;
+    },
+    function (g, s) {                                   // 5 · villa: siljigan qavatlar, yog'och qoplama, basseyn
+        box(9, 3.4, 5.4, 0xf5f5f4, null, -.4, .3, -2, g); box(7.4, 3.2, 5.2, 0x3b2f2a, null, 1, 3.7, -1.2, g);
+        for (var i = 0; i < 12; i++) box(.22, 3, .1, 0xa16a3c, null, -2.3 + i * .55, 3.8, 1.42, g);
+        box(5.8, 2.6, .12, WIN2, null, -1.4, .6, .72, g); box(9.6, .3, 6, 0x1c1917, null, -.4, 3.7, -2, g); box(8, .3, 5.8, 0x1c1917, null, 1, 6.9, -1.2, g);
+        var pool = box(6, .12, 2.6, mat(0x38bdf8, { emissive: 0x0e7490, emissiveIntensity: .35, roughness: .1 }), null, -.6, .3, 3.9, g);
+        box(6.6, .14, 3.2, 0xe7e5e4, null, -.6, .25, 3.9, g);
+        [[-4.4, 3.6], [3.4, 3.6]].forEach(function (q) { box(1.8, .3, .8, 0xffffff, null, q[0], .4, q[1], g); });
+        var um = new THREE.Mesh(new THREE.ConeGeometry(1.5, .7, 10), mat(0xfb923c)); um.position.set(3.8, 2.6, 4.4); g.add(um); box(.1, 2.2, .1, 0xdddddd, null, 3.8, .3, 4.4, g);
+        return 7.3;
+    }
+];
+function tapchan(g, x, z, r) {
+    var t = new THREE.Group(); t.position.set(x, .3, z); t.rotation.y = r || 0; g.add(t);
+    box(3, .6, 2.2, 0x8a4b2a, null, 0, 0, 0, t); box(2.8, .12, 2, 0xb91c1c, null, 0, .6, 0, t); box(1.4, .1, .9, 0xfacc15, null, 0, .72, 0, t);
+    [-1, 1].forEach(function (k) { box(2.8, .45, .25, 0x7c2d12, null, 0, .6, k * .9, t); });
+    var pot = new THREE.Mesh(GEO.ball, mat(0x1d4ed8, { roughness: .35 })); pot.scale.setScalar(.38); pot.position.set(.3, .95, 0); t.add(pot);
+}
+function yardAcc(g, s, force) {
+    var pick = force || ['tapchan', 'ishkom', 'velo', 'arg', 'gul', 'kir', 'mashina'][s % 7], x = (s % 2 ? -1 : 1) * 3.9, z = 4.2;
+    if (pick === 'tapchan') tapchan(g, x, z, Math.PI / 2);
+    else if (pick === 'ishkom') {                                    // tok so'risi
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box(.2, 3, .2, 0x6b4428, null, x + c[0] * 1.4, .3, z + c[1] * 1.1, g); });
+        for (var i = 0; i < 4; i++) box(3.1, .1, .1, 0x6b4428, null, x, 3.3, z - 1.1 + i * .73, g);
+        for (var j = 0; j < 9; j++) { var lf = new THREE.Mesh(GEO.ball, mat([0x3f7f2f, 0x5a9a3a, 0x2f6f2f][j % 3])); lf.scale.set(1.3, .5, 1.1); lf.position.set(x - 1.2 + (j % 3) * 1.2, 3.5, z - .8 + Math.floor(j / 3) * .8); g.add(lf); }
+        for (var q = 0; q < 3; q++) { var gr = new THREE.Mesh(GEO.ball, mat(0x6d28d9)); gr.scale.set(.3, .45, .3); gr.position.set(x - .8 + q * .8, 3.05, z); g.add(gr); }
+    }
+    else if (pick === 'velo') { var vg = new THREE.Group(); vg.position.set(x, .3, z); vg.rotation.y = .4; g.add(vg); [-.7, .7].forEach(function (k) { var w = new THREE.Mesh(new THREE.TorusGeometry(.42, .06, 6, 18), mat(0x111111)); w.position.set(k, .45, 0); vg.add(w); }); box(1.4, .08, .08, [0xdc2626, 0x2563eb, 0x16a34a][s % 3], null, 0, .7, 0, vg); box(.08, .6, .08, 0x333333, null, .35, .55, 0, vg); }
+    else if (pick === 'arg') { [-1, 1].forEach(function (k) { var l = box(.12, 3, .12, 0x6b4428, null, x + k * .9, .3, z, g); }); box(2, .12, .12, 0x6b4428, null, x, 3.3, z, g); box(.9, .12, .5, 0xdc2626, null, x, 1.2, z, g); [-.35, .35].forEach(function (k) { box(.03, 2, .03, 0x888888, null, x + k, 1.3, z, g); }); }
+    else if (pick === 'gul') { for (var f = 0; f < 4; f++) { box(.7, .6, .7, 0xb45309, null, x - 1.2 + f * .8, .3, z + 1, g); var b = new THREE.Mesh(GEO.ball, mat([0xf472b6, 0xfacc15, 0xef4444, 0xa78bfa][(f + s) % 4], { emissive: 0x110008, emissiveIntensity: .2 })); b.scale.setScalar(.7); b.position.set(x - 1.2 + f * .8, 1.25, z + 1); g.add(b); } }
+    else if (pick === 'kir') { [-1.4, 1.4].forEach(function (k) { box(.1, 2.2, .1, 0x777777, null, x + k, .3, z, g); }); box(2.8, .03, .03, 0xdddddd, null, x, 2.4, z, g); [0xef4444, 0x3b82f6, 0xfacc15, 0xffffff].forEach(function (c, k) { box(.55, .8, .04, c, null, x - 1 + k * .65, 1.6, z, g); }); }
+    else if (pick === 'mashina') car(g, x, z + .2, [0xf5f5f4, 0x111827, 0xb91c1c, 0x0ea5e9][s % 4], Math.PI / 2);
+}
+
 var BUILD = {
-    uy: function (g, s) {
-        box(7, 4, 6, WALLS[s % 6], null, 0, 0, -1, g);
-        var roof = new THREE.Mesh(GEO.cone4, mat(ROOFS[s % 5])); roof.scale.set(7, 3, 6.4); roof.rotation.y = Math.PI / 4; roof.position.set(0, 5.5, -1); roof.castShadow = !mobile; g.add(roof);
-        box(1.4, 2.4, .2, 0x5b3a26, null, 0, 0, 2.05, g); windows(g, 7, 4, 6, 1, 0, null);
-        box(4.2, .25, 2.2, 0x8a5a3a, null, 0, 3.2, 3, g);                          // ayvon tomi
-        [-1.9, 1.9].forEach(function (x) { box(.25, 3.2, .25, 0xf7f3ea, null, x, 0, 3.9, g); });
-        box(3.4, .35, 1.4, 0xd8cfc4, null, 0, 0, 2.9, g);                            // zina
-        box(7.4, .3, 6.4, 0xd9cfc1, null, 0, 0, -1, g);
-    },
-    hovli: function (g, s) {
-        box(8, 7, 6.5, WALLS[(s + 2) % 6], null, 0, 0, -1, g);
-        box(8.6, .5, 7.1, 0x5a4a6a, null, 0, 7, -1, g);
-        box(5, .3, 1.6, 0xdedede, null, 0, 3.5, 3, g); box(5, .9, .15, 0xffffff, null, 0, 3.8, 3.75, g);
-        box(1.5, 2.6, .2, 0x5b3a26, null, 0, 0, 2.3, g); windows(g, 8, 7, 6.5, 2, 0, null);
-        var tr = tree(g, -2.8, 3.6); tr.scale.setScalar(.8);
-    },
+    uy: function (g, s, o, d) { return HOUSE[(d && d.model != null ? d.model : s) % 6](g, s, false); },
+    hovli: function (g, s, o, d) { return HOUSE[(d && d.model != null ? d.model : [1, 3, 4, 5][s % 4]) % 6](g, s, true); },
     dokon: function (g, s) {
         box(8, 4.4, 6, 0xf5f0e6, null, 0, 0, -1, g);
         box(7, 2.6, .2, WIN2, null, 0, .4, 2.05, g);
@@ -565,8 +670,9 @@ var BUILD = {
     osmonopar: function (g, s, o) {
         o = o || { floors: 20 + (s % 4) * 10, style: 'shisha', top: 'antenna', color: s % 8 };
         var h = o.floors * FLOOR_U, col = SKYC[o.color % 8], z = -.5, W = 8, st = o.style;
-        var sec = st === 'zinapoya' ? [[1, .45], [.78, .3], [.58, .25]] : [[1, 1]], y = .3, topW = W;
-        sec.forEach(function (q) {
+        var sec = st === 'zinapoya' ? [[1, .45], [.78, .3], [.58, .25]] : [[1, 1]], y = .3, topW = W, base = g;
+        if (SKY_ALT[st]) { var rr = SKY_ALT[st](g, h, col, z); y = rr.y; topW = rr.w; if (rr.g) g = rr.g; }
+        else sec.forEach(function (q) {
             var w = W * q[0], hh = h * q[1];
             if (st === 'neon') box(w, hh, w, 0x16142c, { roughness: .35, metalness: .4 }, 0, y, z, g);
             else if (st === 'klassik') box(w, hh, w, new THREE.Color(col).lerp(new THREE.Color(0xf1e6d6), .55).getHex(), null, 0, y, z, g);
@@ -595,6 +701,7 @@ var BUILD = {
             var ant = new THREE.Mesh(GEO.cyl, mat(0xffffff)); ant.scale.set(.2, 6, .2); ant.position.set(0, y + 3, z); g.add(ant);
             var bl = new THREE.Mesh(GEO.ball, mat(0xff3355, { emissive: 0xff2244, emissiveIntensity: 1 })); bl.scale.setScalar(.7); bl.position.set(0, y + 6.2, z); g.add(bl); y += 7;
         }
+        lobby(base, z, W, col);
         return y;
     }
 };
@@ -671,7 +778,7 @@ function makePlot(p, cell, k, f) {
         if (k % 2 === 0) tree(g, -4.4, 2.6, k, .62); else tree(g, 4.4, 2.8, k, .55);
     } else if (!f && k % 3 === 0) tree(g, 0, 0, k, .7);
     var house = new THREE.Group(); g.add(house);
-    var tp = p ? (BUILD[p.b] || BUILD.uy)(house, k, p.o) : (f ? (BUILD[f.b] || BUILD.uy)(house, k, f.o) : null);
+    var tp = p ? (BUILD[p.b] || BUILD.uy)(house, k, p.o, p.d) : (f ? (BUILD[f.b] || BUILD.uy)(house, k, f.o, f.d) : null);
     city.add(g);
     var o = { g: g, house: house, p: p, f: f, cell: cell, k: k, lawn: lawn, top: (p || f) ? (typeof tp === 'number' ? tp : topOf((p || f).b)) : 2 };
     plotObjs[k] = o;
@@ -710,12 +817,12 @@ function topItem(g, t, w) {
     else if (t === 'bog') { box(w * .7, .3, w * .7, tmat(0x4f9a3a, 'grass'), null, 0, 0, 0, g); [[-1, -1], [1, 1], [1, -1]].forEach(function (c, i) { var tr = tree(g, c[0] * w * .2, c[1] * w * .2, i, .35 * s); tr.position.y = .3; }); }
     else if (t === 'konditsioner') { [-1, 1].forEach(function (k2) { box(1.4 * s, .9 * s, 1 * s, 0xe5e7eb, null, k2 * 1.2 * s, 0, 0, g); var fan = new THREE.Mesh(GEO.cyl, mat(0x374151)); fan.scale.set(.7 * s, .05, .7 * s); fan.position.set(k2 * 1.2 * s, .92 * s, 0); g.add(fan); }); }
 }
-function topOf(b) { return { uy: 8, hovli: 9.5, dokon: 7, choyhona: 7, bog: 6, masjid: 27, osmonopar: 48 }[b] || 8; }
+function topOf(b) { return { uy: 9, hovli: 10.5, dokon: 7, choyhona: 7, bog: 6, masjid: 27, osmonopar: 48 }[b] || 8; }
 function rebuild(o, b, anim, opts) {
     shadowsDirty();
     o.house.clear();
     o.p.b = b; o.p.o = opts || (b === 'osmonopar' ? o.p.o : null);
-    var tp = BUILD[b](o.house, o.k, o.p.o); o.top = typeof tp === 'number' ? tp : topOf(b);
+    var tp = BUILD[b](o.house, o.k, o.p.o, o.p.d); o.top = typeof tp === 'number' ? tp : topOf(b);
     finishHouse(o, o.p.d);
     o.house.userData.b = b + JSON.stringify(o.p.o || '');
     if (anim && !reduce) { o.house.scale.set(1, .01, 1); o.grow = 0; dust(o.g.position); }
@@ -1037,8 +1144,8 @@ function openBuild() {
     });
 }
 /* ===================== 🏙 OSMONO'PAR KONSTRUKTORI ===================== */
-S.sky = { tiers: [{ to: 20, price: 1000 }, { to: 40, price: 2000 }, { to: 60, price: 5000 }, { to: 80, price: 10000 }, { to: 100, price: 20000 }], min: 10, max: 100, styles: ['shisha', 'klassik', 'neon', 'zinapoya'], tops: ['antenna', 'vertolyot', 'shpil', 'toj'] };
-var STYLE_N = { shisha: ['🪟', 'Shisha'], klassik: ['🏛', 'Klassik'], neon: ['🌃', 'Neon'], zinapoya: ['📐', 'Zinapoya'] };
+S.sky = { tiers: [{ to: 20, price: 1000 }, { to: 40, price: 2000 }, { to: 60, price: 5000 }, { to: 80, price: 10000 }, { to: 100, price: 20000 }], min: 10, max: 100, styles: ['shisha', 'klassik', 'neon', 'zinapoya', 'aylana', 'buralgan', 'egizak'], tops: ['antenna', 'vertolyot', 'shpil', 'toj'] };
+var STYLE_N = { shisha: ['🪟', 'Shisha'], klassik: ['🏛', 'Klassik'], neon: ['🌃', 'Neon'], zinapoya: ['📐', 'Zinapoya'], aylana: ['⭕', 'Aylana'], buralgan: ['🌀', 'Buralgan'], egizak: ['🏙', 'Egizak minora'] };
 var TOP_N = { antenna: ['📡', 'Antenna'], vertolyot: ['🚁', 'Vertolyot maydoni'], shpil: ['🗼', 'Shpil'], toj: ['👑', 'Toj'] };
 function floorPrice(n) { var t = S.sky.tiers; for (var i = 0; i < t.length; i++) if (n <= t[i].to) return t[i].price; return t[t.length - 1].price; }
 function skyCost(n) { var s = 0; for (var i = 1; i <= n; i++) s += floorPrice(i); return s; }
@@ -1164,15 +1271,17 @@ function findYard(q) {
 /* ===================== 🎨 BEZATISH: devor rangi, tom rangi, tomdagi narsa ===================== */
 function openDeco(o) {
     var src = o.f || o.p, d0 = Object.assign({}, src.d || {}), d = Object.assign({}, d0), saved = false;
-    function redraw(dd) { o.house.clear(); var tp = BUILD[src.b](o.house, o.k, src.o); o.top = typeof tp === 'number' ? tp : topOf(src.b); finishHouse(o, dd); }
+    function redraw(dd) { o.house.clear(); var tp = BUILD[src.b](o.house, o.k, src.o, dd); o.top = typeof tp === 'number' ? tp : topOf(src.b); finishHouse(o, dd); }
     function sw(list, key) { return '<div class="dsw">' + ['<button type="button" data-' + key + '="" title="Asl rang" class="rs' + (!d[key] ? ' on' : '') + '">↺</button>'].concat(list.map(function (c) { return '<button type="button" data-' + key + '="' + c + '" style="background:' + c + '"' + (d[key] === c ? ' class="on"' : '') + '></button>'; })).join('') + '</div>'; }
     function paint() {
         openSheet('<div class="sh-t">🎨 Bezatish</div><div class="sh-m">Tanlaganingiz 3D\'da darhol ko\'rinadi. Bezatish tekin.</div>' +
+            ((src.b === 'uy' || src.b === 'hovli') ? '<div class="dl">Uy dizayni</div><div class="pk">' + [['🏠', 'Klassik'], ['🏢', 'Zamonaviy'], ['🏡', 'Kottej'], ['🕌', "An'anaviy"], ['🚗', 'Garajli'], ['🏖', 'Villa']].map(function (m, i) { var cur = d.model != null ? d.model : (src.b === 'uy' ? o.k % 6 : [1, 3, 4, 5][o.k % 4]); return '<button type="button" data-model="' + i + '"' + (cur === i ? ' class="on"' : '') + '><span>' + m[0] + '</span>' + m[1] + '</button>'; }).join('') + '</div>' : '') +
             '<div class="dl">Devor rangi</div>' + sw(WALL_SW, 'wall') + '<div class="dl">Tom rangi</div>' + sw(ROOF_SW, 'roof') +
             '<div class="dl">Tomida nima bo\'lsin</div><div class="pk">' + TOPS.map(function (t) { return '<button type="button" data-top="' + t[0] + '"' + ((d.top || '') === t[0] ? ' class="on"' : '') + '><span>' + t[1] + '</span>' + t[2] + '</button>'; }).join('') + '</div>' +
             '<button type="button" class="big" id="dc-ok" style="margin-top:14px">💾 Saqlash</button><button type="button" class="big ghost" id="dc-no">Bekor qilish</button>');
         sb.querySelectorAll('[data-wall]').forEach(function (b) { b.onclick = function () { if (b.dataset.wall) d.wall = b.dataset.wall; else delete d.wall; redraw(d); paint(); }; });
         sb.querySelectorAll('[data-roof]').forEach(function (b) { b.onclick = function () { if (b.dataset.roof) d.roof = b.dataset.roof; else delete d.roof; redraw(d); paint(); }; });
+        sb.querySelectorAll('[data-model]').forEach(function (b) { b.onclick = function () { d.model = +b.dataset.model; redraw(d); paint(); }; });
         sb.querySelectorAll('[data-top]').forEach(function (b) { b.onclick = function () { if (b.dataset.top) d.top = b.dataset.top; else delete d.top; redraw(d); paint(); }; });
         $('dc-ok').onclick = async function () {
             this.disabled = true;
