@@ -47,7 +47,8 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 .pk { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 42vh; overflow-y: auto; padding: 2px; }
 .pk button { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 4px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255, 255, 255, .05); color: var(--text); font: 700 11.5px/1.15 inherit; font-family: inherit; cursor: pointer; text-align: center; }
 .pk button span { font-size: 26px; }
-.pk button.on { border-color: var(--gold); background: rgba(255, 210, 87, .14); }
+.pk button.on { border-color: var(--gold); background: rgba(255, 210, 87, .2); box-shadow: 0 0 0 2px var(--gold) inset; }
+#pk-ok:disabled { opacity: .55; }
 /* intro */
 #intro { position: fixed; inset: 0; z-index: 8; display: grid; place-items: center; padding: 20px; background: radial-gradient(70% 60% at 50% 55%, rgba(21, 18, 42, .55), rgba(21, 18, 42, .82)); transition: opacity .6s; }
 #intro.hide { opacity: 0; pointer-events: none; }
@@ -214,7 +215,7 @@ if (typeof THREE === 'undefined') { $('load').textContent = "3D yuklanmadi. Inte
 var canvas = $('c');
 var R = new THREE.WebGLRenderer({ canvas: canvas, antialias: !mobile, powerPreference: 'high-performance' });
 var PR = Math.min(devicePixelRatio || 1, mobile ? 1.5 : 2); R.setPixelRatio(PR);
-R.shadowMap.enabled = !mobile; R.shadowMap.type = THREE.PCFSoftShadowMap; R.shadowMap.autoUpdate = false;
+R.shadowMap.enabled = !mobile; R.shadowMap.type = THREE.PCFShadowMap; R.shadowMap.autoUpdate = false;
 function shadowsDirty() { R.shadowMap.needsUpdate = true; }
 R.outputEncoding = THREE.sRGBEncoding;
 R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = .9;
@@ -233,14 +234,14 @@ var cam = new THREE.PerspectiveCamera(45, 1, 1, 2000);
 scene.add(new THREE.HemisphereLight(0xffd9c4, 0x2e2850, .62));
 var sun = new THREE.DirectionalLight(0xffb98a, .95);
 sun.position.set(-160, 140, -120); sun.castShadow = !mobile;
-sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -.0004; sun.shadow.normalBias = .4; var sc = sun.shadow.camera; sc.left = sc.bottom = -170; sc.right = sc.top = 170; sc.far = 600;
+sun.shadow.mapSize.set(1024, 1024); sun.shadow.bias = -.0004; sun.shadow.normalBias = .4; var sc = sun.shadow.camera; sc.left = sc.bottom = -170; sc.right = sc.top = 170; sc.far = 600;
 scene.add(sun); scene.add(sun.target);
 
 // materiallar (bir xil rangdagi narsalar bitta materialni bo'lishadi)
 var MC = {};
 function mat(c, o) { var k = c + JSON.stringify(o || {}); if (!MC[k]) MC[k] = new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: .8, metalness: 0 }, o || {})); return MC[k]; }
 var GEO = { box: new THREE.BoxGeometry(1, 1, 1), cyl: new THREE.CylinderGeometry(.5, .5, 1, 16), cone4: new THREE.ConeGeometry(.75, 1, 4), sph: new THREE.SphereGeometry(.5, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2), ball: new THREE.SphereGeometry(.5, mobile ? 14 : 22, mobile ? 10 : 16) };
-function box(w, h, d, c, o, x, y, z, parent) { var m = new THREE.Mesh(GEO.box, typeof c === 'object' ? c : mat(c, o)); m.scale.set(w, h, d); m.position.set(x || 0, (y || 0) + h / 2, z || 0); m.castShadow = m.receiveShadow = !mobile; (parent || scene).add(m); return m; }
+function box(w, h, d, c, o, x, y, z, parent) { var m = new THREE.Mesh(GEO.box, typeof c === 'object' ? c : mat(c, o)); m.scale.set(w, h, d); m.position.set(x || 0, (y || 0) + h / 2, z || 0); m.castShadow = !mobile && h > 2.2 && w > 2.5 && d > 2.5; m.receiveShadow = !mobile && h < 1.2 && w > 4; m.matrixAutoUpdate = true; (parent || scene).add(m); return m; }
 var WIN = mat(0xffd27a, { emissive: 0xffb347, emissiveIntensity: .9 });
 var WIN2 = mat(0xb9e6ff, { emissive: 0x7cc8ff, emissiveIntensity: .55 });
 
@@ -857,7 +858,7 @@ function populate() {
     for (var k = 0; k < count; k++) makePlot(byCell[k] || null, CELLS[k], k, byCell[k] ? null : (freeBy[k] || null));
     (S.free || []).forEach(function (f) {
         var o = plotObjs[f.k]; if (!o) return; var b = S.bmap[f.b] || { emoji: '🏗', name: f.b };
-        addLabel(f.mine ? 'bl mine' : 'bl', b.emoji + ' ' + esc(f.l || b.name), function () { return { x: o.g.position.x, y: o.top + 2, z: o.g.position.z }; }, function () { openPlot(o.k); });
+        addLabel(f.mine ? 'bl mine' : 'bl', b.emoji + ' ' + esc(f.l || b.name), function () { return { x: o.g.position.x, y: o.top + 2, z: o.g.position.z }; }, function () { openPlot(o.k); }).k = f.k;
     });
     if (S.bmode) paintEmpty(true);
     shadowsDirty();
@@ -878,12 +879,13 @@ function populate() {
 var sheet = $('sheet'), sb = $('sb');
 function openSheet(html) { sb.innerHTML = html; sheet.classList.add('open'); $('sx').style.display = /class="wz-h"/.test(html) ? 'none' : ''; }
 function closeSheet() { sheet.classList.remove('open'); }
-$('sx').onclick = function () { if (SKY && SKY.step < 3) skyRevert(); SKY = null; closeSheet(); };
+$('sx').onclick = function () { if (SKY && SKY.step < 3) skyRevert(); SKY = null; if (PLACE_CANCEL) { PLACE_CANCEL(); PLACE_CANCEL = null; } closeSheet(); };
 function addr(i) { return (Math.floor(i / 10) + 1) + "-ko'cha, " + (i % 10 + 1) + '-uy'; }
 function neighbor(i) { var p = S.plots[i]; return p ? (p.n ? '@' + esc(p.n) : '— nomsiz —') : "— bo'sh —"; }
 function openPlot(k) {
     var o = plotObjs[k]; if (!o) return;
     if (SKY && SKY.step < 3) skyRevert(); SKY = null;
+    if (PLACE_CANCEL) { PLACE_CANCEL(); PLACE_CANCEL = null; }
     flyTo(o.g.position.x, o.g.position.z, Math.max(55, o.top * 2.2), .55);
     if (o.f) { openFree(o); return; }
     if (!o.p) {
@@ -1093,38 +1095,70 @@ function findYard(q) {
 }
 
 /* ===================== 🛠 KONSTRUKTOR REJIMI: ruxsat berilgan odam bo'sh yerga tekin quradi ===================== */
-var EMPTY_HI = mat(0x9be37a, { emissive: 0x4caf50, emissiveIntensity: .45 });
+var EMPTY_HI = mat(0x9be37a, { emissive: 0x4caf50, emissiveIntensity: .45 }), PLACE_CANCEL = null;
 function paintEmpty(on) { plotObjs.forEach(function (o) { if (!o.p && !o.f) { o.lawn.material = on ? EMPTY_HI : mat(0x6f8a5a); } }); }
 function setBmode(on) {
     S.bmode = !!on; paintEmpty(S.bmode); paintMe();
     if (S.bmode) { toast('🛠 Konstruktor: yashil bo\'sh yerni bosing — tekin qurasiz'); flyTo(view.tx, view.tz, Math.max(goal.dist, 170), .75); }
 }
 function bAll() { return S.buildings.filter(function (b) { return b.on && b.id !== 'uy'; }); }
+function previewOn(o, b) {
+    o.house.clear(); spinners = spinners.filter(function (w) { return w.parent && w.parent.parent; });
+    if (b) { var tp = BUILD[b](o.house, o.k, b === 'osmonopar' ? { floors: 40, style: 'shisha', top: 'antenna', color: o.k % 8 } : null); o.top = typeof tp === 'number' ? tp : topOf(b); }
+    shadowsDirty();
+}
+function replacePlot(k, f) {
+    var old = plotObjs[k]; if (!old) return;
+    city.remove(old.g); pickables = pickables.filter(function (m) { return m !== old.lawn; });
+    labels = labels.filter(function (l) { if (l.k === k) { l.el.remove(); return false; } return true; });
+    var o = makePlot(null, CELLS[k], k, f || null);
+    if (f) { var b = S.bmap[f.b] || { emoji: '🏗', name: f.b }; var l = addLabel('bl mine', b.emoji + ' ' + esc(f.l || b.name), function () { return { x: o.g.position.x, y: o.top + 2, z: o.g.position.z }; }, function () { openPlot(o.k); }); l.k = k; }
+    else if (S.bmode) o.lawn.material = EMPTY_HI;
+    shadowsDirty(); return o;
+}
 function openPlace(o, cur) {
-    var bl = S.me.builder, sel = cur ? cur.b : null, label = cur ? cur.l : '';
+    var bl = S.me.builder, sel = cur ? cur.b : null, label = cur ? cur.l : '', done = false;
+    var restore = function () { if (done) return; if (cur) previewOn(o, cur.b); else previewOn(o, null); };
+    flyTo(o.g.position.x, o.g.position.z, 70, .5);
     openSheet('<div class="sh-t">🛠 ' + (cur ? 'Binoni o\'zgartirish' : 'Konstruktor') + '</div><div class="sh-m">Tekin · ' + (bl.used + (cur ? 0 : 1)) + ' / ' + bl.limit + ' ta bino. Istalgan binoni tanlang.</div>' +
         '<div class="pk">' + bAll().map(function (b) { return '<button type="button" data-k="' + b.id + '"' + (b.id === sel ? ' class="on"' : '') + '><span>' + b.emoji + '</span>' + esc(b.name) + '</button>'; }).join('') + '</div>' +
         '<input class="inp" id="pk-l" maxlength="24" placeholder="Nomi (ixtiyoriy) — masalan «Lucky»" style="padding-left:14px;margin:12px 0 4px">' +
         '<button type="button" class="big" id="pk-ok">' + (cur ? '💾 Saqlash' : '🛠 Qurish · tekin') + '</button>' + (cur ? '<button type="button" class="big ghost" id="pk-del">🗑 Olib tashlash</button>' : '') +
         '<button type="button" class="big ghost" id="pk-x">Konstruktordan chiqish</button>');
     $('pk-l').value = label || '';
-    sb.querySelectorAll('[data-k]').forEach(function (b) { b.onclick = function () { sel = b.dataset.k; sb.querySelectorAll('[data-k]').forEach(function (x) { x.classList.toggle('on', x === b); }); }; });
-    $('pk-ok').onclick = async function () {
-        if (!sel) { toast('Binoni tanlang'); return; }
-        this.disabled = true;
-        var opts = sel === 'osmonopar' ? { floors: 40, style: 'shisha', top: 'antenna', color: o.k % 8 } : null;
-        var j = await api('place', Object.assign(creds(), { k: o.k, type: sel, label: $('pk-l').value.trim(), opts: opts }));
-        this.disabled = false;
-        if (!j.success) { toast(j.error || 'Xato'); return; }
-        await refresh(); var n = plotObjs[o.k]; if (n) { n.house.scale.set(1, .01, 1); n.grow = 0; dust(n.g.position); }
-        closeSheet(); toast('✅ ' + (S.bmap[sel] ? S.bmap[sel].name : sel) + ' qurildi · ' + S.me.builder.used + ' / ' + S.me.builder.limit);
-    };
+    var okBtn = $('pk-ok');
+    function paintOk() { var b = S.bmap[sel]; okBtn.textContent = sel ? (b.emoji + ' ' + b.name + (cur ? ' — saqlash' : ' qurish · tekin')) : '👆 Avval binoni tanlang'; okBtn.disabled = !sel; }
+    paintOk();
+    sb.querySelectorAll('[data-k]').forEach(function (b) {
+        b.onclick = function () {
+            if (sel === b.dataset.k && !cur) { build(); return; }          // tanlangan kartani yana bossa — quriladi
+            sel = b.dataset.k; sb.querySelectorAll('[data-k]').forEach(function (x) { x.classList.toggle('on', x === b); });
+            previewOn(o, sel); paintOk();                                  // 3D'da darhol ko'rinadi
+        };
+    });
+    async function build() {
+        if (!sel || okBtn.dataset.busy) return;
+        okBtn.dataset.busy = '1'; okBtn.disabled = true; okBtn.textContent = '⏳ Qurilmoqda…';
+        var opts = sel === 'osmonopar' ? { floors: 40, style: 'shisha', top: 'antenna', color: o.k % 8 } : null, lbl = $('pk-l').value.trim();
+        var j = {}; try { j = await api('place', Object.assign(creds(), { k: o.k, type: sel, label: lbl, opts: opts })); } catch (e) { j = { error: "Internet bilan muammo — qayta urinib ko'ring" }; }
+        delete okBtn.dataset.busy;
+        if (!j.success) { toast('⚠️ ' + (j.error || 'Xato')); paintOk(); return; }
+        done = true;
+        var f = { k: o.k, b: sel, o: opts, l: lbl, mine: true };
+        S.free = (S.free || []).filter(function (x) { return x.k !== o.k; }).concat([f]);
+        if (!cur) S.me.builder.used++;
+        var n = replacePlot(o.k, f); if (n && !reduce) { n.house.scale.set(1, .01, 1); n.grow = 0; dust(n.g.position); }
+        closeSheet(); paintMe(); toast('✅ ' + S.bmap[sel].name + ' qurildi · ' + S.me.builder.used + ' / ' + S.me.builder.limit);
+    }
+    okBtn.onclick = build;
     if ($('pk-del')) $('pk-del').onclick = async function () {
         var j = await api('unplace', Object.assign(creds(), { k: o.k }));
         if (!j.success) { toast(j.error || 'Xato'); return; }
-        await refresh(); closeSheet(); toast('🗑 Olib tashlandi');
+        done = true; S.free = (S.free || []).filter(function (x) { return x.k !== o.k; }); S.me.builder.used = Math.max(0, S.me.builder.used - 1);
+        replacePlot(o.k, null); closeSheet(); paintMe(); toast('🗑 Olib tashlandi');
     };
-    $('pk-x').onclick = function () { setBmode(false); closeSheet(); };
+    $('pk-x').onclick = function () { restore(); setBmode(false); closeSheet(); };
+    PLACE_CANCEL = restore;
 }
 function openFree(o) {
     var f = o.f, b = S.bmap[f.b] || { emoji: '🏗', name: f.b };
@@ -1222,8 +1256,7 @@ function frame(now) {
     perf.t += dt; perf.n++;
     if (perf.t > 2.5) {
         var avg = perf.t / perf.n; perf.t = 0; perf.n = 0;
-        if (avg > .034 && PR > 1) { PR = Math.max(1, PR - .5); R.setPixelRatio(PR); resize(); }
-        else if (avg > .04 && R.shadowMap.enabled) { R.shadowMap.enabled = false; scene.traverse(function (m) { if (m.material) m.material.needsUpdate = true; }); }
+        if (avg > .03 && PR > .75) { PR = Math.max(.75, PR - .25); R.setPixelRatio(PR); resize(); }
     }
     requestAnimationFrame(frame);
 }
