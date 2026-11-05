@@ -839,7 +839,9 @@ function finishHouse(o, d) {
     d = d || {}; var ms = meshesOf(o.house); if (!ms.length) return;
     o.house.updateMatrixWorld(true);
     var info = ms.map(function (m) { var bb = new THREE.Box3().setFromObject(m), sz = bb.getSize(new THREE.Vector3()); return { m: m, bb: bb, vol: sz.x * sz.y * sz.z, area: sz.x * sz.z }; });
-    var body = info.slice().sort(function (a, b) { return b.vol - a.vol; })[0];
+    // asosiy bino — eng katta devor qutisi (tom konusi, uchburchak tom va gumbaz hisobga olinmaydi)
+    var walls = info.filter(function (i) { var t = i.m.geometry.type; return t === 'BoxGeometry' || t === 'CylinderGeometry'; });
+    var body = (walls.length ? walls : info).slice().sort(function (a, b) { return b.vol - a.vol; })[0];
     var glowM = function (m) { return !m || m.transparent || (m.emissive && m.emissive.getHex() !== 0 && m.emissiveIntensity > .3); };
     var big = info.filter(function (i) { return i !== body && i.area > body.area * .3 && !glowM(i.m.material); });
     var roof = big.sort(function (a, b) { return b.bb.max.y - a.bb.max.y; })[0];
@@ -847,11 +849,64 @@ function finishHouse(o, d) {
     if (!glowM(body.m.material)) body.m.material = tmat(new THREE.Color(d.wall || mc).getHex(), 'plaster', { roughness: .88, metalness: body.m.material.metalness || 0 });
     if (roof && roof.bb.max.y >= body.bb.max.y - .2) { var rc = roof.m.material.color ? '#' + roof.m.material.color.getHexString() : '#b5483b'; roof.m.material = tmat(new THREE.Color(d.roof || rc).getHex(), 'tile', { roughness: .75, metalness: roof.m.material.metalness || 0 }); }
     if (d.top) {
-        var top = (roof ? roof.bb.max.y : body.bb.max.y), bx = body.bb.getCenter(new THREE.Vector3()), w = body.bb.getSize(new THREE.Vector3());
-        var tg = new THREE.Group(); var lp = o.house.worldToLocal(new THREE.Vector3(bx.x, top, bx.z)); tg.position.copy(lp); o.house.add(tg); topItem(tg, d.top, Math.min(w.x, w.z));
-        o.top = Math.max(o.top, top + 4);
+        // hisob uy ichidagi (lokal) koordinatada: +z — old tomon (eshik), +x — yon devor
+        var inv = new THREE.Matrix4().copy(o.house.matrixWorld).invert();
+        var lb = body.bb.clone().applyMatrix4(inv), lr = roof && roof.bb.max.y >= body.bb.max.y - .2 ? roof.bb.clone().applyMatrix4(inv) : null;
+        var y2 = placeTop(o.house, d.top, lb, lr, lr && roof.m.geometry.type === 'ExtrudeGeometry');
+        o.top = Math.max(o.top, y2 + 2);
     }
     shadowsDirty();
+}
+function placeTop(h, t, lb, lr, sideSlopes) {
+    // har bir aksessuar o'z joyiga: qiya tomda qiyalikka, devorga yoki hovliga; tekis tomda — tom ustiga
+    var cx = (lb.min.x + lb.max.x) / 2, cz = (lb.min.z + lb.max.z) / 2, W = lb.max.x - lb.min.x, D = lb.max.z - lb.min.z;
+    var flat = !lr || (lr.max.y - lr.min.y) < 1.4, top = lr ? lr.max.y : lb.max.y, eave = lb.max.y;
+    var at = function (x, y, z) { var gg = new THREE.Group(); gg.position.set(x, y, z); h.add(gg); return gg; };
+    if (t === 'konditsioner') {                       // tashqi bloklar yon devorda, quvur pastga
+        [-1, 1].forEach(function (k, i) {
+            var u = at(lb.max.x + .42, lb.min.y + (eave - lb.min.y) * (i ? .62 : .3), cz + k * Math.min(1.4, D * .22));
+            box(.75, .8, 1.15, 0xeef0f2, null, 0, 0, 0, u); box(.06, .7, 1, 0x9aa1aa, null, .4, .05, 0, u);
+            var fan = new THREE.Mesh(GEO.cyl, mat(0x4b5563)); fan.scale.set(.6, .05, .6); fan.rotation.z = Math.PI / 2; fan.position.set(.4, .4, 0); u.add(fan);
+            [-.3, .3].forEach(function (zz) { box(.5, .06, .06, 0x6b7280, null, -.2, -.05, zz, u); });
+            box(.07, Math.max(.4, u.position.y - .3), .07, 0xd1d5db, null, -.2, -(u.position.y - .3), .5, u);
+        });
+        return eave;
+    }
+    if (t === 'tarelka') {                            // devorning yuqorisida, kronshteynda
+        var tg = at(lb.min.x - .35, eave - .8, cz + D * .15);
+        box(.5, .12, .12, 0x6b7280, null, .25, 0, 0, tg);
+        var dish = new THREE.Mesh(GEO.sph, mat(0xf3f4f6, { metalness: .3, roughness: .35 })); dish.scale.set(1.9, .9, 1.9); dish.rotation.z = 1.2; dish.rotation.y = .4; dish.position.set(-.35, .35, 0); tg.add(dish);
+        box(.06, .9, .06, 0x6b7280, null, -.9, .1, 0, tg); return eave;
+    }
+    if (t === 'quyosh') {
+        if (flat) { var q = at(cx, top, cz); topItem(q, 'quyosh', Math.min(W, D)); return top + 1.2; }
+        var rh = top - eave;
+        if (sideSlopes) {                             // ikki qiyalik tom: qiyaliklar yon tomonga qaragan
+            var hw = (lr.max.x - lr.min.x) / 2, sl = Math.atan2(rh, hw), sg = at(cx + hw * .5, eave + rh * .5, cz);
+            sg.rotation.z = -sl;
+            for (var a2 = 0; a2 < 2; a2++) for (var b2 = 0; b2 < 3; b2++) box(1.05, .08, Math.min(1.5, D * .22), mat(0x1e3a6e, { metalness: .6, roughness: .2, emissive: 0x0b1f4a, emissiveIntensity: .3 }), null, (a2 - .5) * 1.12, .12, (b2 - 1) * Math.min(1.6, D * .24), sg);
+            return top;
+        }
+        var half = D / 2, slope = Math.atan2(rh, half), pg = at(cx, eave + rh * .42, cz + half * .58);
+        pg.rotation.x = slope;
+        for (var i = 0; i < 3; i++) for (var j = 0; j < 2; j++) { box(Math.min(1.5, W * .2), .08, 1.05, mat(0x1e3a6e, { metalness: .6, roughness: .2, emissive: 0x0b1f4a, emissiveIntensity: .3 }), null, (i - 1) * Math.min(1.6, W * .22), .12, (j - .5) * 1.12, pg); }
+        return top;
+    }
+    if (t === 'suvbak') {
+        if (flat) { var sb2 = at(cx + W * .2, top, cz - D * .15); topItem(sb2, 'suvbak', Math.min(W, D)); return top + 3.5; }
+        var st = at(Math.min(lb.max.x + 1.7, 5.4), .3, lb.min.z + 1.3);
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box(.14, 2.4, .14, 0x6b7280, null, c[0] * .6, 0, c[1] * .6, st); });
+        box(1.6, .12, 1.6, 0x6b7280, null, 0, 2.4, 0, st);
+        var tk = new THREE.Mesh(GEO.cyl, mat(0x3b82f6, { metalness: .3, roughness: .4 })); tk.scale.set(1.5, 1.5, 1.5); tk.position.y = 3.27; st.add(tk); return eave;
+    }
+    if (t === 'bog') {
+        if (flat) { var bg2 = at(cx, top, cz); topItem(bg2, 'bog', Math.min(W, D)); return top + 2.5; }
+        var fb = at(cx, .3, lb.max.z + .7);
+        for (var k2 = -1; k2 <= 1; k2 += 2) { box(W * .32, .55, .7, 0x8a5a3a, null, k2 * W * .27, 0, 0, fb); for (var f = 0; f < 4; f++) { var fl = new THREE.Mesh(GEO.ball, mat([0xf472b6, 0xfacc15, 0x4ade80, 0xa78bfa][f], { emissive: 0x110008, emissiveIntensity: .2 })); fl.scale.setScalar(.55); fl.position.set(k2 * W * .27 + (f - 1.5) * W * .07, .8, 0); fb.add(fl); } }
+        return eave;
+    }
+    if (t === 'bayroq') { var bf = at(cx, top - (flat ? 0 : .15), cz); topItem(bf, 'bayroq', Math.min(W, D)); return top + 4.5; }
+    return top;
 }
 function topItem(g, t, w) {
     var s = Math.max(.6, Math.min(1.2, w / 7));
