@@ -8223,12 +8223,18 @@ body.theme-light #app-promo .ap-t b { color: #0f172a; }
         if (p > 0.97 && loaded && !read) { read = true; paint(); }
     }
     body.addEventListener('scroll', onScroll, { passive: true });
+    var shownLang = null;
     function open() {
         rd.classList.add('open'); paint();
-        if (!loaded) {
+        if (!loaded || shownLang !== lg()) {
+            loaded = false;
             fetch('/maxfiylik.html', { cache: 'no-cache' }).then(function (r) { return r.text(); }).then(function (h) {
                 var a = new DOMParser().parseFromString(h, 'text/html').querySelector('article');
-                body.innerHTML = a ? a.innerHTML : h; loaded = true; body.scrollTop = 0; onScroll();
+                body.innerHTML = a ? a.innerHTML : h;
+                // siyosat 3 tilda — faqat sayt tilidagisi ko'rsatiladi
+                var l = lg(), pl = body.querySelectorAll('.pv-lang'), has = [].some.call(pl, function (s) { return s.lang === l; });
+                [].forEach.call(pl, function (s) { if (s.lang !== (has ? l : 'uz')) s.remove(); });
+                loaded = true; shownLang = l; body.scrollTop = 0; onScroll();
             }).catch(function () { body.innerHTML = '<p>' + T("Yuklab bo'lmadi. Internetni tekshiring.", 'Could not load. Check your connection.', 'Не удалось загрузить.') + '</p>'; });
         }
     }

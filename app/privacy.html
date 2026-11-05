@@ -4,10 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Maxfiylik siyosati — Bilols AI</title>
-<meta name="description" content="Bilols AI maxfiylik siyosati / Политика конфиденциальности / Privacy Policy: qanday ma'lumot olinadi, kim ko'radi, firibgarlikka qarshi choralar.">
+<meta name="description" content="Bilols AI maxfiylik siyosati / Политика конфиденциальности / Privacy Policy: qanday ma'lumot olinadi, kim ko'radi, qancha saqlanadi, huquqlaringiz va firibgarlikka qarshi choralar.">
 <link rel="canonical" href="https://www.bilolsai.uz/maxfiylik">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#03060d">
+<meta property="og:title" content="Maxfiylik siyosati — Bilols AI">
+<meta property="og:description" content="Ma'lumotlaringiz qanday olinadi, saqlanadi va himoya qilinadi — oddiy tilda, 3 tilda.">
+<meta property="og:url" content="https://www.bilolsai.uz/maxfiylik">
+<meta property="og:image" content="https://www.bilolsai.uz/icons/icon-512.png">
 <link rel="icon" href="/icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,181 +19,357 @@
 <link rel="stylesheet" href="/emoji.css">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root { --bg: #03060d; --card: #0d1220; --line: rgba(148,163,184,.16); --text: #e2e8f0; --muted: #94a3b8; }
+:root { --bg: #03060d; --card: #0d1220; --line: rgba(148,163,184,.16); --text: #e2e8f0; --muted: #94a3b8; --acc: #34d399; --acc2: #60a5fa; }
+html[data-design="premium"] { --acc: #1f5c4a; --acc2: #1f5c4a; }
 * { box-sizing: border-box; }
-html, body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Outfit', system-ui, sans-serif; }
-.wrap { max-width: 720px; margin: 0 auto; padding: calc(24px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom)); }
-.top { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-.top img { width: 44px; height: 44px; border-radius: 12px; }
-.top a { color: var(--muted); text-decoration: none; font-size: 14px; margin-left: auto; white-space: nowrap; }
-h1 { font-size: 24px; line-height: 1.15; margin: 0; font-weight: 800; color: #fff; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 6px 20px 18px; }
-h2 { font-size: 18px; color: #fff; margin: 26px 0 8px; }
-h3 { font-size: 15px; color: #cbd5e1; margin: 16px 0 6px; }
-p, li { font-size: 15px; line-height: 1.6; color: #cbd5e1; }
+html { scroll-behavior: smooth; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Outfit', system-ui, sans-serif; -webkit-text-size-adjust: 100%; }
+.wrap { max-width: 760px; margin: 0 auto; padding: calc(18px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom)); }
+.pv-prog { position: fixed; inset: 0 0 auto; height: 3px; z-index: 50; pointer-events: none; }
+.pv-prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--acc), var(--acc2)); border-radius: 0 3px 3px 0; }
+.top { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.top img { width: 40px; height: 40px; border-radius: 12px; }
+.top .brand { font-weight: 800; font-size: 16px; }
+.top a { color: var(--muted); text-decoration: none; font-size: 14px; margin-left: auto; white-space: nowrap; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; }
+.top a:hover { color: var(--text); }
+.hero { position: relative; overflow: hidden; padding: 26px 22px 22px; margin-bottom: 14px; border: 1px solid var(--line); border-radius: 24px;
+    background: radial-gradient(120% 140% at 100% 0%, rgba(52,211,153,.16), transparent 55%), radial-gradient(90% 120% at 0% 100%, rgba(96,165,250,.13), transparent 60%), var(--card); }
+html[data-design="premium"] .hero { background: radial-gradient(120% 140% at 100% 0%, rgba(31,92,74,.10), transparent 55%), var(--card); }
+.hero .shield { position: absolute; right: -6px; top: -10px; font-size: 92px; opacity: .13; transform: rotate(12deg); pointer-events: none; }
+.kicker { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--acc); background: rgba(52,211,153,.10); padding: 6px 11px; border-radius: 999px; }
+html[data-design="premium"] .kicker { background: rgba(31,92,74,.08); }
+h1 { font-size: clamp(26px, 6vw, 36px); line-height: 1.1; margin: 14px 0 8px; font-weight: 800; color: #fff; letter-spacing: -.02em; }
+.sub { margin: 0 0 14px; color: var(--muted); font-size: 15.5px; line-height: 1.5; max-width: 560px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips span { font-size: 13px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px; background: rgba(148,163,184,.05); }
+.bar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 10px 0; margin-bottom: 4px; background: var(--bg); }
+.pv-tabs { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); }
+.pv-tabs button { font: 600 14px/1 inherit; font-family: inherit; color: var(--muted); background: transparent; border: 0; border-radius: 999px; padding: 9px 14px; cursor: pointer; transition: background .2s, color .2s; }
+.pv-tabs button.on { color: #04130d !important; background: var(--acc) !important; }
+html[data-design="premium"] .pv-tabs button.on { color: #fffdf8 !important; }
+.bar .print { margin-left: auto; font: 600 14px/1 inherit; font-family: inherit; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.toc { margin: 6px 0 14px; border: 1px solid var(--line); border-radius: 20px; background: var(--card); }
+.toc summary { cursor: pointer; list-style: none; padding: 15px 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.toc summary::-webkit-details-marker { display: none; }
+.toc summary::after { content: '▾'; margin-left: auto; color: var(--muted); transition: transform .2s; }
+.toc[open] summary::after { transform: rotate(180deg); }
+.toc ol { margin: 0; padding: 0 12px 14px; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2px 8px; counter-reset: t; }
+.toc li { counter-increment: t; margin: 0; }
+.toc a { display: flex; gap: 9px; padding: 7px 8px; border-radius: 10px; color: var(--text); text-decoration: none; font-size: 14px; line-height: 1.35; }
+.toc a::before { content: counter(t); flex: none; width: 22px; color: var(--acc); font-weight: 800; text-align: right; }
+.toc a:hover, .toc a.on { background: rgba(148,163,184,.10); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 8px 22px 22px; }
+h2 { font-size: 19px; color: #fff; margin: 34px 0 10px; padding-top: 20px; border-top: 1px solid var(--line); }
+h3 { font-size: 15.5px; color: #e2e8f0; margin: 18px 0 6px; }
+p, li { font-size: 15px; line-height: 1.65; color: #cbd5e1; }
 p { margin: 8px 0; }
-ul { margin: 6px 0; padding-left: 20px; }
-li { margin: 3px 0; }
+ul, ol { margin: 6px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+li::marker { color: var(--acc); }
 .meta { color: var(--muted); font-size: 13.5px; margin: 2px 0; }
-.foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 20px; }
-html.in-app .top a { display: none; }
-.pv-tabs { display: flex; gap: 8px; margin: 0 0 14px; flex-wrap: wrap; }
-.pv-tabs button { font: 600 14px/1 inherit; color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; cursor: pointer; }
-.pv-tabs button.on { color: #fff !important; background: #2563eb !important; border-color: #2563eb !important; }
+.foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 22px; }
+.foot a { color: var(--acc); }
+.totop { position: fixed; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 30; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--text); font-size: 20px; cursor: pointer; box-shadow: 0 10px 30px -12px rgba(0,0,0,.5); opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .25s, transform .25s; }
+.totop.show { opacity: 1; transform: none; pointer-events: auto; }
+html.in-app .top a, html.in-app .bar .print { display: none; }
 .pv-lang[hidden] { display: none; }
+@media (max-width: 480px) { .card { padding: 4px 16px 18px; border-radius: 20px; } .hero { padding: 22px 18px 18px; } .pv-tabs button { padding: 9px 11px; font-size: 13.5px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+@media print {
+    :root, html[data-design] { --bg: #fff; --card: #fff; --line: #ddd; --text: #111; --muted: #555; --acc: #1f5c4a; }
+    html, body { background: #fff !important; color: #111 !important; }
+    #ds-bg, .pv-prog, .bar, .toc, .totop, .top a, .foot, .pf-link { display: none !important; }
+    .hero, .card { border: 0; background: none !important; padding: 0; box-shadow: none !important; }
+    h1, h2, h3 { color: #111 !important; } p, li, td { color: #222 !important; }
+    h2 { break-after: avoid; } .pv-tw, .pv-sum li, .pv-note { break-inside: avoid; }
+}
 </style>
 <script>if (/BilolsAIApp/.test(navigator.userAgent)) document.documentElement.classList.add('in-app');</script>
 </head>
 <body>
+<div class="pv-prog" aria-hidden="true"><i></i></div>
 <main class="wrap">
-  <div class="top"><img src="/icons/icon-192.png" alt=""><h1>Maxfiylik siyosati</h1><a href="/">← Sayt</a></div>
-  <div class="pv-tabs" role="tablist"><button type="button" data-l="uz">O'zbekcha</button><button type="button" data-l="ru">Русский</button><button type="button" data-l="en">English</button></div>
+  <div class="top"><img src="/icons/icon-192.png" alt=""><span class="brand">Bilols AI</span><a href="/">← Sayt</a></div>
+  <header class="hero">
+    <span class="shield" aria-hidden="true">🛡️</span>
+    <span class="kicker">🔒 Bilols AI · Privacy</span>
+    <h1>Maxfiylik siyosati</h1>
+    <p class="sub"></p>
+    <div class="chips"><span id="pv-date"></span><span id="pv-read"></span><span id="pv-langs"></span></div>
+  </header>
+  <div class="bar">
+    <div class="pv-tabs" role="tablist"><button type="button" data-l="uz">O'zbekcha</button><button type="button" data-l="ru">Русский</button><button type="button" data-l="en">English</button></div>
+    <button type="button" class="print">🖨️ Chop etish</button>
+  </div>
+  <details class="toc" open><summary>📑 <span>Mundarija</span></summary><ol id="pv-toc"></ol></details>
   <article class="card">
-    <section class="pv-lang" lang="uz" data-title="Maxfiylik siyosati" data-back="← Sayt">
-    <p class="meta">Kuchga kirgan sana: 2026-yil 30-oktabr</p>
-    <p class="meta">Xizmat: Bilols AI veb-sayti (www.bilolsai.uz), Android ilovasi, Windows dasturi (jumladan Microsoft Store orqali o&#x27;rnatilgan) va Telegram bot (@BilolsAIbot)</p>
-    <p>Ushbu hujjat Bilols AI (&quot;biz&quot;, &quot;xizmat&quot;) foydalanuvchilardan qanday ma&#x27;lumot olishi, undan nima uchun foydalanishi, kim ko&#x27;ra olishi, qancha muddat saqlashi va qoidabuzarlik holatlarida qanday choralar ko&#x27;rishini tushuntiradi. Xizmatdan foydalanib, siz shu siyosatga rozilik bildirasiz.</p>
+<style>
+.pv-lang{counter-reset:pvh;--pv-acc:#34d399;--pv-soft:rgba(52,211,153,.11);--pv-ln:rgba(148,163,184,.2);--pv-tint:rgba(148,163,184,.07);--pv-on:#04130d}
+html[data-design="premium"][data-page="sub"] .pv-lang{--pv-acc:#1f5c4a;--pv-soft:rgba(31,92,74,.08);--pv-ln:rgba(23,21,18,.11);--pv-tint:rgba(255,253,248,.85);--pv-on:#fffdf8}
+.pv-lang h2{counter-increment:pvh;display:flex;align-items:center;gap:11px;scroll-margin-top:76px}
+.pv-lang h2::before{content:counter(pvh);flex:none;display:inline-grid;place-items:center;min-width:30px;height:30px;padding:0 7px;border-radius:10px;background:var(--pv-soft);color:var(--pv-acc);font-size:14px;font-weight:800;font-family:inherit;letter-spacing:0}
+.pv-lang .pv-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:10px;margin:12px 0 8px;padding:0;list-style:none}
+.pv-lang .pv-sum li{position:relative;margin:0;padding:13px 14px 13px 50px;border:1px solid var(--pv-ln);border-radius:16px;background:var(--pv-tint);font-size:13.5px;line-height:1.45}
+.pv-lang .pv-sum li i{position:absolute;left:12px;top:12px;display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:var(--pv-soft);font-style:normal;font-size:16px}
+.pv-lang .pv-sum li b{display:block;margin-bottom:2px;font-size:14.5px;color:inherit;filter:brightness(1.25)}
+html[data-design="premium"][data-page="sub"] .pv-lang .pv-sum li b{filter:none;color:#171512}
+.pv-lang .pv-note{margin:14px 0;padding:12px 15px;border:1px solid var(--pv-ln);border-left:4px solid var(--pv-acc);border-radius:14px;background:var(--pv-soft);line-height:1.55}
+.pv-lang .pv-note.warn{border-left-color:#f59e0b;background:rgba(245,158,11,.09)}
+.pv-lang .pv-tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:10px 0;border:1px solid var(--pv-ln);border-radius:14px}
+.pv-lang .pv-tbl{width:100%;border-collapse:collapse;font-size:13.5px;line-height:1.45}
+.pv-lang .pv-tbl th,.pv-lang .pv-tbl td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--pv-ln);color:inherit}
+.pv-lang .pv-tbl tr:last-child td{border-bottom:0}
+.pv-lang .pv-tbl th{background:var(--pv-tint);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.8;white-space:nowrap}
+.pv-lang .pv-tbl td:first-child{font-weight:600;min-width:130px}
+.pv-lang .pv-steps{counter-reset:pvs;list-style:none;margin:10px 0;padding:0}
+.pv-lang .pv-steps li{counter-increment:pvs;position:relative;margin:10px 0;padding-left:40px}
+.pv-lang .pv-steps li::before{content:counter(pvs);position:absolute;left:0;top:0;display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:var(--pv-acc);color:var(--pv-on);font-size:13px;font-weight:800}
+.pv-lang a{color:var(--pv-acc)}
+@media (max-width:540px){.pv-lang .pv-tbl tr:first-child{display:none}.pv-lang .pv-tbl tr{display:block;padding:11px 13px;border-bottom:1px solid var(--pv-ln)}.pv-lang .pv-tbl tr:last-child{border-bottom:0}.pv-lang .pv-tbl td{display:block;padding:2px 0;border:0;min-width:0}.pv-lang .pv-tbl td:first-child{margin-bottom:3px}.pv-lang .pv-tbl td+td{opacity:.85}}
+</style>
+    <section class="pv-lang" lang="uz" data-title="Maxfiylik siyosati" data-back="← Sayt" data-sub="Ma'lumotlaringiz qanday olinadi, saqlanadi va himoya qilinadi — oddiy tilda.">
+    <p class="meta">Kuchga kirgan sana: 2026-yil 5-noyabr · Oldingi tahrir: 2026-yil 30-oktabr</p>
+    <p class="meta">Xizmat: Bilols AI veb-sayti (www.bilolsai.uz), Android ilovasi, Windows dasturi (jumladan Microsoft Store orqali o'rnatilgan) va Telegram bot (@BilolsAIbot)</p>
+    <p>Ushbu hujjat Bilols AI ("biz", "xizmat") foydalanuvchilardan qanday ma'lumot olishi, undan nima uchun foydalanishi, kim ko'ra olishi, qancha muddat saqlashi, qanday himoya qilishi va qoidabuzarlik holatlarida qanday choralar ko'rishini tushuntiradi. Xizmatdan foydalanib, siz shu siyosatga rozilik bildirasiz.</p>
 
-    <h2>1. Qanday ma&#x27;lumotlarni olamiz</h2>
+    <h3>Qisqacha — eng muhimi</h3>
+    <ul class="pv-sum">
+    <li><i>🔑</i><b>Parolingizni hech kim ko'rmaydi</b>U faqat qaytarib bo'lmaydigan himoyalangan ko'rinishda saqlanadi — biz ham ko'ra olmaymiz.</li>
+    <li><i>🚫</i><b>Ma'lumot sotilmaydi</b>Reklama uchun hech kimga berilmaydi, kuzatuv cookie-fayllari yo'q.</li>
+    <li><i>💳</i><b>Karta raqami olinmaydi</b>Karta ma'lumotlari to'lov tizimining o'z sahifasida kiritiladi.</li>
+    <li><i>📵</i><b>Kontakt, SMS, GPS yo'q</b>Ilova kontaktlar, SMS, qo'ng'iroqlar va joylashuvni o'qimaydi.</li>
+    <li><i>🗑️</i><b>O'chirish huquqi</b>Suhbatni o'zingiz o'chirasiz, hisobni esa so'rov bilan 30 kunda o'chiramiz.</li>
+    <li><i>🛡️</i><b>Firibgarlikka qarshi himoya</b>Soxta to'lov va buzib kirishga urinishlar tekshiriladi va to'xtatiladi.</li>
+    </ul>
+
+    <h2>Qanday ma'lumotlarni olamiz</h2>
     <h3>1.1. Hisob ochishda:</h3>
     <ul>
     <li>Ismingiz;</li>
     <li>Telefon raqamingiz;</li>
-    <li>Parolingiz — faqat qaytarib bo&#x27;lmaydigan himoyalangan ko&#x27;rinishda saqlanadi; asl parolni hech kim, jumladan ma&#x27;muriyat ham ko&#x27;ra olmaydi;</li>
+    <li>Parolingiz — faqat qaytarib bo'lmaydigan himoyalangan ko'rinishda saqlanadi; asl parolni hech kim, jumladan ma'muriyat ham ko'ra olmaydi;</li>
     <li>Telegram ID va foydalanuvchi nomingiz (tasdiqlash kodlari va Stars/Premium buyurtmalari uchun).</li>
     </ul>
     <h3>1.2. Xizmatdan foydalanishda:</h3>
     <ul>
-    <li>AI suhbatlaringiz tarixi (bir nechta qurilmada bir xil ko&#x27;rinishi uchun);</li>
-    <li>Balans, to&#x27;ldirishlar, xaridlar (obuna, Telegram Stars, Premium), buyurtmalar va ularning tarixi;</li>
-    <li>Kunlik so&#x27;rovlar soni va qaysi AI agentidan foydalanilgani;</li>
-    <li>Promo-kod, kunlik bonus va taklif (referal) ma&#x27;lumotlari;</li>
-    <li>Yordam chatidagi xabarlaringiz va yuborgan rasmlaringiz (masalan, to&#x27;lov cheki).</li>
+    <li>AI suhbatlaringiz tarixi (bir nechta qurilmada bir xil ko'rinishi uchun);</li>
+    <li>Balans, to'ldirishlar, xaridlar (obuna, Telegram Stars, Premium), buyurtmalar va ularning tarixi;</li>
+    <li>Kunlik so'rovlar soni va qaysi AI agentidan foydalanilgani;</li>
+    <li>Promo-kod, kunlik bonus va taklif (referal) ma'lumotlari;</li>
+    <li>Yordam chatidagi xabarlaringiz va yuborgan rasmlaringiz (masalan, to'lov cheki);</li>
+    <li>Til, mavzu (yorug'/qorong'i) va boshqa sozlamalaringiz.</li>
     </ul>
-    <h3>1.3. Texnik ma&#x27;lumotlar:</h3>
+    <h3>1.3. Texnik ma'lumotlar:</h3>
     <ul>
     <li>IP manzil — xavfsizlik, spam va firibgarlikka qarshi kurash uchun;</li>
-    <li>Kirgan qurilmalar ro&#x27;yxati: qurilma turi, brauzer yoki ilova nomi, kirish va oxirgi faollik vaqti (&quot;Faol qurilmalar&quot; bo&#x27;limida o&#x27;zingiz ko&#x27;rasiz);</li>
-    <li>Ilovalarda: bildirishnoma tokeni, ilova o&#x27;zi yaratgan tasodifiy qurilma identifikatori (IMEI yoki seriya raqami emas) va ilova versiyasi.</li>
+    <li>Kirgan qurilmalar ro'yxati: qurilma turi, brauzer yoki ilova nomi, kirish va oxirgi faollik vaqti ("Faol qurilmalar" bo'limida o'zingiz ko'rasiz);</li>
+    <li>Ilovalarda: bildirishnoma tokeni, ilova o'zi yaratgan tasodifiy qurilma identifikatori (IMEI yoki seriya raqami emas) va ilova versiyasi;</li>
+    <li>Xatoliklar haqida texnik yozuvlar (vaqt, so'rov turi, xato kodi) — nosozliklarni tuzatish uchun.</li>
     </ul>
-    <h3>1.4. Biz OLMAYDIGAN ma&#x27;lumotlar:</h3>
+    <h3>1.4. Telegram bot orqali:</h3>
     <ul>
-    <li>Bank karta raqamlari va CVV kodlari — karta ma&#x27;lumotlari to&#x27;lov tizimining o&#x27;z sahifasida kiritiladi;</li>
-    <li>Kontaktlar, SMS, qo&#x27;ng&#x27;iroqlar tarixi, joylashuv (GPS) va mikrofon yozuvlari;</li>
-    <li>Kamera faqat o&#x27;zingiz rasm olib yuborganingizda ishlatiladi — fonda hech narsa yozib olinmaydi;</li>
-    <li>Windows dasturi kompyuteringizdagi fayllarni ko&#x27;rmaydi va qo&#x27;shimcha ma&#x27;lumot yig&#x27;maydi — u sayt bilan bir xil ishlaydi.</li>
+    <li>Telegram ID, ism va foydalanuvchi nomi — Telegram botga yozganingizda avtomatik yuboriladi;</li>
+    <li>Telefon raqam — faqat "Kontaktni ulashish" tugmasini o'zingiz bossangiz;</li>
+    <li>Botga yozgan xabarlaringiz va buyruqlaringiz — javob berish va buyurtmani bajarish uchun.</li>
     </ul>
-
-    <h2>2. AI chat, rasm va hujjatlar</h2>
+    <h3>1.5. Biz OLMAYDIGAN ma'lumotlar:</h3>
     <ul>
-    <li>Xabarlaringiz, biriktirgan rasm va hujjatlaringiz javob olish uchun ishonchli sun&#x27;iy intellekt xizmatlariga yuboriladi;</li>
-    <li>Suhbatlar tarixi hisobingizga bog&#x27;langan holda saqlanadi. Biriktirilgan rasmlar serverda saqlanmaydi, faqat AI yaratgan rasmlarning kichik nusxasi qoladi;</li>
-    <li>Suhbatni o&#x27;chirsangiz, u barcha qurilmalaringizdan va serverdan o&#x27;chiriladi;</li>
-    <li>Suhbatlaringizni boshqa foydalanuvchilar ko&#x27;rmaydi; ular reklama uchun ishlatilmaydi va sotilmaydi;</li>
-    <li>AI javoblari xato bo&#x27;lishi mumkin. Tibbiy, huquqiy yoki moliyaviy masalalarda mutaxassis bilan maslahatlashing;</li>
-    <li>AI chatga parol, karta raqami, pasport ma&#x27;lumotlari kabi maxfiy narsalarni yozmang.</li>
+    <li>Bank karta raqamlari va CVV kodlari — karta ma'lumotlari to'lov tizimining o'z sahifasida kiritiladi;</li>
+    <li>Kontaktlar, SMS, qo'ng'iroqlar tarixi, joylashuv (GPS) va mikrofon yozuvlari;</li>
+    <li>Kamera faqat o'zingiz rasm olib yuborganingizda ishlatiladi — fonda hech narsa yozib olinmaydi;</li>
+    <li>Pasport, ID-karta, biometrik ma'lumotlar (yuz, barmoq izi) so'ralmaydi;</li>
+    <li>Windows dasturi kompyuteringizdagi fayllarni ko'rmaydi va qo'shimcha ma'lumot yig'maydi — u sayt bilan bir xil ishlaydi.</li>
     </ul>
 
-    <h2>3. Ma&#x27;lumotlardan nima uchun foydalanamiz</h2>
+    <h2>AI chat, rasm va hujjatlar</h2>
     <ul>
-    <li>Hisobingizni yaratish va unga xavfsiz kirishni ta&#x27;minlash;</li>
+    <li>Xabarlaringiz, biriktirgan rasm va hujjatlaringiz javob olish uchun ishonchli sun'iy intellekt xizmatlariga yuboriladi. Ularga ismingiz, telefon raqamingiz va parolingiz yuborilmaydi;</li>
+    <li>"Internetdan qidirish" yoqilganda savolingiz qidiruv xizmatiga ham yuboriladi;</li>
+    <li>Suhbatlar tarixi hisobingizga bog'langan holda saqlanadi. Biriktirilgan rasmlar serverda saqlanmaydi, faqat AI yaratgan rasmlarning kichik nusxasi qoladi;</li>
+    <li>Suhbatni o'chirsangiz, u barcha qurilmalaringizdan va serverdan o'chiriladi;</li>
+    <li>Suhbatlaringizni boshqa foydalanuvchilar ko'rmaydi; ular reklama uchun ishlatilmaydi, sotilmaydi va biz ular asosida o'z AI modelimizni o'qitmaymiz;</li>
+    <li>AI javoblari xato bo'lishi mumkin. Tibbiy, huquqiy yoki moliyaviy masalalarda mutaxassis bilan maslahatlashing.</li>
+    </ul>
+    <p class="pv-note warn">⚠️ AI chatga parol, karta raqami, SMS kod, pasport ma'lumotlari kabi maxfiy narsalarni yozmang. Biz ularni hech qachon chat orqali so'ramaymiz.</p>
+
+    <h2>Nima uchun foydalanamiz va huquqiy asos</h2>
+    <ul>
+    <li>Hisobingizni yaratish va unga xavfsiz kirishni ta'minlash;</li>
     <li>Suhbatlaringizni qurilmalaringiz orasida bir xil saqlash;</li>
-    <li>Balans, to&#x27;lovlar, obuna va buyurtmalarni bajarish;</li>
+    <li>Balans, to'lovlar, obuna va buyurtmalarni bajarish;</li>
     <li>Tasdiqlash kodlari va muhim xabarlarni yuborish;</li>
     <li>Yordam chatida savollaringizga javob berish;</li>
-    <li>Xizmatni firibgarlik, soxta to&#x27;lovlar, spam va buzib kirishdan himoya qilish;</li>
+    <li>Xizmatni firibgarlik, soxta to'lovlar, spam va buzib kirishdan himoya qilish;</li>
     <li>Umumiy, shaxssizlashtirilgan statistika asosida xizmatni yaxshilash.</li>
     </ul>
-    <p>Biz ma&#x27;lumotlaringizni SOTMAYMIZ va reklama uchun uchinchi shaxslarga BERMAYMIZ.</p>
+    <p>Ma'lumotlaringizni quyidagi asoslarda qayta ishlaymiz: <b>sizning roziligingiz</b> (ro'yxatdan o'tishda va siyosatni qabul qilganingizda), <b>xizmat ko'rsatish shartlarini bajarish</b> (hisob, balans, buyurtmalar), <b>qonun talablari</b> (to'lov yozuvlari) va <b>xizmat xavfsizligini ta'minlash</b> (firibgarlikka qarshi kurash). Qayta ishlash O'zbekiston Respublikasining "Shaxsga doir ma'lumotlar to'g'risida"gi Qonuni va boshqa amaldagi qonunchilikka muvofiq amalga oshiriladi.</p>
+    <p class="pv-note">✅ Biz ma'lumotlaringizni SOTMAYMIZ va reklama uchun uchinchi shaxslarga BERMAYMIZ.</p>
 
-    <h2>4. Ma&#x27;muriyat profilingizni ko&#x27;rishi va izohlar</h2>
-    <p>Yordam berish va xavfsizlikni ta&#x27;minlash uchun vakolatli ma&#x27;muriyat hisobingizga oid quyidagi ma&#x27;lumotlarni ko&#x27;ra oladi: ism, telefon raqam, balans, to&#x27;lovlar va buyurtmalar tarixi, faol qurilmalar va yordam chatidagi yozishmalar.</p>
+    <h2>Ilova ruxsatlari</h2>
+    <p>Android ilovasi faqat ishlashi uchun zarur ruxsatlarni so'raydi:</p>
+    <div class="pv-tw"><table class="pv-tbl">
+    <tr><th>Ruxsat</th><th>Nima uchun</th></tr>
+    <tr><td>🌐 Internet va tarmoq holati</td><td>AI bilan bog'lanish va internet yo'qligini ko'rsatish</td></tr>
+    <tr><td>🔔 Bildirishnomalar</td><td>Yordam javoblari, to'lov va buyurtma holati. Telefon sozlamalaridan o'chirib qo'yish mumkin</td></tr>
+    <tr><td>📳 Tebranish</td><td>Bildirishnoma kelganda qisqa tebranish</td></tr>
+    <tr><td>📷 Kamera / galereya</td><td>Faqat siz rasm biriktirmoqchi bo'lganingizda, sizning ruxsatingiz bilan</td></tr>
+    <tr><td>💾 Xotira (faqat Android 9 va eski)</td><td>AI yaratgan rasmni telefonga saqlash</td></tr>
+    </table></div>
+    <p>Ruxsatni istalgan vaqtda telefon sozlamalaridan bekor qilishingiz mumkin — ilova asosiy funksiyalari ishlashda davom etadi.</p>
+
+    <h2>Ma'muriyat profilingizni ko'rishi va izohlar</h2>
+    <p>Yordam berish va xavfsizlikni ta'minlash uchun vakolatli ma'muriyat hisobingizga oid quyidagi ma'lumotlarni ko'ra oladi: ism, telefon raqam, balans, to'lovlar va buyurtmalar tarixi, faol qurilmalar va yordam chatidagi yozishmalar.</p>
     <ul>
-    <li>Ma&#x27;muriyat profilingizga ichki izoh va belgilar qo&#x27;yishi mumkin — masalan, murojaatlaringiz, to&#x27;lov tekshiruvi natijasi yoki qoidabuzarlik haqida;</li>
-    <li>Bu izohlar faqat xizmat ichida, yordam berish va firibgarlikning oldini olish uchun ishlatiladi va boshqa foydalanuvchilarga ko&#x27;rsatilmaydi;</li>
-    <li>Ma&#x27;muriyat AI suhbatlaringizni faqat siz yordam so&#x27;raganingizda yoki qoidabuzarlikni tekshirish zarur bo&#x27;lganda ko&#x27;radi;</li>
-    <li>Profilingizdagi yozuvlar haqida &quot;Yordam&quot; chati orqali so&#x27;rashingiz mumkin.</li>
+    <li>Ma'muriyat profilingizga ichki izoh va belgilar qo'yishi mumkin — masalan, murojaatlaringiz, to'lov tekshiruvi natijasi yoki qoidabuzarlik haqida;</li>
+    <li>Bu izohlar faqat xizmat ichida, yordam berish va firibgarlikning oldini olish uchun ishlatiladi va boshqa foydalanuvchilarga ko'rsatilmaydi;</li>
+    <li>Ma'muriyat AI suhbatlaringizni faqat siz yordam so'raganingizda yoki qoidabuzarlikni tekshirish zarur bo'lganda ko'radi;</li>
+    <li>Ma'muriyat hech qachon parolingizni, SMS yoki Telegram kodingizni so'ramaydi;</li>
+    <li>Profilingizdagi yozuvlar haqida "Yordam" chati orqali so'rashingiz mumkin.</li>
     </ul>
 
-    <h2>5. To&#x27;lovlar va firibgarlikka qarshi choralar</h2>
-    <p>Hisobni to&#x27;ldirish to&#x27;lov tizimlari yoki kartaga o&#x27;tkazma orqali amalga oshadi. Biz to&#x27;lov summasi, vaqti, holati va siz yuborgan chekni saqlaymiz hamda har bir to&#x27;lovni tekshiramiz.</p>
-    <h3>Quyidagilar qat&#x27;iyan taqiqlanadi:</h3>
+    <h2>To'lovlar va firibgarlikka qarshi choralar</h2>
+    <p>Hisobni to'ldirish to'lov tizimlari yoki kartaga o'tkazma orqali amalga oshadi. Biz to'lov summasi, vaqti, holati va siz yuborgan chekni saqlaymiz hamda har bir to'lovni tekshiramiz.</p>
+    <h3>Quyidagilar qat'iyan taqiqlanadi:</h3>
     <ul>
-    <li>Soxta, tahrirlangan yoki boshqa birovning chekini yuborish, to&#x27;lanmagan pulni to&#x27;langan deb ko&#x27;rsatish;</li>
-    <li>Egasining ruxsatisiz boshqa birovning kartasi yoki hisobidan to&#x27;lash;</li>
-    <li>Xizmatni olgandan keyin to&#x27;lovni asossiz bekor qildirish yoki qaytarib olishga urinish;</li>
+    <li>Soxta, tahrirlangan yoki boshqa birovning chekini yuborish, to'lanmagan pulni to'langan deb ko'rsatish;</li>
+    <li>Egasining ruxsatisiz boshqa birovning kartasi yoki hisobidan to'lash;</li>
+    <li>Xizmatni olgandan keyin to'lovni asossiz bekor qildirish yoki qaytarib olishga urinish;</li>
     <li>Xatolik va kamchiliklardan foydalanib balans, bonus yoki obuna olish;</li>
-    <li>Bonus va promo-kodlar uchun ko&#x27;p hisob ochish;</li>
-    <li>Hisoblarni buzib kirishga, limitlarni chetlab o&#x27;tishga urinish, spam va yordam chatini suiiste&#x27;mol qilish.</li>
+    <li>Bonus va promo-kodlar uchun ko'p hisob ochish;</li>
+    <li>Hisoblarni buzib kirishga, limitlarni chetlab o'tishga urinish, spam va yordam chatini suiiste'mol qilish.</li>
     </ul>
     <h3>Bunday holatlarda biz:</h3>
     <ul>
-    <li>Holatni profilingizga yozib qo&#x27;yamiz;</li>
+    <li>Holatni profilingizga yozib qo'yamiz;</li>
     <li>Operatsiyani bekor qilamiz va balansga pul tushirmaymiz;</li>
     <li>Noqonuniy olingan balans, bonus yoki obunani qaytarib olamiz;</li>
     <li>Hisobning ayrim imkoniyatlarini vaqtincha cheklaymiz yoki hisobni butunlay bloklaymiz;</li>
-    <li>Kelgusida xizmat ko&#x27;rsatishni rad etishimiz mumkin;</li>
-    <li>Qonunda nazarda tutilgan hollarda tegishli ma&#x27;lumotlarni to&#x27;lov tizimiga yoki vakolatli davlat organlariga taqdim etamiz.</li>
+    <li>Kelgusida xizmat ko'rsatishni rad etishimiz mumkin;</li>
+    <li>Qonunda nazarda tutilgan hollarda tegishli ma'lumotlarni to'lov tizimiga yoki vakolatli davlat organlariga taqdim etamiz.</li>
     </ul>
-    <p>Firibgarlik bilan bog&#x27;liq yozuvlar takroriy holatlarning oldini olish va nizolarni hal qilish uchun zarur muddat davomida, hisob o&#x27;chirilgandan keyin ham saqlanishi mumkin.</p>
+    <h3>Avtomatik tekshiruvlar:</h3>
+    <p>Ba'zi himoya choralari avtomatik ishlaydi — masalan, so'rovlar limiti, parolni ko'p marta noto'g'ri kiritishda vaqtincha to'xtatish, shubhali faollikni aniqlash. Hisobni bloklash kabi jiddiy qarorlarni esa odam (ma'muriyat) ko'rib chiqadi. Qarordan norozi bo'lsangiz, "Yordam" chati orqali e'tiroz bildirishingiz mumkin — qayta ko'rib chiqamiz.</p>
+    <p>Firibgarlik bilan bog'liq yozuvlar takroriy holatlarning oldini olish va nizolarni hal qilish uchun zarur muddat davomida, hisob o'chirilgandan keyin ham saqlanishi mumkin.</p>
     <p>Telegram Stars va Premium buyurtmalari Telegram hisobingizga bajariladi. Xato yechilgan yoki bajarilmagan buyurtma puli balansingizga qaytariladi.</p>
 
-    <h2>6. Ma&#x27;lumotlarni kimga beramiz</h2>
+    <h2>Ma'lumotlarni kimga beramiz</h2>
+    <p>Faqat xizmat ishlashi uchun zarur hajmda, quyidagi texnik hamkorlarga:</p>
+    <div class="pv-tw"><table class="pv-tbl">
+    <tr><th>Hamkor turi</th><th>Nima uchun</th><th>Qanday ma'lumot</th></tr>
+    <tr><td>Bulut hosting va ma'lumotlar bazasi</td><td>Sayt, ilova va serverni ishlatish</td><td>Hisob, suhbatlar, to'lovlar tarixi (shifrlangan aloqa orqali)</td></tr>
+    <tr><td>AI modellar provayderlari</td><td>Javob, rasm va tarjima yaratish</td><td>Faqat so'rov matni va biriktirilgan fayl</td></tr>
+    <tr><td>Telegram</td><td>Kirish kodlari, bot, Stars/Premium</td><td>Telegram ID, kod va buyurtma xabari</td></tr>
+    <tr><td>Google Firebase</td><td>Ilovaga bildirishnoma yuborish</td><td>Bildirishnoma tokeni va xabar matni</td></tr>
+    <tr><td>To'lov tizimlari</td><td>Hisobni to'ldirish</td><td>Summa, vaqt va to'lov holati</td></tr>
+    <tr><td>Google Fonts</td><td>Sayt shriftlarini yuklash</td><td>Standart brauzer so'rovi (IP manzil)</td></tr>
+    </table></div>
     <ul>
-    <li>Faqat xizmat ishlashi uchun zarur hajmda — server, AI, to&#x27;lov va xabar yuborish xizmatlarini ko&#x27;rsatuvchi texnik hamkorlarga;</li>
-    <li>Qonun talab qilgan hollarda — vakolatli davlat organlariga;</li>
-    <li>Firibgarlik holatlarida — 5-bo&#x27;limda ko&#x27;rsatilganidek.</li>
+    <li>Qonun talab qilgan hollarda — vakolatli davlat organlariga, faqat rasmiy so'rov asosida;</li>
+    <li>Firibgarlik holatlarida — 6-bo'limda ko'rsatilganidek;</li>
+    <li>Xizmat boshqa egaga o'tsa — faqat shu siyosat shartlari saqlangan holda va sizni oldindan xabardor qilib.</li>
     </ul>
-    <p>Boshqa hollarda ma&#x27;lumotlaringiz uchinchi shaxslarga berilmaydi.</p>
+    <p>Boshqa hollarda ma'lumotlaringiz uchinchi shaxslarga berilmaydi.</p>
 
-    <h2>7. Qurilmangizda saqlanadigan ma&#x27;lumotlar</h2>
-    <p>Qayta-qayta kirmaslik uchun sayt va ilovalar qurilmangizda telefon raqam, xavfsiz kirish kaliti (asl parol emas), til, sozlamalar va suhbatlar nusxasini saqlaydi. Biz reklama yoki kuzatuv cookie-fayllaridan foydalanmaymiz. &quot;Chiqish&quot; tugmasi yoki ilovani o&#x27;chirish bu ma&#x27;lumotlarni qurilmadan tozalaydi.</p>
+    <h2>Ma'lumotlarni chet elga uzatish</h2>
+    <p>Ba'zi texnik hamkorlarimiz (bulut serverlar, AI va bildirishnoma xizmatlari) O'zbekistondan tashqarida joylashgan. Shu sababli ma'lumotlaringizning bir qismi xizmat ko'rsatish uchun chet eldagi serverlarda qayta ishlanishi mumkin. Biz faqat ishonchli, ma'lumotlarni himoya qilish majburiyatini olgan hamkorlar bilan ishlaymiz, aloqa shifrlangan kanal orqali boradi va yuboriladigan ma'lumot hajmini minimal darajada ushlaymiz.</p>
 
-    <h2>8. Xavfsizlik</h2>
+    <h2>Qurilmangizda saqlanadigan ma'lumotlar va cookie</h2>
+    <p>Qayta-qayta kirmaslik uchun sayt va ilovalar qurilmangizda (brauzer xotirasida) telefon raqam, xavfsiz kirish kaliti (asl parol emas), til, mavzu, sozlamalar va suhbatlar nusxasini saqlaydi. Sayt oflayn ishlashi uchun sahifalar nusxasi ham saqlanadi.</p>
+    <ul>
+    <li>Biz reklama yoki kuzatuv cookie-fayllaridan, tashqi analitika va reklama tarmoqlaridan foydalanmaymiz;</li>
+    <li>"Chiqish" tugmasi, brauzer ma'lumotlarini tozalash yoki ilovani o'chirish bu ma'lumotlarni qurilmadan o'chiradi;</li>
+    <li>Umumiy kompyuterdan foydalansangiz, ishni tugatgach albatta "Chiqish"ni bosing.</li>
+    </ul>
+
+    <h2>Bildirishnomalar va xabarlar</h2>
+    <ul>
+    <li><b>Xizmat xabarlari</b> — kirish kodlari, to'lov va buyurtma holati, yordam javoblari, xavfsizlik ogohlantirishlari. Ular hisobingiz xavfsizligi uchun zarur;</li>
+    <li><b>E'lonlar</b> — yangi imkoniyatlar, aksiya va bonuslar haqida kamdan-kam xabarlar (sayt, ilova yoki Telegram bot orqali);</li>
+    <li>Bildirishnomalarni ilova yoki telefon sozlamalaridan, Telegram xabarlarini esa botni to'xtatib (block) o'chirishingiz mumkin;</li>
+    <li>Biz SMS spam yubormaymiz va raqamingizni reklama ro'yxatlariga bermaymiz.</li>
+    </ul>
+
+    <h2>Xavfsizlik</h2>
     <ul>
     <li>Barcha aloqa shifrlangan (HTTPS) kanal orqali amalga oshadi;</li>
-    <li>Parollar qaytarib bo&#x27;lmaydigan himoyalangan ko&#x27;rinishda saqlanadi; parolni o&#x27;zgartirsangiz, barcha eski kirish kalitlari bekor bo&#x27;ladi;</li>
+    <li>Parollar qaytarib bo'lmaydigan himoyalangan ko'rinishda saqlanadi; parolni o'zgartirsangiz, barcha eski kirish kalitlari bekor bo'ladi;</li>
     <li>Yangi qurilmadan kirish faqat bir martalik kod yoki allaqachon kirilgan telefoningizda tasdiqlanadigan QR kod orqali mumkin;</li>
     <li>Parolni taxmin qilishga urinishlar cheklangan;</li>
-    <li>Ma&#x27;lumotlarga faqat vakolatli ma&#x27;muriyat kira oladi.</li>
+    <li>Ma'lumotlarga faqat vakolatli ma'muriyat kira oladi; ma'lumotlar bazasining zaxira nusxalari muntazam olinadi.</li>
     </ul>
-    <p>Hech bir tizim 100% himoyalangan emas, lekin biz oqilona choralarni ko&#x27;ramiz. Hisobingizga begona kirgan deb gumon qilsangiz, darhol parolni o&#x27;zgartiring va &quot;Boshqa qurilmalardan chiqish&quot;ni bosing.</p>
-
-    <h2>9. Saqlash muddati</h2>
+    <h3>Hisobingizni himoya qilish uchun maslahatlar:</h3>
     <ul>
-    <li>Hisob ma&#x27;lumotlari, suhbatlar va to&#x27;lovlar tarixi hisobingiz faol bo&#x27;lgan muddatda saqlanadi;</li>
-    <li>Har bir hisob uchun eng ko&#x27;pi bilan 200 ta oxirgi suhbat saqlanadi;</li>
-    <li>Hisobni o&#x27;chirishni so&#x27;rasangiz, ma&#x27;lumotlaringiz 30 kun ichida o&#x27;chiriladi. Qonun bo&#x27;yicha saqlanishi shart bo&#x27;lgan to&#x27;lov yozuvlari va firibgarlik bilan bog&#x27;liq yozuvlar bundan mustasno.</li>
+    <li>Boshqa saytlarda ishlatmaydigan, kamida 8 belgili parol tanlang;</li>
+    <li>Kirish kodini va parolni hech kimga — hatto "Bilols AI xodimi" deb yozganlarga ham bermang;</li>
+    <li>"Faol qurilmalar" ro'yxatini vaqti-vaqti bilan tekshirib turing;</li>
+    <li>Ilovani faqat rasmiy saytdan (www.bilolsai.uz) yoki Microsoft Store'dan o'rnating.</li>
     </ul>
+    <p>Hech bir tizim 100% himoyalangan emas, lekin biz oqilona choralarni ko'ramiz. Hisobingizga begona kirgan deb gumon qilsangiz, darhol parolni o'zgartiring va "Boshqa qurilmalardan chiqish"ni bosing.</p>
+    <p class="pv-note">📣 Agar ma'lumotlar sizib chiqishi kabi xavfsizlik hodisasi yuz bersa, uni zudlik bilan to'xtatish choralarini ko'ramiz va ta'sir qilingan foydalanuvchilarni imkon qadar tez — odatda 72 soat ichida — sayt, ilova yoki Telegram orqali xabardor qilamiz.</p>
 
-    <h2>10. Sizning huquqlaringiz</h2>
+    <h2>Saqlash muddati</h2>
+    <div class="pv-tw"><table class="pv-tbl">
+    <tr><th>Ma'lumot</th><th>Qancha saqlanadi</th></tr>
+    <tr><td>Hisob ma'lumotlari (ism, telefon, sozlamalar)</td><td>Hisob faol bo'lgan muddatda</td></tr>
+    <tr><td>AI suhbatlari</td><td>Siz o'chirmaguningizcha; har bir hisob uchun eng ko'pi bilan 200 ta oxirgi suhbat</td></tr>
+    <tr><td>Yordam chati yozishmalari</td><td>Hisob faol bo'lgan muddatda</td></tr>
+    <tr><td>To'lov va buyurtmalar tarixi</td><td>Qonunda belgilangan muddatda, hisob o'chirilgandan keyin ham</td></tr>
+    <tr><td>Firibgarlik bilan bog'liq yozuvlar</td><td>Takroriy holatlarning oldini olish uchun zarur muddatda</td></tr>
+    <tr><td>Texnik va xatolik yozuvlari</td><td>Nosozlikni tuzatish uchun zarur qisqa muddatda</td></tr>
+    </table></div>
+    <p>Hisobni o'chirishni so'rasangiz, ma'lumotlaringiz 30 kun ichida o'chiriladi (qonun bo'yicha saqlanishi shart bo'lgan yozuvlar bundan mustasno). Zaxira nusxalardan ham ular navbatdagi yangilanishda o'chib ketadi.</p>
+
+    <h2>Sizning huquqlaringiz</h2>
     <ul>
-    <li>O&#x27;zingiz haqingizdagi ma&#x27;lumotlarni ko&#x27;rishni va noto&#x27;g&#x27;risini tuzatishni so&#x27;rash;</li>
-    <li>Suhbatlaringizni o&#x27;zingiz o&#x27;chirish va bildirishnomalarni o&#x27;chirib qo&#x27;yish;</li>
-    <li>Hisobingiz va ma&#x27;lumotlaringizni o&#x27;chirishni so&#x27;rash.</li>
+    <li><b>Bilish</b> — qanday ma'lumotlaringiz saqlanayotganini so'rash;</li>
+    <li><b>Nusxa olish</b> — o'zingiz haqingizdagi ma'lumotlar nusxasini so'rash;</li>
+    <li><b>Tuzatish</b> — noto'g'ri ma'lumotni tuzattirish (ism va parolni o'zingiz sozlamalardan o'zgartira olasiz);</li>
+    <li><b>O'chirish</b> — suhbatlarni o'zingiz o'chirish va hisobingizni butunlay o'chirishni so'rash;</li>
+    <li><b>Rozilikni qaytarib olish</b> — istalgan vaqtda; bu holda hisobga bog'liq xizmatlar to'xtaydi;</li>
+    <li><b>Cheklash va e'tiroz</b> — e'lonlar va bildirishnomalarni o'chirish, avtomatik qarorga e'tiroz bildirish;</li>
+    <li><b>Shikoyat qilish</b> — huquqlaringiz buzilgan deb hisoblasangiz, shaxsga doir ma'lumotlar sohasidagi vakolatli davlat organiga murojaat qilish.</li>
     </ul>
-    <p>Buning uchun &quot;Yordam&quot; chatiga yoki Telegram bot (@BilolsAIbot) orqali murojaat qiling. Odatda 3 ish kuni ichida javob beramiz.</p>
+    <p>Buning uchun "Yordam" chatiga yoki Telegram bot (@BilolsAIbot) orqali murojaat qiling. Odatda 3 ish kuni ichida javob beramiz, eng kechi bilan — 30 kun ichida. Bu xizmatlar bepul.</p>
 
-    <h2>11. Bolalar</h2>
-    <p>Xizmat 13 yoshdan kichik bolalar uchun mo&#x27;ljallanmagan. 13–18 yoshdagi foydalanuvchilarga ota-ona yoki vasiy roziligi bilan foydalanish tavsiya etiladi.</p>
+    <h2>Hisobni qanday o'chirish mumkin</h2>
+    <ol class="pv-steps">
+    <li>Hisobingizga kirgan holda "Yordam" chatiga yoki ro'yxatdan o'tgan Telegram akkauntingizdan @BilolsAIbot'ga "Hisobimni o'chiring" deb yozing;</li>
+    <li>Hisob sizniki ekanini tasdiqlaymiz (kerak bo'lsa, Telegram orqali kod yuboramiz);</li>
+    <li>Qolgan balans va faol obuna haqida ogohlantiramiz — o'chirilgandan keyin ularni tiklab bo'lmaydi;</li>
+    <li>30 kun ichida hisob, suhbatlar va sozlamalar o'chiriladi, sizga tasdiq xabari yuboriladi.</li>
+    </ol>
 
-    <h2>12. O&#x27;zgarishlar</h2>
-    <p>Siyosat vaqti-vaqti bilan yangilanishi mumkin. Muhim o&#x27;zgarishlar haqida sayt yoki ilova orqali xabar beramiz. Yangilangan sana hujjat boshida ko&#x27;rsatiladi.</p>
+    <h2>Bolalar</h2>
+    <p>Xizmat 13 yoshdan kichik bolalar uchun mo'ljallanmagan va biz ulardan bila turib ma'lumot olmaymiz. 13–18 yoshdagi foydalanuvchilarga ota-ona yoki vasiy roziligi bilan foydalanish tavsiya etiladi. Farzandingiz ruxsatsiz hisob ochgan deb hisoblasangiz, biz bilan bog'laning — hisobni o'chiramiz.</p>
 
-    <h2>13. Bog&#x27;lanish</h2>
+    <h2>O'zgarishlar</h2>
+    <p>Siyosat vaqti-vaqti bilan yangilanishi mumkin. Muhim o'zgarishlar haqida sayt yoki ilova orqali oldindan xabar beramiz, kerak bo'lsa rozilikni qayta so'raymiz. Yangilangan sana hujjat boshida ko'rsatiladi.</p>
+
+    <h2>Bog'lanish</h2>
     <ul>
-    <li>Sayt va ilovalardagi &quot;Yordam&quot; chati</li>
+    <li>Sayt va ilovalardagi "Yordam" chati</li>
     <li>Telegram: @BilolsAIbot</li>
+    <li>Admin (Telegram): <a href="https://t.me/bilolsaiuz" target="_blank" rel="noopener">@bilolsaiuz</a></li>
     <li>Sayt: www.bilolsai.uz</li>
     </ul>
-    <p>Bilols AI, Xorazm, O&#x27;zbekiston</p>
+    <p>Bilols AI, Xorazm, O'zbekiston</p>
     </section>
-    <section class="pv-lang" lang="ru" data-title="Политика конфиденциальности" data-back="← Сайт">
-    <p class="meta">Дата вступления в силу: 30 октября 2026 г.</p>
+    <section class="pv-lang" lang="ru" data-title="Политика конфиденциальности" data-back="← Сайт" data-sub="Как мы получаем, храним и защищаем ваши данные — простым языком.">
+    <p class="meta">Дата вступления в силу: 5 ноября 2026 г. · Предыдущая редакция: 30 октября 2026 г.</p>
     <p class="meta">Сервис: сайт Bilols AI (www.bilolsai.uz), приложение для Android, приложение для Windows (в том числе установленное из Microsoft Store) и Telegram-бот (@BilolsAIbot)</p>
-    <p>Этот документ объясняет, какие данные Bilols AI («мы», «сервис») получает от пользователей, зачем их использует, кто может их видеть, сколько хранит и какие меры принимает при нарушениях. Пользуясь сервисом, вы соглашаетесь с этой политикой.</p>
+    <p>Этот документ объясняет, какие данные Bilols AI («мы», «сервис») получает от пользователей, зачем их использует, кто может их видеть, сколько хранит, как защищает и какие меры принимает при нарушениях. Пользуясь сервисом, вы соглашаетесь с этой политикой.</p>
 
-    <h2>1. Какие данные мы получаем</h2>
+    <h3>Коротко — самое важное</h3>
+    <ul class="pv-sum">
+    <li><i>🔑</i><b>Ваш пароль никто не видит</b>Он хранится только в необратимом защищённом виде — даже мы его не видим.</li>
+    <li><i>🚫</i><b>Данные не продаются</b>Не передаются никому для рекламы, нет следящих cookie.</li>
+    <li><i>💳</i><b>Номер карты не собирается</b>Данные карты вводятся на странице платёжной системы.</li>
+    <li><i>📵</i><b>Без контактов, SMS и GPS</b>Приложение не читает контакты, SMS, звонки и местоположение.</li>
+    <li><i>🗑️</i><b>Право на удаление</b>Чаты удаляете сами, аккаунт удаляем по запросу в течение 30 дней.</li>
+    <li><i>🛡️</i><b>Защита от мошенничества</b>Поддельные оплаты и попытки взлома проверяются и пресекаются.</li>
+    </ul>
+
+    <h2>Какие данные мы получаем</h2>
     <h3>1.1. При создании аккаунта:</h3>
     <ul>
     <li>Ваше имя;</li>
@@ -203,33 +383,43 @@ html.in-app .top a { display: none; }
     <li>Баланс, пополнения, покупки (подписка, Telegram Stars, Premium), заказы и их история;</li>
     <li>Количество запросов в день и используемый ИИ-агент;</li>
     <li>Данные о промокодах, ежедневных бонусах и приглашениях (рефералах);</li>
-    <li>Ваши сообщения и изображения в чате поддержки (например, чек об оплате).</li>
+    <li>Ваши сообщения и изображения в чате поддержки (например, чек об оплате);</li>
+    <li>Язык, тема (светлая/тёмная) и другие настройки.</li>
     </ul>
     <h3>1.3. Технические данные:</h3>
     <ul>
     <li>IP-адрес — для безопасности и борьбы со спамом и мошенничеством;</li>
     <li>Список устройств входа: тип устройства, браузер или приложение, время входа и последней активности (вы видите его в разделе «Активные устройства»);</li>
-    <li>В приложениях: токен уведомлений, случайный идентификатор, созданный самим приложением (не IMEI и не серийный номер), и версия приложения.</li>
+    <li>В приложениях: токен уведомлений, случайный идентификатор, созданный самим приложением (не IMEI и не серийный номер), и версия приложения;</li>
+    <li>Технические записи об ошибках (время, тип запроса, код ошибки) — для исправления сбоев.</li>
     </ul>
-    <h3>1.4. Данные, которые мы НЕ получаем:</h3>
+    <h3>1.4. Через Telegram-бот:</h3>
+    <ul>
+    <li>Telegram ID, имя и имя пользователя — Telegram передаёт их автоматически, когда вы пишете боту;</li>
+    <li>Номер телефона — только если вы сами нажмёте «Поделиться контактом»;</li>
+    <li>Ваши сообщения и команды боту — чтобы ответить и выполнить заказ.</li>
+    </ul>
+    <h3>1.5. Данные, которые мы НЕ получаем:</h3>
     <ul>
     <li>Номера банковских карт и CVV — данные карты вводятся на странице платёжной системы;</li>
     <li>Контакты, SMS, журнал звонков, местоположение (GPS) и записи микрофона;</li>
     <li>Камера используется только когда вы сами делаете и отправляете фото — в фоне ничего не записывается;</li>
+    <li>Паспорт, ID-карта и биометрия (лицо, отпечаток пальца) не запрашиваются;</li>
     <li>Приложение для Windows не видит файлы на вашем компьютере и не собирает дополнительных данных — оно работает так же, как сайт.</li>
     </ul>
 
-    <h2>2. ИИ-чат, изображения и документы</h2>
+    <h2>ИИ-чат, изображения и документы</h2>
     <ul>
-    <li>Ваши сообщения, прикреплённые изображения и документы передаются надёжным сервисам искусственного интеллекта для получения ответа;</li>
+    <li>Ваши сообщения, прикреплённые изображения и документы передаются надёжным сервисам искусственного интеллекта для получения ответа. Ваше имя, номер телефона и пароль им не передаются;</li>
+    <li>Если включён «Поиск в интернете», вопрос также передаётся поисковому сервису;</li>
     <li>История чатов хранится привязанной к вашему аккаунту. Прикреплённые изображения на сервере не хранятся, остаются только уменьшенные копии изображений, созданных ИИ;</li>
     <li>Если вы удалите чат, он удалится со всех ваших устройств и с сервера;</li>
-    <li>Ваши чаты не видят другие пользователи; они не используются для рекламы и не продаются;</li>
-    <li>Ответы ИИ могут содержать ошибки. По медицинским, юридическим и финансовым вопросам консультируйтесь со специалистом;</li>
-    <li>Не пишите в ИИ-чат пароли, номера карт, паспортные данные и другую конфиденциальную информацию.</li>
+    <li>Ваши чаты не видят другие пользователи; они не используются для рекламы, не продаются, и мы не обучаем на них собственные модели ИИ;</li>
+    <li>Ответы ИИ могут содержать ошибки. По медицинским, юридическим и финансовым вопросам консультируйтесь со специалистом.</li>
     </ul>
+    <p class="pv-note warn">⚠️ Не пишите в ИИ-чат пароли, номера карт, SMS-коды, паспортные данные и другую конфиденциальную информацию. Мы никогда не запрашиваем их через чат.</p>
 
-    <h2>3. Зачем мы используем данные</h2>
+    <h2>Зачем мы используем данные и правовые основания</h2>
     <ul>
     <li>Создание аккаунта и безопасный вход в него;</li>
     <li>Одинаковая история чатов на всех ваших устройствах;</li>
@@ -239,247 +429,442 @@ html.in-app .top a { display: none; }
     <li>Защита сервиса от мошенничества, поддельных оплат, спама и взлома;</li>
     <li>Улучшение сервиса на основе общей обезличенной статистики.</li>
     </ul>
-    <p>Мы НЕ ПРОДАЁМ ваши данные и НЕ ПЕРЕДАЁМ их третьим лицам для рекламы.</p>
+    <p>Мы обрабатываем данные на следующих основаниях: <b>ваше согласие</b> (при регистрации и принятии политики), <b>исполнение условий оказания услуг</b> (аккаунт, баланс, заказы), <b>требования закона</b> (записи об оплатах) и <b>обеспечение безопасности сервиса</b> (борьба с мошенничеством). Обработка ведётся в соответствии с Законом Республики Узбекистан «О персональных данных» и иным применимым законодательством.</p>
+    <p class="pv-note">✅ Мы НЕ ПРОДАЁМ ваши данные и НЕ ПЕРЕДАЁМ их третьим лицам для рекламы.</p>
 
-    <h2>4. Доступ администрации к профилю и заметки</h2>
+    <h2>Разрешения приложения</h2>
+    <p>Приложение для Android запрашивает только необходимые для работы разрешения:</p>
+    <div class="pv-tw"><table class="pv-tbl">
+    <tr><th>Разрешение</th><th>Зачем</th></tr>
+    <tr><td>🌐 Интернет и состояние сети</td><td>Связь с ИИ и сообщение об отсутствии интернета</td></tr>
+    <tr><td>🔔 Уведомления</td><td>Ответы поддержки, статус оплат и заказов. Можно отключить в настройках телефона</td></tr>
+    <tr><td>📳 Вибрация</td><td>Короткая вибрация при уведомлении</td></tr>
+    <tr><td>📷 Камера / галерея</td><td>Только когда вы сами прикрепляете фото, с вашего разрешения</td></tr>
+    <tr><td>💾 Память (только Android 9 и старше)</td><td>Сохранение изображения, созданного ИИ, на телефон</td></tr>
+    </table></div>
+    <p>Разрешение можно отозвать в любой момент в настройках телефона — основные функции приложения продолжат работать.</p>
+
+    <h2>Доступ администрации к профилю и заметки</h2>
     <p>Для поддержки и обеспечения безопасности уполномоченная администрация может видеть следующие данные вашего аккаунта: имя, номер телефона, баланс, историю оплат и заказов, активные устройства и переписку в чате поддержки.</p>
     <ul>
-    <li>Администрация может добавлять в ваш профиль внутренние заметки и отметки — например, о ваших обращениях, результатах проверки оплаты или нарушениях;</li>
+    <li>Администрация может оставлять в профиле внутренние заметки и отметки — например, о ваших обращениях, результате проверки оплаты или нарушении;</li>
     <li>Эти заметки используются только внутри сервиса для поддержки и предотвращения мошенничества и не показываются другим пользователям;</li>
-    <li>Администрация просматривает ваши чаты с ИИ только когда вы сами обратились за помощью или когда это необходимо для проверки нарушения;</li>
-    <li>О записях в вашем профиле можно спросить через чат «Поддержка».</li>
+    <li>Администрация просматривает ваши ИИ-чаты только когда вы сами просите о помощи или когда необходимо проверить нарушение;</li>
+    <li>Администрация никогда не спрашивает ваш пароль, SMS- или Telegram-код;</li>
+    <li>О записях в профиле можно спросить через чат «Поддержка».</li>
     </ul>
 
-    <h2>5. Оплаты и меры против мошенничества</h2>
-    <p>Пополнение выполняется через платёжные системы или переводом на карту. Мы храним сумму, время и статус оплаты, а также отправленный вами чек, и проверяем каждую оплату.</p>
+    <h2>Оплаты и меры против мошенничества</h2>
+    <p>Пополнение баланса происходит через платёжные системы или переводом на карту. Мы храним сумму, время, статус оплаты и отправленный вами чек и проверяем каждую оплату.</p>
     <h3>Строго запрещено:</h3>
     <ul>
-    <li>Отправлять поддельные, отредактированные или чужие чеки, выдавать неоплаченное за оплаченное;</li>
+    <li>Отправлять поддельный, изменённый или чужой чек, выдавать неоплаченное за оплаченное;</li>
     <li>Оплачивать чужой картой или счётом без разрешения владельца;</li>
     <li>Необоснованно отменять или пытаться вернуть оплату после получения услуги;</li>
-    <li>Использовать ошибки и недоработки для получения баланса, бонусов или подписки;</li>
+    <li>Получать баланс, бонусы или подписку, используя ошибки и недочёты;</li>
     <li>Создавать несколько аккаунтов ради бонусов и промокодов;</li>
-    <li>Пытаться взломать аккаунты, обойти лимиты, рассылать спам и злоупотреблять чатом поддержки.</li>
+    <li>Пытаться взломать аккаунты, обходить лимиты, спамить и злоупотреблять чатом поддержки.</li>
     </ul>
     <h3>В таких случаях мы:</h3>
     <ul>
     <li>Фиксируем случай в вашем профиле;</li>
     <li>Отменяем операцию и не зачисляем деньги на баланс;</li>
     <li>Списываем незаконно полученный баланс, бонусы или подписку;</li>
-    <li>Временно ограничиваем отдельные функции или полностью блокируем аккаунт;</li>
+    <li>Временно ограничиваем отдельные возможности или полностью блокируем аккаунт;</li>
     <li>Можем отказать в обслуживании в дальнейшем;</li>
-    <li>В случаях, предусмотренных законом, передаём соответствующие данные платёжной системе или уполномоченным государственным органам.</li>
+    <li>В предусмотренных законом случаях передаём соответствующие данные платёжной системе или уполномоченным государственным органам.</li>
     </ul>
-    <p>Записи, связанные с мошенничеством, могут храниться столько, сколько нужно для предотвращения повторных случаев и разрешения споров, в том числе после удаления аккаунта.</p>
+    <h3>Автоматические проверки:</h3>
+    <p>Некоторые меры защиты работают автоматически — например, лимиты запросов, временная приостановка после многократного неверного ввода пароля, выявление подозрительной активности. Серьёзные решения, такие как блокировка аккаунта, рассматривает человек (администрация). Если вы не согласны с решением, напишите в чат «Поддержка» — мы пересмотрим его.</p>
+    <p>Записи, связанные с мошенничеством, могут храниться в течение срока, необходимого для предотвращения повторных случаев и разрешения споров, в том числе после удаления аккаунта.</p>
     <p>Заказы Telegram Stars и Premium выполняются на ваш Telegram-аккаунт. Деньги за ошибочно списанный или невыполненный заказ возвращаются на баланс.</p>
 
-    <h2>6. Кому мы передаём данные</h2>
+    <h2>Кому мы передаём данные</h2>
+    <p>Только в объёме, необходимом для работы сервиса, следующим техническим партнёрам:</p>
+    <div class="pv-tw"><table class="pv-tbl">
+    <tr><th>Тип партнёра</th><th>Зачем</th><th>Какие данные</th></tr>
+    <tr><td>Облачный хостинг и база данных</td><td>Работа сайта, приложений и сервера</td><td>Аккаунт, чаты, история оплат (по зашифрованному каналу)</td></tr>
+    <tr><td>Поставщики моделей ИИ</td><td>Создание ответов, изображений и переводов</td><td>Только текст запроса и прикреплённый файл</td></tr>
+    <tr><td>Telegram</td><td>Коды входа, бот, Stars/Premium</td><td>Telegram ID, сообщение с кодом или заказом</td></tr>
+    <tr><td>Google Firebase</td><td>Отправка уведомлений в приложение</td><td>Токен уведомлений и текст сообщения</td></tr>
+    <tr><td>Платёжные системы</td><td>Пополнение баланса</td><td>Сумма, время и статус оплаты</td></tr>
+    <tr><td>Google Fonts</td><td>Загрузка шрифтов сайта</td><td>Стандартный запрос браузера (IP-адрес)</td></tr>
+    </table></div>
     <ul>
-    <li>Только в объёме, необходимом для работы сервиса, — техническим партнёрам, предоставляющим серверы, ИИ, оплату и отправку сообщений;</li>
-    <li>В случаях, требуемых законом, — уполномоченным государственным органам;</li>
-    <li>В случаях мошенничества — как указано в разделе 5.</li>
+    <li>Когда этого требует закон — уполномоченным государственным органам, только по официальному запросу;</li>
+    <li>В случаях мошенничества — как указано в разделе 6;</li>
+    <li>При смене владельца сервиса — только с сохранением условий этой политики и с предварительным уведомлением.</li>
     </ul>
     <p>В остальных случаях ваши данные третьим лицам не передаются.</p>
 
-    <h2>7. Данные на вашем устройстве</h2>
-    <p>Чтобы не входить каждый раз заново, сайт и приложения хранят на устройстве номер телефона, безопасный ключ входа (не пароль), язык, настройки и копию чатов. Мы не используем рекламные и отслеживающие cookie. Кнопка «Выйти» или удаление приложения очищает эти данные.</p>
+    <h2>Передача данных за рубеж</h2>
+    <p>Некоторые наши технические партнёры (облачные серверы, сервисы ИИ и уведомлений) находятся за пределами Узбекистана. Поэтому часть ваших данных может обрабатываться на зарубежных серверах для оказания услуги. Мы работаем только с надёжными партнёрами, взявшими на себя обязательства по защите данных, связь идёт по зашифрованному каналу, а объём передаваемых данных мы держим минимальным.</p>
 
-    <h2>8. Безопасность</h2>
+    <h2>Данные на вашем устройстве и cookie</h2>
+    <p>Чтобы не входить каждый раз заново, сайт и приложения хранят на вашем устройстве (в памяти браузера) номер телефона, безопасный ключ входа (не сам пароль), язык, тему, настройки и копию чатов. Для работы сайта без интернета также сохраняются копии страниц.</p>
     <ul>
-    <li>Всё общение идёт по зашифрованному каналу (HTTPS);</li>
-    <li>Пароли хранятся в необратимом защищённом виде; при смене пароля все старые ключи входа отзываются;</li>
+    <li>Мы не используем рекламные и следящие cookie, сторонние сети аналитики и рекламы;</li>
+    <li>Кнопка «Выйти», очистка данных браузера или удаление приложения стирают эти данные с устройства;</li>
+    <li>Если пользуетесь общим компьютером, обязательно нажмите «Выйти» после работы.</li>
+    </ul>
+
+    <h2>Уведомления и сообщения</h2>
+    <ul>
+    <li><b>Служебные сообщения</b> — коды входа, статус оплат и заказов, ответы поддержки, предупреждения безопасности. Они необходимы для безопасности аккаунта;</li>
+    <li><b>Объявления</b> — редкие сообщения о новых возможностях, акциях и бонусах (на сайте, в приложении или через Telegram-бот);</li>
+    <li>Уведомления можно отключить в настройках приложения или телефона, а сообщения в Telegram — остановив (заблокировав) бота;</li>
+    <li>Мы не рассылаем SMS-спам и не передаём ваш номер в рекламные базы.</li>
+    </ul>
+
+    <h2>Безопасность</h2>
+    <ul>
+    <li>Вся связь идёт по зашифрованному каналу (HTTPS);</li>
+    <li>Пароли хранятся в необратимом защищённом виде; при смене пароля все старые ключи входа аннулируются;</li>
     <li>Вход с нового устройства возможен только по одноразовому коду или QR-коду, подтверждённому на телефоне, где вы уже вошли;</li>
-    <li>Попытки подбора пароля ограничены;</li>
-    <li>Доступ к данным есть только у уполномоченной администрации.</li>
+    <li>Количество попыток подбора пароля ограничено;</li>
+    <li>Доступ к данным есть только у уполномоченной администрации; резервные копии базы данных создаются регулярно.</li>
     </ul>
-    <p>Ни одна система не защищена на 100%, но мы принимаем разумные меры. Если подозреваете чужой вход, сразу смените пароль и нажмите «Выйти на других устройствах».</p>
-
-    <h2>9. Сроки хранения</h2>
+    <h3>Советы по защите аккаунта:</h3>
     <ul>
-    <li>Данные аккаунта, чаты и история оплат хранятся, пока аккаунт активен;</li>
-    <li>Для каждого аккаунта хранится не более 200 последних чатов;</li>
-    <li>Если вы попросите удалить аккаунт, данные удаляются в течение 30 дней. Исключение — записи об оплатах, которые нужно хранить по закону, и записи, связанные с мошенничеством.</li>
+    <li>Выберите пароль не короче 8 символов, который вы не используете на других сайтах;</li>
+    <li>Никому не сообщайте код входа и пароль — даже тем, кто называет себя «сотрудником Bilols AI»;</li>
+    <li>Периодически проверяйте список «Активные устройства»;</li>
+    <li>Устанавливайте приложение только с официального сайта (www.bilolsai.uz) или из Microsoft Store.</li>
     </ul>
+    <p>Ни одна система не защищена на 100%, но мы принимаем разумные меры. Если подозреваете, что в ваш аккаунт вошёл посторонний, сразу смените пароль и нажмите «Выйти на других устройствах».</p>
+    <p class="pv-note">📣 Если произойдёт инцидент безопасности, например утечка данных, мы немедленно примем меры для его устранения и как можно скорее — как правило, в течение 72 часов — уведомим затронутых пользователей через сайт, приложение или Telegram.</p>
 
-    <h2>10. Ваши права</h2>
+    <h2>Сроки хранения</h2>
+    <div class="pv-tw"><table class="pv-tbl">
+    <tr><th>Данные</th><th>Сколько хранятся</th></tr>
+    <tr><td>Данные аккаунта (имя, телефон, настройки)</td><td>Пока аккаунт активен</td></tr>
+    <tr><td>Чаты с ИИ</td><td>Пока вы их не удалите; не более 200 последних чатов на аккаунт</td></tr>
+    <tr><td>Переписка в чате поддержки</td><td>Пока аккаунт активен</td></tr>
+    <tr><td>История оплат и заказов</td><td>В течение срока, установленного законом, в том числе после удаления аккаунта</td></tr>
+    <tr><td>Записи, связанные с мошенничеством</td><td>Сколько необходимо для предотвращения повторных случаев</td></tr>
+    <tr><td>Технические записи и записи об ошибках</td><td>Короткий срок, необходимый для исправления сбоев</td></tr>
+    </table></div>
+    <p>Если вы попросите удалить аккаунт, данные будут удалены в течение 30 дней (кроме записей, которые обязательно хранить по закону). Из резервных копий они исчезнут при очередном обновлении.</p>
+
+    <h2>Ваши права</h2>
     <ul>
-    <li>Запросить свои данные и исправить неверные;</li>
-    <li>Самостоятельно удалять чаты и отключать уведомления;</li>
-    <li>Запросить удаление аккаунта и данных.</li>
+    <li><b>Знать</b> — спросить, какие ваши данные хранятся;</li>
+    <li><b>Получить копию</b> — запросить копию данных о себе;</li>
+    <li><b>Исправить</b> — исправить неверные данные (имя и пароль можно изменить самостоятельно в настройках);</li>
+    <li><b>Удалить</b> — удалять чаты самостоятельно и запросить полное удаление аккаунта;</li>
+    <li><b>Отозвать согласие</b> — в любой момент; при этом услуги, связанные с аккаунтом, прекращаются;</li>
+    <li><b>Ограничить и возразить</b> — отключить объявления и уведомления, оспорить автоматическое решение;</li>
+    <li><b>Пожаловаться</b> — если считаете, что ваши права нарушены, обратиться в уполномоченный государственный орган в сфере персональных данных.</li>
     </ul>
-    <p>Для этого напишите в чат «Поддержка» или Telegram-боту (@BilolsAIbot). Обычно мы отвечаем в течение 3 рабочих дней.</p>
+    <p>Для этого напишите в чат «Поддержка» или в Telegram-бот (@BilolsAIbot). Обычно мы отвечаем в течение 3 рабочих дней, максимум — в течение 30 дней. Это бесплатно.</p>
 
-    <h2>11. Дети</h2>
-    <p>Сервис не предназначен для детей младше 13 лет. Пользователям 13–18 лет рекомендуется пользоваться сервисом с согласия родителей или опекунов.</p>
+    <h2>Как удалить аккаунт</h2>
+    <ol class="pv-steps">
+    <li>Войдите в аккаунт и напишите в чат «Поддержка» или с привязанного Telegram-аккаунта боту @BilolsAIbot: «Удалите мой аккаунт»;</li>
+    <li>Мы подтвердим, что аккаунт ваш (при необходимости отправим код в Telegram);</li>
+    <li>Предупредим об оставшемся балансе и активной подписке — после удаления их нельзя восстановить;</li>
+    <li>В течение 30 дней аккаунт, чаты и настройки будут удалены, вы получите подтверждение.</li>
+    </ol>
 
-    <h2>12. Изменения</h2>
-    <p>Политика может время от времени обновляться. О важных изменениях мы сообщим на сайте или в приложении. Дата обновления указана в начале документа.</p>
+    <h2>Дети</h2>
+    <p>Сервис не предназначен для детей младше 13 лет, и мы сознательно не собираем их данные. Пользователям 13–18 лет рекомендуется пользоваться сервисом с согласия родителя или опекуна. Если вы считаете, что ваш ребёнок создал аккаунт без разрешения, свяжитесь с нами — мы удалим аккаунт.</p>
 
-    <h2>13. Контакты</h2>
+    <h2>Изменения</h2>
+    <p>Политика может время от времени обновляться. О важных изменениях мы заранее сообщим на сайте или в приложении и при необходимости повторно запросим согласие. Дата обновления указана в начале документа.</p>
+
+    <h2>Контакты</h2>
     <ul>
     <li>Чат «Поддержка» на сайте и в приложениях</li>
     <li>Telegram: @BilolsAIbot</li>
+    <li>Администратор (Telegram): <a href="https://t.me/bilolsaiuz" target="_blank" rel="noopener">@bilolsaiuz</a></li>
     <li>Сайт: www.bilolsai.uz</li>
     </ul>
     <p>Bilols AI, Хорезм, Узбекистан</p>
     </section>
-    <section class="pv-lang" lang="en" data-title="Privacy Policy" data-back="← Website">
-    <p class="meta">Effective date: October 30, 2026</p>
-    <p class="meta">Service: the Bilols AI website (www.bilolsai.uz), the Android app, the Windows app (including the version installed from the Microsoft Store) and the Telegram bot (@BilolsAIbot)</p>
-    <p>This document explains what data Bilols AI (&quot;we&quot;, &quot;the service&quot;) receives from users, why we use it, who can see it, how long we keep it and what we do in case of violations. By using the service you agree to this policy.</p>
+    <section class="pv-lang" lang="en" data-title="Privacy Policy" data-back="← Website" data-sub="How we receive, store and protect your data — in plain language.">
+    <p class="meta">Effective date: November 5, 2026 · Previous version: October 30, 2026</p>
+    <p class="meta">Service: the Bilols AI website (www.bilolsai.uz), Android app, Windows app (including the one installed from the Microsoft Store) and Telegram bot (@BilolsAIbot)</p>
+    <p>This document explains what data Bilols AI ("we", "the service") receives from users, why we use it, who can see it, how long we keep it, how we protect it and what we do in case of violations. By using the service, you agree to this policy.</p>
 
-    <h2>1. Data we receive</h2>
+    <h3>In short — the essentials</h3>
+    <ul class="pv-sum">
+    <li><i>🔑</i><b>Nobody sees your password</b>It is stored only in an irreversible protected form — not even we can see it.</li>
+    <li><i>🚫</i><b>Your data is not sold</b>Never shared for advertising, no tracking cookies.</li>
+    <li><i>💳</i><b>No card numbers collected</b>Card details are entered on the payment provider's own page.</li>
+    <li><i>📵</i><b>No contacts, SMS or GPS</b>The app does not read contacts, SMS, calls or location.</li>
+    <li><i>🗑️</i><b>Right to delete</b>You delete chats yourself; we delete your account on request within 30 days.</li>
+    <li><i>🛡️</i><b>Anti-fraud protection</b>Fake payments and hacking attempts are checked and stopped.</li>
+    </ul>
+
+    <h2>Data we receive</h2>
     <h3>1.1. When you create an account:</h3>
     <ul>
     <li>Your name;</li>
-    <li>Your phone number;</li>
-    <li>Your password — stored only in an irreversible protected form; nobody, including the administration, can see the original password;</li>
-    <li>Your Telegram ID and username (for verification codes and Stars/Premium orders).</li>
+    <li>Phone number;</li>
+    <li>Password — stored only in an irreversible protected form; no one, including the administration, can see the original password;</li>
+    <li>Telegram ID and username (for verification codes and Stars/Premium orders).</li>
     </ul>
     <h3>1.2. When you use the service:</h3>
     <ul>
-    <li>Your AI chat history (so it is the same on all your devices);</li>
+    <li>Your AI chat history (so it looks the same on all your devices);</li>
     <li>Balance, top-ups, purchases (subscription, Telegram Stars, Premium), orders and their history;</li>
     <li>Number of requests per day and which AI agent was used;</li>
     <li>Promo code, daily bonus and referral data;</li>
-    <li>Your messages and images in the support chat (for example, a payment receipt).</li>
+    <li>Your messages and images in the support chat (for example, a payment receipt);</li>
+    <li>Language, theme (light/dark) and other settings.</li>
     </ul>
     <h3>1.3. Technical data:</h3>
     <ul>
     <li>IP address — for security and to fight spam and fraud;</li>
-    <li>List of signed-in devices: device type, browser or app, sign-in and last activity time (you can see it in &quot;Active devices&quot;);</li>
-    <li>In the apps: notification token, a random identifier created by the app itself (not the IMEI or serial number) and the app version.</li>
+    <li>List of signed-in devices: device type, browser or app name, sign-in and last activity time (you can see it under "Active devices");</li>
+    <li>In the apps: notification token, a random device identifier created by the app itself (not the IMEI or serial number) and the app version;</li>
+    <li>Technical error records (time, request type, error code) — to fix malfunctions.</li>
     </ul>
-    <h3>1.4. Data we do NOT receive:</h3>
+    <h3>1.4. Through the Telegram bot:</h3>
     <ul>
-    <li>Bank card numbers and CVV codes — card details are entered on the payment provider&#x27;s own page;</li>
+    <li>Telegram ID, name and username — Telegram sends them automatically when you message the bot;</li>
+    <li>Phone number — only if you tap "Share contact" yourself;</li>
+    <li>Your messages and commands to the bot — to reply and fulfil orders.</li>
+    </ul>
+    <h3>1.5. Data we do NOT receive:</h3>
+    <ul>
+    <li>Bank card numbers and CVV codes — card details are entered on the payment provider's own page;</li>
     <li>Contacts, SMS, call history, location (GPS) and microphone recordings;</li>
     <li>The camera is used only when you take and send a photo yourself — nothing is recorded in the background;</li>
+    <li>Passport, ID card and biometric data (face, fingerprint) are never requested;</li>
     <li>The Windows app does not see the files on your computer and collects no extra data — it works the same way as the website.</li>
     </ul>
 
-    <h2>2. AI chat, images and documents</h2>
+    <h2>AI chat, images and documents</h2>
     <ul>
-    <li>Your messages, attached images and documents are sent to trusted artificial intelligence services to get an answer;</li>
+    <li>Your messages, attached images and documents are sent to trusted artificial intelligence services to get a response. Your name, phone number and password are not sent to them;</li>
+    <li>When "Web search" is on, your question is also sent to a search service;</li>
     <li>Chat history is stored linked to your account. Attached images are not stored on the server; only small copies of AI-generated images are kept;</li>
     <li>If you delete a chat, it is deleted from all your devices and from the server;</li>
-    <li>Other users cannot see your chats; they are not used for advertising and are not sold;</li>
-    <li>AI answers may contain mistakes. For medical, legal or financial matters, consult a professional;</li>
-    <li>Do not write passwords, card numbers, passport details or other confidential information in the AI chat.</li>
+    <li>Other users cannot see your chats; they are not used for advertising, not sold, and we do not train our own AI models on them;</li>
+    <li>AI answers may contain mistakes. For medical, legal or financial matters, consult a specialist.</li>
     </ul>
+    <p class="pv-note warn">⚠️ Do not type passwords, card numbers, SMS codes, passport details or other sensitive information into the AI chat. We will never ask for them in a chat.</p>
 
-    <h2>3. Why we use the data</h2>
+    <h2>Why we use the data and legal basis</h2>
     <ul>
-    <li>To create your account and keep sign-in secure;</li>
+    <li>To create your account and provide secure sign-in;</li>
     <li>To keep your chats the same across your devices;</li>
-    <li>To process top-ups, payments, subscriptions and orders;</li>
+    <li>To process balance, payments, subscriptions and orders;</li>
     <li>To send verification codes and important notifications;</li>
     <li>To answer your questions in the support chat;</li>
     <li>To protect the service from fraud, fake payments, spam and hacking;</li>
     <li>To improve the service based on general, anonymized statistics.</li>
     </ul>
-    <p>We do NOT SELL your data and do NOT SHARE it with third parties for advertising.</p>
+    <p>We process your data on these grounds: <b>your consent</b> (when you register and accept this policy), <b>performance of the service terms</b> (account, balance, orders), <b>legal requirements</b> (payment records) and <b>keeping the service secure</b> (fighting fraud). Processing is carried out in accordance with the Law of the Republic of Uzbekistan "On Personal Data" and other applicable legislation.</p>
+    <p class="pv-note">✅ We do NOT SELL your data and do NOT SHARE it with third parties for advertising.</p>
 
-    <h2>4. Administration access to your profile and notes</h2>
-    <p>To provide support and keep the service secure, authorized administration can see the following data of your account: name, phone number, balance, payment and order history, active devices and support chat messages.</p>
+    <h2>App permissions</h2>
+    <p>The Android app asks only for the permissions it needs to work:</p>
+    <div class="pv-tw"><table class="pv-tbl">
+    <tr><th>Permission</th><th>Why</th></tr>
+    <tr><td>🌐 Internet and network state</td><td>Connecting to the AI and showing when you are offline</td></tr>
+    <tr><td>🔔 Notifications</td><td>Support replies, payment and order status. Can be turned off in phone settings</td></tr>
+    <tr><td>📳 Vibration</td><td>A short vibration when a notification arrives</td></tr>
+    <tr><td>📷 Camera / gallery</td><td>Only when you choose to attach a photo, with your permission</td></tr>
+    <tr><td>💾 Storage (Android 9 and older only)</td><td>Saving an AI-generated image to your phone</td></tr>
+    </table></div>
+    <p>You can revoke any permission at any time in your phone settings — the app's main features keep working.</p>
+
+    <h2>Administration access to your profile and notes</h2>
+    <p>To provide support and keep the service secure, the authorized administration can see the following data about your account: name, phone number, balance, payment and order history, active devices and support chat messages.</p>
     <ul>
-    <li>The administration may add internal notes and marks to your profile — for example, about your requests, payment check results or violations;</li>
-    <li>These notes are used only within the service for support and fraud prevention and are not shown to other users;</li>
-    <li>The administration views your AI chats only when you ask for help yourself or when it is necessary to investigate a violation;</li>
-    <li>You can ask about the records in your profile through the &quot;Support&quot; chat.</li>
+    <li>The administration may add internal notes and flags to your profile — for example, about your requests, a payment check result or a violation;</li>
+    <li>These notes are used only within the service, for support and fraud prevention, and are not shown to other users;</li>
+    <li>The administration views your AI chats only when you ask for help or when a violation needs to be checked;</li>
+    <li>The administration will never ask for your password, SMS or Telegram code;</li>
+    <li>You can ask about the records in your profile via the "Support" chat.</li>
     </ul>
 
-    <h2>5. Payments and anti-fraud measures</h2>
-    <p>Top-ups are made through payment providers or by card transfer. We keep the amount, time and status of the payment and the receipt you send, and we check every payment.</p>
+    <h2>Payments and anti-fraud measures</h2>
+    <p>Top-ups are made through payment systems or by card transfer. We store the payment amount, time, status and the receipt you sent, and check every payment.</p>
     <h3>The following is strictly prohibited:</h3>
     <ul>
-    <li>Sending fake, edited or someone else&#x27;s receipts, or presenting an unpaid amount as paid;</li>
-    <li>Paying with someone else&#x27;s card or account without the owner&#x27;s permission;</li>
-    <li>Unjustifiably cancelling or trying to reverse a payment after receiving the service;</li>
-    <li>Exploiting bugs or flaws to obtain balance, bonuses or a subscription;</li>
-    <li>Creating multiple accounts to collect bonuses and promo codes;</li>
-    <li>Trying to hack accounts or bypass limits, sending spam or abusing the support chat.</li>
+    <li>Sending a fake, edited or someone else's receipt, or presenting an unpaid amount as paid;</li>
+    <li>Paying with someone else's card or account without the owner's permission;</li>
+    <li>Cancelling or trying to reverse a payment without good reason after receiving the service;</li>
+    <li>Obtaining balance, bonuses or subscriptions by exploiting bugs and flaws;</li>
+    <li>Creating multiple accounts for bonuses and promo codes;</li>
+    <li>Trying to hack accounts, bypass limits, spam or abuse the support chat.</li>
     </ul>
     <h3>In such cases we:</h3>
     <ul>
     <li>Record the case in your profile;</li>
-    <li>Cancel the operation and do not credit the balance;</li>
-    <li>Remove improperly obtained balance, bonuses or subscription;</li>
-    <li>Temporarily restrict some features or permanently block the account;</li>
-    <li>May refuse to provide the service in the future;</li>
-    <li>Where required by law, provide the relevant data to the payment provider or competent authorities.</li>
+    <li>Cancel the operation and do not credit your balance;</li>
+    <li>Take back illegally obtained balance, bonuses or subscriptions;</li>
+    <li>Temporarily restrict some account features or block the account entirely;</li>
+    <li>May refuse service in the future;</li>
+    <li>Where required by law, provide relevant data to the payment system or authorized government bodies.</li>
     </ul>
-    <p>Records related to fraud may be kept for as long as needed to prevent repeated cases and resolve disputes, including after the account is deleted.</p>
-    <p>Telegram Stars and Premium orders are delivered to your Telegram account. Money for a wrongly charged or unfulfilled order is returned to your balance.</p>
+    <h3>Automated checks:</h3>
+    <p>Some protective measures run automatically — for example, request limits, a temporary pause after repeated wrong password attempts, and detection of suspicious activity. Serious decisions, such as blocking an account, are reviewed by a person (the administration). If you disagree with a decision, write to the "Support" chat — we will review it again.</p>
+    <p>Fraud-related records may be kept for as long as needed to prevent repeat cases and resolve disputes, including after the account is deleted.</p>
+    <p>Telegram Stars and Premium orders are fulfilled to your Telegram account. Money for an order that was charged by mistake or not fulfilled is returned to your balance.</p>
 
-    <h2>6. Who we share data with</h2>
+    <h2>Who we share data with</h2>
+    <p>Only to the extent needed for the service to work, with these technical partners:</p>
+    <div class="pv-tw"><table class="pv-tbl">
+    <tr><th>Partner type</th><th>Why</th><th>What data</th></tr>
+    <tr><td>Cloud hosting and database</td><td>Running the website, apps and server</td><td>Account, chats, payment history (over an encrypted connection)</td></tr>
+    <tr><td>AI model providers</td><td>Generating answers, images and translations</td><td>Only the request text and attached file</td></tr>
+    <tr><td>Telegram</td><td>Sign-in codes, the bot, Stars/Premium</td><td>Telegram ID, code or order message</td></tr>
+    <tr><td>Google Firebase</td><td>Sending notifications to the app</td><td>Notification token and message text</td></tr>
+    <tr><td>Payment systems</td><td>Topping up your balance</td><td>Amount, time and payment status</td></tr>
+    <tr><td>Google Fonts</td><td>Loading the website fonts</td><td>A standard browser request (IP address)</td></tr>
+    </table></div>
     <ul>
-    <li>Only to the extent needed for the service to work — technical partners that provide servers, AI, payments and messaging;</li>
-    <li>When required by law — competent government authorities;</li>
-    <li>In cases of fraud — as described in section 5.</li>
+    <li>When required by law — to authorized government bodies, only upon an official request;</li>
+    <li>In fraud cases — as described in section 6;</li>
+    <li>If the service changes ownership — only with the terms of this policy preserved and with prior notice to you.</li>
     </ul>
-    <p>Otherwise your data is not shared with third parties.</p>
+    <p>Otherwise, your data is not shared with third parties.</p>
 
-    <h2>7. Data stored on your device</h2>
-    <p>So that you don&#x27;t have to sign in every time, the website and apps store on your device your phone number, a secure sign-in key (not your password), language, settings and a copy of your chats. We do not use advertising or tracking cookies. The &quot;Sign out&quot; button or uninstalling the app clears this data.</p>
+    <h2>International data transfers</h2>
+    <p>Some of our technical partners (cloud servers, AI and notification services) are located outside Uzbekistan. As a result, part of your data may be processed on servers abroad to provide the service. We work only with reliable partners committed to protecting data, the connection is encrypted, and we keep the amount of data transferred to a minimum.</p>
 
-    <h2>8. Security</h2>
+    <h2>Data stored on your device and cookies</h2>
+    <p>So you don't have to sign in every time, the website and apps store on your device (in browser storage) your phone number, a secure sign-in key (not the password itself), language, theme, settings and a copy of your chats. Copies of pages are also stored so the website can work offline.</p>
     <ul>
-    <li>All communication goes over an encrypted channel (HTTPS);</li>
+    <li>We do not use advertising or tracking cookies, or third-party analytics and ad networks;</li>
+    <li>The "Log out" button, clearing browser data or uninstalling the app removes this data from the device;</li>
+    <li>If you use a shared computer, always tap "Log out" when you are done.</li>
+    </ul>
+
+    <h2>Notifications and messages</h2>
+    <ul>
+    <li><b>Service messages</b> — sign-in codes, payment and order status, support replies, security alerts. They are necessary for your account's security;</li>
+    <li><b>Announcements</b> — occasional messages about new features, promotions and bonuses (on the website, in the app or via the Telegram bot);</li>
+    <li>You can turn off notifications in the app or phone settings, and Telegram messages by stopping (blocking) the bot;</li>
+    <li>We do not send SMS spam and never add your number to advertising lists.</li>
+    </ul>
+
+    <h2>Security</h2>
+    <ul>
+    <li>All communication goes over an encrypted (HTTPS) connection;</li>
     <li>Passwords are stored in an irreversible protected form; when you change your password, all old sign-in keys are revoked;</li>
-    <li>Signing in on a new device is possible only with a one-time code or a QR code confirmed on a phone where you are already signed in;</li>
+    <li>Signing in from a new device is possible only with a one-time code or a QR code confirmed on a phone where you are already signed in;</li>
     <li>Password guessing attempts are limited;</li>
-    <li>Only authorized administration has access to the data.</li>
+    <li>Only the authorized administration can access the data; database backups are made regularly.</li>
     </ul>
-    <p>No system is 100% secure, but we take reasonable measures. If you suspect someone else has signed in, change your password right away and press &quot;Sign out of other devices&quot;.</p>
-
-    <h2>9. Retention</h2>
+    <h3>Tips to protect your account:</h3>
     <ul>
-    <li>Account data, chats and payment history are kept while your account is active;</li>
-    <li>Up to 200 most recent chats are kept per account;</li>
-    <li>If you ask us to delete your account, your data is deleted within 30 days, except payment records that must be kept by law and records related to fraud.</li>
+    <li>Choose a password of at least 8 characters that you don't use on other websites;</li>
+    <li>Never share your sign-in code or password — not even with someone claiming to be "Bilols AI staff";</li>
+    <li>Check the "Active devices" list from time to time;</li>
+    <li>Install the app only from the official website (www.bilolsai.uz) or the Microsoft Store.</li>
     </ul>
+    <p>No system is 100% secure, but we take reasonable measures. If you suspect someone else has accessed your account, change your password immediately and tap "Log out of other devices".</p>
+    <p class="pv-note">📣 If a security incident such as a data leak occurs, we will act immediately to stop it and notify affected users as soon as possible — usually within 72 hours — via the website, app or Telegram.</p>
 
-    <h2>10. Your rights</h2>
+    <h2>Retention</h2>
+    <div class="pv-tw"><table class="pv-tbl">
+    <tr><th>Data</th><th>How long it is kept</th></tr>
+    <tr><td>Account data (name, phone, settings)</td><td>While the account is active</td></tr>
+    <tr><td>AI chats</td><td>Until you delete them; at most the last 200 chats per account</td></tr>
+    <tr><td>Support chat messages</td><td>While the account is active</td></tr>
+    <tr><td>Payment and order history</td><td>For the period required by law, including after the account is deleted</td></tr>
+    <tr><td>Fraud-related records</td><td>As long as needed to prevent repeat cases</td></tr>
+    <tr><td>Technical and error records</td><td>A short period needed to fix malfunctions</td></tr>
+    </table></div>
+    <p>If you ask us to delete your account, your data is deleted within 30 days (except records that must be kept by law). It disappears from backups at their next rotation.</p>
+
+    <h2>Your rights</h2>
     <ul>
-    <li>Request your data and correct inaccurate data;</li>
-    <li>Delete your chats yourself and turn off notifications;</li>
-    <li>Request deletion of your account and data.</li>
+    <li><b>Access</b> — ask what data about you is stored;</li>
+    <li><b>Copy</b> — request a copy of your data;</li>
+    <li><b>Correction</b> — have incorrect data fixed (you can change your name and password yourself in settings);</li>
+    <li><b>Deletion</b> — delete chats yourself and request full deletion of your account;</li>
+    <li><b>Withdraw consent</b> — at any time; account-related services will then stop;</li>
+    <li><b>Restrict and object</b> — turn off announcements and notifications, challenge an automated decision;</li>
+    <li><b>Complain</b> — if you believe your rights have been violated, contact the authorized government body for personal data.</li>
     </ul>
-    <p>To do this, write to the &quot;Support&quot; chat or the Telegram bot (@BilolsAIbot). We usually reply within 3 business days.</p>
+    <p>To do this, write to the "Support" chat or the Telegram bot (@BilolsAIbot). We usually reply within 3 business days, and within 30 days at the latest. This is free of charge.</p>
 
-    <h2>11. Children</h2>
-    <p>The service is not intended for children under 13. Users aged 13–18 are advised to use it with the consent of a parent or guardian.</p>
+    <h2>How to delete your account</h2>
+    <ol class="pv-steps">
+    <li>While signed in, write "Delete my account" to the "Support" chat, or to @BilolsAIbot from your linked Telegram account;</li>
+    <li>We confirm that the account is yours (if needed, we send a code via Telegram);</li>
+    <li>We warn you about any remaining balance and active subscription — they cannot be restored after deletion;</li>
+    <li>Within 30 days your account, chats and settings are deleted and you receive a confirmation.</li>
+    </ol>
 
-    <h2>12. Changes</h2>
-    <p>This policy may be updated from time to time. We will announce important changes on the website or in the app. The update date is shown at the top of this document.</p>
+    <h2>Children</h2>
+    <p>The service is not intended for children under 13, and we do not knowingly collect their data. Users aged 13–18 are advised to use it with the consent of a parent or guardian. If you believe your child created an account without permission, contact us and we will delete it.</p>
 
-    <h2>13. Contact</h2>
+    <h2>Changes</h2>
+    <p>This policy may be updated from time to time. We will announce important changes in advance on the website or in the app and, where needed, ask for your consent again. The update date is shown at the top of this document.</p>
+
+    <h2>Contact</h2>
     <ul>
-    <li>The &quot;Support&quot; chat on the website and in the apps</li>
+    <li>The "Support" chat on the website and in the apps</li>
     <li>Telegram: @BilolsAIbot</li>
+    <li>Admin (Telegram): <a href="https://t.me/bilolsaiuz" target="_blank" rel="noopener">@bilolsaiuz</a></li>
     <li>Website: www.bilolsai.uz</li>
     </ul>
     <p>Bilols AI, Khorezm, Uzbekistan</p>
     </section>
   </article>
-  <p class="foot">© Bilols AI · <a href="/" style="color:#93c5fd">bilolsai.uz</a></p>
+  <p class="foot">© Bilols AI · <a href="/">bilolsai.uz</a></p>
 </main>
+<button type="button" class="totop" aria-label="Yuqoriga">↑</button>
 <script>
 (function () {
-    // til: ?lang=ru|en|uz, keyin brauzer tili; tanlov eslab qolinadi
     var secs = document.querySelectorAll('.pv-lang'), btns = document.querySelectorAll('.pv-tabs button');
+    var UI = {
+        uz: { toc: 'Mundarija', print: '🖨️ Chop etish', min: 'daqiqa o\'qish', langs: '3 tilda', top: 'Yuqoriga' },
+        ru: { toc: 'Содержание', print: '🖨️ Печать', min: 'мин чтения', langs: '3 языка', top: 'Наверх' },
+        en: { toc: 'Contents', print: '🖨️ Print', min: 'min read', langs: '3 languages', top: 'Back to top' }
+    };
+    var $ = function (s) { return document.querySelector(s); }, cur = null, heads = [];
     function pick() {
         var q = (location.search.match(/[?&]lang=(uz|ru|en)/) || [])[1]; if (q) return q;
         try { var s = localStorage.getItem('pv_lang'); if (s) return s; } catch (e) {}
         var n = (navigator.language || 'uz').slice(0, 2); return n === 'ru' ? 'ru' : n === 'en' ? 'en' : 'uz';
     }
     function show(l) {
-        secs.forEach(function (s) { s.hidden = s.lang !== l; if (!s.hidden) { document.querySelector('.top h1').textContent = s.dataset.title; document.querySelector('.top a').textContent = s.dataset.back; document.title = s.dataset.title + ' — Bilols AI'; } });
+        var u = UI[l] || UI.uz;
+        secs.forEach(function (s) {
+            s.hidden = s.lang !== l; if (s.hidden) return; cur = s;
+            $('.hero h1').textContent = s.dataset.title; $('.top a').textContent = s.dataset.back;
+            $('.hero .sub').textContent = s.dataset.sub || ''; document.title = s.dataset.title + ' — Bilols AI';
+            var m = s.querySelector('.meta'); $('#pv-date').textContent = '📅 ' + (m ? m.textContent.split('·')[0].replace(/^[^:]*:\s*/, '').trim() : '');
+            var words = (s.textContent.match(/\S+/g) || []).length;
+            $('#pv-read').textContent = '⏱️ ~' + Math.max(1, Math.round(words / 200)) + ' ' + u.min;
+            var ol = $('#pv-toc'); ol.innerHTML = '';
+            heads = [].slice.call(s.querySelectorAll('h2'));
+            heads.forEach(function (h, i) {
+                h.id = 'pv-' + l + '-' + (i + 1);
+                var li = document.createElement('li'), a = document.createElement('a');
+                a.href = '#' + h.id; a.textContent = h.textContent; li.appendChild(a); ol.appendChild(li);
+            });
+        });
+        $('.toc summary span').textContent = u.toc; $('.bar .print').textContent = u.print;
+        $('#pv-langs').textContent = '🌐 ' + u.langs; $('.totop').setAttribute('aria-label', u.top);
         btns.forEach(function (b) { b.classList.toggle('on', b.dataset.l === l); });
-        document.documentElement.lang = l;
+        document.documentElement.lang = l; onScroll();
     }
     btns.forEach(function (b) { b.onclick = function () { try { localStorage.setItem('pv_lang', b.dataset.l); } catch (e) {} show(b.dataset.l); }; });
+    $('.bar .print').onclick = function () { window.print(); };
+    $('.totop').onclick = function () { window.scrollTo(0, 0); };
+    if (window.innerWidth < 640) $('.toc').removeAttribute('open');
+    var ticking = false;
+    function onScroll() {
+        if (ticking) return; ticking = true;
+        requestAnimationFrame(function () {
+            ticking = false;
+            var d = document.documentElement, max = d.scrollHeight - innerHeight, y = scrollY;
+            $('.pv-prog i').style.width = (max > 0 ? Math.min(100, y / max * 100) : 100) + '%';
+            $('.totop').classList.toggle('show', y > 700);
+            var on = -1; heads.forEach(function (h, i) { if (h.getBoundingClientRect().top < 120) on = i; });
+            document.querySelectorAll('#pv-toc a').forEach(function (a, i) { a.classList.toggle('on', i === on); });
+        });
+    }
+    addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll);
     show(pick());
 })();
 </script>
