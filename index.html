@@ -4855,7 +4855,7 @@ window.addEventListener('message', function (e) {
             localStorage.setItem("bilol_ai_name", currentName);
             localStorage.setItem("bilol_ai_password", data.token || password);
 
-            await refreshBalance();
+            refreshBalance();                     // balans fonda yuklanadi — chat darhol ochiladi (kutib o'tirmaydi)
             landingScreen.classList.add("hidden");
             landingScreen.style.display = "none";
             authModal.classList.remove("active");
@@ -9786,7 +9786,7 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     // asosiy kirish kodi shu funksiyalarni chaqiradi
     window.BilolOTP = {
         spin: function () { mode('ring'); },
-        success: function () { mode('ok'); return new Promise(function (r) { setTimeout(r, window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 200 : 1300); }); },
+        success: function () { mode('ok'); return new Promise(function (r) { setTimeout(r, window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 150 : 550); }); },
         fail: function () { mode('bad'); input.value = ''; setTimeout(function () { try { input.focus(); } catch (e) {} paint(); }, 450); },
         reset: function () { mode('type'); }
     };
