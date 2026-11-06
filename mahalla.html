@@ -1777,8 +1777,15 @@ function openPlace(o, cur) {
 }
 function openFree(o) {
     var f = o.f, b = S.bmap[f.b] || { emoji: '🏗', name: f.b };
-    if (f.mine && S.me && S.me.builder) { if (!S.bmode) setBmode(true); openPlace(o, f); return; }
-    openSheet('<div class="sh-t">' + b.emoji + ' ' + esc(f.l || b.name) + '</div><div class="sh-a">' + esc(b.name) + (f.o ? ' · ' + f.o.floors + ' qavat' : '') + '</div><div class="sh-m">Mahalla konstruktori tomonidan qurilgan.</div>');
+    // konstruktor rejimida o'z binosini bossa — tahrirlash; aks holda (rejim o'chiq) — ichkariga kirish va boshqa tugmalar
+    if (f.mine && S.me && S.me.builder && S.bmode) { openPlace(o, f); return; }
+    var canIn = ['bog', 'futbol', 'sayilgoh'].indexOf(f.b) < 0;
+    openSheet('<div class="sh-t">' + b.emoji + ' ' + esc(f.l || b.name) + '</div><div class="sh-a">' + esc(b.name) + (f.o ? ' · ' + f.o.floors + ' qavat' : '') + '</div><div class="sh-m">Mahalla konstruktori tomonidan qurilgan.</div>' +
+        (canIn ? '<button type="button" class="big" id="fr-in">🚪 Ichkariga kirish</button>' : '') +
+        (f.mine && S.me && S.me.builder ? '<button type="button" class="big alt" id="fr-ed">🛠 O\'zgartirish</button><button type="button" class="big ghost" id="fr-dc">🎨 Bezatish: rang va tom</button>' : ''));
+    if ($('fr-in')) $('fr-in').onclick = function () { enterInterior(o); };
+    if ($('fr-ed')) $('fr-ed').onclick = function () { if (!S.bmode) setBmode(true); openPlace(o, f); };
+    if ($('fr-dc')) $('fr-dc').onclick = function () { openDeco(o); };
 }
 
 /* ===================== 🚪 BINOLAR ICHI: uy, choyxona, masjid, kazino... osmono'parda 300 qavat va lift ===================== */
