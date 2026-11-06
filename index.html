@@ -2349,7 +2349,9 @@ body.theme-light #reset-modal .styled-input { background: #f1f5f9; color: #0f172
 .input-bar { padding-bottom: max(10px, env(safe-area-inset-bottom)) !important; }
 #wallet-modal, #settings-modal, #admin-panel, #wallet-sub { padding-bottom: max(22px, env(safe-area-inset-bottom)) !important; }
 #chats-drawer .drawer-panel { padding-bottom: calc(18px + env(safe-area-inset-bottom)); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-#chats-drawer .chat-list { min-height: 90px; flex: 1 1 auto; }
+#chats-drawer .chat-list { min-height: 90px; flex: 1 0 auto; }
+/* iPhone Safari: suhbatlar ko'payganda boshqa bandlar (menyu, agentlar ofisi, pastki tugmalar) siqilib yo'qolmasin — panel o'zi aylanadi */
+#chats-drawer .drawer-panel > * { flex-shrink: 0 !important; }
 #chats-drawer .privacy-link { flex: 0 0 auto; padding-bottom: 10px; }
 /* Safari scroll-konteynerda pastki padding'ni e'tiborsiz qoldiradi — oxirgi element kesilmasin */
 #settings-modal::after, #wallet-modal::after { content: ""; display: block; flex: 0 0 auto; height: calc(28px + env(safe-area-inset-bottom)); }
