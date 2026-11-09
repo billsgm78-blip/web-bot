@@ -5563,13 +5563,13 @@ window.addEventListener('message', function (e) {
         }
     }
 
-    /* /usecomputer — faqat Bilols AI kompyuter dasturida ishlaydi (u yerda AI sichqoncha va klaviaturani boshqaradi) */
+    /* /usecomputer — faqat Bilols AI kompyuter dasturida ishlaydi (u yerda AI dasturlar va fayllarni o'zi topib ochadi) */
     function runUseComputer(text) {
         if (window.BilolUI) window.BilolUI.hideSuggestions();
         appendMsg(text, "user");
-        appendAIMsg(tr("💻 **/usecomputer** faqat **Bilols AI kompyuter dasturida** ishlaydi — u yerda AI sichqoncha va klaviaturani o'zi boshqaradi (⭐ Premium).\n\n[⬇️ Windows uchun yuklab olish](/kompyuter)",
-            "💻 **/usecomputer** works only in the **Bilols AI desktop app** — there the AI controls the mouse and keyboard itself (⭐ Premium).\n\n[⬇️ Download for Windows](/kompyuter)",
-            "💻 **/usecomputer** работает только в **программе Bilols AI для компьютера** — там ИИ сам управляет мышью и клавиатурой (⭐ Premium).\n\n[⬇️ Скачать для Windows](/kompyuter)"));
+        appendAIMsg(tr("💻 **/usecomputer** faqat **Bilols AI kompyuter dasturida** ishlaydi — u yerda AI dasturlar va fayllarni o'zi topib ochadi (⭐ Premium).\n\n[⬇️ Windows uchun yuklab olish](/kompyuter)",
+            "💻 **/usecomputer** works only in the **Bilols AI desktop app** — there the AI finds and opens apps and files itself (⭐ Premium).\n\n[⬇️ Download for Windows](/kompyuter)",
+            "💻 **/usecomputer** работает только в **программе Bilols AI для компьютера** — там ИИ сам находит и открывает программы и файлы (⭐ Premium).\n\n[⬇️ Скачать для Windows](/kompyuter)"));
     }
 
     async function sendChat() {

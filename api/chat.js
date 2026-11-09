@@ -72,7 +72,8 @@ function pcActions(raw) {
 
 // /usecomputer agenti: bitta qadam. Kiradi: vazifa, oldingi qadamlar, ekran rasmi (JPEG base64).
 // Chiqadi: keyingi bitta amal. Koordinatalar 0..1000 (ekran eni/bo'yiga nisbatan) — dastur o'zi piksellarga o'giradi.
-const AGENT_TYPES = new Set(["launch", "open", "click", "double_click", "right_click", "type", "key", "scroll", "wait"]);
+// Sichqoncha ishlatilmaydi: faqat dastur/fayl ochish, qidirish va klaviatura
+const AGENT_TYPES = new Set(["launch", "open", "find_open", "find", "open_found", "type", "key", "wait"]);
 // Ko'p ishlatiladigan dasturlar: odamcha nom -> exe nomi (dastur ularni qidiruvsiz, to'g'ridan-to'g'ri ochadi)
 const APP_ALIAS = {
   calculator: "calc", kalkulyator: "calc", калькулятор: "calc", notepad: "notepad", bloknot: "notepad", блокнот: "notepad",
@@ -103,6 +104,11 @@ function agentAction(a) {
     act.app = APP_ALIAS[raw] || raw.replace(/\s+/g, "");
     if (!/^[a-z0-9._-]{1,40}$/.test(act.app)) return null;
   }
+  if (a.type === "find" || a.type === "find_open") {
+    act.query = String(a.query || a.app || a.name || "").replace(/[\x00-\x1f\\/:*?"<>|]/g, " ").replace(/\s+/g, " ").trim().slice(0, 60);
+    if (act.query.length < 2) return null;
+  }
+  if (a.type === "open_found") { act.n = parseInt(a.n, 10); if (!(act.n >= 1 && act.n <= 12)) return null; }
   if (a.type === "open") {
     act.url = String(a.url || "").trim();
     if (!PC_SCHEMES.test(act.url) || /[\s<>"]/.test(act.url)) return null;
@@ -117,24 +123,23 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
   }
   const done = (Array.isArray(steps) ? steps : []).slice(-20).map((x, i) => `${i + 1}. ${String(x).slice(0, 220)}`).join("\n") || "(none yet — this is the first step)";
   const system =
-    "You are Bilols AI operating the user's Windows computer. You see a screenshot of the primary screen. Work FAST: do as much as you safely can per reply. " +
+    "You are Bilols AI operating the user's Windows computer WITHOUT a mouse — you can never click; you work only with the tools below and the keyboard. " +
+    "You see a screenshot of the primary screen. Work FAST: do as much as you safely can per reply. " +
     "Reply with ONLY valid JSON: {\"thought\": string (short, English), \"say\": string (very short status for the user in " + langName + "; when done=true — the final result/answer), " +
     "\"actions\": [ ...1-6 actions executed in order... ], \"done\": boolean}. " +
     "Actions: " +
-    "{\"type\":\"launch\",\"app\":\"calc\"} — start an installed program directly (NO searching): calc, notepad, mspaint, excel, winword, powerpnt, outlook, chrome, msedge, firefox, explorer, cmd, wt, powershell, taskmgr, control, write, or another exe name; " +
-    "system folders the same way: thispc (This PC / Этот компьютер / My computer), downloads, documents, desktop, pictures, music, videos, recyclebin; " +
-    "{\"type\":\"open\",\"url\":\"https://...\"} — open a website in the default browser (use direct links: https://www.google.com/search?q=..., https://www.youtube.com/results?search_query=..., https://mail.google.com, maps, etc.) or ms-settings:..., mailto:, tg://, spotify:; " +
-    "{\"type\":\"click\"|\"double_click\"|\"right_click\",\"point\":[y, x]} — the point is [y, x] normalized to 0..1000 (y = vertical from top, x = horizontal from left), exactly at the center of the target element; " +
-    "{\"type\":\"type\",\"text\":\"...\"} — types into the focused field/app; {\"type\":\"key\",\"keys\":\"enter\"|\"ctrl+l\"|\"ctrl+t\"|\"ctrl+s\"|\"alt+f4\"|\"tab\"...}; " +
-    "{\"type\":\"scroll\",\"point\":[y, x],\"dy\":int (positive = down)}; {\"type\":\"wait\",\"ms\":int} — e.g. 1200 after launch/open so the window appears. " +
-    "RULES: To open a program ALWAYS use launch (never type into Start/Windows search or the Run box). To open a website use open. " +
-    "You may chain actions blindly when the result is predictable (e.g. launch calc, wait 1200, type \"125*48\", key enter; or launch notepad, wait 1200, type text). " +
-    "Desktop icons and files open with double_click, not click; if the desktop is covered by windows press key \"win+d\" first (then end the list to get a new screenshot). " +
-    "Click only elements visible in the CURRENT screenshot; after a click that changes the screen, end the list so you get a new screenshot. " +
-    "In Excel/Word use keyboard (type, tab, enter, ctrl+...) where possible. In a browser: ctrl+l focuses the address bar. " +
-    "Look at PREVIOUS STEPS and the screenshot: if something failed (e.g. 'launch failed'), use another way. Set done=true when the task is complete (you may include final actions with done=true if the outcome is certain, e.g. just opening a program/site), or when impossible — explain in say. " +
+    "{\"type\":\"launch\",\"app\":\"calc\"} — start a program by exe name: calc, notepad, mspaint, excel, winword, powerpnt, outlook, chrome, msedge, firefox, explorer, cmd, wt, powershell, taskmgr, control, write; " +
+    "system folders: thispc (This PC / Этот компьютер), downloads, documents, desktop, pictures, music, videos, recyclebin; " +
+    "{\"type\":\"find_open\",\"query\":\"telegram\"} — the computer searches installed programs (Start menu), the desktop and the user's files/folders by name and opens the best match — use it for any other app (Telegram, Discord, Steam, games, Zoom...) or a file/folder the user names; " +
+    "{\"type\":\"find\",\"query\":\"report\"} — only list matches (they appear in PREVIOUS STEPS as numbered results), then {\"type\":\"open_found\",\"n\":2} opens result #2 of the last find — use when you must choose between several files; " +
+    "{\"type\":\"open\",\"url\":\"https://...\"} — open a website in the default browser (direct links: https://www.google.com/search?q=..., https://www.youtube.com/results?search_query=..., https://mail.google.com ...) or ms-settings:..., mailto:, tg://resolve?domain=..., spotify:; " +
+    "{\"type\":\"type\",\"text\":\"...\"} — types into the focused window; {\"type\":\"key\",\"keys\":\"enter\"|\"tab\"|\"shift+tab\"|\"esc\"|\"up\"|\"down\"|\"ctrl+l\"|\"ctrl+t\"|\"ctrl+f\"|\"ctrl+s\"|\"ctrl+n\"|\"alt+tab\"|\"alt+f4\"|\"win+d\"|\"f2\"|\"f5\"...}; " +
+    "{\"type\":\"wait\",\"ms\":int} — e.g. 1500 after launch/open so the window appears and gets focus. " +
+    "RULES: Never use the Start menu search or the Run box. Navigate inside apps with the keyboard (tab/arrows/enter, alt+letter menus, ctrl+l address bar in browsers and Explorer — you can type a path like C:\\Users there, ctrl+f to search). " +
+    "Chain actions when the result is predictable (e.g. launch calc, wait 1200, type \"125*48\", key enter; or find_open telegram, wait 2000). " +
+    "Look at PREVIOUS STEPS and the screenshot: if something failed (e.g. 'not found'), try another way (another name, find, a website). Set done=true when the task is complete (you may include final actions with done=true if the outcome is certain, e.g. just opening a program/site/folder), or when impossible — explain in say. " +
     "SAFETY: never delete files, uninstall, change passwords/system security, make payments or purchases, send messages/emails or post anything unless the user explicitly asked for exactly that; " +
-    "never type passwords or card numbers; never run commands in cmd/powershell that modify or delete anything; if login/2FA/captcha is needed — done=true and ask the user.";
+    "never type passwords or card numbers; never type commands into cmd/powershell that modify or delete anything; if login/2FA/captcha is needed — done=true and ask the user.";
   const body = {
     model: "google/gemini-2.5-flash",
     models: ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"],

@@ -1361,9 +1361,9 @@
         if (chat.busy) return;
         chat.msgs.push({ r: 'u', t: text });
         if (!IS_DESKTOP) {
-            pcMsg(L("💻 **/usecomputer** faqat **Bilols AI kompyuter dasturida** ishlaydi — u yerda AI sichqoncha va klaviaturani o'zi boshqaradi.\n\n[⬇️ Windows uchun yuklab olish](https://www.bilolsai.uz/kompyuter)",
-                '💻 **/usecomputer** работает только в **программе Bilols AI для компьютера** — там ИИ сам управляет мышью и клавиатурой.\n\n[⬇️ Скачать для Windows](https://www.bilolsai.uz/kompyuter)',
-                '💻 **/usecomputer** works only in the **Bilols AI desktop app** — there the AI controls the mouse and keyboard itself.\n\n[⬇️ Download for Windows](https://www.bilolsai.uz/kompyuter)'));
+            pcMsg(L("💻 **/usecomputer** faqat **Bilols AI kompyuter dasturida** ishlaydi — u yerda AI dasturlar va fayllarni o'zi topib ochadi.\n\n[⬇️ Windows uchun yuklab olish](https://www.bilolsai.uz/kompyuter)",
+                '💻 **/usecomputer** работает только в **программе Bilols AI для компьютера** — там ИИ сам находит и открывает программы и файлы.\n\n[⬇️ Скачать для Windows](https://www.bilolsai.uz/kompyuter)',
+                '💻 **/usecomputer** works only in the **Bilols AI desktop app** — there the AI finds and opens apps and files itself.\n\n[⬇️ Download for Windows](https://www.bilolsai.uz/kompyuter)'));
             return;
         }
         if (!task) {
@@ -1384,9 +1384,9 @@
             return;
         }
         if (ls('ba_pc_ok') !== '1') {
-            if (!window.confirm(L("AI kompyuteringizni boshqaradi: sichqoncha va klaviaturani ishlatadi, ekraningizni ko'radi. Istalgan payt ekrandagi \"To'xtatish\" tugmasi bilan to'xtatishingiz mumkin. Boshlaymizmi?",
-                'ИИ будет управлять компьютером: мышью и клавиатурой, и видеть экран. Остановить можно кнопкой «Остановить» на экране. Начать?',
-                'The AI will control your computer: use the mouse and keyboard and see your screen. You can stop it anytime with the on-screen "Stop" button. Start?'))) { pcMsg(L('Bekor qilindi.', 'Отменено.', 'Cancelled.')); return; }
+            if (!window.confirm(L("AI kompyuteringizda ishlaydi: ekraningizni ko'radi, dastur va fayllarni topib ochadi, klaviatura bilan yozadi (sichqoncha ishlatilmaydi). Istalgan payt ekrandagi \"To'xtatish\" tugmasi bilan to'xtatishingiz mumkin. Boshlaymizmi?",
+                'ИИ будет работать на компьютере: видеть экран, находить и открывать программы и файлы, печатать с клавиатуры (мышь не используется). Остановить можно кнопкой «Остановить» на экране. Начать?',
+                'The AI will work on your computer: see your screen, find and open apps and files, type with the keyboard (no mouse). You can stop it anytime with the on-screen "Stop" button. Start?'))) { pcMsg(L('Bekor qilindi.', 'Отменено.', 'Cancelled.')); return; }
             ls('ba_pc_ok', '1');
         }
         chat.busy = true; $('c-send').disabled = true;
@@ -1395,7 +1395,7 @@
         box.appendChild(live); scrollChat(true);
         function setLive(t) { var tx = live.querySelector('.tx'); if (tx) tx.innerHTML = md(t); scrollChat(); }
         setLive('🤖 ' + L('Kompyuterni boshqarish boshlandi…', 'Начинаю управлять компьютером…', 'Taking control of the computer…'));
-        var steps = [], log = [], final = '', fail = null, MAX = 30;
+        var steps = [], log = [], final = '', fail = null, MAX = 30, lastFound = [];
         try {
             await pcInv('pc_begin');
             for (var i = 0; i < MAX; i++) {
@@ -1414,21 +1414,40 @@
                 }
                 for (var q = 0; q < acts.length; q++) {
                     var a = acts[q], res2 = 'ok';
-                    var px = a.x != null ? Math.round(a.x / 1000 * (shot.w - 1)) : null, py = a.y != null ? Math.round(a.y / 1000 * (shot.h - 1)) : null;
+                    if (/click|scroll|move/.test(a.type)) { steps.push(a.type + ' → FAILED: mouse is disabled'); continue; }   // sichqoncha ishlatilmaydi
                     try {
                         if (a.type === 'launch') res2 = await pcLaunch(a.app);
+                        else if (a.type === 'find' || a.type === 'find_open') {
+                            var found = [];
+                            try { found = await pcInv('pc_find', { query: a.query }) || []; }
+                            catch (e3) { if (/not found|not allowed|denied|unknown command/i.test(String(e3))) { found = null; } else throw e3; }
+                            if (found === null) { res2 = await pcLaunch(a.query); }   // eski kompyuter dasturi: Start menyusi orqali
+                            else {
+                                lastFound = found;
+                                res2 = found.length ? found.map(function (f, k) { return '[' + (k + 1) + '] ' + f.name + ' (' + f.kind + ')'; }).join('; ') : 'not found';
+                                if (a.type === 'find_open') {
+                                    if (!found.length) res2 = 'FAILED: nothing named "' + a.query + '" found';
+                                    else { await pcInv('pc_open_path', { path: found[0].path, name: found[0].name }); await pcInv('pc_wait', { ms: 1500 }); res2 = 'opened ' + found[0].name + ' (' + found[0].kind + ')'; }
+                                }
+                            }
+                        }
+                        else if (a.type === 'open_found') {
+                            var f = lastFound[a.n - 1];
+                            if (!f) res2 = 'FAILED: no result #' + a.n;
+                            else { await pcInv('pc_open_path', { path: f.path, name: f.name }); await pcInv('pc_wait', { ms: 1500 }); res2 = 'opened ' + f.name; }
+                        }
                         else if (a.type === 'open') { await pcInv('pc_open', { url: a.url }); await pcInv('pc_wait', { ms: 900 }); }
                         else if (a.type === 'wait') await pcInv('pc_wait', { ms: a.ms || 1000 });
                         else {
-                            await pcInv('pc_act', { action: { type: a.type, x: px, y: py, text: a.text || null, keys: a.keys || null, dy: a.dy != null ? a.dy : null } });
-                            await pcInv('pc_wait', { ms: /click/.test(a.type) ? 350 : 120 });
+                            await pcInv('pc_act', { action: { type: a.type, x: null, y: null, text: a.text || null, keys: a.keys || null, dy: null } });
+                            await pcInv('pc_wait', { ms: 120 });
                         }
                     } catch (e2) {
                         if (/stopped/.test(String(e2))) throw e2;
                         res2 = 'FAILED: ' + String(e2 && e2.message || e2).slice(0, 120);
                     }
-                    steps.push(a.type + (a.app ? ' ' + a.app : '') + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (a.ms ? ' ' + a.ms + 'ms' : '') + ' → ' + res2);
-                    if (res2 !== 'ok') break;   // xato — AI yangi ekran rasmini ko'rib boshqa yo'l tanlaydi
+                    steps.push(a.type + (a.app ? ' ' + a.app : '') + (a.query ? ' "' + a.query + '"' : '') + (a.n ? ' #' + a.n : '') + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (a.ms ? ' ' + a.ms + 'ms' : '') + ' → ' + res2);
+                    if (/^(FAILED|not found)/.test(res2)) break;   // xato — AI yangi ekran rasmini ko'rib boshqa yo'l tanlaydi
                 }
                 if (j.retry) steps.push('(some actions in the last reply were invalid and skipped)');
                 if (ag.done) { final = ag.say; break; }
@@ -1609,7 +1628,7 @@
         function mode(id) { return function () { ci.value = ''; chat.mode = id; ls('ba_mode', id); paintModes(); paintModeBtn(); }; }
         function nm(id) { var m = MODES.filter(function (x) { return x[0] === id; })[0]; return L(m[2], m[3], m[4]); }
         return [
-            IS_DESKTOP && { cmd: 'usecomputer', ico: '💻', premium: true, title: L('Kompyuterni boshqarish', 'Управление компьютером', 'Use computer'), sub: L("AI sichqoncha va klaviaturani o'zi boshqaradi", 'ИИ сам управляет мышью и клавиатурой', 'AI controls the mouse and keyboard itself'), run: function () { ci.value = '/usecomputer '; } },
+            IS_DESKTOP && { cmd: 'usecomputer', ico: '💻', premium: true, title: L('Kompyuterni boshqarish', 'Управление компьютером', 'Use computer'), sub: L("AI dasturlar va fayllarni o'zi topib ochadi", 'ИИ сам находит и открывает программы и файлы', 'AI finds and opens apps and files itself'), run: function () { ci.value = '/usecomputer '; } },
             { cmd: 'rasm', ico: '🎨', title: L('Rasm yaratish', 'Создать изображение', 'Create image'), sub: L('Matndan rasm chizadi', 'Рисует картинку по тексту', 'Draws an image from text'), run: function () { ci.value = ''; setGenMode(true); } },
             { cmd: 'oqituvchi', ico: '👨‍🏫', title: nm('teacher'), sub: L('Qadam-baqadam tushuntiradi', 'Объясняет пошагово', 'Explains step by step'), run: mode('teacher') },
             { cmd: 'dasturchi', ico: '👨‍💻', title: nm('coder'), sub: L('Kod yozadi va xatolarni topadi', 'Пишет код и ищет ошибки', 'Writes code and finds bugs'), run: mode('coder') },
@@ -2089,9 +2108,9 @@
                         else if (k === 'lang') { langSheet(); }
                         else if (k === 'pc') {
                             var on = ls('ba_pc_ok') === '1';
-                            if (!on && !window.confirm(L("AI kompyuteringizni boshqarishiga ruxsat berasizmi? /usecomputer buyrug'ida AI ekraningizni ko'radi, sichqoncha va klaviaturani ishlatadi, dasturlarni ochadi. Istalgan payt ekrandagi \"To'xtatish\" tugmasi bilan to'xtatasiz.",
-                                'Разрешить ИИ управлять компьютером? По команде /usecomputer ИИ видит экран, управляет мышью и клавиатурой, открывает программы. Остановить можно кнопкой «Остановить».',
-                                'Allow the AI to control your computer? With /usecomputer it sees your screen, uses the mouse and keyboard and opens programs. Stop anytime with the on-screen "Stop" button.'))) return;
+                            if (!on && !window.confirm(L("AI kompyuteringizni boshqarishiga ruxsat berasizmi? /usecomputer buyrug'ida AI ekraningizni ko'radi, dastur va fayllarni topib ochadi, klaviatura bilan yozadi (sichqoncha ishlatilmaydi). Istalgan payt ekrandagi \"To'xtatish\" tugmasi bilan to'xtatasiz.",
+                                'Разрешить ИИ управлять компьютером? По команде /usecomputer ИИ видит экран, находит и открывает программы и файлы, печатает с клавиатуры (мышь не используется). Остановить можно кнопкой «Остановить».',
+                                'Allow the AI to control your computer? With /usecomputer it sees your screen, finds and opens apps and files and types with the keyboard (no mouse). Stop anytime with the on-screen "Stop" button.'))) return;
                             ls('ba_pc_ok', on ? '0' : '1');
                             $('m-pc').textContent = on ? L("O'chiq", 'Выкл', 'Off') : L('Yoqilgan', 'Вкл', 'On');
                             toast(on ? L("Kompyuterga ulanish o'chirildi", 'Доступ к компьютеру выключен', 'Computer access off') : L('Kompyuterga ulanish yoqildi ✅', 'Доступ к компьютеру включён ✅', 'Computer access on ✅'), 'ok');
