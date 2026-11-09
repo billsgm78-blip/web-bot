@@ -1517,6 +1517,21 @@
                         }
                         else if (a.type === 'open') { await pcInv('pc_open', { url: a.url }); await pcInv('pc_wait', { ms: 900 }); }
                         else if (a.type === 'wait') await pcInv('pc_wait', { ms: a.ms || 1000 });
+                        else if (a.type === 'fill_login') {
+                            var K2 = function (k) { return pcInv('pc_act', { action: { type: 'key', keys: k, x: null, y: null, text: null, dy: null } }); };
+                            var T2 = function (t) { return pcInv('pc_act', { action: { type: 'type', text: t, x: null, y: null, keys: null, dy: null } }); };
+                            if (!sec.map[a.password]) res2 = 'FAILED: unknown password placeholder ' + a.password;
+                            else {
+                                for (var tb = 0; tb < (a.tabs || 0); tb++) { await K2('tab'); await pcInv('pc_wait', { ms: 120 }); }
+                                await K2('ctrl+a'); await pcInv('pc_wait', { ms: 120 });
+                                await T2(a.login); await pcInv('pc_wait', { ms: 250 });
+                                await K2('tab'); await pcInv('pc_wait', { ms: 300 });
+                                await K2('ctrl+a'); await pcInv('pc_wait', { ms: 120 });
+                                await T2(sec.map[a.password]); await pcInv('pc_wait', { ms: 250 });
+                                if (a.submit !== false) { await K2('enter'); await pcInv('pc_wait', { ms: 2500 }); }
+                                res2 = 'login form filled (login → tab → password' + (a.submit !== false ? ' → enter' : '') + ')';
+                            }
+                        }
                         else if (a.type === 'screenshot') {
                             var sh = await pcInv('pc_shot_full');
                             ctx.shot = 'data:image/jpeg;base64,' + sh.image;
@@ -1530,7 +1545,7 @@
                         if (/stopped/.test(String(e2))) throw e2;
                         res2 = 'FAILED: ' + String(e2 && e2.message || e2).slice(0, 120);
                     }
-                    steps.push(a.type + (a.app ? ' ' + a.app : '') + (a.query ? ' "' + a.query + '"' : '') + (a.n ? ' #' + a.n : '') + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (a.ms ? ' ' + a.ms + 'ms' : '') + ' → ' + res2);
+                    steps.push(a.type + (a.login ? ' ' + a.login + ' / ' + a.password : '') + (a.app ? ' ' + a.app : '') + (a.query ? ' "' + a.query + '"' : '') + (a.n ? ' #' + a.n : '') + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (a.ms ? ' ' + a.ms + 'ms' : '') + ' → ' + res2);
                     if (/^(FAILED|not found)/.test(res2)) break;   // xato — AI yangi ekran rasmini ko'rib boshqa yo'l tanlaydi
                 }
                 if (j.retry) steps.push('(some actions in the last reply were invalid and skipped)');

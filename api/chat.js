@@ -73,7 +73,7 @@ function pcActions(raw) {
 // /usecomputer agenti: bitta qadam. Kiradi: vazifa, oldingi qadamlar, ekran rasmi (JPEG base64).
 // Chiqadi: keyingi bitta amal. Koordinatalar 0..1000 (ekran eni/bo'yiga nisbatan) — dastur o'zi piksellarga o'giradi.
 // Sichqoncha ishlatilmaydi: faqat dastur/fayl ochish, qidirish va klaviatura
-const AGENT_TYPES = new Set(["launch", "open", "find_open", "find", "list", "open_item", "open_found", "type", "key", "wait", "screenshot"]);
+const AGENT_TYPES = new Set(["launch", "open", "find_open", "find", "list", "open_item", "open_found", "type", "key", "wait", "screenshot", "fill_login"]);
 // Ko'p ishlatiladigan dasturlar: odamcha nom -> exe nomi (dastur ularni qidiruvsiz, to'g'ridan-to'g'ri ochadi)
 const APP_ALIAS = {
   calculator: "calc", kalkulyator: "calc", калькулятор: "calc", notepad: "notepad", bloknot: "notepad", блокнот: "notepad",
@@ -107,6 +107,14 @@ function agentAction(a) {
   if (a.type === "find" || a.type === "find_open") {
     act.query = String(a.query || a.app || a.name || "").replace(/[\x00-\x1f\\/:*?"<>|]/g, " ").replace(/\s+/g, " ").trim().slice(0, 60);
     if (act.query.length < 2) return null;
+  }
+  if (a.type === "fill_login") {
+    // Login maydoni -> Tab -> parol maydoni -> Enter: dastur aniq shu tartibda bajaradi
+    act.login = String(a.login || a.username || a.email || "").replace(/[\x00-\x1f]/g, "").trim().slice(0, 200);
+    act.password = String(a.password || "").trim();
+    if (!act.login || !/^\{\{SECRET\d+\}\}$/.test(act.password)) return null;   // parol faqat foydalanuvchi bergan belgi bo'lishi mumkin
+    act.submit = a.submit !== false;
+    act.tabs = Math.max(0, Math.min(8, parseInt(a.tabs, 10) || 0));
   }
   if (a.type === "open_found") { act.type = "open_item"; }
   if (act.type === "list" || act.type === "open_item") {
@@ -152,7 +160,10 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     "{\"type\":\"wait\",\"ms\":int} — e.g. 1500 after launch/open so the window appears and gets focus. " +
     "{\"type\":\"screenshot\"} — saves a full-quality screenshot of the screen and sends it to the user (use when the user asks for a screenshot/photo of the screen, or to show the result; take it AFTER the page/app has loaded). " +
     "SECRETS: the user's passwords are hidden from you as placeholders like {{SECRET1}}. To enter a password type the placeholder exactly ({\"type\":\"type\",\"text\":\"{{SECRET1}}\"}) — the computer replaces it with the real value. Never write placeholders anywhere except the password field and never mention them in say. " +
-    "LOGIN to a site when the user gave the login and password: open the login page (e.g. https://www.roblox.com/login), wait ~2500 ms, the login field is usually focused — type the login, key tab, type the password placeholder, key enter, wait ~3000, then check the screenshot. If it is not focused, use key tab to move between fields. " +
+    "{\"type\":\"fill_login\",\"login\":\"user@mail.com\",\"password\":\"{{SECRET1}}\",\"tabs\":0} — LOGIN FORMS: the computer clears the login field (ctrl+a), types the login, presses tab, clears and types the password, presses enter — always in this exact order. " +
+    "LOGIN to a site when the user gave the login and password: open the login page (e.g. https://www.roblox.com/login), wait 3000, then ONE fill_login action, then wait 3500 and check the next screenshot. " +
+    "NEVER type a login or a password with separate type actions — always fill_login. The login field must have focus first: on most login pages it is focused automatically; if the screenshot shows focus elsewhere set \"tabs\" (how many tab presses move focus into the login field) or reload the page with key f5. " +
+    "If the screenshot shows 'incorrect password' — do not retry more than once; take a screenshot, done=true and tell the user. " +
     "RULES: Never use the Start menu search or the Run box. Navigate inside apps with the keyboard (tab/arrows/enter, alt+letter menus, ctrl+l address bar in browsers and Explorer — you can type a path like C:\\Users there, ctrl+f to search). " +
     "Chain actions when the result is predictable (e.g. launch calc, wait 1200, type \"125*48\", key enter; or find_open telegram, wait 2000). " +
     "Look at PREVIOUS STEPS and the screenshot: if something failed (e.g. 'not found'), try another way (another name, find, a website). Set done=true when the task is complete (you may include final actions with done=true if the outcome is certain, e.g. just opening a program/site/folder), or when impossible — explain in say. " +
