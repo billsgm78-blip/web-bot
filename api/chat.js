@@ -16,14 +16,14 @@ const LOGIN_MSG = {
 
 // Har bir xabardan oldin limitni tekshiradi. Bot serveri javob bermasa — xabar yuborilmaydi
 // (avval ruxsat berilardi: server uxlab yotganda istalgan odam soxta raqam bilan AI'dan bepul foydalana olardi).
-async function checkQuota(phone, password, model, client, web) {
+async function checkQuota(phone, password, model, client, web, pc) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 9000);
   try {
     const r = await fetch(`${RAILWAY_URL}/api/chat-quota`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Bilols-Client": client || "web" },
-      body: JSON.stringify({ phone, password, model, web: !!web }),
+      body: JSON.stringify({ phone, password, model, web: !!web, pc: !!pc }),
       signal: ctrl.signal
     });
     if (r.status === 403) return { allowed: false, needLogin: true };
@@ -256,7 +256,7 @@ export default async function handler(req, res) {
   if (!phone || !password) {
     return res.status(401).json({ error: LOGIN_MSG[uiLang], needLogin: true });
   }
-  const quota = await checkQuota(String(phone), String(password), typeof model === "string" ? model.slice(0, 80) : "", /appassets\.androidplatform\.net/.test(String(req.headers.origin || "")) ? "app" : "web", wantWeb);
+  const quota = await checkQuota(String(phone), String(password), typeof model === "string" ? model.slice(0, 80) : "", /appassets\.androidplatform\.net/.test(String(req.headers.origin || "")) ? "app" : "web", wantWeb, isPc || isAgent);
   if (quota.needLogin) {
     return res.status(401).json({ error: LOGIN_MSG[uiLang], needLogin: true });
   }

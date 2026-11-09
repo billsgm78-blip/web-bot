@@ -12194,8 +12194,17 @@ html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::afte
             dv.querySelectorAll('.dev').forEach(function (e) { e.onclick = function () { sel = e.getAttribute('data-id'); paint(); }; });
         }
         var t = target();
+        var bl = $('mypc-block');
+        if (st.blocked) {
+            if (!bl) { bl = document.createElement('div'); bl.id = 'mypc-block'; bl.className = 'cd'; bl.style.cssText = 'border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.12);color:#fecaca;font-size:14px;line-height:1.5'; dv.parentNode.insertBefore(bl, dv); }
+            bl.textContent = '⛔ ' + (st.blocked_msg || T("Bu funksiya vaqtincha o'chirilgan.", 'This feature is temporarily disabled.', 'Эта функция временно отключена.'));
+            $('mypc-go').disabled = true;
+            $('mypc-go').textContent = '⛔ ' + T("Vaqtincha o'chirilgan", 'Temporarily disabled', 'Временно отключено');
+            document.querySelectorAll('#mypc .q').forEach(function (b) { b.disabled = true; b.style.opacity = '.5'; });
+        } else if (bl) { bl.remove(); document.querySelectorAll('#mypc .q').forEach(function (b) { b.disabled = false; b.style.opacity = ''; }); }
+        if (st.blocked) { /* tugma yuqorida o'chirilgan */ } else
         $('mypc-go').disabled = !t;
-        $('mypc-go').textContent = t ? '🚀 ' + T('Kompyuterda bajarish', 'Run on computer', 'Выполнить на компьютере') : '⏸ ' + T('Kompyuter oflayn', 'Computer offline', 'Компьютер офлайн');
+        if (!st.blocked) $('mypc-go').textContent = t ? '🚀 ' + T('Kompyuterda bajarish', 'Run on computer', 'Выполнить на компьютере') : '⏸ ' + T('Kompyuter oflayn', 'Computer offline', 'Компьютер офлайн');
         var rs = $('mypc-res');
         rs.innerHTML = '';
         st.results.forEach(function (r) {

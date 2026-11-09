@@ -1417,7 +1417,8 @@
                     if (chat.busy) api('/api/pc/result', { id: j.cmd.id, status: 'error', text: L("Kompyuter band — oldingi vazifa bajarilmoqda.", 'Компьютер занят.', 'The computer is busy.') });
                     else { if (state.tab !== 'chat') switchTab('chat'); runAgent('📱 ' + j.cmd.task, j.cmd.task, { id: j.cmd.id }); }
                 }
-                if (!j || j._status >= 400) await pcSleep(10000);
+                if (j && j.blocked) await pcSleep(30000);           // admin o'chirgan — kamroq so'raymiz
+                else if (!j || j._status >= 400) await pcSleep(10000);
             } catch (e) { await pcSleep(8000); }
         }
     }
@@ -1431,6 +1432,8 @@
         function report(st, extra) { if (!remote) return Promise.resolve({}); var b = { id: remote.id, status: st }; for (var k in extra) b[k] = extra[k]; return api('/api/pc/result', b).catch(function () { return {}; }); }
         chat.msgs.push({ r: 'u', t: text });
         if (remote && !task) { report('error', { text: L("Buyruq bo'sh.", 'Пустая команда.', 'Empty command.') }); renderChat(); return; }
+        var pcOff = feature('pc');   // admin panelda o'chirilgan bo'lsa — sababi ko'rsatiladi
+        if (pcOff) { report('error', { text: pcOff }); pcMsg('⛔ ' + pcOff); return; }
         if (!IS_DESKTOP) {
             pcMsg(L("💻 **/usecomputer** faqat **Bilols AI kompyuter dasturida** ishlaydi — u yerda AI dasturlar va fayllarni o'zi topib ochadi.\n\n[⬇️ Windows uchun yuklab olish](https://www.bilolsai.uz/kompyuter)",
                 '💻 **/usecomputer** работает только в **программе Bilols AI для компьютера** — там ИИ сам находит и открывает программы и файлы.\n\n[⬇️ Скачать для Windows](https://www.bilolsai.uz/kompyuter)',
