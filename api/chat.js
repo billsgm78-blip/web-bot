@@ -95,7 +95,10 @@ function agentAction(a) {
     else { act.x = n(a.x); act.y = n(a.y); }
     if (act.x === null || act.y === null) return null;
   }
-  if (a.type === "type") { act.text = String(a.text || "").slice(0, 2000); if (!act.text) return null; }
+  if (a.type === "type") {
+    act.text = String(a.text || "").slice(0, 2000);
+    if (!act.text || /\{\{SECRET\d+\}\}/.test(act.text)) return null;   // parol faqat fill_login orqali
+  }
   if (a.type === "key") { act.keys = String(a.keys || "").toLowerCase().replace(/[^a-z0-9+]/g, "").slice(0, 40); if (!act.keys) return null; }
   if (a.type === "scroll") act.dy = Math.max(-10, Math.min(10, parseInt(a.dy, 10) || 3));
   if (a.type === "wait") act.ms = Math.max(200, Math.min(4000, parseInt(a.ms, 10) || 1000));
@@ -112,7 +115,10 @@ function agentAction(a) {
     // Login maydoni -> Tab -> parol maydoni -> Enter: dastur aniq shu tartibda bajaradi
     act.login = String(a.login || a.username || a.email || "").replace(/[\x00-\x1f]/g, "").trim().slice(0, 200);
     act.password = String(a.password || "").trim();
-    if (!act.login || !/^\{\{SECRET\d+\}\}$/.test(act.password)) return null;   // parol faqat foydalanuvchi bergan belgi bo'lishi mumkin
+    if (!/^\{\{SECRET\d+\}\}$/.test(act.password)) return null;   // parol faqat foydalanuvchi bergan belgi bo'lishi mumkin
+    const pt = (v) => (Array.isArray(v) && v.length === 2 && v.every((z) => Number.isFinite(Number(z))) ? v.map((z) => Math.max(0, Math.min(1000, Math.round(Number(z))))) : null);
+    act.login_point = act.login ? pt(a.login_point) : null;        // [y, x] — login maydoni markazi
+    act.password_point = pt(a.password_point);                       // [y, x] — parol maydoni markazi
     act.submit = a.submit !== false;
     act.tabs = Math.max(0, Math.min(8, parseInt(a.tabs, 10) || 0));
   }
@@ -160,9 +166,10 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     "{\"type\":\"wait\",\"ms\":int} — e.g. 1500 after launch/open so the window appears and gets focus. " +
     "{\"type\":\"screenshot\"} — saves a full-quality screenshot of the screen and sends it to the user (use when the user asks for a screenshot/photo of the screen, or to show the result; take it AFTER the page/app has loaded). " +
     "SECRETS: the user's passwords are hidden from you as placeholders like {{SECRET1}}. To enter a password type the placeholder exactly ({\"type\":\"type\",\"text\":\"{{SECRET1}}\"}) — the computer replaces it with the real value. Never write placeholders anywhere except the password field and never mention them in say. " +
-    "{\"type\":\"fill_login\",\"login\":\"user@mail.com\",\"password\":\"{{SECRET1}}\",\"tabs\":0} — LOGIN FORMS: the computer clears the login field (ctrl+a), types the login, presses tab, clears and types the password, presses enter — always in this exact order. " +
-    "LOGIN to a site when the user gave the login and password: open the login page (e.g. https://www.roblox.com/login), wait 3000, then ONE fill_login action, then wait 3500 and check the next screenshot. " +
-    "NEVER type a login or a password with separate type actions — always fill_login. The login field must have focus first: on most login pages it is focused automatically; if the screenshot shows focus elsewhere set \"tabs\" (how many tab presses move focus into the login field) or reload the page with key f5. " +
+    "{\"type\":\"fill_login\",\"login\":\"user@mail.com\",\"password\":\"{{SECRET1}}\",\"login_point\":[y,x],\"password_point\":[y,x]} — LOGIN FORMS: the computer clicks the login field (login_point), clears it, types the login, clicks the password field (password_point), clears it, types the password and presses enter — always in this exact order; the mouse returns to its place. " +
+    "login_point/password_point are [y, x] (0..1000) centers of the two INPUT boxes in the CURRENT screenshot. For a page that asks only for the password (e.g. second step) use login \"\" and only password_point. " +
+    "LOGIN to a site when the user gave the login and password: open the login page (e.g. https://www.roblox.com/login), wait 3000 and END the list so you get a screenshot of the loaded form; in the next reply send ONE fill_login with both points, then wait 3500. " +
+    "NEVER type a login or password with type actions — passwords can only be entered via fill_login. If the form is not visible yet, wait. " +
     "If the screenshot shows 'incorrect password' — do not retry more than once; take a screenshot, done=true and tell the user. " +
     "RULES: Never use the Start menu search or the Run box. Navigate inside apps with the keyboard (tab/arrows/enter, alt+letter menus, ctrl+l address bar in browsers and Explorer — you can type a path like C:\\Users there, ctrl+f to search). " +
     "Chain actions when the result is predictable (e.g. launch calc, wait 1200, type \"125*48\", key enter; or find_open telegram, wait 2000). " +

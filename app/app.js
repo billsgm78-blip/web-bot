@@ -1520,25 +1520,35 @@
                         else if (a.type === 'fill_login') {
                             var K2 = function (k) { return pcInv('pc_act', { action: { type: 'key', keys: k, x: null, y: null, text: null, dy: null } }); };
                             var T2 = function (t) { return pcInv('pc_act', { action: { type: 'type', text: t, x: null, y: null, keys: null, dy: null } }); };
+                            // Maydonga kursor qo'yish: bosadi va sichqonchani joyiga qaytaradi (eski dasturda — oddiy bosish)
+                            var C2 = async function (p) {
+                                var x = Math.round(p[1] / 1000 * (shot.w - 1)), y = Math.round(p[0] / 1000 * (shot.h - 1));
+                                try { await pcInv('pc_act', { action: { type: 'click_restore', x: x, y: y, text: null, keys: null, dy: null } }); }
+                                catch (e4) { if (/stopped/.test(String(e4))) throw e4; await pcInv('pc_act', { action: { type: 'click', x: x, y: y, text: null, keys: null, dy: null } }); }
+                                await pcInv('pc_wait', { ms: 200 });
+                            };
                             if (!sec.map[a.password]) res2 = 'FAILED: unknown password placeholder ' + a.password;
                             else {
-                                for (var tb = 0; tb < (a.tabs || 0); tb++) { await K2('tab'); await pcInv('pc_wait', { ms: 120 }); }
-                                await K2('ctrl+a'); await pcInv('pc_wait', { ms: 120 });
-                                await T2(a.login); await pcInv('pc_wait', { ms: 250 });
-                                await K2('tab'); await pcInv('pc_wait', { ms: 300 });
-                                await K2('ctrl+a'); await pcInv('pc_wait', { ms: 120 });
+                                if (a.login) {
+                                    if (a.login_point) await C2(a.login_point);
+                                    await K2('ctrl+a'); await pcInv('pc_wait', { ms: 100 });
+                                    await T2(a.login); await pcInv('pc_wait', { ms: 250 });
+                                    if (a.password_point) await C2(a.password_point); else { await K2('tab'); await pcInv('pc_wait', { ms: 300 }); }
+                                } else if (a.password_point) await C2(a.password_point);
+                                await K2('ctrl+a'); await pcInv('pc_wait', { ms: 100 });
                                 await T2(sec.map[a.password]); await pcInv('pc_wait', { ms: 250 });
                                 if (a.submit !== false) { await K2('enter'); await pcInv('pc_wait', { ms: 2500 }); }
-                                res2 = 'login form filled (login → tab → password' + (a.submit !== false ? ' → enter' : '') + ')';
+                                res2 = 'login form filled (' + (a.login ? 'login → ' : '') + 'password' + (a.submit !== false ? ' → enter' : '') + ')';
                             }
                         }
+                        else if (a.type === 'type' && /\{\{SECRET\d+\}\}/.test(a.text || '')) res2 = 'FAILED: passwords can only be entered with fill_login';
                         else if (a.type === 'screenshot') {
                             var sh = await pcInv('pc_shot_full');
                             ctx.shot = 'data:image/jpeg;base64,' + sh.image;
                             res2 = 'screenshot taken' + (sh.saved ? ' and saved to ' + sh.saved : '');
                         }
                         else {
-                            await pcInv('pc_act', { action: { type: a.type, x: null, y: null, text: a.text ? pcUnmask(a.text, sec.map) : null, keys: a.keys || null, dy: null } });
+                            await pcInv('pc_act', { action: { type: a.type, x: null, y: null, text: a.text || null, keys: a.keys || null, dy: null } });
                             await pcInv('pc_wait', { ms: 120 });
                         }
                     } catch (e2) {
