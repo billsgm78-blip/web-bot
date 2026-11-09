@@ -4738,9 +4738,14 @@ window.addEventListener('message', function (e) {
         const codeFieldWrap = document.getElementById("code-field-wrap");
         const t = translations[currentLang];
 
-        if (!phone || !password) {
+        if (phone.length <= 3 || !password) {
             statusBox.style.color = "#f43f5e";
             statusBox.innerText = tr("Barcha maydonlarni to'ldiring!", "Fill in all fields!", "Заполните все поля!");
+            return;
+        }
+        if (phone.replace(/^998/, "").length < 9) {
+            statusBox.style.color = "#f43f5e";
+            statusBox.innerText = tr("Telefon raqamni to'liq kiriting.", "Enter the full phone number.", "Введите номер полностью.");
             return;
         }
 
@@ -4877,6 +4882,33 @@ window.addEventListener('message', function (e) {
         const dg = phoneInput.value.replace(/\D/g, "").slice(-9);
         if (isWaitingForOtp && dg !== otpSentDigits) resetOtpState();
     });
+
+    // Telefon maydonlari: "+998 " avtomatik qo'yiladi va o'chirib bo'lmaydi; raqam "+998 90 123 45 67" ko'rinishida formatlanadi
+    function uzPhoneMask(inp) {
+        if (!inp) return;
+        const PFX = "+998 ";
+        function fmt() {
+            const v = inp.value, d = v.replace(/\D/g, "");
+            let local;
+            if ("998".startsWith(d)) local = "";                                   // bo'sh yoki prefiks qismi o'chirildi
+            else if (/^\s*\+?\s*998/.test(v) || (d.length > 9 && d.startsWith("998"))) local = d.slice(3);
+            else local = d;                                                         // "90 123 45 67" kabi yozilgan
+            local = local.slice(0, 9);
+            const p = [local.slice(0, 2), local.slice(2, 5), local.slice(5, 7), local.slice(7, 9)].filter(Boolean);
+            const out = PFX + p.join(" ");
+            if (out !== v) inp.value = out;
+        }
+        inp.setAttribute("inputmode", "tel");
+        inp.setAttribute("maxlength", "17");
+        inp.addEventListener("focus", function () {
+            if (!inp.value.trim()) inp.value = PFX;
+            setTimeout(function () { try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) {} }, 0);
+        });
+        inp.addEventListener("input", fmt);
+        if (!inp.value.trim()) inp.value = PFX; else fmt();
+    }
+    uzPhoneMask(phoneInput);
+    uzPhoneMask(document.getElementById("reset-phone"));
 
     // Rasmni kichraytirish: eng katta tomoni 1280px, JPEG sifati 82% (so'rov hajmi kichik bo'lishi uchun)
     function shrinkImage(dataUrl, cb) {
@@ -7336,7 +7368,7 @@ window.addEventListener('message', function (e) {
         $('reset-send').onclick = async function () {
             var btn = this;
             var phone = $('reset-phone').value.replace(/[^0-9]/g, '');
-            if (phone.length < 9) { resetStatus(T("Telefon raqamni to'liq kiriting.", 'Enter the full phone number.', 'Введите номер полностью.'), 'err'); return; }
+            if (phone.replace(/^998/, '').length < 9) { resetStatus(T("Telefon raqamni to'liq kiriting.", 'Enter the full phone number.', 'Введите номер полностью.'), 'err'); return; }
             btn.disabled = true;
             resetStatus('⏳');
             try {
