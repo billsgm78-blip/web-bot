@@ -294,16 +294,17 @@ R.outputEncoding = THREE.sRGBEncoding;
 R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.05;
 var scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x9a7a8a, 480, 1150);
-var cam = new THREE.PerspectiveCamera(45, 1, 1, 2000);
+var cam = new THREE.PerspectiveCamera(45, 1, 1, 4000);
+R.setClearColor(0x9a7a8a);   // biror narsa chizilmay qolsa ham qora emas, ufq rangi ko'rinadi
 
 // osmon: shom (shaftoli → binafsha)
-var SKYM = null;
+var SKYM = null, SKY_MESH = null;
 (function sky() {
     var g = new THREE.SphereGeometry(1400, 32, 16), m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false,
         uniforms: { a: { value: new THREE.Color(0x6a4a66) }, b: { value: new THREE.Color(0xc4837f) }, c: { value: new THREE.Color(0xf4a46c) } },
         vertexShader: 'varying vec3 p;void main(){p=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
         fragmentShader: 'uniform vec3 a,b,c;varying vec3 p;void main(){float h=p.y;vec3 col=h>0.1?mix(b,a,smoothstep(.1,.75,h)):mix(c,b,smoothstep(-.02,.1,h));gl_FragColor=vec4(col,1.);}' });
-    SKYM = m; scene.add(new THREE.Mesh(g, m));
+    SKYM = m; SKY_MESH = new THREE.Mesh(g, m); SKY_MESH.renderOrder = -1; SKY_MESH.frustumCulled = false; scene.add(SKY_MESH);
 })();
 var HEMI = new THREE.HemisphereLight(0xffe2cf, 0x3a3150, .48); scene.add(HEMI);
 var sun = new THREE.DirectionalLight(0xffc293, 1.45);
@@ -2235,6 +2236,12 @@ function frame(now) {
     }
     blinkers.forEach(function (b) { b.material.emissiveIntensity = (Math.sin(time * 3) > 0) ? 1.2 : .1; });
     if (INS) insStep(dt);
+    // Osmon, yulduzlar va oy kamera bilan birga yuradi: baland binoga (900 m) uzoqdan qaraganda ham osmon chegaradan chiqmaydi (qora "gumbaz" bo'lmaydi)
+    if (SKY_MESH) SKY_MESH.position.copy(cam.position);
+    STARS.position.copy(cam.position);
+    MOON.position.set(cam.position.x + 500, cam.position.y + 420, cam.position.z - 700);
+    // Tuman kamera masofasiga moslashadi: uzoqdan qaraganda mahalla xira bo'lib ketmaydi
+    if (WX.kind !== 'fog') { var fd = Math.max(0, view.dist - 330); scene.fog.near = 480 + fd; scene.fog.far = 1150 + fd * 1.3; }
     if (INS && INS.out) { outCam(dt); R.render(scene, cam); } else R.render(INS ? INS.scene : scene, cam);
     if (!INS && (fc++ & 1) === 0) paintLabels();
     // avtomatik sifat: kadr sekin bo'lsa piksel zichligi pasayadi, keyin soyalar o'chadi

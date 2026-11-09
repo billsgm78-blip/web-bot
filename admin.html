@@ -1847,6 +1847,33 @@ select.inp option { background: #12151c; color: var(--text); }
             h('div', {}, [h('div', { class: 'sum', text: "Ko'rinishi:" }), h('div', { class: 'pv-phone' }, [pvLock])])
         ]));
 
+        // ===== 💻 Kompyuterdan foydalanish (/usecomputer va saytdagi "Mening kompyuterim") =====
+        view.appendChild(h('div', { class: 'h', text: '💻 Kompyuterdan foydalanish' }));
+        if (!FEAT.pc) {
+            view.appendChild(h('div', { class: 'card' }, [h('div', { class: 'sum', text: "Server hali yangilanmagan — bir necha daqiqadan so'ng sahifani yangilang." })]));
+        } else {
+            var pcCur = st.features.pc || { off: false, msg: '' };
+            var pcSw = h('div', { class: 'switch' + (pcCur.off ? '' : ' ok'), role: 'switch' });
+            var pcState = h('small', { text: pcCur.off ? "🔒 Bloklangan — /usecomputer va Mening kompyuterim ishlamaydi" : '✅ Ishlayapti — Premium foydalanuvchilar kompyuterni boshqara oladi' });
+            var pcReason = h('input', { class: 'inp', placeholder: "Sababi (foydalanuvchiga ko'rinadi): masalan, Texnik ishlar, 2 soatdan keyin qaytadi", maxlength: 300 }); pcReason.value = pcCur.msg || '';
+            pcSw.onclick = function () {
+                var nowOff = pcSw.classList.contains('ok');
+                pcSw.classList.toggle('ok', !nowOff);
+                pcState.textContent = nowOff ? "🔒 Bloklanadi (saqlang)" : '✅ Yoqiladi (saqlang)';
+                if (nowOff) setTimeout(function () { pcReason.focus(); }, 50);
+            };
+            view.appendChild(h('div', { class: 'card' }, [
+                h('div', { class: 'lock-hero', style: 'padding:10px 12px' }, [h('div', { class: 'grow' }, [h('b', { text: "Kompyuterni boshqarishni bloklash" }), pcState]), pcSw]),
+                h('label', { class: 'lb' }, ['Bloklash sababi', pcReason]),
+                h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+                    var off = !pcSw.classList.contains('ok');
+                    if (off && !pcReason.value.trim()) { toast('Sababini yozing — foydalanuvchiga shu matn ko\'rinadi'); pcReason.focus(); return; }
+                    var x = await admin('control_set', { features: { pc: { off: off, msg: pcReason.value } } });
+                    if (x.success) { toast(off ? "🔒 Kompyuterdan foydalanish bloklandi" : '✅ Kompyuterdan foydalanish yoqildi'); vControl(view); } else toast(x.error || 'Xato');
+                } })
+            ]));
+        }
+
         // ===== 1a. Hozir onlayn (saytdagi chap panelda) =====
         var ol = j.online || { on: true, msg: '', count: 0 };
         var olSw = h('div', { class: 'switch' + (ol.on ? ' ok' : ''), role: 'switch' });
@@ -1918,33 +1945,6 @@ select.inp option { background: #12151c; color: var(--text); }
                 h('button', { class: 'btn', text: '💾 Saqlash', onclick: function () { saveApp({ latest: upVer.value, force: upForce.classList.contains('on'), updateMsg: upMsg.value }, '⬆️ Yangilanish sozlandi'); } })
             ])
         ]));
-
-        // ===== 💻 Kompyuterdan foydalanish (/usecomputer va saytdagi "Mening kompyuterim") =====
-        view.appendChild(h('div', { class: 'h', text: '💻 Kompyuterdan foydalanish' }));
-        if (!FEAT.pc) {
-            view.appendChild(h('div', { class: 'card' }, [h('div', { class: 'sum', text: "Server hali yangilanmagan — bir necha daqiqadan so'ng sahifani yangilang." })]));
-        } else {
-            var pcCur = st.features.pc || { off: false, msg: '' };
-            var pcSw = h('div', { class: 'switch' + (pcCur.off ? '' : ' ok'), role: 'switch' });
-            var pcState = h('small', { text: pcCur.off ? "🔒 Bloklangan — /usecomputer va Mening kompyuterim ishlamaydi" : '✅ Ishlayapti — Premium foydalanuvchilar kompyuterni boshqara oladi' });
-            var pcReason = h('input', { class: 'inp', placeholder: "Sababi (foydalanuvchiga ko'rinadi): masalan, Texnik ishlar, 2 soatdan keyin qaytadi", maxlength: 300 }); pcReason.value = pcCur.msg || '';
-            pcSw.onclick = function () {
-                var nowOff = pcSw.classList.contains('ok');
-                pcSw.classList.toggle('ok', !nowOff);
-                pcState.textContent = nowOff ? "🔒 Bloklanadi (saqlang)" : '✅ Yoqiladi (saqlang)';
-                if (nowOff) setTimeout(function () { pcReason.focus(); }, 50);
-            };
-            view.appendChild(h('div', { class: 'card' }, [
-                h('div', { class: 'lock-hero', style: 'padding:10px 12px' }, [h('div', { class: 'grow' }, [h('b', { text: "Kompyuterni boshqarishni bloklash" }), pcState]), pcSw]),
-                h('label', { class: 'lb' }, ['Bloklash sababi', pcReason]),
-                h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
-                    var off = !pcSw.classList.contains('ok');
-                    if (off && !pcReason.value.trim()) { toast('Sababini yozing — foydalanuvchiga shu matn ko\'rinadi'); pcReason.focus(); return; }
-                    var x = await admin('control_set', { features: { pc: { off: off, msg: pcReason.value } } });
-                    if (x.success) { toast(off ? "🔒 Kompyuterdan foydalanish bloklandi" : '✅ Kompyuterdan foydalanish yoqildi'); vControl(view); } else toast(x.error || 'Xato');
-                } })
-            ]));
-        }
 
         // ===== 2. Alohida funksiyalar =====
         view.appendChild(h('div', { class: 'h', text: 'Alohida funksiyalar' }));
