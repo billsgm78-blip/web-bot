@@ -1527,7 +1527,8 @@
                                 catch (e4) { if (/stopped/.test(String(e4))) throw e4; await pcInv('pc_act', { action: { type: 'click', x: x, y: y, text: null, keys: null, dy: null } }); }
                                 await pcInv('pc_wait', { ms: 200 });
                             };
-                            if (!sec.map[a.password]) res2 = 'FAILED: unknown password placeholder ' + a.password;
+                            var pw = /^\{\{SECRET\d+\}\}$/.test(a.password) ? sec.map[a.password] : a.password;
+                            if (!pw) res2 = 'FAILED: unknown password placeholder ' + a.password;
                             else {
                                 if (a.login) {
                                     if (a.login_point) await C2(a.login_point);
@@ -1536,7 +1537,7 @@
                                     if (a.password_point) await C2(a.password_point); else { await K2('tab'); await pcInv('pc_wait', { ms: 300 }); }
                                 } else if (a.password_point) await C2(a.password_point);
                                 await K2('ctrl+a'); await pcInv('pc_wait', { ms: 100 });
-                                await T2(sec.map[a.password]); await pcInv('pc_wait', { ms: 250 });
+                                await T2(pw); await pcInv('pc_wait', { ms: 250 });
                                 if (a.submit !== false) { await K2('enter'); await pcInv('pc_wait', { ms: 2500 }); }
                                 res2 = 'login form filled (' + (a.login ? 'login → ' : '') + 'password' + (a.submit !== false ? ' → enter' : '') + ')';
                             }
@@ -1576,10 +1577,13 @@
         }
         if (remote) {
             var rtext = fail ? (fail.stopped ? L("To'xtatildi.", 'Остановлено.', 'Stopped.') : (fail.error || L('Xatolik', 'Ошибка', 'Error'))) : final;
-            report(fail ? (fail.stopped ? 'stopped' : 'error') : 'done', { text: rtext, steps: log, image: ctx.shot ? ctx.shot.split(',')[1] : undefined });
+            report(fail ? (fail.stopped ? 'stopped' : 'error') : 'done', { text: rtext, steps: steps.map(function (t) { return String(t).replace(/(fill_login [^/]*\/ )(?!\{\{SECRET)\S+/, '$1••••••'); }), image: ctx.shot ? ctx.shot.split(',')[1] : undefined });
         }
         live.remove();
         var hist = log.length ? '\n\n**' + L('Qadamlar', 'Шаги', 'Steps') + ':**\n' + log.map(function (t, k) { return (k + 1) + '. ' + t; }).join('\n') : '';
+        // Batafsil: har bir amal va natijasi (xatoni topish uchun) — parollar bu yerda faqat {{SECRETn}} ko'rinishida
+        var det = steps.map(function (t) { return String(t).replace(/(fill_login [^/]*\/ )(?!\{\{SECRET)\S+/, '$1••••••').slice(0, 160); });
+        if (det.length) hist += '\n\n**' + L('Batafsil', 'Подробно', 'Details') + ':**\n' + det.map(function (t, k) { return (k + 1) + '. `' + t.replace(/`/g, "'") + '`'; }).join('\n');
         if (fail && fail.needLogin) { sessionExpired(); return; }
         if (fail && fail.needSub) {
             var eb = bubble({ r: 'a', err: true, t: '⭐ ' + (fail.error || L('/usecomputer — faqat Premium obunachilar uchun.', '/usecomputer — только для Premium.', '/usecomputer is for Premium only.')) });

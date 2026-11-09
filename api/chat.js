@@ -115,7 +115,7 @@ function agentAction(a) {
     // Login maydoni -> Tab -> parol maydoni -> Enter: dastur aniq shu tartibda bajaradi
     act.login = String(a.login || a.username || a.email || "").replace(/[\x00-\x1f]/g, "").trim().slice(0, 200);
     act.password = String(a.password || "").trim();
-    if (!/^\{\{SECRET\d+\}\}$/.test(act.password)) return null;   // parol faqat foydalanuvchi bergan belgi bo'lishi mumkin
+    if (!act.password || act.password.length > 200) return null;   // odatda {{SECRETn}}; foydalanuvchi "parol" so'zisiz yozgan bo'lsa — o'zi
     const pt = (v) => (Array.isArray(v) && v.length === 2 && v.every((z) => Number.isFinite(Number(z))) ? v.map((z) => Math.max(0, Math.min(1000, Math.round(Number(z))))) : null);
     act.login_point = act.login ? pt(a.login_point) : null;        // [y, x] — login maydoni markazi
     act.password_point = pt(a.password_point);                       // [y, x] — parol maydoni markazi
@@ -169,7 +169,8 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     "{\"type\":\"fill_login\",\"login\":\"user@mail.com\",\"password\":\"{{SECRET1}}\",\"login_point\":[y,x],\"password_point\":[y,x]} — LOGIN FORMS: the computer clicks the login field (login_point), clears it, types the login, clicks the password field (password_point), clears it, types the password and presses enter — always in this exact order; the mouse returns to its place. " +
     "login_point/password_point are [y, x] (0..1000) centers of the two INPUT boxes in the CURRENT screenshot. For a page that asks only for the password (e.g. second step) use login \"\" and only password_point. " +
     "LOGIN to a site when the user gave the login and password: open the login page (e.g. https://www.roblox.com/login), wait 3000 and END the list so you get a screenshot of the loaded form; in the next reply send ONE fill_login with both points, then wait 3500. " +
-    "NEVER type a login or password with type actions — passwords can only be entered via fill_login. If the form is not visible yet, wait. " +
+    "NEVER type a login or password with type actions — passwords can only be entered via fill_login (use the {{SECRETn}} placeholder; if the user wrote the password without the word 'parol/password', use that password text as is). If the form is not visible yet, wait. " +
+    "Do NOT set done=true right after opening a login page — the task is complete only after fill_login was done and you checked the result on the next screenshot. If the login form shows an account picker or 'Add account', continue on the form that has the username and password inputs. " +
     "If the screenshot shows 'incorrect password' — do not retry more than once; take a screenshot, done=true and tell the user. " +
     "RULES: Never use the Start menu search or the Run box. Navigate inside apps with the keyboard (tab/arrows/enter, alt+letter menus, ctrl+l address bar in browsers and Explorer — you can type a path like C:\\Users there, ctrl+f to search). " +
     "Chain actions when the result is predictable (e.g. launch calc, wait 1200, type \"125*48\", key enter; or find_open telegram, wait 2000). " +
