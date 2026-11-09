@@ -1357,6 +1357,34 @@
         await pcInv('pc_wait', { ms: 1300 });
         return 'ok';
     }
+    // Papka ro'yxati -> AI uchun raqamlangan matn (raqamlar keyingi list/open_item da ishlatiladi)
+    function pcListText(v, ctx) {
+        var e = (v && v.entries) || [];
+        ctx.found = e;
+        return (v.path === 'thispc' ? 'This PC' : v.path) + ' — ' + v.total + ' items' + (v.total > e.length ? ' (first ' + e.length + ')' : '') + ': ' +
+            (e.length ? e.map(function (f, k) { return '[' + (k + 1) + '] ' + f.name + (f.kind === 'file' ? '' : ' (' + f.kind + ')'); }).join('; ') : '(empty)');
+    }
+    // Papkani ochish: birinchisi — yangi Provodnik oynasida, keyingilari — o'sha oynada (Ctrl+L → yo'l → Enter)
+    async function pcOpenItem(it, ctx) {
+        var isDir = it.kind === 'folder' || it.kind === 'drive', listing = null;
+        if (!it.kind) { try { listing = await pcInv('pc_list', { path: it.path }); isDir = true; } catch (e) { if (/stopped/.test(String(e))) throw e; } }
+        if (isDir) {
+            if (it.path === 'thispc') await pcLaunch('thispc');
+            else if (ctx.explorer) {
+                var K = function (k) { return pcInv('pc_act', { action: { type: 'key', keys: k, x: null, y: null, text: null, dy: null } }); };
+                await K('ctrl+l'); await pcInv('pc_wait', { ms: 250 });
+                await pcInv('pc_act', { action: { type: 'type', text: it.path, x: null, y: null, keys: null, dy: null } });
+                await K('enter'); await pcInv('pc_wait', { ms: 900 });
+            } else { await pcInv('pc_open_path', { path: it.path, name: it.name || it.path }); await pcInv('pc_wait', { ms: 1600 }); }
+            ctx.explorer = true;
+            if (!listing) listing = await pcInv('pc_list', { path: it.path });
+            return 'opened folder ' + (it.name || it.path) + ' → ' + pcListText(listing, ctx);
+        }
+        await pcInv('pc_open_path', { path: it.path, name: it.name || it.path });
+        await pcInv('pc_wait', { ms: 1600 });
+        ctx.explorer = false;
+        return 'opened file ' + (it.name || it.path);
+    }
     async function runAgent(text, task) {
         if (chat.busy) return;
         chat.msgs.push({ r: 'u', t: text });
@@ -1395,7 +1423,7 @@
         box.appendChild(live); scrollChat(true);
         function setLive(t) { var tx = live.querySelector('.tx'); if (tx) tx.innerHTML = md(t); scrollChat(); }
         setLive('🤖 ' + L('Kompyuterni boshqarish boshlandi…', 'Начинаю управлять компьютером…', 'Taking control of the computer…'));
-        var steps = [], log = [], final = '', fail = null, MAX = 30, lastFound = [];
+        var steps = [], log = [], final = '', fail = null, MAX = 40, ctx = { found: [], explorer: false };
         try {
             await pcInv('pc_begin');
             for (var i = 0; i < MAX; i++) {
@@ -1416,25 +1444,32 @@
                     var a = acts[q], res2 = 'ok';
                     if (/click|scroll|move/.test(a.type)) { steps.push(a.type + ' → FAILED: mouse is disabled'); continue; }   // sichqoncha ishlatilmaydi
                     try {
-                        if (a.type === 'launch') res2 = await pcLaunch(a.app);
+                        if (!/^(list|open_item|wait|find)$/.test(a.type)) ctx.explorer = false;
+                        if (a.type === 'launch') { res2 = await pcLaunch(a.app); if (a.app === 'thispc') { ctx.explorer = true; res2 = 'opened This PC → ' + pcListText(await pcInv('pc_list', { path: 'thispc' }), ctx); } }
                         else if (a.type === 'find' || a.type === 'find_open') {
                             var found = [];
                             try { found = await pcInv('pc_find', { query: a.query }) || []; }
                             catch (e3) { if (/not found|not allowed|denied|unknown command/i.test(String(e3))) { found = null; } else throw e3; }
                             if (found === null) { res2 = await pcLaunch(a.query); }   // eski kompyuter dasturi: Start menyusi orqali
                             else {
-                                lastFound = found;
+                                ctx.found = found;
                                 res2 = found.length ? found.map(function (f, k) { return '[' + (k + 1) + '] ' + f.name + ' (' + f.kind + ')'; }).join('; ') : 'not found';
                                 if (a.type === 'find_open') {
                                     if (!found.length) res2 = 'FAILED: nothing named "' + a.query + '" found';
-                                    else { await pcInv('pc_open_path', { path: found[0].path, name: found[0].name }); await pcInv('pc_wait', { ms: 1500 }); res2 = 'opened ' + found[0].name + ' (' + found[0].kind + ')'; }
+                                    else res2 = await pcOpenItem(found[0], ctx);
                                 }
                             }
                         }
-                        else if (a.type === 'open_found') {
-                            var f = lastFound[a.n - 1];
-                            if (!f) res2 = 'FAILED: no result #' + a.n;
-                            else { await pcInv('pc_open_path', { path: f.path, name: f.name }); await pcInv('pc_wait', { ms: 1500 }); res2 = 'opened ' + f.name; }
+                        else if (a.type === 'list') {
+                            var lp = a.n ? (ctx.found[a.n - 1] || {}).path : a.path;
+                            if (!lp) res2 = 'FAILED: no item #' + a.n + ' in the last list';
+                            else res2 = pcListText(await pcInv('pc_list', { path: lp }), ctx);
+                        }
+                        else if (a.type === 'open_item') {
+                            var it = a.n ? ctx.found[a.n - 1] : { path: a.path, name: a.path };
+                            if (!it) res2 = 'FAILED: no item #' + a.n + ' in the last list';
+                            else if (/^(thispc|computer)$/i.test(it.path)) { it = { path: 'thispc', name: 'This PC', kind: 'folder' }; res2 = await pcOpenItem(it, ctx); }
+                            else res2 = await pcOpenItem(it, ctx);
                         }
                         else if (a.type === 'open') { await pcInv('pc_open', { url: a.url }); await pcInv('pc_wait', { ms: 900 }); }
                         else if (a.type === 'wait') await pcInv('pc_wait', { ms: a.ms || 1000 });

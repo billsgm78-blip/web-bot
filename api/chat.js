@@ -73,7 +73,7 @@ function pcActions(raw) {
 // /usecomputer agenti: bitta qadam. Kiradi: vazifa, oldingi qadamlar, ekran rasmi (JPEG base64).
 // Chiqadi: keyingi bitta amal. Koordinatalar 0..1000 (ekran eni/bo'yiga nisbatan) — dastur o'zi piksellarga o'giradi.
 // Sichqoncha ishlatilmaydi: faqat dastur/fayl ochish, qidirish va klaviatura
-const AGENT_TYPES = new Set(["launch", "open", "find_open", "find", "open_found", "type", "key", "wait"]);
+const AGENT_TYPES = new Set(["launch", "open", "find_open", "find", "list", "open_item", "open_found", "type", "key", "wait"]);
 // Ko'p ishlatiladigan dasturlar: odamcha nom -> exe nomi (dastur ularni qidiruvsiz, to'g'ridan-to'g'ri ochadi)
 const APP_ALIAS = {
   calculator: "calc", kalkulyator: "calc", калькулятор: "calc", notepad: "notepad", bloknot: "notepad", блокнот: "notepad",
@@ -108,7 +108,16 @@ function agentAction(a) {
     act.query = String(a.query || a.app || a.name || "").replace(/[\x00-\x1f\\/:*?"<>|]/g, " ").replace(/\s+/g, " ").trim().slice(0, 60);
     if (act.query.length < 2) return null;
   }
-  if (a.type === "open_found") { act.n = parseInt(a.n, 10); if (!(act.n >= 1 && act.n <= 12)) return null; }
+  if (a.type === "open_found") { act.type = "open_item"; }
+  if (act.type === "list" || act.type === "open_item") {
+    // n — oxirgi ro'yxatdagi raqam; yoki path — to'liq yo'l (C:\...), yoki thispc/desktop/documents/downloads/...
+    const num = parseInt(a.n, 10);
+    if (num >= 1 && num <= 80) act.n = num;
+    else {
+      act.path = String(a.path || "").replace(/[\x00-\x1f<>"|?*]/g, "").trim().slice(0, 400);
+      if (!act.path) return null;
+    }
+  }
   if (a.type === "open") {
     act.url = String(a.url || "").trim();
     if (!PC_SCHEMES.test(act.url) || /[\s<>"]/.test(act.url)) return null;
@@ -121,7 +130,9 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
   if (!t || typeof image !== "string" || image.length < 100 || image.length > 3500000 || !/^[A-Za-z0-9+/=]+$/.test(image)) {
     return res.status(400).json({ error: "Noto'g'ri so'rov." });
   }
-  const done = (Array.isArray(steps) ? steps : []).slice(-20).map((x, i) => `${i + 1}. ${String(x).slice(0, 220)}`).join("\n") || "(none yet — this is the first step)";
+  // Oxirgi qadamlar to'liqroq (papka ro'yxatlari uzun), eskilari qisqa
+  const st = (Array.isArray(steps) ? steps : []).slice(-25);
+  const done = st.map((x, i) => `${i + 1}. ${String(x).slice(0, i >= st.length - 3 ? 3500 : 300)}`).join("\n") || "(none yet — this is the first step)";
   const system =
     "You are Bilols AI operating the user's Windows computer WITHOUT a mouse — you can never click; you work only with the tools below and the keyboard. " +
     "You see a screenshot of the primary screen. Work FAST: do as much as you safely can per reply. " +
@@ -131,7 +142,11 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     "{\"type\":\"launch\",\"app\":\"calc\"} — start a program by exe name: calc, notepad, mspaint, excel, winword, powerpnt, outlook, chrome, msedge, firefox, explorer, cmd, wt, powershell, taskmgr, control, write; " +
     "system folders: thispc (This PC / Этот компьютер), downloads, documents, desktop, pictures, music, videos, recyclebin; " +
     "{\"type\":\"find_open\",\"query\":\"telegram\"} — the computer searches installed programs (Start menu), the desktop and the user's files/folders by name and opens the best match — use it for any other app (Telegram, Discord, Steam, games, Zoom...) or a file/folder the user names; " +
-    "{\"type\":\"find\",\"query\":\"report\"} — only list matches (they appear in PREVIOUS STEPS as numbered results), then {\"type\":\"open_found\",\"n\":2} opens result #2 of the last find — use when you must choose between several files; " +
+    "{\"type\":\"find\",\"query\":\"report\"} — only list matches by name (numbered results appear in PREVIOUS STEPS); " +
+    "{\"type\":\"list\",\"path\":\"thispc\"|\"desktop\"|\"documents\"|\"downloads\"|\"pictures\"|\"music\"|\"videos\"|\"D:\\\\Games\"} or {\"type\":\"list\",\"n\":3} — read the contents of a folder (or of item #3 of the LAST numbered list/find) WITHOUT opening it; results are numbered in PREVIOUS STEPS; " +
+    "{\"type\":\"open_item\",\"n\":2} or {\"type\":\"open_item\",\"path\":\"C:\\\\...\"} — open item #2 of the last numbered list/find (a folder opens/navigates in Explorer AND its contents are listed automatically; a file opens in its program); " +
+    "FOLDERS: to go deep (folder → subfolder → subfolder → file) chain open_item on folders: each one navigates the same Explorer window one level deeper and returns the new numbered contents — then pick the next number in your next reply. " +
+    "Use list to look inside without opening when you just need to find something; use numbers exactly as shown in the LAST list. " +
     "{\"type\":\"open\",\"url\":\"https://...\"} — open a website in the default browser (direct links: https://www.google.com/search?q=..., https://www.youtube.com/results?search_query=..., https://mail.google.com ...) or ms-settings:..., mailto:, tg://resolve?domain=..., spotify:; " +
     "{\"type\":\"type\",\"text\":\"...\"} — types into the focused window; {\"type\":\"key\",\"keys\":\"enter\"|\"tab\"|\"shift+tab\"|\"esc\"|\"up\"|\"down\"|\"ctrl+l\"|\"ctrl+t\"|\"ctrl+f\"|\"ctrl+s\"|\"ctrl+n\"|\"alt+tab\"|\"alt+f4\"|\"win+d\"|\"f2\"|\"f5\"...}; " +
     "{\"type\":\"wait\",\"ms\":int} — e.g. 1500 after launch/open so the window appears and gets focus. " +
