@@ -12119,5 +12119,168 @@ html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::afte
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
+<script id="mypc-script">
+/* 💻 "Mening kompyuterim": telefondan (sayt) Bilols AI kompyuter dasturini boshqarish — Sozlamalarda.
+   Server: /api/pc/status, /api/pc/command, /api/pc/image, /api/pc/cancel (AI2/pcremote.py). Faqat Premium. */
+(function () {
+    var API = (typeof RAILWAY_URL !== 'undefined' && RAILWAY_URL) || 'https://bilolsai-api.onrender.com';
+    function $(id) { return document.getElementById(id); }
+    function lang() { return (typeof currentLang !== 'undefined' && currentLang) || localStorage.getItem('bilol_ai_lang') || 'uz'; }
+    function T(uz, en, ru) { var l = lang(); return l === 'en' ? en : l === 'ru' ? ru : uz; }
+    function creds() {
+        var ph = (localStorage.getItem('bilol_ai_phone') || '').replace(/[^0-9]/g, ''), pw = localStorage.getItem('bilol_ai_password') || '';
+        return ph && pw ? { phone: ph, password: pw } : null;
+    }
+    function post(path, extra) {
+        var c = creds(); if (!c) return Promise.resolve({ _status: 403 });
+        var b = { phone: c.phone, password: c.password }; for (var k in extra) b[k] = extra[k];
+        return fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) })
+            .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j._status = r.status; return j; }); })
+            .catch(function () { return { _status: 0 }; });
+    }
+    function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+    function ago(t) {
+        var s = Math.max(0, Math.round(Date.now() / 1000 - t));
+        return s < 60 ? T('hozirgina', 'just now', 'только что') : s < 3600 ? Math.round(s / 60) + ' ' + T('daqiqa oldin', 'min ago', 'мин назад')
+            : s < 86400 ? Math.round(s / 3600) + ' ' + T('soat oldin', 'h ago', 'ч назад') : Math.round(s / 86400) + ' ' + T('kun oldin', 'd ago', 'дн назад');
+    }
+
+    var css = document.createElement('style');
+    css.textContent =
+        '#mypc{position:fixed;inset:0;z-index:9000;display:none;flex-direction:column;background:#070a14;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);color:#e5e7eb;font-family:inherit;padding:calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom))}' +
+        '#mypc.on{display:flex}#mypc .hd{display:flex;align-items:center;gap:10px;margin:0 auto 12px;width:100%;max-width:640px}#mypc .hd h2{flex:1;margin:0;font-size:20px}' +
+        '#mypc .x{width:38px;height:38px;border-radius:12px;border:1px solid rgba(148,163,184,.25);background:rgba(255,255,255,.06);color:inherit;font-size:22px;cursor:pointer}' +
+        '#mypc .bd{flex:1;overflow-y:auto;width:100%;max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:12px}' +
+        '#mypc .cd{padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(148,163,184,.18)}' +
+        '#mypc .dev{display:flex;align-items:center;gap:12px}#mypc .dev .ic{font-size:30px}#mypc .dev b{display:block;font-size:15px}#mypc .dev small{color:#9ca3af;font-size:12.5px}' +
+        '#mypc .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px;background:#6b7280}#mypc .dot.on{background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pcp 1.8s infinite}' +
+        '@keyframes pcp{70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}' +
+        '#mypc textarea{width:100%;box-sizing:border-box;min-height:74px;resize:vertical;padding:12px;border-radius:14px;border:1px solid rgba(148,163,184,.3);background:rgba(0,0,0,.25);color:inherit;font:inherit;font-size:15px}' +
+        '#mypc .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}#mypc .q{padding:8px 12px;border-radius:999px;border:1px solid rgba(148,163,184,.3);background:rgba(255,255,255,.05);color:inherit;font:inherit;font-size:13px;cursor:pointer}' +
+        '#mypc .go{flex:1 1 100%;padding:13px;border:0;border-radius:14px;background:linear-gradient(135deg,#ff8a3d,#a855f7);color:#fff;font:inherit;font-weight:700;font-size:15px;cursor:pointer}#mypc .go:disabled{opacity:.5}' +
+        '#mypc .msg{font-size:13px;color:#fca5a5;margin-top:8px;min-height:1px}#mypc .hint{font-size:12.5px;color:#9ca3af;margin-top:8px;line-height:1.45}' +
+        '#mypc .res .top{display:flex;gap:8px;align-items:flex-start}#mypc .res .tk{flex:1;font-weight:600;font-size:14px;word-break:break-word}#mypc .chip{flex:none;font-size:11.5px;padding:3px 9px;border-radius:999px;background:rgba(148,163,184,.2)}' +
+        '#mypc .chip.running,#mypc .chip.queued{background:rgba(245,158,11,.25);color:#fcd34d}#mypc .chip.done{background:rgba(34,197,94,.22);color:#86efac}#mypc .chip.error,#mypc .chip.stopped{background:rgba(239,68,68,.22);color:#fca5a5}' +
+        '#mypc .res .tx{margin-top:8px;font-size:14px;white-space:pre-wrap;word-break:break-word}#mypc .res img{display:block;width:100%;margin-top:10px;border-radius:12px;border:1px solid rgba(148,163,184,.2);cursor:zoom-in}' +
+        '#mypc .res details{margin-top:6px;font-size:12.5px;color:#9ca3af}#mypc .res .act{display:flex;gap:8px;margin-top:8px}#mypc .res .act button,#mypc .res .act a{font-size:12.5px;padding:6px 10px;border-radius:10px;border:1px solid rgba(148,163,184,.3);background:none;color:inherit;text-decoration:none;cursor:pointer}' +
+        '#mypc .empty{color:#9ca3af;font-size:14px;line-height:1.5}#mypc .empty a{color:#93c5fd}';
+    document.head.appendChild(css);
+
+    var box = document.createElement('div');
+    box.id = 'mypc';
+    box.innerHTML = '<div class="hd"><h2></h2><button class="x" type="button">×</button></div><div class="bd">' +
+        '<div class="cd" id="mypc-devs"></div>' +
+        '<div class="cd"><textarea id="mypc-in" maxlength="1500"></textarea><div class="row" id="mypc-quick"></div>' +
+        '<div class="row"><button class="go" id="mypc-go" type="button"></button></div><div class="msg" id="mypc-msg"></div><div class="hint" id="mypc-hint"></div></div>' +
+        '<div id="mypc-res" style="display:flex;flex-direction:column;gap:10px"></div></div>';
+    document.body.appendChild(box);
+
+    var st = { devices: [], results: [], premium: false }, timer = 0, imgs = {}, sel = '';
+    function online() { return st.devices.filter(function (d) { return d.online; }); }
+    function target() { var on = online(); return on.filter(function (d) { return d.device_id === sel; })[0] || on[0] || null; }
+
+    function paint() {
+        box.querySelector('.hd h2').textContent = '💻 ' + T('Mening kompyuterim', 'My computer', 'Мой компьютер');
+        var dv = $('mypc-devs');
+        if (!st.devices.length) {
+            dv.innerHTML = '<div class="empty">' + T("Kompyuter hali ulanmagan.<br>1) Kompyuterga <a href=\"/kompyuter\">Bilols AI dasturini</a> o'rnating va shu hisob bilan kiring.<br>2) Dasturda <b>Sozlamalar → 💻 Kompyuterga ulanish</b> ni yoqing.<br>3) Dastur ochiq tursa — kompyuter shu yerda <b>onlayn</b> ko'rinadi.",
+                'No computer connected yet.<br>1) Install the <a href="/kompyuter">Bilols AI desktop app</a> and log in with this account.<br>2) In the app turn on <b>Preferences → 💻 Computer access</b>.<br>3) While the app is open the computer shows here as <b>online</b>.',
+                'Компьютер ещё не подключён.<br>1) Установите <a href="/kompyuter">программу Bilols AI</a> и войдите в этот аккаунт.<br>2) В программе включите <b>Настройки → 💻 Доступ к компьютеру</b>.<br>3) Пока программа открыта, компьютер будет здесь <b>онлайн</b>.') + '</div>';
+        } else {
+            dv.innerHTML = st.devices.map(function (d) {
+                return '<div class="dev" data-id="' + esc(d.device_id) + '" style="cursor:pointer;padding:4px 0;' + (d.device_id === (target() || {}).device_id ? '' : 'opacity:.75') + '"><div class="ic">🖥️</div><div><b>' + esc(d.name || 'Kompyuter') + '</b><small><span class="dot' + (d.online ? ' on' : '') + '"></span>' +
+                    (d.online ? (d.busy ? T('Onlayn · vazifa bajarilmoqda', 'Online · working', 'Онлайн · выполняет задачу') : T('Onlayn', 'Online', 'Онлайн')) : T('Oflayn', 'Offline', 'Офлайн') + ' · ' + ago(d.last_seen)) + '</small></div></div>';
+            }).join('');
+            dv.querySelectorAll('.dev').forEach(function (e) { e.onclick = function () { sel = e.getAttribute('data-id'); paint(); }; });
+        }
+        var t = target();
+        $('mypc-go').disabled = !t;
+        $('mypc-go').textContent = t ? '🚀 ' + T('Kompyuterda bajarish', 'Run on computer', 'Выполнить на компьютере') : '⏸ ' + T('Kompyuter oflayn', 'Computer offline', 'Компьютер офлайн');
+        var rs = $('mypc-res');
+        rs.innerHTML = '';
+        st.results.forEach(function (r) {
+            var c = document.createElement('div'); c.className = 'cd res';
+            var lbl = { queued: T('navbatda', 'queued', 'в очереди'), running: T('bajarilmoqda…', 'running…', 'выполняется…'), done: T('tayyor', 'done', 'готово'), error: T('xato', 'error', 'ошибка'), stopped: T("to'xtatildi", 'stopped', 'остановлено') }[r.status] || r.status;
+            c.innerHTML = '<div class="top"><div class="tk">' + esc(r.task) + '</div><span class="chip ' + esc(r.status) + '">' + esc(lbl) + '</span></div>' +
+                (r.text ? '<div class="tx">' + esc(r.text) + '</div>' : '') +
+                (r.steps && r.steps.length ? '<details><summary>' + T('Qadamlar', 'Steps', 'Шаги') + ' (' + r.steps.length + ')</summary>' + r.steps.map(function (s, i) { return (i + 1) + '. ' + esc(s); }).join('<br>') + '</details>' : '') +
+                '<div class="act"></div>';
+            var act = c.querySelector('.act');
+            if (r.status === 'queued' || r.status === 'running') {
+                var b = document.createElement('button'); b.textContent = '⏹ ' + T("To'xtatish", 'Stop', 'Остановить');
+                b.onclick = function () { b.disabled = true; post('/api/pc/cancel', { id: r.id }).then(refresh); };
+                act.appendChild(b);
+            }
+            if (r.has_image) {
+                var im = document.createElement('img'); im.alt = '📸';
+                if (imgs[r.id]) im.src = imgs[r.id];
+                else post('/api/pc/image', { id: r.id }).then(function (j) { if (j.image) { imgs[r.id] = 'data:image/jpeg;base64,' + j.image; im.src = imgs[r.id]; dl.href = imgs[r.id]; } });
+                im.onclick = function () { if (im.src) window.open().document.write('<title>Skrinshot</title><body style="margin:0;background:#000"><img src="' + im.src + '" style="width:100%">'); };
+                c.insertBefore(im, act);
+                var dl = document.createElement('a'); dl.textContent = '⬇ ' + T('Yuklab olish', 'Download', 'Скачать'); dl.download = 'skrinshot-' + r.id + '.jpg'; if (imgs[r.id]) dl.href = imgs[r.id];
+                act.appendChild(dl);
+            }
+            rs.appendChild(c);
+        });
+    }
+    function refresh() {
+        return post('/api/pc/status', {}).then(function (j) {
+            if (j && j.success) { st = j; paint(); }
+            else if (j && j._status === 403) $('mypc-msg').textContent = T('Iltimos, qayta kiring.', 'Please log in again.', 'Пожалуйста, войдите снова.');
+        });
+    }
+    function send(task) {
+        var t = target(); task = String(task || '').trim();
+        if (!t || !task) return;
+        var go = $('mypc-go'); go.disabled = true; $('mypc-msg').textContent = '';
+        post('/api/pc/command', { device_id: t.device_id, task: task }).then(function (j) {
+            go.disabled = false;
+            if (j.success) { $('mypc-in').value = ''; refresh(); }
+            else {
+                $('mypc-msg').innerHTML = esc(j.error || T("Yuborib bo'lmadi", 'Could not send', 'Не удалось отправить')) +
+                    (j.needSub ? ' <a href="#" id="mypc-sub" style="color:#fcd34d">⭐ ' + T('Obuna olish', 'Subscribe', 'Оформить') + '</a>' : '');
+                var sb = $('mypc-sub'); if (sb) sb.onclick = function (e) { e.preventDefault(); close(); var w = $('open-wallet-btn'); if (w) w.click(); };
+            }
+        });
+    }
+    function open() {
+        if (!creds()) { alert(T('Avval hisobingizga kiring.', 'Please log in first.', 'Сначала войдите в аккаунт.')); return; }
+        var sm = $('settings-modal'); if (sm) sm.style.display = 'none';
+        $('mypc-in').placeholder = T("Masalan: Roblox'ga kir, login: bill parol: 12345 va skrinshot yubor", 'E.g.: log in to Roblox, login: bill password: 12345 and send a screenshot', 'Например: зайди в Roblox, логин: bill пароль: 12345 и пришли скриншот');
+        $('mypc-hint').innerHTML = T("⭐ Premium. Kompyuterda Bilols AI dasturi ochiq turishi kerak. Parol yozsangiz u AI'ga ko'rsatilmaydi — uni faqat kompyuteringiz yozadi, ro'yxatda •••••• bo'lib turadi.",
+            "⭐ Premium. The Bilols AI app must be open on the computer. Passwords are never shown to the AI — only your computer types them; the list shows ••••••.",
+            '⭐ Premium. На компьютере должна быть открыта программа Bilols AI. Пароль не показывается ИИ — его вводит только ваш компьютер, в списке он скрыт ••••••.');
+        var Q = [
+            ['📸', T('Skrinshot', 'Screenshot', 'Скриншот'), T('Ekrandan skrinshot olib yubor', 'Take a screenshot of the screen and send it', 'Сделай скриншот экрана и пришли')],
+            ['🖥️', T('Этот компьютер', 'This PC', 'Этот компьютер'), T("Этот компьютерни och va skrinshot yubor", 'Open This PC and send a screenshot', 'Открой Этот компьютер и пришли скриншот')],
+            ['📥', T('Yuklanmalar', 'Downloads', 'Загрузки'), T("Yuklanmalar papkasini och va oxirgi fayllarni ayt", 'Open Downloads and tell me the latest files', 'Открой Загрузки и скажи последние файлы')],
+            ['🔒', T('Qulflash', 'Lock', 'Заблокировать'), T('Kompyuterni qulfla (win+l)', 'Lock the computer (win+l)', 'Заблокируй компьютер (win+l)')]
+        ];
+        var qr = $('mypc-quick'); qr.innerHTML = '';
+        Q.forEach(function (q) { var b = document.createElement('button'); b.type = 'button'; b.className = 'q'; b.textContent = q[0] + ' ' + q[1]; b.onclick = function () { send(q[2]); }; qr.appendChild(b); });
+        box.classList.add('on');
+        paint(); refresh();
+        clearInterval(timer); timer = setInterval(function () { if (!document.hidden) refresh(); }, 3000);
+    }
+    function close() { box.classList.remove('on'); clearInterval(timer); }
+    box.querySelector('.x').onclick = close;
+    $('mypc-go').onclick = function () { send($('mypc-in').value); };
+    $('mypc-in').addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(this.value); });
+    window.BilolMyPC = { open: open };
+
+    // Sozlamalarda karta: "💻 Mening kompyuterim"
+    function addCard() {
+        var sm = $('settings-modal'); if (!sm || $('mypc-entry')) return;
+        var list = sm.querySelector('.settings-card') && sm.querySelector('.settings-card').parentNode; if (!list) return;
+        var c = document.createElement('div'); c.className = 'settings-card clickable'; c.id = 'mypc-entry'; c.style.cursor = 'pointer';
+        c.innerHTML = '<div class="settings-info"><h4></h4><p></p></div><span class="set-arrow">›</span>';
+        c.onclick = open;
+        list.insertBefore(c, list.firstChild);
+        function txt() { c.querySelector('h4').textContent = '💻 ' + T('Mening kompyuterim', 'My computer', 'Мой компьютер'); c.querySelector('p').textContent = T("Telefondan kompyuterni boshqaring: onlayn holati, buyruqlar, skrinshot", 'Control your computer from the phone: status, commands, screenshots', 'Управляйте компьютером с телефона: статус, команды, скриншоты'); }
+        txt(); setInterval(txt, 3000);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addCard); else addCard();
+})();
+</script>
 </body>
 </html>

@@ -1385,9 +1385,52 @@
         ctx.explorer = false;
         return 'opened file ' + (it.name || it.path);
     }
-    async function runAgent(text, task) {
+    // Parollar AI'ga yuborilmaydi: "parol: abc" -> "parol: {{SECRET1}}"; AI shu belgini yozadi, dastur haqiqiysini qo'yadi
+    var SECRET_RE = /((?:parol|parolim|password|passwd|pass|пароль|pin|пин)\s*[:=\-–—]?\s*)(\S+)/gi;
+    function pcSecrets(t) {
+        var map = {}, k = 0;
+        var masked = String(t || '').replace(SECRET_RE, function (_, pre, val) { k++; var ph = '{{SECRET' + k + '}}'; map[ph] = val; return pre + ph; });
+        return { masked: masked, shown: String(t || '').replace(SECRET_RE, function (_, pre) { return pre + '••••••'; }), map: map };
+    }
+    function pcUnmask(text, map) { return String(text || '').replace(/\{\{SECRET\d+\}\}/g, function (ph) { return map[ph] != null ? map[ph] : ph; }); }
+    function shotThumb(dataUrl) {
+        return new Promise(function (res) {
+            var im = new Image();
+            im.onload = function () { try { var k = Math.min(1, 520 / im.naturalWidth), c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * k); c.height = Math.round(im.naturalHeight * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', 0.72)); } catch (e) { res(''); } };
+            im.onerror = function () { res(''); };
+            im.src = dataUrl;
+        });
+    }
+    function pcSleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+    /* 📱 "Mening kompyuterim": dastur ochiq turganda serverga "onlaynman" deydi va telefondan kelgan buyruqni bajaradi */
+    var pcDev = ls('ba_pc_dev');
+    if (!pcDev) { pcDev = 'pc' + Math.random().toString(36).slice(2, 12); ls('ba_pc_dev', pcDev); }
+    var pcLoopOn = false;
+    async function pcRemoteLoop() {
+        if (pcLoopOn || !IS_DESKTOP) return;
+        pcLoopOn = true;
+        while (true) {
+            if (!state.inMain || !state.phone || ls('ba_pc_ok') !== '1') { await pcSleep(5000); continue; }
+            try {
+                var j = await api('/api/pc/poll', { device_id: pcDev, name: L('Kompyuterim', 'Мой компьютер', 'My computer') + ' (Windows)', version: 'desktop', busy: !!chat.busy });
+                if (j && j.cmd) {
+                    if (chat.busy) api('/api/pc/result', { id: j.cmd.id, status: 'error', text: L("Kompyuter band — oldingi vazifa bajarilmoqda.", 'Компьютер занят.', 'The computer is busy.') });
+                    else { if (state.tab !== 'chat') switchTab('chat'); runAgent('📱 ' + j.cmd.task, j.cmd.task, { id: j.cmd.id }); }
+                }
+                if (!j || j._status >= 400) await pcSleep(10000);
+            } catch (e) { await pcSleep(8000); }
+        }
+    }
+    setTimeout(pcRemoteLoop, 3000);
+
+    async function runAgent(text, task, remote) {
         if (chat.busy) return;
+        var sec = pcSecrets(task);
+        text = pcSecrets(text).shown;          // chatda (va serverdagi tarixda) parol ko'rinmaydi
+        task = sec.masked;                     // AI parolni ko'rmaydi
+        function report(st, extra) { if (!remote) return Promise.resolve({}); var b = { id: remote.id, status: st }; for (var k in extra) b[k] = extra[k]; return api('/api/pc/result', b).catch(function () { return {}; }); }
         chat.msgs.push({ r: 'u', t: text });
+        if (remote && !task) { report('error', { text: L("Buyruq bo'sh.", 'Пустая команда.', 'Empty command.') }); renderChat(); return; }
         if (!IS_DESKTOP) {
             pcMsg(L("💻 **/usecomputer** faqat **Bilols AI kompyuter dasturida** ishlaydi — u yerda AI dasturlar va fayllarni o'zi topib ochadi.\n\n[⬇️ Windows uchun yuklab olish](https://www.bilolsai.uz/kompyuter)",
                 '💻 **/usecomputer** работает только в **программе Bilols AI для компьютера** — там ИИ сам находит и открывает программы и файлы.\n\n[⬇️ Скачать для Windows](https://www.bilolsai.uz/kompyuter)',
@@ -1401,17 +1444,17 @@
             return;
         }
         var box = $('c-msgs');
-        if (state.rewards && !hasSub()) {
+        if (!remote && state.rewards && !hasSub()) {
             renderChat(); saveChat();
             var nb = bubble({ r: 'a', err: true, t: '⭐ ' + L('/usecomputer — faqat Premium obunachilar uchun.', '/usecomputer — только для Premium-подписчиков.', '/usecomputer is for Premium subscribers only.') });
             chatCTA(nb, 'sub'); box.appendChild(nb); scrollChat(true);
             return;
         }
-        if (ls('ba_pc_ok') === '0') {
+        if (ls('ba_pc_ok') === '0' && !remote) {
             pcMsg(L("💻 Kompyuterga ulanish o'chirilgan. **Sozlamalar → 💻 Kompyuterga ulanish** ni yoqing.", '💻 Доступ к компьютеру выключен. Включите: **Настройки → 💻 Доступ к компьютеру**.', '💻 Computer access is off. Turn it on in **Preferences → 💻 Computer access**.'));
             return;
         }
-        if (ls('ba_pc_ok') !== '1') {
+        if (ls('ba_pc_ok') !== '1' && !remote) {
             if (!window.confirm(L("AI kompyuteringizda ishlaydi: ekraningizni ko'radi, dastur va fayllarni topib ochadi, klaviatura bilan yozadi (sichqoncha ishlatilmaydi). Istalgan payt ekrandagi \"To'xtatish\" tugmasi bilan to'xtatishingiz mumkin. Boshlaymizmi?",
                 'ИИ будет работать на компьютере: видеть экран, находить и открывать программы и файлы, печатать с клавиатуры (мышь не используется). Остановить можно кнопкой «Остановить» на экране. Начать?',
                 'The AI will work on your computer: see your screen, find and open apps and files, type with the keyboard (no mouse). You can stop it anytime with the on-screen "Stop" button. Start?'))) { pcMsg(L('Bekor qilindi.', 'Отменено.', 'Cancelled.')); return; }
@@ -1423,7 +1466,7 @@
         box.appendChild(live); scrollChat(true);
         function setLive(t) { var tx = live.querySelector('.tx'); if (tx) tx.innerHTML = md(t); scrollChat(); }
         setLive('🤖 ' + L('Kompyuterni boshqarish boshlandi…', 'Начинаю управлять компьютером…', 'Taking control of the computer…'));
-        var steps = [], log = [], final = '', fail = null, MAX = 40, ctx = { found: [], explorer: false };
+        var steps = [], log = [], final = '', fail = null, MAX = 40, ctx = { found: [], explorer: false, shot: null };
         try {
             await pcInv('pc_begin');
             for (var i = 0; i < MAX; i++) {
@@ -1440,6 +1483,7 @@
                     pcInv('pc_say', { text: (log.length + 1) + '. ' + ag.say });
                     log.push(ag.say); setLive('🤖 ' + log.map(function (t, k) { return (k + 1) + '. ' + t; }).join('\n'));
                 }
+                if (remote) { var rr = await report('running', { text: ag.say || '', steps: log }); if (rr && rr.cancel) { fail = { stopped: true }; break; } }
                 for (var q = 0; q < acts.length; q++) {
                     var a = acts[q], res2 = 'ok';
                     if (/click|scroll|move/.test(a.type)) { steps.push(a.type + ' → FAILED: mouse is disabled'); continue; }   // sichqoncha ishlatilmaydi
@@ -1473,8 +1517,13 @@
                         }
                         else if (a.type === 'open') { await pcInv('pc_open', { url: a.url }); await pcInv('pc_wait', { ms: 900 }); }
                         else if (a.type === 'wait') await pcInv('pc_wait', { ms: a.ms || 1000 });
+                        else if (a.type === 'screenshot') {
+                            var sh = await pcInv('pc_shot_full');
+                            ctx.shot = 'data:image/jpeg;base64,' + sh.image;
+                            res2 = 'screenshot taken' + (sh.saved ? ' and saved to ' + sh.saved : '');
+                        }
                         else {
-                            await pcInv('pc_act', { action: { type: a.type, x: null, y: null, text: a.text || null, keys: a.keys || null, dy: null } });
+                            await pcInv('pc_act', { action: { type: a.type, x: null, y: null, text: a.text ? pcUnmask(a.text, sec.map) : null, keys: a.keys || null, dy: null } });
                             await pcInv('pc_wait', { ms: 120 });
                         }
                     } catch (e2) {
@@ -1495,8 +1544,14 @@
                 : /not found|not allowed|denied|unknown command/i.test(es) ? { error: L("Kompyuter dasturining eski versiyasi. Yangisini o'rnating: [⬇️ yuklab olish](https://www.bilolsai.uz/kompyuter)", 'Старая версия программы. Установите новую: [⬇️ скачать](https://www.bilolsai.uz/kompyuter)', 'Old app version. Install the new one: [⬇️ download](https://www.bilolsai.uz/kompyuter)') }
                 : { error: es };
         } finally {
+            // Telefondan berilgan buyruq: oxirida doim skrinshot (agar AI o'zi olmagan bo'lsa)
+            if (remote && !ctx.shot && !(fail && fail.stopped)) { try { var fs = await pcInv('pc_shot_full'); ctx.shot = 'data:image/jpeg;base64,' + fs.image; } catch (e) {} }
             try { await pcInv('pc_end'); } catch (e) {}
             chat.busy = false; $('c-send').disabled = false;
+        }
+        if (remote) {
+            var rtext = fail ? (fail.stopped ? L("To'xtatildi.", 'Остановлено.', 'Stopped.') : (fail.error || L('Xatolik', 'Ошибка', 'Error'))) : final;
+            report(fail ? (fail.stopped ? 'stopped' : 'error') : 'done', { text: rtext, steps: log, image: ctx.shot ? ctx.shot.split(',')[1] : undefined });
         }
         live.remove();
         var hist = log.length ? '\n\n**' + L('Qadamlar', 'Шаги', 'Steps') + ':**\n' + log.map(function (t, k) { return (k + 1) + '. ' + t; }).join('\n') : '';
@@ -1509,6 +1564,11 @@
         if (fail && fail.stopped) pcMsg('⏹ ' + L("To'xtatildi.", 'Остановлено.', 'Stopped.') + hist);
         else if (fail) pcMsg('⚠️ ' + (fail.error || L('Xatolik', 'Ошибка', 'Error')) + hist);
         else pcMsg('✅ ' + final + hist);
+        if (ctx.shot) {
+            var th = await shotThumb(ctx.shot);
+            chat.msgs.push({ r: 'a', t: '📸 ' + L('Skrinshot', 'Скриншот', 'Screenshot'), gen: th || ctx.shot, full: ctx.shot });
+            saveChat(); renderChat(); scrollChat(true);
+        }
     }
 
     async function sendChat() {

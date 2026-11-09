@@ -73,7 +73,7 @@ function pcActions(raw) {
 // /usecomputer agenti: bitta qadam. Kiradi: vazifa, oldingi qadamlar, ekran rasmi (JPEG base64).
 // Chiqadi: keyingi bitta amal. Koordinatalar 0..1000 (ekran eni/bo'yiga nisbatan) — dastur o'zi piksellarga o'giradi.
 // Sichqoncha ishlatilmaydi: faqat dastur/fayl ochish, qidirish va klaviatura
-const AGENT_TYPES = new Set(["launch", "open", "find_open", "find", "list", "open_item", "open_found", "type", "key", "wait"]);
+const AGENT_TYPES = new Set(["launch", "open", "find_open", "find", "list", "open_item", "open_found", "type", "key", "wait", "screenshot"]);
 // Ko'p ishlatiladigan dasturlar: odamcha nom -> exe nomi (dastur ularni qidiruvsiz, to'g'ridan-to'g'ri ochadi)
 const APP_ALIAS = {
   calculator: "calc", kalkulyator: "calc", калькулятор: "calc", notepad: "notepad", bloknot: "notepad", блокнот: "notepad",
@@ -150,11 +150,14 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     "{\"type\":\"open\",\"url\":\"https://...\"} — open a website in the default browser (direct links: https://www.google.com/search?q=..., https://www.youtube.com/results?search_query=..., https://mail.google.com ...) or ms-settings:..., mailto:, tg://resolve?domain=..., spotify:; " +
     "{\"type\":\"type\",\"text\":\"...\"} — types into the focused window; {\"type\":\"key\",\"keys\":\"enter\"|\"tab\"|\"shift+tab\"|\"esc\"|\"up\"|\"down\"|\"ctrl+l\"|\"ctrl+t\"|\"ctrl+f\"|\"ctrl+s\"|\"ctrl+n\"|\"alt+tab\"|\"alt+f4\"|\"win+d\"|\"f2\"|\"f5\"...}; " +
     "{\"type\":\"wait\",\"ms\":int} — e.g. 1500 after launch/open so the window appears and gets focus. " +
+    "{\"type\":\"screenshot\"} — saves a full-quality screenshot of the screen and sends it to the user (use when the user asks for a screenshot/photo of the screen, or to show the result; take it AFTER the page/app has loaded). " +
+    "SECRETS: the user's passwords are hidden from you as placeholders like {{SECRET1}}. To enter a password type the placeholder exactly ({\"type\":\"type\",\"text\":\"{{SECRET1}}\"}) — the computer replaces it with the real value. Never write placeholders anywhere except the password field and never mention them in say. " +
+    "LOGIN to a site when the user gave the login and password: open the login page (e.g. https://www.roblox.com/login), wait ~2500 ms, the login field is usually focused — type the login, key tab, type the password placeholder, key enter, wait ~3000, then check the screenshot. If it is not focused, use key tab to move between fields. " +
     "RULES: Never use the Start menu search or the Run box. Navigate inside apps with the keyboard (tab/arrows/enter, alt+letter menus, ctrl+l address bar in browsers and Explorer — you can type a path like C:\\Users there, ctrl+f to search). " +
     "Chain actions when the result is predictable (e.g. launch calc, wait 1200, type \"125*48\", key enter; or find_open telegram, wait 2000). " +
     "Look at PREVIOUS STEPS and the screenshot: if something failed (e.g. 'not found'), try another way (another name, find, a website). Set done=true when the task is complete (you may include final actions with done=true if the outcome is certain, e.g. just opening a program/site/folder), or when impossible — explain in say. " +
     "SAFETY: never delete files, uninstall, change passwords/system security, make payments or purchases, send messages/emails or post anything unless the user explicitly asked for exactly that; " +
-    "never type passwords or card numbers; never type commands into cmd/powershell that modify or delete anything; if login/2FA/captcha is needed — done=true and ask the user.";
+    "type passwords ONLY via the user's {{SECRETn}} placeholders, never card numbers;  never type commands into cmd/powershell that modify or delete anything; if a captcha, 2FA or verification code is needed (or login data was not given) — take a screenshot, set done=true and tell the user.";
   const body = {
     model: "google/gemini-2.5-flash",
     models: ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"],
