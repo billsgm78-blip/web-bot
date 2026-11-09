@@ -82,6 +82,8 @@ body.inside #labels, body.inside .tools, body.inside .mebar, body.inside .soc, b
 .lb.ag::after { border-top-color: #12122a; }
 .lb.tw { background: linear-gradient(135deg, #8b5cf6, #22d3ee); color: #fff; font-size: 14px; padding: 7px 12px; }
 .lb.tw::after { border-top-color: #5b8cf0; }
+.lb.wh { background: linear-gradient(135deg, #f59e0b, #facc15); color: #3a2a00; font-size: 14px; padding: 7px 12px; font-weight: 800; }
+.lb.wh::after { border-top-color: #f5b50b; }
 .lb.far { opacity: 0; pointer-events: none; }
 .lb.bl { background: #16142c; color: #fff; border: 1px solid rgba(255, 210, 87, .55); }
 .lb.bl::after { border-top-color: #16142c; }
@@ -225,6 +227,7 @@ body.inside #labels, body.inside .tools, body.inside .mebar, body.inside .soc, b
   <button type="button" id="t-in" title="Yaqinlashtirish">+</button>
   <button type="button" id="t-out" title="Uzoqlashtirish">−</button>
   <button type="button" id="t-home" title="Markaz">⌂</button>
+  <button type="button" id="t-wheat" title="Bug'doy maydoni">🌾</button>
   <button type="button" id="t-tour" title="Aylanib chiqish">▶</button>
 </div>
 <div class="ui mebar" id="mebar" hidden></div>
@@ -1296,6 +1299,7 @@ canvas.addEventListener('wheel', function (e) { e.preventDefault(); stopTour(); 
 $('t-in').onclick = function () { goal.dist = clamp(goal.dist * .7, 25, 520); };
 $('t-out').onclick = function () { goal.dist = clamp(goal.dist * 1.4, 25, 520); };
 $('t-home').onclick = function () { flyTo(CENTER[0], CENTER[1], 200, .62); };
+$('t-wheat').onclick = openWheat;
 $('t-tour').onclick = function () { tour = !tour; this.classList.toggle('on', tour); if (tour) { goal.dist = 150; goal.pitch = .45; } };
 function stopTour() { if (tour) { tour = false; $('t-tour').classList.remove('on'); } }
 
@@ -1319,6 +1323,72 @@ function pick(x, y) {
     var best = null, bd = CELL * .8;
     plotObjs.forEach(function (q) { var d = Math.hypot(q.g.position.x - gp.x, q.g.position.z - gp.z); if (d < bd) { bd = d; best = q; } });
     if (best) openPlot(best.k);
+}
+
+/* ===================== 🌾 BUG'DOY MAYDONI =====================
+   Mahallaning sharqiy chetidagi katta dala. Egasini admin tasodifiy tanlaydi (server: S.wheat = {nick, since, mine}).
+   Bug'doy shamolda to'lqinlanadi, tegirmon aylanadi, pichan g'aramlari, qo'riqchi qo'g'irchoq va ombor bor. */
+var WHEAT = (function () {
+    var W = 150, D = 130, X = 300 + W / 2 + 20, Z = CENTER[1], g = new THREE.Group();
+    g.position.set(X, 0, Z); scene.add(g);
+    // tuproq va chekka yo'lka
+    box(W + 14, .35, D + 14, 0x8a7a5a, { roughness: 1 }, 0, 0, 0, g);
+    box(W, .5, D, 0x6b4a2b, { roughness: 1 }, 0, 0, 0, g);
+    // bug'doy: qatorlar bo'yicha bo'laklar — har bo'lak o'z fazasida chayqaladi (shamol to'lqini)
+    var STRIPS = 10, per = mobile ? 260 : 620, stalk = new THREE.ConeGeometry(.22, 2.6, 4); stalk.translate(0, 1.3, 0);
+    var ear = new THREE.CylinderGeometry(.16, .22, .9, 5); ear.translate(0, 2.9, 0);
+    var mS = new THREE.MeshStandardMaterial({ color: 0xd9a93a, roughness: .85 }), mE = new THREE.MeshStandardMaterial({ color: 0xf0c75e, roughness: .7, emissive: 0x3a2a00, emissiveIntensity: .25 });
+    var strips = [], dm = new THREE.Object3D(), sw = (W - 8) / STRIPS;
+    for (var s = 0; s < STRIPS; s++) {
+        var sg = new THREE.Group(); sg.position.set(-W / 2 + 4 + sw * s + sw / 2, .5, 0); g.add(sg);
+        var iS = new THREE.InstancedMesh(stalk, mS, per), iE = new THREE.InstancedMesh(ear, mE, per);
+        for (var i = 0; i < per; i++) {
+            dm.position.set((Math.random() - .5) * sw, 0, (Math.random() - .5) * (D - 8));
+            dm.rotation.set((Math.random() - .5) * .25, Math.random() * Math.PI, (Math.random() - .5) * .25);
+            var k = .75 + Math.random() * .5; dm.scale.set(k, k, k); dm.updateMatrix();
+            iS.setMatrixAt(i, dm.matrix); iE.setMatrixAt(i, dm.matrix);
+        }
+        iS.receiveShadow = iE.receiveShadow = !mobile; sg.add(iS); sg.add(iE); strips.push(sg);
+    }
+    // to'siq
+    var post = mat(0x7a5a3a);
+    for (var fx = -W / 2; fx <= W / 2; fx += 6) { box(.4, 2, .4, post, null, fx, 0, -D / 2 - 3, g); box(.4, 2, .4, post, null, fx, 0, D / 2 + 3, g); }
+    for (var fz = -D / 2; fz <= D / 2; fz += 6) { box(.4, 2, .4, post, null, -W / 2 - 3, 0, fz, g); box(.4, 2, .4, post, null, W / 2 + 3, 0, fz, g); }
+    box(W + 6, .25, .25, post, null, 0, 1.4, -D / 2 - 3, g); box(W + 6, .25, .25, post, null, 0, 1.4, D / 2 + 3, g);
+    box(.25, .25, D + 6, post, null, -W / 2 - 3, 1.4, 0, g); box(.25, .25, D + 6, post, null, W / 2 + 3, 1.4, 0, g);
+    // pichan g'aramlari
+    [[-50, -48], [-38, -52], [48, 50], [56, 40], [-58, 44]].forEach(function (p) {
+        var h = new THREE.Mesh(GEO.cyl, mat(0xe2b85a, { roughness: 1 })); h.scale.set(5, 4, 5); h.rotation.z = Math.PI / 2; h.position.set(p[0], 2.5, p[1]); h.castShadow = !mobile; g.add(h);
+    });
+    // ombor
+    var barn = new THREE.Group(); barn.position.set(W / 2 - 16, .5, -D / 2 + 16); g.add(barn);
+    box(16, 10, 12, 0xa63a2e, null, 0, 0, 0, barn); box(17, .8, 13, 0xf5f0e6, null, 0, 10, 0, barn);
+    var roof = new THREE.Mesh(GEO.cone4, mat(0x5a2a22)); roof.scale.set(13, 6, 10); roof.rotation.y = Math.PI / 4; roof.position.set(0, 13.6, 0); barn.add(roof);
+    box(5, 6, .3, 0xf5f0e6, null, 0, 0, 6.05, barn);
+    // tegirmon
+    var mill = new THREE.Group(); mill.position.set(-W / 2 + 14, .5, D / 2 - 18); g.add(mill);
+    var tw = new THREE.Mesh(new THREE.CylinderGeometry(3, 4.5, 20, 12), mat(0xf1e6cf)); tw.position.y = 10; tw.castShadow = !mobile; mill.add(tw);
+    var cap = new THREE.Mesh(new THREE.ConeGeometry(3.6, 4, 12), mat(0x6b4a8a)); cap.position.y = 22; mill.add(cap);
+    var blades = new THREE.Group(); blades.position.set(0, 18, 4.2); mill.add(blades);
+    for (var b = 0; b < 4; b++) { var bl = new THREE.Group(); bl.rotation.z = b * Math.PI / 2; box(1.2, 11, .3, 0xffffff, null, 0, 1, 0, bl); blades.add(bl); }
+    // qo'riqchi qo'g'irchoq
+    var sc = new THREE.Group(); sc.position.set(6, .5, -6); g.add(sc);
+    box(.4, 6, .4, 0x7a5a3a, null, 0, 0, 0, sc); box(6, .4, .4, 0x7a5a3a, null, 0, 4.2, 0, sc);
+    box(3, 3, 1.4, 0x3b6ea8, null, 0, 3, 0, sc); var hd = new THREE.Mesh(GEO.ball, mat(0xf1d9a8)); hd.scale.setScalar(1.8); hd.position.y = 6.8; sc.add(hd);
+    var hat = new THREE.Mesh(GEO.cyl, mat(0xc9a24a)); hat.scale.set(3.4, .3, 3.4); hat.position.y = 7.6; sc.add(hat);
+    return { g: g, x: X, z: Z, w: W, d: D, strips: strips, blades: blades };
+})();
+function wheatStep(t, dt) {
+    WHEAT.strips.forEach(function (s, i) { s.rotation.z = Math.sin(t * 1.3 + i * .55) * .06; s.rotation.x = Math.cos(t * .9 + i * .4) * .025; });
+    WHEAT.blades.rotation.z += dt * .7;
+}
+function openWheat() {
+    var w = S.wheat;
+    flyTo(WHEAT.x, WHEAT.z, 170, .42);
+    var since = w && w.since ? new Date(w.since * 1000).toLocaleDateString('uz-UZ') : '';
+    openSheet('<div class="sh-t">🌾 Bug\'doy maydoni</div><div class="sh-a">Mahallaning eng katta dalasi</div>' +
+        (w ? '<div class="sh-m">Egasi: <b>@' + esc(w.nick) + '</b>' + (w.mine ? ' — <b>bu siz! 🎉</b>' : '') + '<br>🎲 Mahalla aholisi orasidan <b>tasodifiy</b> tanlangan' + (since ? ' (' + since + ')' : '') + '.</div>'
+           : '<div class="sh-m">Hozircha egasi yo\'q. Tez orada mahalla aholisi orasidan <b>tasodifiy</b> tanlanadi — mahallaga qo\'shiling va nik qo\'ying, balki siz yutarsiz! 🍀</div>'));
 }
 
 /* ===================== HTML yorliqlar ===================== */
@@ -1350,7 +1420,7 @@ async function load() {
     try { j = await api('list', S.logged ? c : {}); } catch (e) {}
     if (j.auth === false && TGW) { TEMP = null; S.logged = false; try { j = await api('list', {}); } catch (e) {} toast("Bu Telegram akkaunt Bilols AI'ga ulanmagan — botda /start bosib, raqamingizni yuboring"); }
     if (!j.success) { $('load').textContent = "Server javob bermadi. Birozdan keyin qayta urinib ko'ring."; return false; }
-    S.plots = j.plots || []; S.free = j.free || []; S.ads = j.ads || []; S.chest = j.chest || null; S.buildings = j.buildings || []; S.sky = j.sky || S.sky; S.me = j.me; S.balance = j.balance || 0; S.total = j.total || 0; S.joined = j.joined || 0;
+    S.plots = j.plots || []; S.free = j.free || []; S.wheat = j.wheat || null; S.ads = j.ads || []; S.chest = j.chest || null; S.buildings = j.buildings || []; S.sky = j.sky || S.sky; S.me = j.me; S.balance = j.balance || 0; S.total = j.total || 0; S.joined = j.joined || 0;
     if (j.auth === false) S.logged = false;
     S.bmap = {}; S.buildings.forEach(function (b) { if (b.id === 'choyhona' && b.emoji === '🫖') b.emoji = '🍵'; S.bmap[b.id] = b; });
     return true;
@@ -1382,6 +1452,7 @@ function populate() {
     var me = S.me && plotObjs[S.me.c];
     if (me && !(me.p && me.p.n)) addLabel('me', '🏠 Sizning hovlingiz', function () { return { x: me.g.position.x, y: me.top + 2, z: me.g.position.z }; }, function () { openPlot(me.k); });
     addLabel('tw', '🤖 Bilols AI · Agentlar', function () { return { x: CENTER[0], y: 2 + FLOORS * FH + 8, z: CENTER[1] }; }, openTower);
+    addLabel('wh' + (S.wheat && S.wheat.mine ? ' me' : ''), '🌾 Bug\'doy maydoni' + (S.wheat ? ' · @' + esc(S.wheat.nick) : ''), function () { return { x: WHEAT.x, y: 16, z: WHEAT.z }; }, openWheat);
     agents.forEach(function (a) { addLabel('ag', esc(a.name), function () { var p = a.g.getWorldPosition(v3); return { x: p.x, y: p.y + 5, z: p.z }; }, openTower, 120); });
     $('pop').textContent = money(S.total); $('pop2').textContent = money(S.total); $('joined').textContent = money(S.joined);
 }
@@ -2223,7 +2294,7 @@ function frame(now) {
         g.userData.legL.position.y = .4 + Math.max(0, Math.sin(a.ph)) * .35; g.userData.legR.position.y = .4 + Math.max(0, -Math.sin(a.ph)) * .35;
         g.position.y = a.y + Math.abs(Math.sin(a.ph)) * .12;
     });
-    lifeStep(dt); wxStep(dt); fireworksStep(dt);
+    lifeStep(dt); wxStep(dt); fireworksStep(dt); wheatStep(time, dt);
     if (CHEST) { CHEST.g.position.y = .3 + Math.abs(Math.sin(time * 2)) * .5; CHEST.g.rotation.y += dt * .6; CHEST.gl.material.opacity = .6 + Math.sin(time * 4) * .4; }
     for (var hi = HEARTS.length - 1; hi >= 0; hi--) { var hh = HEARTS[hi]; hh.t += dt; hh.s.position.y += dt * 6; hh.s.material.opacity = Math.max(0, 1 - hh.t / 1.6); if (hh.t > 1.6) { scene.remove(hh.s); HEARTS.splice(hi, 1); } }
     spinners.forEach(function (w) { if (w.userData.yspin) { w.rotation.y += dt * 2.4; return; } w.rotation.z += dt * .25; w.children.forEach(function (c) { if (c.userData.cab) c.rotation.z = -w.rotation.z; }); });

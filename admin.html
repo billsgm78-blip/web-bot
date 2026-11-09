@@ -1544,6 +1544,40 @@ select.inp option { background: #12151c; color: var(--text); }
         view.appendChild(h('div', { class: 'grid kpis' }, [
             ['🏘 Aholi (hovlilar)', st.total], ['🙋 Mahallaga qo\'shilgan', st.joined], ['🏗 Qurilgan binolar', Object.keys(per).filter(function (k) { return k !== 'uy'; }).reduce(function (s, k) { return s + per[k]; }, 0)], ['💰 Binolardan tushum', money(st.revenue || 0) + " so'm"]
         ].map(function (c) { return h('div', { class: 'kpi' }, [h('b', { text: String(c[1] == null ? 0 : c[1]) }), h('small', { text: c[0] })]); })));
+
+        // ===== 🌾 Bug'doy maydoni: egasi mahalla aholisi orasidan tasodifiy tanlanadi =====
+        var wh = j.wheat || null;
+        view.appendChild(h('div', { class: 'h', text: "🌾 Bug'doy maydoni" }));
+        if (!wh) view.appendChild(h('div', { class: 'card' }, [h('div', { class: 'sum', text: "Server hali yangilanmagan — bir necha daqiqadan so'ng sahifani yangilang." })]));
+        else {
+            var whOwner = h('div', { style: 'font-size:18px;font-weight:800;margin:4px 0 2px' });
+            var whSub = h('small', { class: 'sum' });
+            function whPaint(w) {
+                whOwner.textContent = w.owner ? '👑 @' + w.owner.nick : "Egasi yo'q";
+                whSub.textContent = (w.owner ? w.owner.phone + ' · ' + new Date(w.owner.at * 1000).toLocaleString('uz-UZ') + ' · ' : '') + "Tanlashda qatnashadi: " + w.candidates + " kishi (mahallaga qo'shilgan, nik qo'ygan)";
+            }
+            whPaint(wh);
+            var pickBtn = h('button', { class: 'btn', text: '🎲 Tasodifiy tanlash' });
+            pickBtn.onclick = async function () {
+                if (!wh.candidates) { toast("Mahallaga qo'shilgan aholi yo'q"); return; }
+                pickBtn.disabled = true;
+                // "baraban" effekti: bir necha soniya nomlar aylanadi, keyin server tanlagan g'olib chiqadi
+                var spin = setInterval(function () { whOwner.textContent = '🎲 ' + ['…', '🌾', '🍀', '✨'][Math.floor(Math.random() * 4)] + ' tanlanmoqda'; }, 90);
+                var x = await admin('mahalla_wheat_pick');
+                await new Promise(function (r) { setTimeout(r, 1600); });
+                clearInterval(spin); pickBtn.disabled = false;
+                if (x.success) { wh = x.wheat; whPaint(wh); toast("🎉 Bug'doy maydoni egasi: @" + x.picked.nick + ' (' + x.picked.candidates + ' kishi orasidan)'); }
+                else { whPaint(wh); toast(x.error || 'Xato'); }
+            };
+            var clrBtn = h('button', { class: 'btn ghost', text: "Egasini olib tashlash" });
+            clrBtn.onclick = async function () { var x = await admin('mahalla_wheat_clear'); if (x.success) { wh = x.wheat; whPaint(wh); toast("Bug'doy maydoni egasiz qoldi"); } else toast(x.error || 'Xato'); };
+            view.appendChild(h('div', { class: 'card' }, [
+                h('div', { class: 'sum', text: "Mahalla chetidagi katta bug'doy dalasi. Egasi mahallaga qo'shilgan aholi orasidan adolatli tasodifiy tanlanadi va xaritada dala ustida uning niki ko'rinadi." }),
+                whOwner, whSub,
+                h('div', { style: 'display:flex;gap:8px;margin-top:10px;flex-wrap:wrap' }, [pickBtn, clrBtn])
+            ]));
+        }
+
         var box = h('div');
         function paint() {
             box.innerHTML = '';
