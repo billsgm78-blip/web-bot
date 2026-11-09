@@ -1335,6 +1335,90 @@
         else if (kind === 'free') { btn.className = 'btn ghost b-cta'; btn.textContent = '⚡ ' + L("Bepul agentga o'tish", 'Перейти на бесплатного агента', 'Switch to the free agent'); btn.onclick = function () { var f = (state.models || []).filter(function (m) { return !isPro(m); })[0]; if (f) { chat.model = f.id; ls('ba_model', f.id); paintModel(); toast(f.name, 'ok'); } }; }
         b.appendChild(btn);
     }
+    /* ===== /usecomputer — AI kompyuterni boshqaradi (faqat Bilols AI kompyuter dasturida, Premium) =====
+       Har qadam: dastur ekran rasmini oladi → server (AI) bitta amal qaytaradi → dastur ekranda AI kursori
+       animatsiyasi bilan sichqoncha/klaviaturani ishlatadi. Ekrandagi "To'xtatish" paneli istalgan payt to'xtatadi. */
+    var TAURI = window.__TAURI_INTERNALS__;
+    var IS_DESKTOP = !!(TAURI && typeof TAURI.invoke === 'function');
+    function pcInv(cmd, args) { return TAURI.invoke(cmd, args || {}); }
+    function pcMsg(t) { chat.msgs.push({ r: 'a', t: t }); saveChat(); renderChat(); scrollChat(true); }
+    async function runAgent(text, task) {
+        if (chat.busy) return;
+        chat.msgs.push({ r: 'u', t: text });
+        if (!IS_DESKTOP) {
+            pcMsg(L("💻 **/usecomputer** faqat **Bilols AI kompyuter dasturida** ishlaydi — u yerda AI sichqoncha va klaviaturani o'zi boshqaradi.\n\n[⬇️ Windows uchun yuklab olish](https://www.bilolsai.uz/kompyuter)",
+                '💻 **/usecomputer** работает только в **программе Bilols AI для компьютера** — там ИИ сам управляет мышью и клавиатурой.\n\n[⬇️ Скачать для Windows](https://www.bilolsai.uz/kompyuter)',
+                '💻 **/usecomputer** works only in the **Bilols AI desktop app** — there the AI controls the mouse and keyboard itself.\n\n[⬇️ Download for Windows](https://www.bilolsai.uz/kompyuter)'));
+            return;
+        }
+        if (!task) {
+            pcMsg(L("💻 **/usecomputer** — AI kompyuteringizni o'zi boshqaradi. Nima qilish kerakligini yozing, masalan:\n\n`/usecomputer kalkulyatorni och va 125*48 ni hisobla`\n`/usecomputer YouTube'da o'zbek musiqalarini qo'y`\n`/usecomputer bloknotni ochib, salom deb yoz`\n\n⭐ Faqat Premium obunachilar uchun. To'xtatish — ekrandagi **⏹ To'xtatish** tugmasi.",
+                '💻 **/usecomputer** — ИИ сам управляет компьютером. Напишите задачу, например:\n\n`/usecomputer открой калькулятор и посчитай 125*48`\n`/usecomputer включи музыку на YouTube`\n\n⭐ Только для Premium. Остановить — кнопка **⏹** на экране.',
+                '💻 **/usecomputer** — the AI controls your computer. Write a task, e.g.:\n\n`/usecomputer open the calculator and compute 125*48`\n`/usecomputer play music on YouTube`\n\n⭐ Premium only. Stop anytime with the on-screen **⏹** button.'));
+            return;
+        }
+        var box = $('c-msgs');
+        if (state.rewards && !hasSub()) {
+            renderChat(); saveChat();
+            var nb = bubble({ r: 'a', err: true, t: '⭐ ' + L('/usecomputer — faqat Premium obunachilar uchun.', '/usecomputer — только для Premium-подписчиков.', '/usecomputer is for Premium subscribers only.') });
+            chatCTA(nb, 'sub'); box.appendChild(nb); scrollChat(true);
+            return;
+        }
+        if (ls('ba_pc_ok') !== '1') {
+            if (!window.confirm(L("AI kompyuteringizni boshqaradi: sichqoncha va klaviaturani ishlatadi, ekraningizni ko'radi. Istalgan payt ekrandagi \"To'xtatish\" tugmasi bilan to'xtatishingiz mumkin. Boshlaymizmi?",
+                'ИИ будет управлять компьютером: мышью и клавиатурой, и видеть экран. Остановить можно кнопкой «Остановить» на экране. Начать?',
+                'The AI will control your computer: use the mouse and keyboard and see your screen. You can stop it anytime with the on-screen "Stop" button. Start?'))) { pcMsg(L('Bekor qilindi.', 'Отменено.', 'Cancelled.')); return; }
+            ls('ba_pc_ok', '1');
+        }
+        chat.busy = true; $('c-send').disabled = true;
+        renderChat(); saveChat();
+        var live = bubble({ r: 'a', t: '' }); var lb = live.querySelector('.b-acts'); if (lb) lb.remove();
+        box.appendChild(live); scrollChat(true);
+        function setLive(t) { var tx = live.querySelector('.tx'); if (tx) tx.innerHTML = md(t); scrollChat(); }
+        setLive('🤖 ' + L('Kompyuterni boshqarish boshlandi…', 'Начинаю управлять компьютером…', 'Taking control of the computer…'));
+        var steps = [], log = [], final = '', fail = null, MAX = 30;
+        try {
+            await pcInv('pc_begin');
+            for (var i = 0; i < MAX; i++) {
+                if (await pcInv('pc_stopped')) { fail = { stopped: true }; break; }
+                var shot = await pcInv('pc_screenshot');
+                var r = await fetch(SITE + '/api/chat', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ history: [], lang: lang, mode: 'pcagent', model: curModel().id, task: task, steps: steps, image: shot.image, phone: state.phone, password: state.pass })
+                });
+                var j = {}; try { j = await r.json(); } catch (e) {}
+                if (!r.ok || !j.agent) { fail = j && (j.error || j.needSub || j.needLogin) ? j : { error: L("AI javob bermadi", 'ИИ не ответил', 'The AI did not respond') }; break; }
+                var a = j.agent;
+                if (a.type === 'done') { final = a.say; break; }
+                await pcInv('pc_say', { text: (i + 1) + '. ' + a.say });
+                log.push(a.say); setLive('🤖 ' + log.map(function (t, k) { return (k + 1) + '. ' + t; }).join('\n'));
+                var px = a.x != null ? Math.round(a.x / 1000 * (shot.w - 1)) : null, py = a.y != null ? Math.round(a.y / 1000 * (shot.h - 1)) : null;
+                if (a.type === 'open') await pcInv('pc_open', { url: a.url });
+                else if (a.type === 'wait') await pcInv('pc_wait', { ms: 1500 });
+                else await pcInv('pc_act', { action: { type: a.type, x: px, y: py, text: a.text || null, keys: a.keys || null, dy: a.dy != null ? a.dy : null } });
+                steps.push(a.type + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (j.retry ? ' (invalid reply)' : '') + ' — ' + a.say);
+                await pcInv('pc_wait', { ms: a.type === 'open' ? 1800 : a.type === 'type' ? 500 : 900 });
+            }
+            if (!final && !fail) final = L("30 ta qadam chegarasiga yetdim — vazifa to'liq bajarilmagan bo'lishi mumkin.", 'Достигнут лимит в 30 шагов — задача могла быть не завершена.', 'Reached the 30-step limit — the task may be unfinished.');
+        } catch (e) {
+            fail = /stopped/.test(String(e)) ? { stopped: true } : { error: String(e && e.message || e) };
+        } finally {
+            try { await pcInv('pc_end'); } catch (e) {}
+            chat.busy = false; $('c-send').disabled = false;
+        }
+        live.remove();
+        var hist = log.length ? '\n\n**' + L('Qadamlar', 'Шаги', 'Steps') + ':**\n' + log.map(function (t, k) { return (k + 1) + '. ' + t; }).join('\n') : '';
+        if (fail && fail.needLogin) { sessionExpired(); return; }
+        if (fail && fail.needSub) {
+            var eb = bubble({ r: 'a', err: true, t: '⭐ ' + (fail.error || L('/usecomputer — faqat Premium obunachilar uchun.', '/usecomputer — только для Premium.', '/usecomputer is for Premium only.')) });
+            chatCTA(eb, 'sub'); box.appendChild(eb); scrollChat(true);
+            return;
+        }
+        if (fail && fail.stopped) pcMsg('⏹ ' + L("To'xtatildi.", 'Остановлено.', 'Stopped.') + hist);
+        else if (fail) pcMsg('⚠️ ' + (fail.error || L('Xatolik', 'Ошибка', 'Error')) + hist);
+        else pcMsg('✅ ' + final + hist);
+    }
+
     async function sendChat() {
         if (chat.busy) return;
         var ta = $('c-in');
@@ -1343,13 +1427,10 @@
         if ($('c-doc').classList.contains('loading')) { toast(L("Fayl o'qilmoqda, biroz kuting", 'Файл читается, подождите', 'Reading the file, please wait')); return; }
         if (!text && !chat.img && !chat.doc) return;
         var off = feature('chat'); if (off) { toast(off, 'warn'); return; }
-        // /usecomputer <vazifa> — AI kompyuterda sayt/ilovalarni ochadi (faqat Premium)
-        var pcTask = /^(\.\/bilols-usecomputer|\/usecomputer)\b/i.test(text) ? text.replace(/^(\.\/bilols-usecomputer|\/usecomputer)\b\s*/i, '').trim() : null, pcActs = [];
-        if (pcTask === '') {
-            chat.msgs.push({ r: 'u', t: text }, { r: 'a', t: L("💻 **/usecomputer** — kompyuteringizda nimani ochish kerakligini yozing. Masalan:\n\n`/usecomputer YouTube'da o'zbek musiqalarini och`\n`/usecomputer kalkulyatorni och`\n`/usecomputer Wi-Fi sozlamalarini och`\n\n⭐ Faqat Premium obunachilar uchun.",
-                '💻 **/usecomputer** — напишите, что открыть на компьютере. Например:\n\n`/usecomputer открой музыку на YouTube`\n`/usecomputer открой калькулятор`\n\n⭐ Только для Premium-подписчиков.',
-                '💻 **/usecomputer** — write what to open on your computer. For example:\n\n`/usecomputer open lo-fi music on YouTube`\n`/usecomputer open the calculator`\n\n⭐ Premium subscribers only.') });
-            ta.value = ''; autoGrow(ta); renderChat(); saveChat(); scrollChat(true);
+        // /usecomputer <vazifa> — AI kompyuterni boshqaradi (faqat kompyuter dasturida va Premium)
+        if (/^(\.\/bilols-usecomputer|\/usecomputer)\b/i.test(text)) {
+            ta.value = ''; autoGrow(ta);
+            runAgent(text, text.replace(/^(\.\/bilols-usecomputer|\/usecomputer)\b\s*/i, '').trim());
             return;
         }
         var m = { r: 'u', t: text };
@@ -1374,9 +1455,7 @@
         try {
             var res = await fetch(SITE + '/api/chat', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
-                body: JSON.stringify(pcTask != null
-                    ? { history: [{ role: 'user', parts: [{ text: pcTask }] }], lang: lang, mode: 'usecomputer', model: curModel().id, phone: state.phone, password: state.pass }
-                    : { history: buildHistory(), lang: lang, stream: true, mode: chat.mode, model: curModel().id, phone: state.phone, password: state.pass })
+                body: JSON.stringify({ history: buildHistory(), lang: lang, stream: true, mode: chat.mode, model: curModel().id, phone: state.phone, password: state.pass })
             });
             setBalance(res.headers.get('X-Balance'));
             var ct = res.headers.get('content-type') || '';
@@ -1395,11 +1474,7 @@
                 var j = {};
                 try { j = await res.json(); } catch (e) {}
                 typing.remove();
-                if (j.pc) {
-                    pcActs = Array.isArray(j.actions) ? j.actions : [];
-                    reply = (j.text || '') + pcActs.filter(function (a) { return /^https?:/i.test(a.url); }).map(function (a, i) { return (i ? '\n' : '\n\n') + '- [' + a.label + '](' + a.url + ')'; }).join('');
-                    if (!reply.trim()) reply = '💻';
-                } else if (j.text) reply = j.text;
+                if (j.text) reply = j.text;
                 else {
                     // xato: savol tarixdan olinadi, matn qaytariladi
                     var lastU = chat.msgs[chat.msgs.length - 1];
@@ -1419,22 +1494,6 @@
             if (curModel().price > 0 && !res.headers.get('X-Balance')) loadHistory();
             chat.msgs.push({ r: 'a', t: reply });
             saveChat(); renderChat();
-            if (pcActs.length) {
-                var bs = box.querySelectorAll('.bubble.ai'), lb = bs[bs.length - 1];
-                if (lb) {
-                    var row = document.createElement('div');
-                    row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:10px';
-                    pcActs.forEach(function (a) {
-                        var b = document.createElement('button');
-                        b.className = 'btn ghost'; b.textContent = '▶ ' + a.label;
-                        b.onclick = function () { openExternal(a.url); };
-                        row.appendChild(b);
-                    });
-                    (lb.querySelector('.tx') || lb).appendChild(row);
-                    scrollChat(true);
-                }
-                openExternal(pcActs[0].url);   // birinchisi darhol ochiladi
-            }
         } catch (e) {
             typing.remove();
             var msg = e.name === 'AbortError' ? L("Javob juda cho'zildi. Qayta urinib ko'ring.", 'Ответ занял слишком долго. Попробуйте снова.', 'The reply took too long. Try again.')
@@ -1512,7 +1571,7 @@
         function mode(id) { return function () { ci.value = ''; chat.mode = id; ls('ba_mode', id); paintModes(); paintModeBtn(); }; }
         function nm(id) { var m = MODES.filter(function (x) { return x[0] === id; })[0]; return L(m[2], m[3], m[4]); }
         return [
-            { cmd: 'usecomputer', ico: '💻', premium: true, title: L('Kompyuterni boshqarish', 'Управление компьютером', 'Use computer'), sub: L('AI kompyuteringizda sayt va dasturlarni ochadi', 'ИИ открывает сайты и программы на компьютере', 'AI opens sites and apps on your computer'), run: function () { ci.value = '/usecomputer '; } },
+            IS_DESKTOP && { cmd: 'usecomputer', ico: '💻', premium: true, title: L('Kompyuterni boshqarish', 'Управление компьютером', 'Use computer'), sub: L("AI sichqoncha va klaviaturani o'zi boshqaradi", 'ИИ сам управляет мышью и клавиатурой', 'AI controls the mouse and keyboard itself'), run: function () { ci.value = '/usecomputer '; } },
             { cmd: 'rasm', ico: '🎨', title: L('Rasm yaratish', 'Создать изображение', 'Create image'), sub: L('Matndan rasm chizadi', 'Рисует картинку по тексту', 'Draws an image from text'), run: function () { ci.value = ''; setGenMode(true); } },
             { cmd: 'oqituvchi', ico: '👨‍🏫', title: nm('teacher'), sub: L('Qadam-baqadam tushuntiradi', 'Объясняет пошагово', 'Explains step by step'), run: mode('teacher') },
             { cmd: 'dasturchi', ico: '👨‍💻', title: nm('coder'), sub: L('Kod yozadi va xatolarni topadi', 'Пишет код и ищет ошибки', 'Writes code and finds bugs'), run: mode('coder') },
@@ -1520,7 +1579,7 @@
             { cmd: 'insho', ico: '✍️', title: nm('essay'), sub: L('Insho, maqola, xat yozadi', 'Пишет сочинения, статьи, письма', 'Writes essays, articles, letters'), run: mode('essay') },
             { cmd: 'imtihon', ico: '📝', title: nm('exam'), sub: L('DTM, IELTS, SAT tayyorlov', 'Подготовка к DTM, IELTS, SAT', 'DTM, IELTS, SAT prep'), run: mode('exam') },
             { cmd: 'oddiy', ico: '🤖', title: nm(''), sub: L("Rejimni o'chiradi", 'Выключает режим', 'Turns modes off'), run: mode('') }
-        ];
+        ].filter(Boolean);
     });
 
     /* Chatda rasm yaratish (saytdagidek): 📎 → 🎨 Rasm yaratish. Rasm biriktirilsa — o'sha rasm tahrirlanadi */

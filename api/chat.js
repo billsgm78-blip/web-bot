@@ -70,6 +70,73 @@ function pcActions(raw) {
   return out;
 }
 
+// /usecomputer agenti: bitta qadam. Kiradi: vazifa, oldingi qadamlar, ekran rasmi (JPEG base64).
+// Chiqadi: keyingi bitta amal. Koordinatalar 0..1000 (ekran eni/bo'yiga nisbatan) — dastur o'zi piksellarga o'giradi.
+const AGENT_TYPES = new Set(["click", "double_click", "right_click", "type", "key", "scroll", "open", "wait", "done"]);
+async function runAgentStep(req, res, apiKey, uiLang, langName) {
+  const { task, steps, image } = req.body || {};
+  const t = String(task || "").slice(0, 1500).trim();
+  if (!t || typeof image !== "string" || image.length < 100 || image.length > 3500000 || !/^[A-Za-z0-9+/=]+$/.test(image)) {
+    return res.status(400).json({ error: "Noto'g'ri so'rov." });
+  }
+  const done = (Array.isArray(steps) ? steps : []).slice(-15).map((x, i) => `${i + 1}. ${String(x).slice(0, 200)}`).join("\n") || "(none yet)";
+  const system =
+    "You are Bilols AI operating a Windows computer for the user. You see a screenshot of the primary screen and choose exactly ONE next action. " +
+    "Coordinates are integers 0..1000 relative to the screenshot width (x) and height (y); aim at the exact center of the element. " +
+    "Reply with ONLY valid JSON: {\"thought\": string (short, English), \"say\": string (very short status for the user in " + langName + ", e.g. what you are doing now; for done — the final answer/result), " +
+    "\"action\": {\"type\": one of click|double_click|right_click|type|key|scroll|open|wait|done, \"x\": int, \"y\": int, \"text\": string, \"keys\": string, \"dy\": int, \"url\": string}}. " +
+    "Use: click/double_click/right_click need x,y. type needs text (click the input field first). key needs keys like \"enter\", \"ctrl+l\", \"win\", \"alt+tab\", \"ctrl+c\". " +
+    "scroll needs x,y and dy (positive = down, 1..10). open needs url (https://..., mailto:, ms-settings:..., ms-calculator:) — fastest way to open websites and Windows tools. wait — when something is loading. " +
+    "To launch an installed app: key \"win\", then type its name, then key \"enter\". Prefer keyboard shortcuts when reliable. " +
+    "Check the previous steps and the screenshot to verify progress; if an action did not work, try a different approach. When the task is complete (or impossible), use done. " +
+    "SAFETY: never delete files, uninstall software, change passwords, make payments or purchases, send messages/emails or post anything unless the user explicitly asked for exactly that; " +
+    "never type passwords or card numbers; if login/2FA/captcha or a risky confirmation is required — use done and ask the user to do it.";
+  const body = {
+    model: "google/gemini-2.5-flash",
+    models: ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"],
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: [
+        { type: "text", text: `TASK: ${t}\n\nPREVIOUS STEPS:\n${done}\n\nCurrent screenshot attached. Return the next single action as JSON.` },
+        { type: "image_url", image_url: { url: `data:image/jpeg;base64,${image}` } }
+      ] }
+    ],
+    response_format: { type: "json_object" },
+    temperature: 0.2,
+    max_tokens: 700
+  };
+  try {
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://bilolsai.uz", "X-Title": "Bilols AI" },
+      body: JSON.stringify(body)
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) return res.status(502).json({ error: data?.error?.message || "Model xatoligi yuz berdi." });
+    let j = null;
+    try { j = JSON.parse(String(data?.choices?.[0]?.message?.content || "").replace(/^```(?:json)?\s*|\s*```$/g, "")); } catch (e) {}
+    const a = (j && j.action) || {};
+    const type = AGENT_TYPES.has(a.type) ? a.type : "done";
+    const n = (v) => (Number.isFinite(Number(v)) ? Math.max(0, Math.min(1000, Math.round(Number(v)))) : null);
+    const act = { type };
+    if (/click|scroll/.test(type)) {
+      act.x = n(a.x); act.y = n(a.y);
+      if (act.x === null || act.y === null) return res.status(200).json({ pc: true, agent: { type: "wait", say: "…" }, retry: true });
+    }
+    if (type === "type") act.text = String(a.text || "").slice(0, 2000);
+    if (type === "key") act.keys = String(a.keys || "").toLowerCase().replace(/[^a-z0-9+]/g, "").slice(0, 40);
+    if (type === "scroll") act.dy = Math.max(-10, Math.min(10, parseInt(a.dy, 10) || 3));
+    if (type === "open") {
+      act.url = String(a.url || "").trim();
+      if (!PC_SCHEMES.test(act.url) || /[\s<>"]/.test(act.url)) return res.status(200).json({ pc: true, agent: { type: "wait", say: "…" }, retry: true });
+    }
+    const say = String((j && j.say) || (type === "done" ? { uz: "Tayyor.", ru: "Готово.", en: "Done." }[uiLang] : "…")).slice(0, 600);
+    return res.status(200).json({ pc: true, agent: { ...act, say, thought: String((j && j.thought) || "").slice(0, 300) } });
+  } catch (e) {
+    return res.status(500).json({ error: "Server bilan bog'lanishda xatolik yuz berdi." });
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   {
@@ -97,8 +164,9 @@ export default async function handler(req, res) {
   const { history, lang, stream, phone, password, mode, model, web } = req.body || {};
   const isQuiz = mode === "quiz";
   const isPc = mode === "usecomputer";
-  const wantWeb = web === true && !isQuiz && !isPc;
-  const wantStream = stream === true && !isQuiz && !isPc;
+  const isAgent = mode === "pcagent";   // kompyuter dasturi (EXE): AI ekranni ko'rib, sichqoncha/klaviaturani boshqaradi
+  const wantWeb = web === true && !isQuiz && !isPc && !isAgent;
+  const wantStream = stream === true && !isQuiz && !isPc && !isAgent;
   if (!Array.isArray(history)) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
@@ -144,14 +212,15 @@ export default async function handler(req, res) {
     res.setHeader("X-Quota-Left", String(quota.left));
   }
   // ./bilols-usecomputer — faqat Premium (faol obuna) uchun
-  if (isPc && !(Number(quota.subUntil) > Date.now() / 1000)) {
+  if ((isPc || isAgent) && !(Number(quota.subUntil) > Date.now() / 1000)) {
     const PC_SUB = {
-      uz: "💻 /usecomputer — faqat Premium obunachilar uchun. Obuna oling va AI kompyuteringizda sayt va dasturlarni ochib bersin.",
-      ru: "💻 /usecomputer — только для Premium-подписчиков. Оформите подписку, и ИИ будет открывать сайты и программы на вашем компьютере.",
-      en: "💻 /usecomputer is for Premium subscribers only. Subscribe and let the AI open sites and apps on your computer."
+      uz: "💻 /usecomputer — faqat Premium obunachilar uchun. Obuna oling — AI kompyuteringizni o'zi boshqaradi.",
+      ru: "💻 /usecomputer — только для Premium-подписчиков. Оформите подписку — ИИ сам будет управлять вашим компьютером.",
+      en: "💻 /usecomputer is for Premium subscribers only. Subscribe and let the AI operate your computer."
     };
     return res.status(402).json({ error: PC_SUB[uiLang], needSub: true, subPrice: quota.subPrice, subDays: quota.subDays, balance: quota.balance });
   }
+  if (isAgent) return runAgentStep(req, res, apiKey, uiLang, LANG_NAMES[uiLang]);
 
   // O'zbek, Rus va Ingliz tillarini avtomatik aniqlab javob beruvchi tizim ko'rsatmasi
   const messages = [

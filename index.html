@@ -5563,80 +5563,13 @@ window.addEventListener('message', function (e) {
         }
     }
 
-    /* /usecomputer <vazifa> — AI kompyuterda sayt/ilovalarni ochib beradi (faqat Premium).
-       Server faqat ruxsat etilgan havolalarni qaytaradi (https, mailto, tg, ms-calculator: va h.k.). */
-    async function runUseComputer(text) {
-        const task = text.replace(/^(\.\/bilols-usecomputer|\/usecomputer)\b\s*/i, "").trim();
+    /* /usecomputer — faqat Bilols AI kompyuter dasturida ishlaydi (u yerda AI sichqoncha va klaviaturani boshqaradi) */
+    function runUseComputer(text) {
         if (window.BilolUI) window.BilolUI.hideSuggestions();
         appendMsg(text, "user");
-        if (!task) {
-            appendAIMsg(tr("💻 **/usecomputer** — kompyuteringizda nimani ochish kerakligini yozing. Masalan:\n\n" +
-                "`/usecomputer YouTube'da o'zbek musiqalarini och`\n`/usecomputer kalkulyatorni och`\n`/usecomputer Wi-Fi sozlamalarini och`\n\n⭐ Faqat Premium obunachilar uchun.",
-                "💻 **/usecomputer** — write what to open on your computer. For example:\n\n`/usecomputer open lo-fi music on YouTube`\n`/usecomputer open the calculator`\n\n⭐ Premium subscribers only.",
-                "💻 **/usecomputer** — напишите, что открыть на компьютере. Например:\n\n`/usecomputer открой музыку на YouTube`\n`/usecomputer открой калькулятор`\n\n⭐ Только для Premium-подписчиков."));
-            return;
-        }
-        chatHistory.push({ role: "user", parts: [{ text: text }], display: { text: text } });
-        persistChat();
-        isBusy = true;
-        document.body.classList.add("ai-busy");
-        showTyping();
-        let data = {};
-        try {
-            const res = await fetch("/api/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    history: [{ role: "user", parts: [{ text: task }] }], lang: currentLang, mode: "usecomputer",
-                    model: (window.BilolModel && window.BilolModel.get()) || "",
-                    phone: String(currentPhone || "").replace(/[^0-9]/g, ""),
-                    password: localStorage.getItem("bilol_ai_password") || ""
-                })
-            });
-            data = await res.json().catch(() => ({}));
-            if (!res.ok && !data.error) data.error = tr("⚠️ Xatolik yuz berdi.", "⚠️ Something went wrong.", "⚠️ Произошла ошибка.");
-        } catch (e) {
-            data = { error: tr("⚠️ Server bilan bog'lanib bo'lmadi.", "⚠️ Server connection error.", "⚠️ Ошибка соединения с сервером.") };
-        }
-        hideTyping();
-        isBusy = false;
-        document.body.classList.remove("ai-busy");
-        const bubble = createAIBubble();
-        if (data.error || !data.pc) {
-            if (chatHistory.length && chatHistory[chatHistory.length - 1].role === "user") { chatHistory.pop(); persistChat(); }
-            finalizeAI(bubble, data.error || data.text || "", false);
-            if (data.needSub) {
-                showNotification(data.error, "warning");
-                if (window.BilolUI && window.BilolUI.subCTA) window.BilolUI.subCTA(bubble);
-            }
-            return;
-        }
-        const actions = Array.isArray(data.actions) ? data.actions : [];
-        const links = actions.filter(a => /^https?:/i.test(a.url)).map(a => `- [${a.label}](${a.url})`).join("\n");
-        const reply = (data.text || "") + (links ? "\n\n" + links : "");
-        finalizeAI(bubble, reply || "💻");
-        if (actions.length) {
-            const row = document.createElement("div");
-            row.className = "pc-actions";
-            row.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;margin-top:10px";
-            actions.forEach(a => {
-                const b = document.createElement("a");
-                b.href = a.url; b.target = "_blank"; b.rel = "noopener noreferrer";
-                b.textContent = "▶ " + a.label;
-                b.style.cssText = "padding:7px 12px;border-radius:999px;border:1px solid rgba(148,163,184,.4);background:rgba(99,102,241,.18);color:inherit;text-decoration:none;font-size:13px";
-                row.appendChild(b);
-            });
-            (bubble.querySelector(".ai-body") || bubble).appendChild(row);
-            // Birinchisini avtomatik ochamiz (brauzer bloklasa — tugma qoladi)
-            try {
-                const first = actions[0].url;
-                if (/^https?:/i.test(first)) window.open(first, "_blank", "noopener");
-                else location.href = first;
-            } catch (e) {}
-        }
-        chatHistory.push({ role: "model", parts: [{ text: reply || "💻" }] });
-        persistChat();
-        scrollDown();
+        appendAIMsg(tr("💻 **/usecomputer** faqat **Bilols AI kompyuter dasturida** ishlaydi — u yerda AI sichqoncha va klaviaturani o'zi boshqaradi (⭐ Premium).\n\n[⬇️ Windows uchun yuklab olish](/kompyuter)",
+            "💻 **/usecomputer** works only in the **Bilols AI desktop app** — there the AI controls the mouse and keyboard itself (⭐ Premium).\n\n[⬇️ Download for Windows](/kompyuter)",
+            "💻 **/usecomputer** работает только в **программе Bilols AI для компьютера** — там ИИ сам управляет мышью и клавиатурой (⭐ Premium).\n\n[⬇️ Скачать для Windows](/kompyuter)"));
     }
 
     async function sendChat() {
@@ -9644,7 +9577,6 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
         var ci = $('chat-input');
         function mode(id) { return function () { ci.value = ''; if (window.BilolMode) window.BilolMode.set(id); }; }
         return [
-            { cmd: 'usecomputer', ico: '💻', premium: true, title: T('Kompyuterni boshqarish', 'Use computer', 'Управление компьютером'), sub: T('AI kompyuteringizda sayt va dasturlarni ochadi', 'AI opens sites and apps on your computer', 'ИИ открывает сайты и программы на компьютере'), run: function () { ci.value = '/usecomputer '; } },
             { cmd: 'rasm', ico: '🎨', title: T('Rasm yaratish', 'Create image', 'Создать изображение'), sub: T("Matndan rasm chizadi", 'Draws an image from text', 'Рисует картинку по тексту'), run: function () { ci.value = ''; if (window.BilolUI && window.BilolUI.setImageMode) window.BilolUI.setImageMode(true); } },
             { cmd: 'web', ico: '🌐', title: T('Internetdan qidirish', 'Web search', 'Поиск в интернете'), sub: T("Yangi ma'lumot va manbalar bilan javob", 'Answers with fresh info and sources', 'Ответы со свежей информацией'), run: function () { ci.value = ''; setWeb(true); } },
             { cmd: 'oqituvchi', ico: '👨‍🏫', title: T("O'qituvchi", 'Teacher', 'Учитель'), sub: T('Qadam-baqadam tushuntiradi', 'Explains step by step', 'Объясняет пошагово'), run: mode('teacher') },
