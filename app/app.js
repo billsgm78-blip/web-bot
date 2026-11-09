@@ -1342,6 +1342,21 @@
     var IS_DESKTOP = !!(TAURI && typeof TAURI.invoke === 'function');
     function pcInv(cmd, args) { return TAURI.invoke(cmd, args || {}); }
     function pcMsg(t) { chat.msgs.push({ r: 'a', t: t }); saveChat(); renderChat(); scrollChat(true); }
+    // Dasturni nomi bilan ochish; eski kompyuter dasturida (v1.1.0) — Start menyusi orqali
+    async function pcLaunch(app) {
+        try { await pcInv('pc_launch', { name: app }); }
+        catch (e) {
+            var es = String(e && e.message || e);
+            if (!/not found|not allowed|denied|unknown command/i.test(es)) throw e;
+            await pcInv('pc_act', { action: { type: 'key', keys: 'win', x: null, y: null, text: null, dy: null } });
+            await pcInv('pc_wait', { ms: 700 });
+            await pcInv('pc_act', { action: { type: 'type', text: app, x: null, y: null, keys: null, dy: null } });
+            await pcInv('pc_wait', { ms: 900 });
+            await pcInv('pc_act', { action: { type: 'key', keys: 'enter', x: null, y: null, text: null, dy: null } });
+        }
+        await pcInv('pc_wait', { ms: 1300 });
+        return 'ok';
+    }
     async function runAgent(text, task) {
         if (chat.busy) return;
         chat.msgs.push({ r: 'u', t: text });
@@ -1362,6 +1377,10 @@
             renderChat(); saveChat();
             var nb = bubble({ r: 'a', err: true, t: '⭐ ' + L('/usecomputer — faqat Premium obunachilar uchun.', '/usecomputer — только для Premium-подписчиков.', '/usecomputer is for Premium subscribers only.') });
             chatCTA(nb, 'sub'); box.appendChild(nb); scrollChat(true);
+            return;
+        }
+        if (ls('ba_pc_ok') === '0') {
+            pcMsg(L("💻 Kompyuterga ulanish o'chirilgan. **Sozlamalar → 💻 Kompyuterga ulanish** ni yoqing.", '💻 Доступ к компьютеру выключен. Включите: **Настройки → 💻 Доступ к компьютеру**.', '💻 Computer access is off. Turn it on in **Preferences → 💻 Computer access**.'));
             return;
         }
         if (ls('ba_pc_ok') !== '1') {
@@ -1388,16 +1407,32 @@
                 });
                 var j = {}; try { j = await r.json(); } catch (e) {}
                 if (!r.ok || !j.agent) { fail = j && (j.error || j.needSub || j.needLogin) ? j : { error: L("AI javob bermadi", 'ИИ не ответил', 'The AI did not respond') }; break; }
-                var a = j.agent;
-                if (a.type === 'done') { final = a.say; break; }
-                await pcInv('pc_say', { text: (i + 1) + '. ' + a.say });
-                log.push(a.say); setLive('🤖 ' + log.map(function (t, k) { return (k + 1) + '. ' + t; }).join('\n'));
-                var px = a.x != null ? Math.round(a.x / 1000 * (shot.w - 1)) : null, py = a.y != null ? Math.round(a.y / 1000 * (shot.h - 1)) : null;
-                if (a.type === 'open') await pcInv('pc_open', { url: a.url });
-                else if (a.type === 'wait') await pcInv('pc_wait', { ms: 1500 });
-                else await pcInv('pc_act', { action: { type: a.type, x: px, y: py, text: a.text || null, keys: a.keys || null, dy: a.dy != null ? a.dy : null } });
-                steps.push(a.type + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (j.retry ? ' (invalid reply)' : '') + ' — ' + a.say);
-                await pcInv('pc_wait', { ms: a.type === 'open' ? 1800 : a.type === 'type' ? 500 : 900 });
+                var ag = j.agent, acts = Array.isArray(ag.actions) ? ag.actions : [];
+                if (ag.say && ag.say !== '…' && !ag.done) {
+                    pcInv('pc_say', { text: (log.length + 1) + '. ' + ag.say });
+                    log.push(ag.say); setLive('🤖 ' + log.map(function (t, k) { return (k + 1) + '. ' + t; }).join('\n'));
+                }
+                for (var q = 0; q < acts.length; q++) {
+                    var a = acts[q], res2 = 'ok';
+                    var px = a.x != null ? Math.round(a.x / 1000 * (shot.w - 1)) : null, py = a.y != null ? Math.round(a.y / 1000 * (shot.h - 1)) : null;
+                    try {
+                        if (a.type === 'launch') res2 = await pcLaunch(a.app);
+                        else if (a.type === 'open') { await pcInv('pc_open', { url: a.url }); await pcInv('pc_wait', { ms: 900 }); }
+                        else if (a.type === 'wait') await pcInv('pc_wait', { ms: a.ms || 1000 });
+                        else {
+                            await pcInv('pc_act', { action: { type: a.type, x: px, y: py, text: a.text || null, keys: a.keys || null, dy: a.dy != null ? a.dy : null } });
+                            await pcInv('pc_wait', { ms: /click/.test(a.type) ? 350 : 120 });
+                        }
+                    } catch (e2) {
+                        if (/stopped/.test(String(e2))) throw e2;
+                        res2 = 'FAILED: ' + String(e2 && e2.message || e2).slice(0, 120);
+                    }
+                    steps.push(a.type + (a.app ? ' ' + a.app : '') + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (a.ms ? ' ' + a.ms + 'ms' : '') + ' → ' + res2);
+                    if (res2 !== 'ok') break;   // xato — AI yangi ekran rasmini ko'rib boshqa yo'l tanlaydi
+                }
+                if (j.retry) steps.push('(some actions in the last reply were invalid and skipped)');
+                if (ag.done) { final = ag.say; break; }
+                await pcInv('pc_wait', { ms: 450 });
             }
             if (!final && !fail) final = L("30 ta qadam chegarasiga yetdim — vazifa to'liq bajarilmagan bo'lishi mumkin.", 'Достигнут лимит в 30 шагов — задача могла быть не завершена.', 'Reached the 30-step limit — the task may be unfinished.');
         } catch (e) {
@@ -2029,6 +2064,7 @@
             '<button data-k="lang"><span class="m-ico">🌍</span>' + esc(L('Til', 'Язык', 'Language')) + '<span class="m-r">' + ({ uz: "O'zbekcha", ru: 'Русский', en: 'English' })[lang] + '</span></button>' +
             (pushSupported() ? '<button data-k="push"><span class="m-ico">📳</span>' + esc(L('Bildirishnomalar', 'Уведомления', 'Notifications')) + '<span class="m-r" id="m-push"></span></button>' : '') +
             '<button data-k="snd"><span class="m-ico">🔔</span>' + esc(L("Pul tushganda ovoz", 'Звук при зачислении', 'Sound on top-up')) + '<span class="m-r" id="m-snd">' + (ls('ba_sound') === 'off' ? L("O'chiq", 'Выкл', 'Off') : L('Yoqilgan', 'Вкл', 'On')) + '</span></button>' +
+            (IS_DESKTOP ? '<button data-k="pc"><span class="m-ico">💻</span>' + esc(L('Kompyuterga ulanish (/usecomputer)', 'Доступ к компьютеру (/usecomputer)', 'Computer access (/usecomputer)')) + '<span class="m-r" id="m-pc">' + (ls('ba_pc_ok') === '1' ? L('Yoqilgan', 'Вкл', 'On') : L("O'chiq", 'Выкл', 'Off')) + '</span></button>' : '') +
             '<button data-k="pass"><span class="m-ico">🔑</span>' + esc(L("Parolni o'zgartirish", 'Сменить пароль', 'Change password')) + '</button>' +
             '<button data-k="bot"><span class="m-ico">✈️</span>' + esc(L('Telegram botni ochish', 'Открыть Telegram-бот', 'Open Telegram bot')) + '</button>' +
             '<button data-k="site"><span class="m-ico">🌐</span>bilolsai.uz</button>' +
@@ -2051,6 +2087,15 @@
                         var k = x.getAttribute('data-k');
                         if (k === 'sup') { closeSheet(true); openSupport(); }
                         else if (k === 'lang') { langSheet(); }
+                        else if (k === 'pc') {
+                            var on = ls('ba_pc_ok') === '1';
+                            if (!on && !window.confirm(L("AI kompyuteringizni boshqarishiga ruxsat berasizmi? /usecomputer buyrug'ida AI ekraningizni ko'radi, sichqoncha va klaviaturani ishlatadi, dasturlarni ochadi. Istalgan payt ekrandagi \"To'xtatish\" tugmasi bilan to'xtatasiz.",
+                                'Разрешить ИИ управлять компьютером? По команде /usecomputer ИИ видит экран, управляет мышью и клавиатурой, открывает программы. Остановить можно кнопкой «Остановить».',
+                                'Allow the AI to control your computer? With /usecomputer it sees your screen, uses the mouse and keyboard and opens programs. Stop anytime with the on-screen "Stop" button.'))) return;
+                            ls('ba_pc_ok', on ? '0' : '1');
+                            $('m-pc').textContent = on ? L("O'chiq", 'Выкл', 'Off') : L('Yoqilgan', 'Вкл', 'On');
+                            toast(on ? L("Kompyuterga ulanish o'chirildi", 'Доступ к компьютеру выключен', 'Computer access off') : L('Kompyuterga ulanish yoqildi ✅', 'Доступ к компьютеру включён ✅', 'Computer access on ✅'), 'ok');
+                        }
                         else if (k === 'snd') {
                             var off = ls('ba_sound') !== 'off';
                             ls('ba_sound', off ? 'off' : 'on');

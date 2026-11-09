@@ -72,38 +72,74 @@ function pcActions(raw) {
 
 // /usecomputer agenti: bitta qadam. Kiradi: vazifa, oldingi qadamlar, ekran rasmi (JPEG base64).
 // Chiqadi: keyingi bitta amal. Koordinatalar 0..1000 (ekran eni/bo'yiga nisbatan) — dastur o'zi piksellarga o'giradi.
-const AGENT_TYPES = new Set(["click", "double_click", "right_click", "type", "key", "scroll", "open", "wait", "done"]);
+const AGENT_TYPES = new Set(["launch", "open", "click", "double_click", "right_click", "type", "key", "scroll", "wait"]);
+// Ko'p ishlatiladigan dasturlar: odamcha nom -> exe nomi (dastur ularni qidiruvsiz, to'g'ridan-to'g'ri ochadi)
+const APP_ALIAS = {
+  calculator: "calc", kalkulyator: "calc", калькулятор: "calc", notepad: "notepad", bloknot: "notepad", блокнот: "notepad",
+  paint: "mspaint", excel: "excel", word: "winword", powerpoint: "powerpnt", outlook: "outlook", chrome: "chrome", google: "chrome",
+  "google chrome": "chrome", edge: "msedge", firefox: "firefox", explorer: "explorer", provodnik: "explorer", files: "explorer",
+  cmd: "cmd", terminal: "wt", powershell: "powershell", "task manager": "taskmgr", "control panel": "control", wordpad: "write"
+};
+function agentAction(a) {
+  if (!a || !AGENT_TYPES.has(a.type)) return null;
+  const n = (v) => (Number.isFinite(Number(v)) ? Math.max(0, Math.min(1000, Math.round(Number(v)))) : null);
+  const act = { type: a.type };
+  if (/click|scroll/.test(a.type)) {
+    act.x = n(a.x); act.y = n(a.y);
+    if (act.x === null || act.y === null) return null;
+  }
+  if (a.type === "type") { act.text = String(a.text || "").slice(0, 2000); if (!act.text) return null; }
+  if (a.type === "key") { act.keys = String(a.keys || "").toLowerCase().replace(/[^a-z0-9+]/g, "").slice(0, 40); if (!act.keys) return null; }
+  if (a.type === "scroll") act.dy = Math.max(-10, Math.min(10, parseInt(a.dy, 10) || 3));
+  if (a.type === "wait") act.ms = Math.max(200, Math.min(4000, parseInt(a.ms, 10) || 1000));
+  if (a.type === "launch") {
+    const raw = String(a.app || "").trim().toLowerCase().replace(/\.exe$/, "");
+    act.app = APP_ALIAS[raw] || raw.replace(/\s+/g, "");
+    if (!/^[a-z0-9._-]{1,40}$/.test(act.app)) return null;
+  }
+  if (a.type === "open") {
+    act.url = String(a.url || "").trim();
+    if (!PC_SCHEMES.test(act.url) || /[\s<>"]/.test(act.url)) return null;
+  }
+  return act;
+}
 async function runAgentStep(req, res, apiKey, uiLang, langName) {
   const { task, steps, image } = req.body || {};
   const t = String(task || "").slice(0, 1500).trim();
   if (!t || typeof image !== "string" || image.length < 100 || image.length > 3500000 || !/^[A-Za-z0-9+/=]+$/.test(image)) {
     return res.status(400).json({ error: "Noto'g'ri so'rov." });
   }
-  const done = (Array.isArray(steps) ? steps : []).slice(-15).map((x, i) => `${i + 1}. ${String(x).slice(0, 200)}`).join("\n") || "(none yet)";
+  const done = (Array.isArray(steps) ? steps : []).slice(-20).map((x, i) => `${i + 1}. ${String(x).slice(0, 220)}`).join("\n") || "(none yet — this is the first step)";
   const system =
-    "You are Bilols AI operating a Windows computer for the user. You see a screenshot of the primary screen and choose exactly ONE next action. " +
-    "Coordinates are integers 0..1000 relative to the screenshot width (x) and height (y); aim at the exact center of the element. " +
-    "Reply with ONLY valid JSON: {\"thought\": string (short, English), \"say\": string (very short status for the user in " + langName + ", e.g. what you are doing now; for done — the final answer/result), " +
-    "\"action\": {\"type\": one of click|double_click|right_click|type|key|scroll|open|wait|done, \"x\": int, \"y\": int, \"text\": string, \"keys\": string, \"dy\": int, \"url\": string}}. " +
-    "Use: click/double_click/right_click need x,y. type needs text (click the input field first). key needs keys like \"enter\", \"ctrl+l\", \"win\", \"alt+tab\", \"ctrl+c\". " +
-    "scroll needs x,y and dy (positive = down, 1..10). open needs url (https://..., mailto:, ms-settings:..., ms-calculator:) — fastest way to open websites and Windows tools. wait — when something is loading. " +
-    "To launch an installed app: key \"win\", then type its name, then key \"enter\". Prefer keyboard shortcuts when reliable. " +
-    "Check the previous steps and the screenshot to verify progress; if an action did not work, try a different approach. When the task is complete (or impossible), use done. " +
-    "SAFETY: never delete files, uninstall software, change passwords, make payments or purchases, send messages/emails or post anything unless the user explicitly asked for exactly that; " +
-    "never type passwords or card numbers; if login/2FA/captcha or a risky confirmation is required — use done and ask the user to do it.";
+    "You are Bilols AI operating the user's Windows computer. You see a screenshot of the primary screen. Work FAST: do as much as you safely can per reply. " +
+    "Reply with ONLY valid JSON: {\"thought\": string (short, English), \"say\": string (very short status for the user in " + langName + "; when done=true — the final result/answer), " +
+    "\"actions\": [ ...1-6 actions executed in order... ], \"done\": boolean}. " +
+    "Actions: " +
+    "{\"type\":\"launch\",\"app\":\"calc\"} — start an installed program directly (NO searching): calc, notepad, mspaint, excel, winword, powerpnt, outlook, chrome, msedge, firefox, explorer, cmd, wt, powershell, taskmgr, control, write, or another exe name; " +
+    "{\"type\":\"open\",\"url\":\"https://...\"} — open a website in the default browser (use direct links: https://www.google.com/search?q=..., https://www.youtube.com/results?search_query=..., https://mail.google.com, maps, etc.) or ms-settings:..., mailto:, tg://, spotify:; " +
+    "{\"type\":\"click\"|\"double_click\"|\"right_click\",\"x\":int,\"y\":int} — coordinates are 0..1000 relative to the screenshot width/height, aim at the element center; " +
+    "{\"type\":\"type\",\"text\":\"...\"} — types into the focused field/app; {\"type\":\"key\",\"keys\":\"enter\"|\"ctrl+l\"|\"ctrl+t\"|\"ctrl+s\"|\"alt+f4\"|\"tab\"...}; " +
+    "{\"type\":\"scroll\",\"x\":int,\"y\":int,\"dy\":int (positive = down)}; {\"type\":\"wait\",\"ms\":int} — e.g. 1200 after launch/open so the window appears. " +
+    "RULES: To open a program ALWAYS use launch (never type into Start/Windows search or the Run box). To open a website use open. " +
+    "You may chain actions blindly when the result is predictable (e.g. launch calc, wait 1200, type \"125*48\", key enter; or launch notepad, wait 1200, type text). " +
+    "Click only elements visible in the CURRENT screenshot; after a click that changes the screen, end the list so you get a new screenshot. " +
+    "In Excel/Word use keyboard (type, tab, enter, ctrl+...) where possible. In a browser: ctrl+l focuses the address bar. " +
+    "Look at PREVIOUS STEPS and the screenshot: if something failed (e.g. 'launch failed'), use another way. Set done=true when the task is complete (you may include final actions with done=true if the outcome is certain, e.g. just opening a program/site), or when impossible — explain in say. " +
+    "SAFETY: never delete files, uninstall, change passwords/system security, make payments or purchases, send messages/emails or post anything unless the user explicitly asked for exactly that; " +
+    "never type passwords or card numbers; never run commands in cmd/powershell that modify or delete anything; if login/2FA/captcha is needed — done=true and ask the user.";
   const body = {
     model: "google/gemini-2.5-flash",
     models: ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"],
     messages: [
       { role: "system", content: system },
       { role: "user", content: [
-        { type: "text", text: `TASK: ${t}\n\nPREVIOUS STEPS:\n${done}\n\nCurrent screenshot attached. Return the next single action as JSON.` },
+        { type: "text", text: `TASK: ${t}\n\nPREVIOUS STEPS:\n${done}\n\nCurrent screenshot attached. Return JSON.` },
         { type: "image_url", image_url: { url: `data:image/jpeg;base64,${image}` } }
       ] }
     ],
     response_format: { type: "json_object" },
     temperature: 0.2,
-    max_tokens: 700
+    max_tokens: 900
   };
   try {
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -115,23 +151,14 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     if (!r.ok) return res.status(502).json({ error: data?.error?.message || "Model xatoligi yuz berdi." });
     let j = null;
     try { j = JSON.parse(String(data?.choices?.[0]?.message?.content || "").replace(/^```(?:json)?\s*|\s*```$/g, "")); } catch (e) {}
-    const a = (j && j.action) || {};
-    const type = AGENT_TYPES.has(a.type) ? a.type : "done";
-    const n = (v) => (Number.isFinite(Number(v)) ? Math.max(0, Math.min(1000, Math.round(Number(v)))) : null);
-    const act = { type };
-    if (/click|scroll/.test(type)) {
-      act.x = n(a.x); act.y = n(a.y);
-      if (act.x === null || act.y === null) return res.status(200).json({ pc: true, agent: { type: "wait", say: "…" }, retry: true });
-    }
-    if (type === "type") act.text = String(a.text || "").slice(0, 2000);
-    if (type === "key") act.keys = String(a.keys || "").toLowerCase().replace(/[^a-z0-9+]/g, "").slice(0, 40);
-    if (type === "scroll") act.dy = Math.max(-10, Math.min(10, parseInt(a.dy, 10) || 3));
-    if (type === "open") {
-      act.url = String(a.url || "").trim();
-      if (!PC_SCHEMES.test(act.url) || /[\s<>"]/.test(act.url)) return res.status(200).json({ pc: true, agent: { type: "wait", say: "…" }, retry: true });
-    }
-    const say = String((j && j.say) || (type === "done" ? { uz: "Tayyor.", ru: "Готово.", en: "Done." }[uiLang] : "…")).slice(0, 600);
-    return res.status(200).json({ pc: true, agent: { ...act, say, thought: String((j && j.thought) || "").slice(0, 300) } });
+    if (!j || typeof j !== "object") return res.status(200).json({ pc: true, agent: { say: "…", actions: [{ type: "wait", ms: 300 }], done: false }, retry: true });
+    const raw = Array.isArray(j.actions) ? j.actions : (j.action ? [j.action] : []);
+    const actions = [];
+    let dropped = 0;
+    for (const a of raw.slice(0, 6)) { const v = agentAction(a); if (v) actions.push(v); else dropped++; }
+    const isDone = j.done === true || !!(j.action && j.action.type === "done");
+    const say = String(j.say || (isDone ? { uz: "Tayyor.", ru: "Готово.", en: "Done." }[uiLang] : "…")).slice(0, 600);
+    return res.status(200).json({ pc: true, agent: { say, actions, done: isDone, thought: String(j.thought || "").slice(0, 300) }, ...(dropped ? { retry: true } : {}) });
   } catch (e) {
     return res.status(500).json({ error: "Server bilan bog'lanishda xatolik yuz berdi." });
   }
