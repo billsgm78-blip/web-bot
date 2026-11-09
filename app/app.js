@@ -1343,6 +1343,15 @@
         if ($('c-doc').classList.contains('loading')) { toast(L("Fayl o'qilmoqda, biroz kuting", 'Файл читается, подождите', 'Reading the file, please wait')); return; }
         if (!text && !chat.img && !chat.doc) return;
         var off = feature('chat'); if (off) { toast(off, 'warn'); return; }
+        // ./bilols-usecomputer <vazifa> — AI kompyuterda sayt/ilovalarni ochadi (faqat Premium)
+        var pcTask = /^\.\/bilols-usecomputer\b/i.test(text) ? text.replace(/^\.\/bilols-usecomputer\b\s*/i, '').trim() : null, pcActs = [];
+        if (pcTask === '') {
+            chat.msgs.push({ r: 'u', t: text }, { r: 'a', t: L("💻 **./bilols-usecomputer** — kompyuteringizda nimani ochish kerakligini yozing. Masalan:\n\n`./bilols-usecomputer YouTube'da o'zbek musiqalarini och`\n`./bilols-usecomputer kalkulyatorni och`\n`./bilols-usecomputer Wi-Fi sozlamalarini och`\n\n⭐ Faqat Premium obunachilar uchun.",
+                '💻 **./bilols-usecomputer** — напишите, что открыть на компьютере. Например:\n\n`./bilols-usecomputer открой музыку на YouTube`\n`./bilols-usecomputer открой калькулятор`\n\n⭐ Только для Premium-подписчиков.',
+                '💻 **./bilols-usecomputer** — write what to open on your computer. For example:\n\n`./bilols-usecomputer open lo-fi music on YouTube`\n`./bilols-usecomputer open the calculator`\n\n⭐ Premium subscribers only.') });
+            ta.value = ''; autoGrow(ta); renderChat(); saveChat(); scrollChat(true);
+            return;
+        }
         var m = { r: 'u', t: text };
         if (chat.doc) {
             var askT = text || L("Ushbu hujjatni qisqacha tahlil qilib, asosiy fikrlarini ayt.", 'Кратко проанализируй документ и перечисли главные мысли.', 'Briefly analyze this document and list its key points.');
@@ -1365,7 +1374,9 @@
         try {
             var res = await fetch(SITE + '/api/chat', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
-                body: JSON.stringify({ history: buildHistory(), lang: lang, stream: true, mode: chat.mode, model: curModel().id, phone: state.phone, password: state.pass })
+                body: JSON.stringify(pcTask != null
+                    ? { history: [{ role: 'user', parts: [{ text: pcTask }] }], lang: lang, mode: 'usecomputer', model: curModel().id, phone: state.phone, password: state.pass }
+                    : { history: buildHistory(), lang: lang, stream: true, mode: chat.mode, model: curModel().id, phone: state.phone, password: state.pass })
             });
             setBalance(res.headers.get('X-Balance'));
             var ct = res.headers.get('content-type') || '';
@@ -1384,7 +1395,11 @@
                 var j = {};
                 try { j = await res.json(); } catch (e) {}
                 typing.remove();
-                if (j.text) reply = j.text;
+                if (j.pc) {
+                    pcActs = Array.isArray(j.actions) ? j.actions : [];
+                    reply = (j.text || '') + pcActs.filter(function (a) { return /^https?:/i.test(a.url); }).map(function (a, i) { return (i ? '\n' : '\n\n') + '- [' + a.label + '](' + a.url + ')'; }).join('');
+                    if (!reply.trim()) reply = '💻';
+                } else if (j.text) reply = j.text;
                 else {
                     // xato: savol tarixdan olinadi, matn qaytariladi
                     var lastU = chat.msgs[chat.msgs.length - 1];
@@ -1404,6 +1419,22 @@
             if (curModel().price > 0 && !res.headers.get('X-Balance')) loadHistory();
             chat.msgs.push({ r: 'a', t: reply });
             saveChat(); renderChat();
+            if (pcActs.length) {
+                var bs = box.querySelectorAll('.bubble.ai'), lb = bs[bs.length - 1];
+                if (lb) {
+                    var row = document.createElement('div');
+                    row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:10px';
+                    pcActs.forEach(function (a) {
+                        var b = document.createElement('button');
+                        b.className = 'btn ghost'; b.textContent = '▶ ' + a.label;
+                        b.onclick = function () { openExternal(a.url); };
+                        row.appendChild(b);
+                    });
+                    (lb.querySelector('.tx') || lb).appendChild(row);
+                    scrollChat(true);
+                }
+                openExternal(pcActs[0].url);   // birinchisi darhol ochiladi
+            }
         } catch (e) {
             typing.remove();
             var msg = e.name === 'AbortError' ? L("Javob juda cho'zildi. Qayta urinib ko'ring.", 'Ответ занял слишком долго. Попробуйте снова.', 'The reply took too long. Try again.')

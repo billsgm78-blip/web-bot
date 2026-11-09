@@ -5563,6 +5563,82 @@ window.addEventListener('message', function (e) {
         }
     }
 
+    /* ./bilols-usecomputer <vazifa> — AI kompyuterda sayt/ilovalarni ochib beradi (faqat Premium).
+       Server faqat ruxsat etilgan havolalarni qaytaradi (https, mailto, tg, ms-calculator: va h.k.). */
+    async function runUseComputer(text) {
+        const task = text.replace(/^\.\/bilols-usecomputer\b\s*/i, "").trim();
+        if (window.BilolUI) window.BilolUI.hideSuggestions();
+        appendMsg(text, "user");
+        if (!task) {
+            appendAIMsg(tr("💻 **./bilols-usecomputer** — kompyuteringizda nimani ochish kerakligini yozing. Masalan:\n\n" +
+                "`./bilols-usecomputer YouTube'da o'zbek musiqalarini och`\n`./bilols-usecomputer kalkulyatorni och`\n`./bilols-usecomputer Wi-Fi sozlamalarini och`\n\n⭐ Faqat Premium obunachilar uchun.",
+                "💻 **./bilols-usecomputer** — write what to open on your computer. For example:\n\n`./bilols-usecomputer open lo-fi music on YouTube`\n`./bilols-usecomputer open the calculator`\n\n⭐ Premium subscribers only.",
+                "💻 **./bilols-usecomputer** — напишите, что открыть на компьютере. Например:\n\n`./bilols-usecomputer открой музыку на YouTube`\n`./bilols-usecomputer открой калькулятор`\n\n⭐ Только для Premium-подписчиков."));
+            return;
+        }
+        chatHistory.push({ role: "user", parts: [{ text: text }], display: { text: text } });
+        persistChat();
+        isBusy = true;
+        document.body.classList.add("ai-busy");
+        showTyping();
+        let data = {};
+        try {
+            const res = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    history: [{ role: "user", parts: [{ text: task }] }], lang: currentLang, mode: "usecomputer",
+                    model: (window.BilolModel && window.BilolModel.get()) || "",
+                    phone: String(currentPhone || "").replace(/[^0-9]/g, ""),
+                    password: localStorage.getItem("bilol_ai_password") || ""
+                })
+            });
+            data = await res.json().catch(() => ({}));
+            if (!res.ok && !data.error) data.error = tr("⚠️ Xatolik yuz berdi.", "⚠️ Something went wrong.", "⚠️ Произошла ошибка.");
+        } catch (e) {
+            data = { error: tr("⚠️ Server bilan bog'lanib bo'lmadi.", "⚠️ Server connection error.", "⚠️ Ошибка соединения с сервером.") };
+        }
+        hideTyping();
+        isBusy = false;
+        document.body.classList.remove("ai-busy");
+        const bubble = createAIBubble();
+        if (data.error || !data.pc) {
+            if (chatHistory.length && chatHistory[chatHistory.length - 1].role === "user") { chatHistory.pop(); persistChat(); }
+            finalizeAI(bubble, data.error || data.text || "", false);
+            if (data.needSub) {
+                showNotification(data.error, "warning");
+                if (window.BilolUI && window.BilolUI.subCTA) window.BilolUI.subCTA(bubble);
+            }
+            return;
+        }
+        const actions = Array.isArray(data.actions) ? data.actions : [];
+        const links = actions.filter(a => /^https?:/i.test(a.url)).map(a => `- [${a.label}](${a.url})`).join("\n");
+        const reply = (data.text || "") + (links ? "\n\n" + links : "");
+        finalizeAI(bubble, reply || "💻");
+        if (actions.length) {
+            const row = document.createElement("div");
+            row.className = "pc-actions";
+            row.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;margin-top:10px";
+            actions.forEach(a => {
+                const b = document.createElement("a");
+                b.href = a.url; b.target = "_blank"; b.rel = "noopener noreferrer";
+                b.textContent = "▶ " + a.label;
+                b.style.cssText = "padding:7px 12px;border-radius:999px;border:1px solid rgba(148,163,184,.4);background:rgba(99,102,241,.18);color:inherit;text-decoration:none;font-size:13px";
+                row.appendChild(b);
+            });
+            (bubble.querySelector(".ai-body") || bubble).appendChild(row);
+            // Birinchisini avtomatik ochamiz (brauzer bloklasa — tugma qoladi)
+            try {
+                const first = actions[0].url;
+                if (/^https?:/i.test(first)) window.open(first, "_blank", "noopener");
+                else location.href = first;
+            } catch (e) {}
+        }
+        chatHistory.push({ role: "model", parts: [{ text: reply || "💻" }] });
+        persistChat();
+        scrollDown();
+    }
+
     async function sendChat() {
         if (isBusy) return;
         if (window.BilolUI && window.BilolUI.isImageMode()) {
@@ -5590,6 +5666,7 @@ window.addEventListener('message', function (e) {
         const hasImage = !!selectedImageBase64;
         const doc = window.BilolUI ? window.BilolUI.takeDoc(true) : null;
         if (!text && !hasImage && !doc) return;
+        if (/^\.\/bilols-usecomputer\b/i.test(text)) { chatInput.value = ""; return runUseComputer(text); }
         if (window.BilolUI) window.BilolUI.takeDoc(false);
 
         sendBtn.style.transform = "scale(0.78) rotate(-14deg)";

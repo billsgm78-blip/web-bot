@@ -56,6 +56,20 @@ function formatSources(sources, lang) {
   }).join("\n");
 }
 
+// ./bilols-usecomputer — AI faqat havola/ilova ochish buyruqlarini qaytaradi; kompyuterda ular faqat shu ro'yxatdagi
+// sxemalar bilan ochiladi (file:, javascript:, data: va h.k. hech qachon o'tkazilmaydi)
+const PC_SCHEMES = /^(https?:\/\/|mailto:|tel:|tg:\/\/|ms-calculator:|ms-settings:|ms-photos:|ms-clock:|ms-paint:|ms-screenclip:|ms-windows-store:|outlookmail:|spotify:|steam:\/\/|zoommtg:\/\/|msteams:)/i;
+function pcActions(raw) {
+  const out = [];
+  for (const a of Array.isArray(raw) ? raw : []) {
+    const url = a && typeof a.url === "string" ? a.url.trim() : "";
+    if (!url || url.length > 1500 || !PC_SCHEMES.test(url) || /[\s<>"]/.test(url)) continue;
+    out.push({ url, label: String(a.label || url).replace(/[\n<>]/g, " ").trim().slice(0, 80) });
+    if (out.length >= 5) break;
+  }
+  return out;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   {
@@ -82,8 +96,9 @@ export default async function handler(req, res) {
 
   const { history, lang, stream, phone, password, mode, model, web } = req.body || {};
   const isQuiz = mode === "quiz";
-  const wantWeb = web === true && !isQuiz;
-  const wantStream = stream === true && !isQuiz;
+  const isPc = mode === "usecomputer";
+  const wantWeb = web === true && !isQuiz && !isPc;
+  const wantStream = stream === true && !isQuiz && !isPc;
   if (!Array.isArray(history)) {
     return res.status(400).json({ error: "Noto'g'ri format." });
   }
@@ -128,6 +143,15 @@ export default async function handler(req, res) {
   if (!quota.unlimited && typeof quota.left === "number") {
     res.setHeader("X-Quota-Left", String(quota.left));
   }
+  // ./bilols-usecomputer — faqat Premium (faol obuna) uchun
+  if (isPc && !(Number(quota.subUntil) > Date.now() / 1000)) {
+    const PC_SUB = {
+      uz: "💻 ./bilols-usecomputer — faqat Premium obunachilar uchun. Obuna oling va AI kompyuteringizda sayt va dasturlarni ochib bersin.",
+      ru: "💻 ./bilols-usecomputer — только для Premium-подписчиков. Оформите подписку, и ИИ будет открывать сайты и программы на вашем компьютере.",
+      en: "💻 ./bilols-usecomputer is for Premium subscribers only. Subscribe and let the AI open sites and apps on your computer."
+    };
+    return res.status(402).json({ error: PC_SUB[uiLang], needSub: true, subPrice: quota.subPrice, subDays: quota.subDays, balance: quota.balance });
+  }
 
   // O'zbek, Rus va Ingliz tillarini avtomatik aniqlab javob beruvchi tizim ko'rsatmasi
   const messages = [
@@ -162,6 +186,17 @@ export default async function handler(req, res) {
       "Reply with ONLY valid JSON, no markdown, no code fences, in this shape: " +
       "{\"title\": string, \"questions\": [{\"q\": string, \"options\": [string, string, string, string], \"answer\": number (0-3, index of the correct option), \"explain\": string (1-2 sentences why)}]}. " +
       "Write everything in the language of the user's request. Questions must be factually correct, unambiguous, with exactly one correct option; vary the position of the correct option.";
+  }
+  if (isPc) {
+    messages[0].content += "\n\nCOMPUTER MODE (./bilols-usecomputer): the user asks you to open or do something on their Windows computer. " +
+      "You cannot click or type for them; you can only return links/app URIs that their computer will open. " +
+      "Reply with ONLY valid JSON, no markdown, no code fences: {\"reply\": string (1-3 short sentences in the user's language: what you are opening, or why it is not possible), " +
+      "\"actions\": [{\"url\": string, \"label\": string (short button text)}] (0-5 items, in order)}. " +
+      "Allowed url forms only: https:// links (prefer direct deep links: e.g. YouTube search https://www.youtube.com/results?search_query=..., Google search https://www.google.com/search?q=..., " +
+      "Google Maps https://www.google.com/maps/search/..., Gmail compose https://mail.google.com/mail/?view=cm&to=...&su=...&body=..., Google Translate https://translate.google.com/?sl=auto&tl=uz&text=...), " +
+      "mailto:, tel:, tg://resolve?domain=..., and Windows apps: ms-calculator:, ms-settings: (e.g. ms-settings:display, ms-settings:network-wifi, ms-settings:bluetooth), ms-photos:, ms-clock:, ms-paint:, ms-screenclip:, ms-windows-store:, spotify:, steam://, zoommtg://, msteams:. " +
+      "URL-encode query parameters. Never use file:, javascript:, data: or shell commands. " +
+      "If the request needs real control of the PC (deleting files, installing software, typing into other programs, shutting down), return no actions and explain briefly in reply.";
   }
   if (useWeb) {
     const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -243,6 +278,7 @@ export default async function handler(req, res) {
   };
   if (typeof ai.temperature === "number") requestBody.temperature = Math.max(0, Math.min(1.5, ai.temperature));
   if (useWeb) requestBody.plugins = [{ id: "web", max_results: 5 }];
+  if (isPc) { requestBody.response_format = { type: "json_object" }; requestBody.max_tokens = Math.min(requestBody.max_tokens, 1200); }
   if (isQuiz) { requestBody.response_format = { type: "json_object" }; requestBody.max_tokens = Math.max(requestBody.max_tokens, 6000); }
   if (wantStream) requestBody.stream = true;
 
@@ -321,6 +357,15 @@ export default async function handler(req, res) {
       const sources = [];
       collectSources(data?.choices?.[0]?.message?.annotations || [], sources);
       if (sources.length) text += formatSources(sources, uiLang);
+    }
+
+    if (isPc) {
+      let j = null;
+      try { j = JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, "")); } catch (e) {}
+      const actions = pcActions(j && j.actions);
+      const reply = (j && typeof j.reply === "string" && j.reply.trim()) ||
+        (actions.length ? "" : { uz: "Buni kompyuterda ochib bo'lmadi. Boshqacha yozib ko'ring.", ru: "Не удалось это открыть. Попробуйте сформулировать иначе.", en: "Couldn't open that. Try rephrasing." }[uiLang]);
+      return res.status(200).json({ text: reply.slice(0, 1500), actions, pc: true });
     }
 
     return res.status(200).json({ text });
