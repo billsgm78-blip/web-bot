@@ -1401,7 +1401,10 @@
             }
             if (!final && !fail) final = L("30 ta qadam chegarasiga yetdim — vazifa to'liq bajarilmagan bo'lishi mumkin.", 'Достигнут лимит в 30 шагов — задача могла быть не завершена.', 'Reached the 30-step limit — the task may be unfinished.');
         } catch (e) {
-            fail = /stopped/.test(String(e)) ? { stopped: true } : { error: String(e && e.message || e) };
+            var es = String(e && e.message || e);
+            fail = /stopped/.test(es) ? { stopped: true }
+                : /not found|not allowed|denied|unknown command/i.test(es) ? { error: L("Kompyuter dasturining eski versiyasi. Yangisini o'rnating: [⬇️ yuklab olish](https://www.bilolsai.uz/kompyuter)", 'Старая версия программы. Установите новую: [⬇️ скачать](https://www.bilolsai.uz/kompyuter)', 'Old app version. Install the new one: [⬇️ download](https://www.bilolsai.uz/kompyuter)') }
+                : { error: es };
         } finally {
             try { await pcInv('pc_end'); } catch (e) {}
             chat.busy = false; $('c-send').disabled = false;
