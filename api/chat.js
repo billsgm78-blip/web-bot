@@ -38,6 +38,23 @@ async function checkQuota(phone, password, model, client, web, pc) {
   }
 }
 
+// OpenRouter so'rovi. Kalit limiti/kredit kam qolsa ("can only afford N") — max_tokens ni N ga tushirib bir marta qayta so'raydi,
+// shunda pul to'liq tugaguncha javob (qisqaroq bo'lsa ham) kelaveradi.
+async function openrouter(apiKey, body) {
+  const send = (b) => fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://bilolsai.uz", "X-Title": "Bilols AI" },
+    body: JSON.stringify(b)
+  });
+  const r = await send(body);
+  if (r.ok || r.status !== 402) return r;
+  const txt = await r.clone().text().catch(() => "");
+  const m = /can only afford (\d+)/i.exec(txt);
+  const can = m ? parseInt(m[1], 10) - 16 : 0;
+  if (can >= 150 && can < (body.max_tokens || 4096)) return send({ ...body, max_tokens: can });
+  return r;
+}
+
 // Internet qidiruvi manbalari (OpenRouter "url_citation" izohlari)
 function collectSources(ann, out) {
   for (const a of ann) {
@@ -193,11 +210,7 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     max_tokens: 600
   };
   try {
-    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://bilolsai.uz", "X-Title": "Bilols AI" },
-      body: JSON.stringify(body)
-    });
+    const r = await openrouter(apiKey, body);
     const data = await r.json().catch(() => ({}));
     if (!r.ok) return res.status(502).json({ error: data?.error?.message || "Model xatoligi yuz berdi." });
     let j = null;
@@ -430,16 +443,7 @@ export default async function handler(req, res) {
   if (wantStream) requestBody.stream = true;
 
   try {
-    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://bilolsai.uz",
-        "X-Title": "Bilols AI"
-      },
-      body: JSON.stringify(requestBody)
-    });
+    const resp = await openrouter(apiKey, requestBody);
 
     if (wantStream && resp.ok && resp.body) {
       // Javobni bo'lak-bo'lak yuboramiz: foydalanuvchi matnni yozilib borayotganini ko'radi
