@@ -170,6 +170,7 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     "login_point/password_point are [y, x] (0..1000) centers of the two INPUT boxes in the CURRENT screenshot. For a page that asks only for the password (e.g. second step) use login \"\" and only password_point. " +
     "LOGIN to a site when the user gave the login and password: open the login page (e.g. https://www.roblox.com/login), wait 3000 and END the list so you get a screenshot of the loaded form; in the next reply send ONE fill_login with both points, then wait 3500. " +
     "NEVER type a login or password with type actions — passwords can only be entered via fill_login (use the {{SECRETn}} placeholder; if the user wrote the password without the word 'parol/password', use that password text as is). If the form is not visible yet, wait. " +
+    "If a login form (username + password inputs) is ALREADY visible on the screenshot, do fill_login right away — do not press tab/enter to explore the page first. " +
     "Do NOT set done=true right after opening a login page — the task is complete only after fill_login was done and you checked the result on the next screenshot. If the login form shows an account picker or 'Add account', continue on the form that has the username and password inputs. " +
     "If the screenshot shows 'incorrect password' — do not retry more than once; take a screenshot, done=true and tell the user. " +
     "RULES: Never use the Start menu search or the Run box. Navigate inside apps with the keyboard (tab/arrows/enter, alt+letter menus, ctrl+l address bar in browsers and Explorer — you can type a path like C:\\Users there, ctrl+f to search). " +
@@ -189,7 +190,7 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     ],
     response_format: { type: "json_object" },
     temperature: 0.2,
-    max_tokens: 900
+    max_tokens: 600
   };
   try {
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
