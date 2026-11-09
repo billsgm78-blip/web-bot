@@ -78,14 +78,20 @@ const APP_ALIAS = {
   calculator: "calc", kalkulyator: "calc", калькулятор: "calc", notepad: "notepad", bloknot: "notepad", блокнот: "notepad",
   paint: "mspaint", excel: "excel", word: "winword", powerpoint: "powerpnt", outlook: "outlook", chrome: "chrome", google: "chrome",
   "google chrome": "chrome", edge: "msedge", firefox: "firefox", explorer: "explorer", provodnik: "explorer", files: "explorer",
-  cmd: "cmd", terminal: "wt", powershell: "powershell", "task manager": "taskmgr", "control panel": "control", wordpad: "write"
+  cmd: "cmd", terminal: "wt", powershell: "powershell", "task manager": "taskmgr", "control panel": "control", wordpad: "write",
+  "this pc": "thispc", "my computer": "thispc", computer: "thispc", "etot kompyuter": "thispc", "этот компьютер": "thispc", "мой компьютер": "thispc",
+  "mening kompyuterim": "thispc", kompyuter: "thispc", "file explorer": "explorer", downloads: "downloads", "загрузки": "downloads", yuklanmalar: "downloads",
+  documents: "documents", "документы": "documents", hujjatlar: "documents", desktop: "desktop", "рабочий стол": "desktop", pictures: "pictures",
+  "изображения": "pictures", music: "music", videos: "videos", "recycle bin": "recyclebin", "корзина": "recyclebin", savat: "recyclebin"
 };
 function agentAction(a) {
   if (!a || !AGENT_TYPES.has(a.type)) return null;
   const n = (v) => (Number.isFinite(Number(v)) ? Math.max(0, Math.min(1000, Math.round(Number(v)))) : null);
   const act = { type: a.type };
   if (/click|scroll/.test(a.type)) {
-    act.x = n(a.x); act.y = n(a.y);
+    // Gemini nuqtani [y, x] (0..1000) ko'rinishida aniqroq beradi
+    if (Array.isArray(a.point) && a.point.length === 2) { act.y = n(a.point[0]); act.x = n(a.point[1]); }
+    else { act.x = n(a.x); act.y = n(a.y); }
     if (act.x === null || act.y === null) return null;
   }
   if (a.type === "type") { act.text = String(a.text || "").slice(0, 2000); if (!act.text) return null; }
@@ -116,12 +122,14 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     "\"actions\": [ ...1-6 actions executed in order... ], \"done\": boolean}. " +
     "Actions: " +
     "{\"type\":\"launch\",\"app\":\"calc\"} — start an installed program directly (NO searching): calc, notepad, mspaint, excel, winword, powerpnt, outlook, chrome, msedge, firefox, explorer, cmd, wt, powershell, taskmgr, control, write, or another exe name; " +
+    "system folders the same way: thispc (This PC / Этот компьютер / My computer), downloads, documents, desktop, pictures, music, videos, recyclebin; " +
     "{\"type\":\"open\",\"url\":\"https://...\"} — open a website in the default browser (use direct links: https://www.google.com/search?q=..., https://www.youtube.com/results?search_query=..., https://mail.google.com, maps, etc.) or ms-settings:..., mailto:, tg://, spotify:; " +
-    "{\"type\":\"click\"|\"double_click\"|\"right_click\",\"x\":int,\"y\":int} — coordinates are 0..1000 relative to the screenshot width/height, aim at the element center; " +
+    "{\"type\":\"click\"|\"double_click\"|\"right_click\",\"point\":[y, x]} — the point is [y, x] normalized to 0..1000 (y = vertical from top, x = horizontal from left), exactly at the center of the target element; " +
     "{\"type\":\"type\",\"text\":\"...\"} — types into the focused field/app; {\"type\":\"key\",\"keys\":\"enter\"|\"ctrl+l\"|\"ctrl+t\"|\"ctrl+s\"|\"alt+f4\"|\"tab\"...}; " +
-    "{\"type\":\"scroll\",\"x\":int,\"y\":int,\"dy\":int (positive = down)}; {\"type\":\"wait\",\"ms\":int} — e.g. 1200 after launch/open so the window appears. " +
+    "{\"type\":\"scroll\",\"point\":[y, x],\"dy\":int (positive = down)}; {\"type\":\"wait\",\"ms\":int} — e.g. 1200 after launch/open so the window appears. " +
     "RULES: To open a program ALWAYS use launch (never type into Start/Windows search or the Run box). To open a website use open. " +
     "You may chain actions blindly when the result is predictable (e.g. launch calc, wait 1200, type \"125*48\", key enter; or launch notepad, wait 1200, type text). " +
+    "Desktop icons and files open with double_click, not click; if the desktop is covered by windows press key \"win+d\" first (then end the list to get a new screenshot). " +
     "Click only elements visible in the CURRENT screenshot; after a click that changes the screen, end the list so you get a new screenshot. " +
     "In Excel/Word use keyboard (type, tab, enter, ctrl+...) where possible. In a browser: ctrl+l focuses the address bar. " +
     "Look at PREVIOUS STEPS and the screenshot: if something failed (e.g. 'launch failed'), use another way. Set done=true when the task is complete (you may include final actions with done=true if the outcome is certain, e.g. just opening a program/site), or when impossible — explain in say. " +
