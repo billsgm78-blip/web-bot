@@ -5563,17 +5563,17 @@ window.addEventListener('message', function (e) {
         }
     }
 
-    /* ./bilols-usecomputer <vazifa> — AI kompyuterda sayt/ilovalarni ochib beradi (faqat Premium).
+    /* /usecomputer <vazifa> — AI kompyuterda sayt/ilovalarni ochib beradi (faqat Premium).
        Server faqat ruxsat etilgan havolalarni qaytaradi (https, mailto, tg, ms-calculator: va h.k.). */
     async function runUseComputer(text) {
-        const task = text.replace(/^\.\/bilols-usecomputer\b\s*/i, "").trim();
+        const task = text.replace(/^(\.\/bilols-usecomputer|\/usecomputer)\b\s*/i, "").trim();
         if (window.BilolUI) window.BilolUI.hideSuggestions();
         appendMsg(text, "user");
         if (!task) {
-            appendAIMsg(tr("💻 **./bilols-usecomputer** — kompyuteringizda nimani ochish kerakligini yozing. Masalan:\n\n" +
-                "`./bilols-usecomputer YouTube'da o'zbek musiqalarini och`\n`./bilols-usecomputer kalkulyatorni och`\n`./bilols-usecomputer Wi-Fi sozlamalarini och`\n\n⭐ Faqat Premium obunachilar uchun.",
-                "💻 **./bilols-usecomputer** — write what to open on your computer. For example:\n\n`./bilols-usecomputer open lo-fi music on YouTube`\n`./bilols-usecomputer open the calculator`\n\n⭐ Premium subscribers only.",
-                "💻 **./bilols-usecomputer** — напишите, что открыть на компьютере. Например:\n\n`./bilols-usecomputer открой музыку на YouTube`\n`./bilols-usecomputer открой калькулятор`\n\n⭐ Только для Premium-подписчиков."));
+            appendAIMsg(tr("💻 **/usecomputer** — kompyuteringizda nimani ochish kerakligini yozing. Masalan:\n\n" +
+                "`/usecomputer YouTube'da o'zbek musiqalarini och`\n`/usecomputer kalkulyatorni och`\n`/usecomputer Wi-Fi sozlamalarini och`\n\n⭐ Faqat Premium obunachilar uchun.",
+                "💻 **/usecomputer** — write what to open on your computer. For example:\n\n`/usecomputer open lo-fi music on YouTube`\n`/usecomputer open the calculator`\n\n⭐ Premium subscribers only.",
+                "💻 **/usecomputer** — напишите, что открыть на компьютере. Например:\n\n`/usecomputer открой музыку на YouTube`\n`/usecomputer открой калькулятор`\n\n⭐ Только для Premium-подписчиков."));
             return;
         }
         chatHistory.push({ role: "user", parts: [{ text: text }], display: { text: text } });
@@ -5666,7 +5666,7 @@ window.addEventListener('message', function (e) {
         const hasImage = !!selectedImageBase64;
         const doc = window.BilolUI ? window.BilolUI.takeDoc(true) : null;
         if (!text && !hasImage && !doc) return;
-        if (/^\.\/bilols-usecomputer\b/i.test(text)) { chatInput.value = ""; return runUseComputer(text); }
+        if (/^(\.\/bilols-usecomputer|\/usecomputer)\b/i.test(text)) { chatInput.value = ""; return runUseComputer(text); }
         if (window.BilolUI) window.BilolUI.takeDoc(false);
 
         sendBtn.style.transform = "scale(0.78) rotate(-14deg)";
@@ -9580,6 +9580,81 @@ body.theme-light .qm-chips button { color: #334155; border-color: rgba(15, 23, 4
     $('web-chip-off').onclick = function () { setWeb(false); };
     window.BilolWeb = { get: function () { return webOn; }, set: setWeb, left: function (n) { webLeft = n; paintWeb(); } };
     paintWeb();
+
+    /* "/" yozilganda skillar menyusi: ↑/↓ tanlash, Enter/Tab — tanlash, Esc — yopish */
+    function slashMenu(input, getItems) {
+        if (!input) return;
+        var box = document.createElement('div'), list = [], sel = 0;
+        box.className = 'slash-menu';
+        box.style.cssText = 'position:fixed;z-index:9999;display:none;max-height:320px;overflow:auto;padding:6px;border-radius:16px;' +
+            'background:rgba(17,20,38,.97);border:1px solid rgba(148,163,184,.25);box-shadow:0 18px 50px rgba(0,0,0,.45);backdrop-filter:blur(14px);' +
+            'font-family:inherit;color:#e5e7eb;animation:slashIn .16s ease-out';
+        if (!document.getElementById('slash-kf')) {
+            var st = document.createElement('style'); st.id = 'slash-kf';
+            st.textContent = '@keyframes slashIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}' +
+                '.slash-menu button{display:flex;gap:10px;align-items:center;width:100%;padding:9px 10px;border:0;border-radius:11px;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}' +
+                '.slash-menu button.on,.slash-menu button:hover{background:rgba(99,102,241,.22)}' +
+                '.slash-menu i{font-style:normal;font-size:20px;width:26px;text-align:center}.slash-menu b{font-size:14px}.slash-menu code{opacity:.7;font-size:12px;margin-left:6px}' +
+                '.slash-menu small{display:block;opacity:.65;font-size:12px;margin-top:1px}.slash-menu .pr{margin-left:auto;font-size:11px;padding:2px 7px;border-radius:999px;background:linear-gradient(135deg,#f59e0b,#ec4899);color:#fff;font-weight:700}';
+            document.head.appendChild(st);
+        }
+        document.body.appendChild(box);
+        function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+        function hide() { box.style.display = 'none'; list = []; }
+        function pick(it) { hide(); it.run(); try { input.dispatchEvent(new Event('input')); } catch (e) {} input.focus(); }
+        function paint() {
+            box.innerHTML = '';
+            list.forEach(function (it, i) {
+                var b = document.createElement('button'); b.type = 'button';
+                if (i === sel) b.className = 'on';
+                b.innerHTML = '<i>' + it.ico + '</i><span><b>' + esc(it.title) + '</b><code>/' + esc(it.cmd) + '</code><small>' + esc(it.sub) + '</small></span>' + (it.premium ? '<span class="pr">PREMIUM</span>' : '');
+                b.onmousedown = function (e) { e.preventDefault(); pick(it); };
+                box.appendChild(b);
+            });
+            var r = input.getBoundingClientRect(), w = Math.min(Math.max(r.width, 280), window.innerWidth - 16);
+            box.style.width = w + 'px';
+            box.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + 'px';
+            box.style.bottom = (window.innerHeight - r.top + 8) + 'px';
+            box.style.display = 'block';
+            var on = box.children[sel]; if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest' });
+        }
+        function update() {
+            var m = /^\/([^\s]*)$/.exec(input.value);
+            if (!m) { hide(); return; }
+            var q = m[1].toLowerCase();
+            list = getItems().filter(function (it) { return !q || it.cmd.indexOf(q) === 0 || it.title.toLowerCase().indexOf(q) >= 0; });
+            sel = 0;
+            if (!list.length) { hide(); return; }
+            paint();
+        }
+        input.addEventListener('input', update);
+        input.addEventListener('blur', function () { setTimeout(hide, 120); });
+        window.addEventListener('resize', function () { if (list.length) paint(); });
+        // capture: menyu ochiq bo'lsa Enter xabar yubormaydi, balki skillni tanlaydi
+        document.addEventListener('keydown', function (e) {
+            if (e.target !== input || !list.length || box.style.display === 'none') return;
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { sel = (sel + (e.key === 'ArrowDown' ? 1 : list.length - 1)) % list.length; paint(); }
+            else if (e.key === 'Enter' || e.key === 'Tab') pick(list[sel]);
+            else if (e.key === 'Escape') hide();
+            else return;
+            e.preventDefault(); e.stopImmediatePropagation();
+        }, true);
+    }
+    slashMenu($('chat-input'), function () {
+        var ci = $('chat-input');
+        function mode(id) { return function () { ci.value = ''; if (window.BilolMode) window.BilolMode.set(id); }; }
+        return [
+            { cmd: 'usecomputer', ico: '💻', premium: true, title: T('Kompyuterni boshqarish', 'Use computer', 'Управление компьютером'), sub: T('AI kompyuteringizda sayt va dasturlarni ochadi', 'AI opens sites and apps on your computer', 'ИИ открывает сайты и программы на компьютере'), run: function () { ci.value = '/usecomputer '; } },
+            { cmd: 'rasm', ico: '🎨', title: T('Rasm yaratish', 'Create image', 'Создать изображение'), sub: T("Matndan rasm chizadi", 'Draws an image from text', 'Рисует картинку по тексту'), run: function () { ci.value = ''; if (window.BilolUI && window.BilolUI.setImageMode) window.BilolUI.setImageMode(true); } },
+            { cmd: 'web', ico: '🌐', title: T('Internetdan qidirish', 'Web search', 'Поиск в интернете'), sub: T("Yangi ma'lumot va manbalar bilan javob", 'Answers with fresh info and sources', 'Ответы со свежей информацией'), run: function () { ci.value = ''; setWeb(true); } },
+            { cmd: 'oqituvchi', ico: '👨‍🏫', title: T("O'qituvchi", 'Teacher', 'Учитель'), sub: T('Qadam-baqadam tushuntiradi', 'Explains step by step', 'Объясняет пошагово'), run: mode('teacher') },
+            { cmd: 'dasturchi', ico: '👨‍💻', title: T('Dasturchi', 'Coder', 'Программист'), sub: T('Kod yozadi va xatolarni topadi', 'Writes code and finds bugs', 'Пишет код и ищет ошибки'), run: mode('coder') },
+            { cmd: 'tarjimon', ico: '🔤', title: T('Tarjimon', 'Translator', 'Переводчик'), sub: T('Matnni tarjima qiladi', 'Translates text', 'Переводит текст'), run: mode('translator') },
+            { cmd: 'insho', ico: '✍️', title: T('Insho', 'Essays', 'Сочинения'), sub: T('Insho, maqola, xat yozadi', 'Writes essays, articles, letters', 'Пишет сочинения, статьи, письма'), run: mode('essay') },
+            { cmd: 'imtihon', ico: '📝', title: T('Imtihon', 'Exams', 'Экзамен'), sub: T('DTM, IELTS, SAT tayyorlov', 'DTM, IELTS, SAT prep', 'Подготовка к DTM, IELTS, SAT'), run: mode('exam') },
+            { cmd: 'oddiy', ico: '🤖', title: T('Oddiy rejim', 'Default mode', 'Обычный режим'), sub: T("Rejimni o'chiradi", 'Turns modes off', 'Выключает режим'), run: mode('') }
+        ];
+    });
     setTimeout(paintWeb, 3000);
 
     /* ---------- 🖌️ Rasmni tahrirlash ---------- */

@@ -146,9 +146,9 @@ export default async function handler(req, res) {
   // ./bilols-usecomputer — faqat Premium (faol obuna) uchun
   if (isPc && !(Number(quota.subUntil) > Date.now() / 1000)) {
     const PC_SUB = {
-      uz: "💻 ./bilols-usecomputer — faqat Premium obunachilar uchun. Obuna oling va AI kompyuteringizda sayt va dasturlarni ochib bersin.",
-      ru: "💻 ./bilols-usecomputer — только для Premium-подписчиков. Оформите подписку, и ИИ будет открывать сайты и программы на вашем компьютере.",
-      en: "💻 ./bilols-usecomputer is for Premium subscribers only. Subscribe and let the AI open sites and apps on your computer."
+      uz: "💻 /usecomputer — faqat Premium obunachilar uchun. Obuna oling va AI kompyuteringizda sayt va dasturlarni ochib bersin.",
+      ru: "💻 /usecomputer — только для Premium-подписчиков. Оформите подписку, и ИИ будет открывать сайты и программы на вашем компьютере.",
+      en: "💻 /usecomputer is for Premium subscribers only. Subscribe and let the AI open sites and apps on your computer."
     };
     return res.status(402).json({ error: PC_SUB[uiLang], needSub: true, subPrice: quota.subPrice, subDays: quota.subDays, balance: quota.balance });
   }
@@ -188,7 +188,7 @@ export default async function handler(req, res) {
       "Write everything in the language of the user's request. Questions must be factually correct, unambiguous, with exactly one correct option; vary the position of the correct option.";
   }
   if (isPc) {
-    messages[0].content += "\n\nCOMPUTER MODE (./bilols-usecomputer): the user asks you to open or do something on their Windows computer. " +
+    messages[0].content += "\n\nCOMPUTER MODE (/usecomputer): the user asks you to open or do something on their Windows computer. " +
       "You cannot click or type for them; you can only return links/app URIs that their computer will open. " +
       "Reply with ONLY valid JSON, no markdown, no code fences: {\"reply\": string (1-3 short sentences in the user's language: what you are opening, or why it is not possible), " +
       "\"actions\": [{\"url\": string, \"label\": string (short button text)}] (0-5 items, in order)}. " +

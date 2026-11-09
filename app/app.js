@@ -1343,12 +1343,12 @@
         if ($('c-doc').classList.contains('loading')) { toast(L("Fayl o'qilmoqda, biroz kuting", 'Файл читается, подождите', 'Reading the file, please wait')); return; }
         if (!text && !chat.img && !chat.doc) return;
         var off = feature('chat'); if (off) { toast(off, 'warn'); return; }
-        // ./bilols-usecomputer <vazifa> — AI kompyuterda sayt/ilovalarni ochadi (faqat Premium)
-        var pcTask = /^\.\/bilols-usecomputer\b/i.test(text) ? text.replace(/^\.\/bilols-usecomputer\b\s*/i, '').trim() : null, pcActs = [];
+        // /usecomputer <vazifa> — AI kompyuterda sayt/ilovalarni ochadi (faqat Premium)
+        var pcTask = /^(\.\/bilols-usecomputer|\/usecomputer)\b/i.test(text) ? text.replace(/^(\.\/bilols-usecomputer|\/usecomputer)\b\s*/i, '').trim() : null, pcActs = [];
         if (pcTask === '') {
-            chat.msgs.push({ r: 'u', t: text }, { r: 'a', t: L("💻 **./bilols-usecomputer** — kompyuteringizda nimani ochish kerakligini yozing. Masalan:\n\n`./bilols-usecomputer YouTube'da o'zbek musiqalarini och`\n`./bilols-usecomputer kalkulyatorni och`\n`./bilols-usecomputer Wi-Fi sozlamalarini och`\n\n⭐ Faqat Premium obunachilar uchun.",
-                '💻 **./bilols-usecomputer** — напишите, что открыть на компьютере. Например:\n\n`./bilols-usecomputer открой музыку на YouTube`\n`./bilols-usecomputer открой калькулятор`\n\n⭐ Только для Premium-подписчиков.',
-                '💻 **./bilols-usecomputer** — write what to open on your computer. For example:\n\n`./bilols-usecomputer open lo-fi music on YouTube`\n`./bilols-usecomputer open the calculator`\n\n⭐ Premium subscribers only.') });
+            chat.msgs.push({ r: 'u', t: text }, { r: 'a', t: L("💻 **/usecomputer** — kompyuteringizda nimani ochish kerakligini yozing. Masalan:\n\n`/usecomputer YouTube'da o'zbek musiqalarini och`\n`/usecomputer kalkulyatorni och`\n`/usecomputer Wi-Fi sozlamalarini och`\n\n⭐ Faqat Premium obunachilar uchun.",
+                '💻 **/usecomputer** — напишите, что открыть на компьютере. Например:\n\n`/usecomputer открой музыку на YouTube`\n`/usecomputer открой калькулятор`\n\n⭐ Только для Premium-подписчиков.',
+                '💻 **/usecomputer** — write what to open on your computer. For example:\n\n`/usecomputer open lo-fi music on YouTube`\n`/usecomputer open the calculator`\n\n⭐ Premium subscribers only.') });
             ta.value = ''; autoGrow(ta); renderChat(); saveChat(); scrollChat(true);
             return;
         }
@@ -1447,6 +1447,81 @@
         }
     }
     $('c-send').onclick = sendChat;
+
+    /* "/" yozilganda skillar menyusi: ↑/↓ tanlash, Enter/Tab — tanlash, Esc — yopish */
+    function slashMenu(input, getItems) {
+        if (!input) return;
+        var box = document.createElement('div'), list = [], sel = 0;
+        box.className = 'slash-menu';
+        box.style.cssText = 'position:fixed;z-index:9999;display:none;max-height:320px;overflow:auto;padding:6px;border-radius:16px;' +
+            'background:rgba(17,20,38,.97);border:1px solid rgba(148,163,184,.25);box-shadow:0 18px 50px rgba(0,0,0,.45);backdrop-filter:blur(14px);' +
+            'font-family:inherit;color:#e5e7eb;animation:slashIn .16s ease-out';
+        if (!document.getElementById('slash-kf')) {
+            var st = document.createElement('style'); st.id = 'slash-kf';
+            st.textContent = '@keyframes slashIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}' +
+                '.slash-menu button{display:flex;gap:10px;align-items:center;width:100%;padding:9px 10px;border:0;border-radius:11px;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}' +
+                '.slash-menu button.on,.slash-menu button:hover{background:rgba(99,102,241,.22)}' +
+                '.slash-menu i{font-style:normal;font-size:20px;width:26px;text-align:center}.slash-menu b{font-size:14px}.slash-menu code{opacity:.7;font-size:12px;margin-left:6px}' +
+                '.slash-menu small{display:block;opacity:.65;font-size:12px;margin-top:1px}.slash-menu .pr{margin-left:auto;font-size:11px;padding:2px 7px;border-radius:999px;background:linear-gradient(135deg,#f59e0b,#ec4899);color:#fff;font-weight:700}';
+            document.head.appendChild(st);
+        }
+        document.body.appendChild(box);
+        function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+        function hide() { box.style.display = 'none'; list = []; }
+        function pick(it) { hide(); it.run(); try { input.dispatchEvent(new Event('input')); } catch (e) {} input.focus(); }
+        function paint() {
+            box.innerHTML = '';
+            list.forEach(function (it, i) {
+                var b = document.createElement('button'); b.type = 'button';
+                if (i === sel) b.className = 'on';
+                b.innerHTML = '<i>' + it.ico + '</i><span><b>' + esc(it.title) + '</b><code>/' + esc(it.cmd) + '</code><small>' + esc(it.sub) + '</small></span>' + (it.premium ? '<span class="pr">PREMIUM</span>' : '');
+                b.onmousedown = function (e) { e.preventDefault(); pick(it); };
+                box.appendChild(b);
+            });
+            var r = input.getBoundingClientRect(), w = Math.min(Math.max(r.width, 280), window.innerWidth - 16);
+            box.style.width = w + 'px';
+            box.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + 'px';
+            box.style.bottom = (window.innerHeight - r.top + 8) + 'px';
+            box.style.display = 'block';
+            var on = box.children[sel]; if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest' });
+        }
+        function update() {
+            var m = /^\/([^\s]*)$/.exec(input.value);
+            if (!m) { hide(); return; }
+            var q = m[1].toLowerCase();
+            list = getItems().filter(function (it) { return !q || it.cmd.indexOf(q) === 0 || it.title.toLowerCase().indexOf(q) >= 0; });
+            sel = 0;
+            if (!list.length) { hide(); return; }
+            paint();
+        }
+        input.addEventListener('input', update);
+        input.addEventListener('blur', function () { setTimeout(hide, 120); });
+        window.addEventListener('resize', function () { if (list.length) paint(); });
+        // capture: menyu ochiq bo'lsa Enter xabar yubormaydi, balki skillni tanlaydi
+        document.addEventListener('keydown', function (e) {
+            if (e.target !== input || !list.length || box.style.display === 'none') return;
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { sel = (sel + (e.key === 'ArrowDown' ? 1 : list.length - 1)) % list.length; paint(); }
+            else if (e.key === 'Enter' || e.key === 'Tab') pick(list[sel]);
+            else if (e.key === 'Escape') hide();
+            else return;
+            e.preventDefault(); e.stopImmediatePropagation();
+        }, true);
+    }
+    slashMenu($('c-in'), function () {
+        var ci = $('c-in');
+        function mode(id) { return function () { ci.value = ''; chat.mode = id; ls('ba_mode', id); paintModes(); paintModeBtn(); }; }
+        function nm(id) { var m = MODES.filter(function (x) { return x[0] === id; })[0]; return L(m[2], m[3], m[4]); }
+        return [
+            { cmd: 'usecomputer', ico: '💻', premium: true, title: L('Kompyuterni boshqarish', 'Управление компьютером', 'Use computer'), sub: L('AI kompyuteringizda sayt va dasturlarni ochadi', 'ИИ открывает сайты и программы на компьютере', 'AI opens sites and apps on your computer'), run: function () { ci.value = '/usecomputer '; } },
+            { cmd: 'rasm', ico: '🎨', title: L('Rasm yaratish', 'Создать изображение', 'Create image'), sub: L('Matndan rasm chizadi', 'Рисует картинку по тексту', 'Draws an image from text'), run: function () { ci.value = ''; setGenMode(true); } },
+            { cmd: 'oqituvchi', ico: '👨‍🏫', title: nm('teacher'), sub: L('Qadam-baqadam tushuntiradi', 'Объясняет пошагово', 'Explains step by step'), run: mode('teacher') },
+            { cmd: 'dasturchi', ico: '👨‍💻', title: nm('coder'), sub: L('Kod yozadi va xatolarni topadi', 'Пишет код и ищет ошибки', 'Writes code and finds bugs'), run: mode('coder') },
+            { cmd: 'tarjimon', ico: '🔤', title: nm('translator'), sub: L('Matnni tarjima qiladi', 'Переводит текст', 'Translates text'), run: mode('translator') },
+            { cmd: 'insho', ico: '✍️', title: nm('essay'), sub: L('Insho, maqola, xat yozadi', 'Пишет сочинения, статьи, письма', 'Writes essays, articles, letters'), run: mode('essay') },
+            { cmd: 'imtihon', ico: '📝', title: nm('exam'), sub: L('DTM, IELTS, SAT tayyorlov', 'Подготовка к DTM, IELTS, SAT', 'DTM, IELTS, SAT prep'), run: mode('exam') },
+            { cmd: 'oddiy', ico: '🤖', title: nm(''), sub: L("Rejimni o'chiradi", 'Выключает режим', 'Turns modes off'), run: mode('') }
+        ];
+    });
 
     /* Chatda rasm yaratish (saytdagidek): 📎 → 🎨 Rasm yaratish. Rasm biriktirilsa — o'sha rasm tahrirlanadi */
     function setGenMode(on) {
