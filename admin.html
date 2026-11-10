@@ -2350,7 +2350,7 @@ select.inp option { background: #12151c; color: var(--text); }
     function openMessageTo(user) { msgMode = 'one'; msgTarget = user; tab = 'msg'; buildNav(); $('page-title').textContent = 'Xabar yuborish'; vMsg($('view'), true); }
 
     // ---------- 📧 Email xabarlar: qo'lda, AI bilan va avtomatik ----------
-    var emMode = 'all';
+    var emMode = 'all', emDraft = { target: '', ai: '', subj: '', body: '' };   // rejim almashganda yozilgan matn saqlanadi
     async function vEmail(view) {
         var j = await admin('email_get');
         view.innerHTML = '';
@@ -2370,7 +2370,10 @@ select.inp option { background: #12151c; color: var(--text); }
         var subj = h('input', { class: 'inp', placeholder: 'Mavzu (masalan: Bilols AI — yangi imkoniyat!)' });
         var body = h('textarea', { class: 'inp', style: 'min-height:170px', placeholder: "Xat matni. {name} — foydalanuvchi ismi bilan almashtiriladi.\n\nSalom, {name}!\n..." });
         var prev = h('div', { class: 'preview' }, [h('b', { text: '…' }), h('span', { text: '…' })]);
-        function paintPrev() { prev.firstChild.textContent = (subj.value || 'Mavzu').replace(/\{name\}/g, 'Ali'); prev.lastChild.textContent = (body.value || '…').replace(/\{name\}/g, 'Ali'); }
+        target.value = emDraft.target; aiIn.value = emDraft.ai; subj.value = emDraft.subj; body.value = emDraft.body;
+        target.addEventListener('input', function () { emDraft.target = target.value; });
+        aiIn.addEventListener('input', function () { emDraft.ai = aiIn.value; });
+        function paintPrev() { emDraft.subj = subj.value; emDraft.body = body.value; prev.firstChild.textContent = (subj.value || 'Mavzu').replace(/\{name\}/g, 'Ali'); prev.lastChild.textContent = (body.value || '…').replace(/\{name\}/g, 'Ali'); }
         subj.oninput = paintPrev; body.oninput = paintPrev;
         var aiBtn = h('button', { class: 'btn ghost', text: '✨ AI yozib bersin', onclick: async function () {
             var q = aiIn.value.trim(); if (!q) { aiIn.focus(); return; }
