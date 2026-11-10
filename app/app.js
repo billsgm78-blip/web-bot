@@ -1806,7 +1806,7 @@
             if (j.balance != null) setBalance(j.balance);
             if (!r.ok || !j.image) {
                 if (j.needLogin) { sessionExpired(); return; }
-                var eb = bubble({ r: 'a', err: true, t: '⚠️ ' + (j.needSub ? L("Rasm yaratish faqat obunachilar uchun — obunada bepul va cheksiz.", 'Создание изображений только для подписчиков — бесплатно и без лимита.', 'Image generation is for subscribers only — free and unlimited with a subscription.')
+                var eb = bubble({ r: 'a', err: true, t: '⚠️ ' + (j.needSub ? (j.freeImages > 0 ? L("Bugungi " + j.freeImages + " ta bepul rasm tugadi — obunada cheksiz va bepul. Yoki ertaga qayting.", 'Бесплатные изображения на сегодня (' + j.freeImages + ') закончились — с подпиской без лимита. Или возвращайтесь завтра.', "You've used today's " + j.freeImages + ' free images — unlimited with a subscription, or come back tomorrow.') : L("Rasm yaratish faqat obunachilar uchun — obunada bepul va cheksiz.", 'Создание изображений только для подписчиков — бесплатно и без лимита.', 'Image generation is for subscribers only — free and unlimited with a subscription.'))
                     : j.noMoney ? L('Balans yetarli emas. Rasm narxi: ', 'Недостаточно средств. Цена: ', 'Not enough balance. Price: ') + money(j.price) + ' ' + T('sum')
                     : (j.error || L("Rasm yaratib bo'lmadi", 'Не удалось создать изображение', 'Could not create the image'))) });
                 if (j.needSub) chatCTA(eb, 'sub'); else if (j.noMoney) chatCTA(eb, 'money');
@@ -1814,6 +1814,7 @@
                 box.appendChild(eb); scrollChat(true);
                 return;
             }
+            if (typeof j.imagesLeft === 'number') toast(L('Bugun yana ' + j.imagesLeft + ' ta bepul rasm qoldi', 'Сегодня осталось бесплатных изображений: ' + j.imagesLeft, j.imagesLeft + ' free images left today'), 'ok');
             var th = await thumbOf(j.image);
             var a = { r: 'a', t: prompt, gen: th || j.image, full: j.image, approx: !!j.approx };
             chat.msgs.push(a); saveChat(); renderChat(); scrollChat(true);
@@ -1901,7 +1902,7 @@
             if (j.balance != null) setBalance(j.balance);
             if (!r.ok || !j.image) {
                 box.innerHTML = '';
-                var eb = bubble({ r: 'a', err: true, t: '⚠️ ' + (j.needSub ? L("Rasm yaratish faqat obunachilar uchun — obunada bepul va cheksiz.", 'Создание изображений только для подписчиков — бесплатно и без лимита.', 'Image generation is for subscribers only — free and unlimited with a subscription.') : j.noMoney ? L('Balans yetarli emas. Rasm narxi: ', 'Недостаточно средств. Цена: ', 'Not enough balance. Price: ') + money(j.price) + ' ' + T('sum') : (j.error || L("Rasm yaratib bo'lmadi", 'Не удалось создать изображение', 'Could not create the image'))) });
+                var eb = bubble({ r: 'a', err: true, t: '⚠️ ' + (j.needSub ? (j.freeImages > 0 ? L("Bugungi " + j.freeImages + " ta bepul rasm tugadi — obunada cheksiz va bepul. Yoki ertaga qayting.", 'Бесплатные изображения на сегодня (' + j.freeImages + ') закончились — с подпиской без лимита. Или возвращайтесь завтра.', "You've used today's " + j.freeImages + ' free images — unlimited with a subscription, or come back tomorrow.') : L("Rasm yaratish faqat obunachilar uchun — obunada bepul va cheksiz.", 'Создание изображений только для подписчиков — бесплатно и без лимита.', 'Image generation is for subscribers only — free and unlimited with a subscription.')) : j.noMoney ? L('Balans yetarli emas. Rasm narxi: ', 'Недостаточно средств. Цена: ', 'Not enough balance. Price: ') + money(j.price) + ' ' + T('sum') : (j.error || L("Rasm yaratib bo'lmadi", 'Не удалось создать изображение', 'Could not create the image'))) });
                 eb.style.maxWidth = '100%';
                 if (j.needSub) chatCTA(eb, 'sub');
                 else if (j.noMoney) chatCTA(eb, 'money');
@@ -1910,6 +1911,7 @@
             }
             box.innerHTML = '<div class="gen-card"><img alt=""><div class="gc-row"><button class="btn primary" id="gc-save"></button><button class="btn ghost" id="gc-new"></button></div></div>';
             box.querySelector('img').src = j.image;
+            if (typeof j.imagesLeft === 'number') toast(L('Bugun yana ' + j.imagesLeft + ' ta bepul rasm qoldi', 'Сегодня осталось бесплатных изображений: ' + j.imagesLeft, j.imagesLeft + ' free images left today'), 'ok');
             $('gc-save').textContent = '⬇ ' + L('Saqlash', 'Сохранить', 'Save');
             $('gc-new').textContent = '✨ ' + L('Yana', 'Ещё', 'Again');
             $('gc-save').onclick = function () { saveImage(j.image); };

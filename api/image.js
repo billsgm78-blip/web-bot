@@ -1,6 +1,6 @@
 export const maxDuration = 60;
 
-// Rasm yaratish: faqat obunachilar uchun va bepul. Obuna bot serverida tekshiriladi.
+// Rasm yaratish: obunachilarga cheksiz, obunasizlarga kuniga bir necha marta bepul. Limit bot serverida tekshiriladi.
 const RAILWAY_URL = (process.env.RAILWAY_URL || "https://bilolsai-api.onrender.com").replace(/\/$/, "");
 const IMAGE_MODELS = ["google/gemini-2.5-flash-image", "google/gemini-2.5-flash-image-preview"];
 
@@ -263,8 +263,12 @@ export default async function handler(req, res) {
   const charge = await railway("/api/image-charge", { phone, password, prompt: text }, /appassets\.androidplatform\.net/.test(String(req.headers.origin || "")) ? "app" : "web");
   if (charge._status === 403) return res.status(401).json({ error: "Iltimos, hisobdan chiqib qayta kiring.", needLogin: true });
   if (charge.blocked) return res.status(503).json({ error: charge.message || "Bu funksiya vaqtincha o'chirilgan.", blocked: true });
-  if (charge.needSub) return res.status(402).json({ error: charge.error || "Rasm yaratish faqat obunachilar uchun", needSub: true, subPrice: charge.subPrice, subDays: charge.subDays });
+  if (charge.needSub) return res.status(402).json({ error: charge.error || "Rasm yaratish faqat obunachilar uchun", needSub: true, freeImages: charge.freeImages || 0, subPrice: charge.subPrice, subDays: charge.subDays });
   if (!charge.success) return res.status(402).json({ error: charge.error || "Mablag' yetarli emas", noMoney: true, price: charge.price, balance: charge.balance });
+
+  // Obunasiz foydalanuvchi: rasm chiqmasa — bepul urinish qaytariladi
+  const giveBackFree = () => charge.freeRefund ? railway("/api/image-free-refund", charge.freeRefund).catch(() => ({})) : Promise.resolve({});
+  const extra = typeof charge.imagesLeft === "number" ? { imagesLeft: charge.imagesLeft, freeImages: charge.freeImages } : {};
 
   let image = null;
   lastError = "";
@@ -287,11 +291,11 @@ export default async function handler(req, res) {
     }
     if (lastError) console.error("image edit:", lastError);
     if (!image) {
-      if (!charge.txId) return res.status(502).json({ error: "Rasmni tahrirlab bo'lmadi. Birozdan so'ng qayta urinib ko'ring." });
+      if (!charge.txId) { await giveBackFree(); return res.status(502).json({ error: "Rasmni tahrirlab bo'lmadi. Birozdan so'ng qayta urinib ko'ring." }); }
       const refund = await railway("/api/image-refund", { txId: charge.txId, refundToken: charge.refundToken }).catch(() => ({}));
       return res.status(502).json({ error: "Rasmni tahrirlab bo'lmadi. Pul balansingizga qaytarildi.", refunded: !!refund.success, balance: refund.balance });
     }
-    return res.status(200).json(charge.balance != null ? { image, balance: charge.balance, approx } : { image, approx });
+    return res.status(200).json(charge.balance != null ? { image, balance: charge.balance, approx, ...extra } : { image, approx, ...extra });
   }
   const enPrompt = (charge.prompt || "").trim()
     || await toEnglishPrompt(apiKey, text)
@@ -309,9 +313,9 @@ export default async function handler(req, res) {
   if (lastError) console.error("image:", lastError);
 
   if (!image) {
-    if (!charge.txId) return res.status(502).json({ error: "Rasm yaratib bo'lmadi. Birozdan so'ng qayta urinib ko'ring." });
+    if (!charge.txId) { await giveBackFree(); return res.status(502).json({ error: "Rasm yaratib bo'lmadi. Birozdan so'ng qayta urinib ko'ring." }); }
     const refund = await railway("/api/image-refund", { txId: charge.txId, refundToken: charge.refundToken }).catch(() => ({}));
     return res.status(502).json({ error: "Rasm yaratib bo'lmadi. Pul balansingizga qaytarildi.", refunded: !!refund.success, balance: refund.balance });
   }
-  return res.status(200).json(charge.balance != null ? { image, balance: charge.balance } : { image });
+  return res.status(200).json(charge.balance != null ? { image, balance: charge.balance, ...extra } : { image, ...extra });
 }
