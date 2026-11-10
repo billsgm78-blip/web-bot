@@ -33,7 +33,12 @@ export default async function handler(req, res) {
     // to'g'ridan-to'g'ri Railway'dagi bot serveriga yo'naltiramiz
     const dbResp = await fetch(`${backendUrl}/api/register`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        // admin jurnalida foydalanuvchining haqiqiy IP va qurilmasi ko'rinsin (Vercel'niki emas)
+        "X-Forwarded-For": String(req.headers["x-forwarded-for"] || "").split(",")[0].trim(),
+        "User-Agent": String(req.headers["user-agent"] || "").slice(0, 300),
+      },
       body: JSON.stringify(req.body),
     });
 

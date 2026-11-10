@@ -2488,6 +2488,9 @@ select.inp option { background: #12151c; color: var(--text); }
 
     // ---------- Jurnal ----------
     var LOG = {
+        u_register: ['🆕', "Ro'yxatdan o'tdi"], u_login: ['🔓', 'Kirdi'], u_login_fail: ['⚠️', 'Kirish urinishi'], u_logout: ['🚪', 'Chiqdi'],
+        u_password: ['🔑', 'Parol'], u_reset: ['🔐', 'Parolni tiklash'], u_email: ['📧', 'Email'], u_sub: ['♾️', 'Obuna'], u_buy: ['🛒', 'Xarid'],
+        u_promo: ['🎟️', 'Promo-kod'], u_topup: ['💰', "To'ldirish"], email: ['📧', 'Email xabarlar'],
         bot_check: ['🔍', 'Bot bloklari tekshirildi'],
         login: ['🔓', 'Panelga kirildi'], login_failed: ['⚠️', "Noto'g'ri parol bilan urinish"], settings: ['⚙️', 'Sozlamalar'], balance: ['💰', "Balans o'zgartirildi"],
         sub: ['♾️', 'Obuna'], password: ['🔑', "Foydalanuvchi paroli o'rnatildi"], message: ['✉️', 'Xabar yuborildi'], broadcast: ['📢', "E'lon"],
@@ -3163,17 +3166,34 @@ select.inp option { background: #12151c; color: var(--text); }
     var NIZOM_CSS = '.nz{font-size:14.5px;line-height:1.6}.nz h1{font-size:22px;line-height:1.25;margin:10px 0 6px}.nz h2{font-size:17px;margin:22px 0 8px;padding-top:14px;border-top:1px solid rgba(127,127,127,.25)}.nz p{margin:6px 0}.nz-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;opacity:.75;text-transform:uppercase;letter-spacing:.05em}.nz-meta{font-size:12.5px;opacity:.75}.nz-box{border:2px solid #f59e0b;border-radius:12px;padding:12px 16px;margin:14px 0;background:rgba(245,158,11,.08)}.nz-box ol{margin:6px 0 0;padding-left:20px}.nz table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13.5px}.nz th,.nz td{border:1px solid rgba(127,127,127,.3);padding:8px 10px;text-align:left;vertical-align:top}.nz th{background:rgba(127,127,127,.12)}.nz-qa{display:grid;gap:8px}.nz-qa>div{border-left:4px solid #8b5cf6;padding:8px 12px;background:rgba(139,92,246,.07);border-radius:8px}.nz-qa p{margin:4px 0 0;font-style:italic}.nz-sign{margin-top:24px;border:1px dashed rgba(127,127,127,.6);border-radius:12px;padding:14px 16px}.nz-lines{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;margin-top:14px}@media print{.nz h2{break-after:avoid}.nz table,.nz-qa>div{break-inside:avoid}}';
     (function () { var st = document.createElement('style'); st.textContent = NIZOM_CSS + '.nz-card{max-width:860px}'; document.head.appendChild(st); })();
 
+    var logKind = '', logQ = '';
     async function vLog(view) {
-        var j = await admin('log');
         view.innerHTML = '';
-        if (!(j.items || []).length) { view.appendChild(h('div', { class: 'empty', text: "Jurnal bo'sh" })); return; }
-        j.items.forEach(function (x) {
-            var m = LOG[x.action] || ['•', x.action];
-            view.appendChild(h('div', { class: 'row' }, [
-                h('div', { class: 'r-ico' + (x.action === 'login_failed' ? ' out' : ''), text: m[0] }),
-                h('div', { class: 'r-main' }, [h('b', { text: m[1] + (x.detail ? ' · ' + x.detail : '') }), h('small', { text: fmtDate(x.at) + (x.ip ? ' · IP ' + x.ip : '') })])
-            ]));
+        var seg = h('div', { class: 'seg', style: 'margin-bottom:10px' });
+        [['', '📜 Hammasi'], ['user', '👤 Foydalanuvchilar'], ['admin', '🛡 Admin']].forEach(function (x) {
+            seg.appendChild(h('button', { class: logKind === x[0] ? 'active' : '', text: x[1], onclick: function () { logKind = x[0]; vLog(view); } }));
         });
+        var search = h('input', { class: 'inp', placeholder: 'Qidirish: ism, ID, telefon, email yoki IP', value: logQ, style: 'margin-bottom:10px' });
+        var list = h('div', {}, [h('div', { class: 'loading', text: '⏳' })]);
+        view.appendChild(seg); view.appendChild(search); view.appendChild(list);
+        var tm;
+        search.oninput = function () { clearTimeout(tm); tm = setTimeout(function () { logQ = search.value.trim(); load(); }, 350); };
+        async function load() {
+            var j = await admin('log', { kind: logKind, q: logQ });
+            list.innerHTML = '';
+            if (!(j.items || []).length) { list.appendChild(h('div', { class: 'empty', text: logQ ? 'Topilmadi' : "Jurnal bo'sh" })); return; }
+            j.items.forEach(function (x) {
+                var m = LOG[x.action] || ['•', x.action], user = x.action.indexOf('u_') === 0;
+                // foydalanuvchi yozuvi: "Ism (ID, +tel) — nima qildi · qurilma"
+                var title = user ? (x.detail || '') : m[1] + (x.detail ? ' · ' + x.detail : '');
+                list.appendChild(h('div', { class: 'row' }, [
+                    h('div', { class: 'r-ico' + (/fail|failed/.test(x.action) ? ' out' : ''), text: m[0] }),
+                    h('div', { class: 'r-main' }, [h('b', { text: title }), h('small', { text: (user ? '👤 ' : '🛡 ') + fmtDate(x.at) + (x.ip ? ' · IP ' + x.ip : '') })])
+                ]));
+            });
+            if (j.items.length >= 400) list.appendChild(h('div', { class: 'sum', text: "Oxirgi 400 ta yozuv ko'rsatildi — aniqroq topish uchun qidiruvdan foydalaning." }));
+        }
+        load();
     }
 
     // ---------- Ilova va bot auditoriyasi ----------
