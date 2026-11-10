@@ -12424,18 +12424,49 @@ html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::afte
             $('google-login-btn').style.display = mode === 'login' ? '' : 'none';   // ro'yxatdan o'tish — faqat telefon bilan
         };
         function gStatus(msg, ok) { var sb = $('status-box'); if (sb) { sb.style.color = ok ? '#10b981' : '#f43f5e'; sb.innerText = msg; } }
-        $('google-login-btn').onclick = async function () {
-            var btn = this; btn.disabled = true;
+        async function startGoogle(btn) {
+            if (btn) btn.disabled = true;
             try {
                 var r = await fetch(API + '/api/google/config'); var cfg = await r.json();
-                if (!cfg.clientId) { gStatus(T("Google bilan kirish hali sozlanmagan.", 'Google sign-in is not set up yet.', 'Вход через Google ещё не настроен.')); btn.disabled = false; return; }
+                if (!cfg.clientId) { gStatus(T("Google bilan kirish hali sozlanmagan.", 'Google sign-in is not set up yet.', 'Вход через Google ещё не настроен.')); if (btn) btn.disabled = false; return; }
                 var a = new Uint8Array(16); crypto.getRandomValues(a);
                 var nonce = Array.prototype.map.call(a, function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
                 sessionStorage.setItem('bl_g_nonce', nonce);
                 var q = new URLSearchParams({ client_id: cfg.clientId, redirect_uri: location.origin + '/', response_type: 'id_token', scope: 'openid email profile', nonce: nonce, state: nonce, prompt: 'select_account' });
                 location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + q.toString();
-            } catch (e) { gStatus(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.')); btn.disabled = false; }
-        };
+            } catch (e) { gStatus(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.')); if (btn) btn.disabled = false; }
+        }
+        $('google-login-btn').onclick = function () { sessionStorage.removeItem('bl_gauth'); startGoogle(this); };
+
+        // Ilova (APK / kompyuter dasturi) brauzerni ?gauth=ID bilan ochadi — Google bilan kirish o'sha ilovaga beriladi
+        function gScreen(icon, title, text, btnText, onBtn) {
+            var old = $('gauth-screen'); if (old) old.remove();
+            var d = document.createElement('div'); d.id = 'gauth-screen';
+            d.style.cssText = 'position:fixed;inset:0;z-index:200000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(2,4,10,.92);font-family:inherit';
+            d.innerHTML = '<div style="max-width:400px;width:100%;background:#0d1220;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:26px 22px;text-align:center;color:#e2e8f0">' +
+                '<div style="font-size:40px;margin-bottom:10px"></div><h2 style="font-size:20px;font-weight:800;margin:0 0 8px;color:#fff"></h2><p style="font-size:14px;line-height:1.55;color:#94a3b8;margin:0 0 18px"></p></div>';
+            var c = d.firstChild;
+            c.children[0].textContent = icon; c.children[1].textContent = title; c.children[2].textContent = text;
+            if (btnText) {
+                var b = document.createElement('button'); b.className = 'primary-btn'; b.style.cssText = 'width:100%;height:50px;border-radius:14px'; b.textContent = btnText;
+                b.onclick = function () { onBtn(b); }; c.appendChild(b);
+                var x = document.createElement('button'); x.className = 'auth-forgot'; x.textContent = T('Bekor qilish', 'Cancel', 'Отмена');
+                x.onclick = function () { sessionStorage.removeItem('bl_gauth'); d.remove(); }; c.appendChild(x);
+            }
+            document.body.appendChild(d);
+        }
+        (function () {
+            var g = null;
+            try { g = new URLSearchParams(location.search).get('gauth'); } catch (e) {}
+            if (!g || !/^[A-Za-z0-9_-]{10,40}$/.test(g)) return;
+            try { history.replaceState(null, '', location.pathname); } catch (e) {}
+            sessionStorage.setItem('bl_gauth', g);
+            gScreen('📱', T('Ilovaga kirish', 'Log in to the app', 'Вход в приложение'),
+                T("Bilols AI ilovasiga (telefon yoki kompyuter dasturi) Google bilan kirmoqdasiz. Faqat «Google bilan kirish» ni ilovada O'ZINGIZ bosgan bo'lsangiz davom eting. Havolani kimdir yuborgan bo'lsa — bosmang!",
+                  "You are logging in to the Bilols AI app (phone or desktop) with Google. Continue only if YOU tapped «Continue with Google» in the app. If someone sent you this link, do not continue!",
+                  "Вы входите в приложение Bilols AI (телефон или компьютер) через Google. Продолжайте, только если ВЫ сами нажали «Войти через Google» в приложении. Если ссылку кто-то прислал — не продолжайте!"),
+                T('Google bilan davom etish', 'Continue with Google', 'Продолжить с Google'), function (b) { startGoogle(b); });
+        })();
         // Google'dan qaytish: bilolsai.uz/#id_token=...&state=...
         (async function () {
             if (!/id_token=/.test(location.hash) && !/error=/.test(location.hash)) return;
@@ -12445,8 +12476,14 @@ html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::afte
             var openAuth = function () { if (typeof openAuthModal === 'function') openAuthModal(); };
             if (h.get('error') || !h.get('id_token')) { setTimeout(function () { openAuth(); gStatus(T('Google bilan kirish bekor qilindi.', 'Google sign-in was cancelled.', 'Вход через Google отменён.')); }, 500); return; }
             if (!nonce || h.get('state') !== nonce) { setTimeout(function () { openAuth(); gStatus(T('Google javobi eskirgan. Qaytadan urining.', 'Google response expired. Try again.', 'Ответ Google устарел. Попробуйте снова.')); }, 500); return; }
+            var gauth = sessionStorage.getItem('bl_gauth') || ''; sessionStorage.removeItem('bl_gauth');
             try {
-                var j = await api('/api/google/login', { idToken: h.get('id_token'), nonce: nonce }, true);
+                var j = await api('/api/google/login', { idToken: h.get('id_token'), nonce: nonce, qr: gauth || undefined }, true);
+                if (gauth) {      // ilova uchun kirish: brauzerning o'zi kirmaydi
+                    if (j.success) gScreen('✅', T('Ilovaga kirdingiz!', 'You are logged in to the app!', 'Вы вошли в приложение!'), T("Endi Bilols AI ilovasiga qayting — u o'zi ochiladi. Bu oynani yopishingiz mumkin.", 'Go back to the Bilols AI app — it will open by itself. You can close this tab.', 'Вернитесь в приложение Bilols AI — оно откроется само. Эту вкладку можно закрыть.'));
+                    else gScreen('⚠️', T("Kirib bo'lmadi", 'Could not log in', 'Не удалось войти'), j.error || 'Error');
+                    return;
+                }
                 if (!j.success) { setTimeout(function () { openAuth(); gStatus(j.error || 'Error'); }, 500); return; }
                 localStorage.setItem('bilol_ai_phone', j.phone);
                 localStorage.setItem('bilol_ai_name', j.name || '');

@@ -899,3 +899,9 @@ html.desk .au.qr .au-qr:not([hidden]) { display: block !important; text-align: c
     color: #fff; background: #229ED9; text-decoration: none; white-space: nowrap; }
 .adm-tg { display: inline-block; margin-top: 14px; font-size: 13px; font-weight: 700; color: #229ED9; text-decoration: none; }
 .adm-tg:hover { text-decoration: underline; }
+
+/* Google bilan kirish — brauzerda kiriladi, ilova o'zi ochiladi */
+.au-g-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 48px; margin-top: 12px; border-radius: 12px; background: #fff; border: 1px solid #dadce0; color: #1f1f1f; font-weight: 600; font-size: 14.5px; cursor: pointer; font-family: inherit; }
+.au-g-btn svg { width: 20px; height: 20px; flex: none; }
+.au-g-btn:disabled { opacity: .7; cursor: progress; }
+.au-g-btn[hidden], .au.reg .au-g-btn, #auth.reg .au-g-btn { display: none !important; }

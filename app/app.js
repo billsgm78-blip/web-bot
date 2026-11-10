@@ -514,9 +514,55 @@
     $('au-qr-btn').onclick = qrOpen;
     $('qr-new').onclick = qrNew;
     $('qr-back').onclick = qrClose;
+    /* ---------- Google bilan kirish: brauzer ochiladi (Google ilova ichida kirishga ruxsat bermaydi), kirgach ilova o'zi kiradi ---------- */
+    var GA = { run: 0 };
+    async function gaPost(path, body) {
+        var r = await fetch(RAIL + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        try { return await r.json(); } catch (e) { return {}; }
+    }
+    async function googleLogin() {
+        var run = ++GA.run, btn = $('au-g-btn');
+        btn.disabled = true;
+        try {
+            var j = await gaPost('/api/qr/new', { ua: navigator.userAgent, kind: 'google' });
+            if (!j || !j.success) { authMsg((j && j.error) || L('Internetni tekshiring', 'Проверьте интернет', 'Check your internet'), 'err'); btn.disabled = false; return; }
+            var id = j.id, secret = j.secret, ver = 0, until = Date.now() + (j.ttl || 600) * 1000;
+            var gUrl = SITE + '/?gauth=' + encodeURIComponent(id);
+            var TI = window.__TAURI_INTERNALS__, opened = true;
+            if (TI && TI.invoke) {
+                // Kompyuter dasturi bilolsai.uz havolalarini o'z oynasida ochadi — Google tizim brauzerida ochilishi shart
+                try { await TI.invoke('pc_open', { url: gUrl }); }
+                catch (e) { opened = false; authMsg(L("Brauzer ochilmadi. Shu havolani brauzerda oching: ", "Браузер не открылся. Откройте ссылку в браузере: ", "The browser did not open. Open this link in a browser: ") + gUrl, 'err'); }
+            } else openExternal(gUrl);
+            if (opened) authMsg(L("Brauzerda Google hisobingizni tanlang — keyin shu yerga qayting, ilova o'zi kiradi.", 'Выберите аккаунт Google в браузере — затем вернитесь сюда, приложение войдёт само.', 'Choose your Google account in the browser — then come back, the app will log in by itself.'), 'ok');
+            btn.disabled = false;
+            while (run === GA.run && Date.now() < until) {
+                var p = null;
+                try { p = await gaPost('/api/qr/poll', { id: id, secret: secret, ver: ver }); } catch (e) {}
+                if (run !== GA.run) return;
+                if (!p || !p.success) { await new Promise(function (r) { setTimeout(r, 2500); }); continue; }
+                if (typeof p.ver === 'number') ver = p.ver;
+                if (p.status === 'ok' && p.login) {
+                    GA.run++;
+                    var lg = p.login, ph = normPhone(lg.phone);
+                    state.phone = ph; state.pass = lg.password; state.name = lg.name || '';
+                    ls('ba_phone', ph); ls('ba_pass', lg.password); ls('ba_name', state.name);
+                    resetOtp(); authMsg(''); clearDraft();
+                    enterMain();
+                    toast(L('Xush kelibsiz! 👋', 'Добро пожаловать! 👋', 'Welcome! 👋'), 'ok');
+                    return;
+                }
+                if (p.status === 'expired' || p.status === 'denied') break;
+            }
+            if (run === GA.run) authMsg(L("Google bilan kirish vaqti tugadi. Qaytadan bosing.", 'Время входа через Google истекло. Нажмите снова.', 'Google sign-in timed out. Tap again.'), 'err');
+        } catch (e) { btn.disabled = false; netErr(); }
+    }
+    $('au-g-btn').onclick = googleLogin;
     function paintAuthHead() {
         var reg = auth.mode === 'register';
         $('auth').classList.toggle('reg', reg);
+        $('au-g-btn').hidden = reg;   // ro'yxatdan o'tish — faqat telefon bilan
+        $('au-g-bt').textContent = L('Google bilan kirish', 'Войти через Google', 'Continue with Google');
         $('au-title').textContent = reg ? L('Hisob yarating', 'Создайте аккаунт', 'Create Your Account') : L('Xush kelibsiz,', 'С возвращением,', 'Welcome Back,');
         $('au-sub').textContent = reg ? L("Ro'yxatdan o'ting va boshlang", 'Зарегистрируйтесь и начните', 'Sign up and get started') : L('Davom etish uchun kiring', 'Войдите, чтобы продолжить', 'Log in to continue');
         $('au-sw-q').textContent = reg ? L('Hisobingiz bormi?', 'Уже есть аккаунт?', 'Already have an account?') : L("Hisobingiz yo'qmi?", 'Нет аккаунта?', "Don't have an account?");
