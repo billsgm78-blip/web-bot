@@ -12447,7 +12447,53 @@ html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::afte
                 location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + q.toString();
             } catch (e) { gStatus(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.')); if (btn) btn.disabled = false; }
         }
-        $('google-login-btn').onclick = function () { sessionStorage.removeItem('bl_gauth'); startGoogle(this); };
+        // Telegram Mini App, Instagram/Facebook ichki brauzeri yoki bilolsai.uz bo'lmagan manzil (web-bot-gamma.vercel.app):
+        // Google bu yerda kirishga ruxsat bermaydi — tashqi brauzer ochiladi, kirgach shu sahifa o'zi kiradi (ilovalardagi kabi)
+        function gEmbedded() {
+            var ua = navigator.userAgent || '';
+            return !/^(www\.)?bilolsai\.uz$/.test(location.hostname) || !!window.TelegramWebviewProxy ||
+                !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || /Telegram|FBAN|FBAV|Instagram|Line\/|; wv\)/i.test(ua);
+        }
+        function openOutside(url) {
+            try { var tg = window.Telegram && window.Telegram.WebApp; if (tg && tg.initData && tg.openLink) { tg.openLink(url); return; } } catch (e) {}
+            try { if (window.TelegramWebviewProxy) { window.TelegramWebviewProxy.postEvent('web_app_open_link', JSON.stringify({ url: url })); return; } } catch (e) {}
+            try { if (window.external && window.external.notify && /Telegram/i.test(navigator.userAgent)) { window.external.notify(JSON.stringify({ eventType: 'web_app_open_link', eventData: { url: url } })); return; } } catch (e) {}
+            var w = window.open(url, '_blank'); if (!w) location.href = url;
+        }
+        var gHand = 0;
+        async function googleViaBrowser(btn) {
+            var run = ++gHand; btn.disabled = true;
+            try {
+                var r = await fetch(API + '/api/qr/new', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ua: navigator.userAgent, kind: 'google' }) });
+                var q = await r.json();
+                if (!q.success) { gStatus(q.error || 'Error'); btn.disabled = false; return; }
+                openOutside('https://www.bilolsai.uz/?gauth=' + encodeURIComponent(q.id));
+                gStatus(T("Brauzerda Google hisobingizni tanlang — keyin shu yerga qayting, o'zi kiradi.", 'Choose your Google account in the browser — then come back, you will be logged in.', 'Выберите аккаунт Google в браузере — затем вернитесь сюда, вход выполнится сам.'), true);
+                btn.disabled = false;
+                var ver = 0, until = Date.now() + (q.ttl || 600) * 1000;
+                while (run === gHand && Date.now() < until) {
+                    var p = null;
+                    try { p = await (await fetch(API + '/api/qr/poll', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: q.id, secret: q.secret, ver: ver }) })).json(); } catch (e) {}
+                    if (run !== gHand) return;
+                    if (!p || !p.success) { await new Promise(function (x) { setTimeout(x, 2500); }); continue; }
+                    if (typeof p.ver === 'number') ver = p.ver;
+                    if (p.status === 'ok' && p.login) {
+                        document.documentElement.classList.add('g-wait'); sessionStorage.setItem('bl_g_wait', '1');
+                        localStorage.setItem('bilol_ai_phone', String(p.login.phone || '').replace(/\D/g, ''));
+                        localStorage.setItem('bilol_ai_name', p.login.name || '');
+                        localStorage.setItem('bilol_ai_password', p.login.password);
+                        location.replace(location.pathname);
+                        return;
+                    }
+                    if (p.status === 'expired' || p.status === 'denied') break;
+                }
+                if (run === gHand) gStatus(T('Google bilan kirish vaqti tugadi. Qaytadan bosing.', 'Google sign-in timed out. Try again.', 'Время входа через Google истекло. Нажмите снова.'));
+            } catch (e) { gStatus(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.')); btn.disabled = false; }
+        }
+        $('google-login-btn').onclick = function () {
+            sessionStorage.removeItem('bl_gauth');
+            if (gEmbedded()) googleViaBrowser(this); else startGoogle(this);
+        };
 
         // Ilova (APK / kompyuter dasturi) brauzerni ?gauth=ID bilan ochadi — Google bilan kirish o'sha ilovaga beriladi
         function gScreen(icon, title, text, btnText, onBtn) {
