@@ -9283,7 +9283,7 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         pP.appendChild(me);
         pP.appendChild(group(T('Hisob xavfsizligi', 'Account security', 'Безопасность'), [
             row(T('Parol', 'Password', 'Пароль'), '••••••••', T("Parolni o'zgartirish", 'Change password', 'Сменить пароль'), function () { typeof openPasswordModal === 'function' && openPasswordModal(); }),
-            card('reset-entry'), card('qr-scan-entry'), card('sess-entry')
+            card('email-entry'), card('reset-entry'), card('qr-scan-entry'), card('sess-entry')
         ]));
         var hidden = card('lang-set-profile'); if (hidden) hidden.style.display = 'none', pP.appendChild(hidden);
         pP.appendChild(group(T('Kirish', 'Sessions', 'Сеансы'), [

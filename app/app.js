@@ -2213,6 +2213,7 @@
             (pushSupported() ? '<button data-k="push"><span class="m-ico">📳</span>' + esc(L('Bildirishnomalar', 'Уведомления', 'Notifications')) + '<span class="m-r" id="m-push"></span></button>' : '') +
             '<button data-k="snd"><span class="m-ico">🔔</span>' + esc(L("Pul tushganda ovoz", 'Звук при зачислении', 'Sound on top-up')) + '<span class="m-r" id="m-snd">' + (ls('ba_sound') === 'off' ? L("O'chiq", 'Выкл', 'Off') : L('Yoqilgan', 'Вкл', 'On')) + '</span></button>' +
             (IS_DESKTOP ? '<button data-k="pc"><span class="m-ico">💻</span>' + esc(L('Kompyuterga ulanish (/usecomputer)', 'Доступ к компьютеру (/usecomputer)', 'Computer access (/usecomputer)')) + '<span class="m-r" id="m-pc">' + (ls('ba_pc_ok') === '1' ? L('Yoqilgan', 'Вкл', 'On') : L("O'chiq", 'Выкл', 'Off')) + '</span></button>' : '') +
+            '<button data-k="email"><span class="m-ico">📧</span>Email<span class="m-r" id="m-email">' + esc(state.email || L('Ulanmagan', 'Не привязан', 'Not linked')) + '</span></button>' +
             '<button data-k="pass"><span class="m-ico">🔑</span>' + esc(L("Parolni o'zgartirish", 'Сменить пароль', 'Change password')) + '</button>' +
             '<button data-k="bot"><span class="m-ico">✈️</span>' + esc(L('Telegram botni ochish', 'Открыть Telegram-бот', 'Open Telegram bot')) + '</button>' +
             '<button data-k="site"><span class="m-ico">🌐</span>bilolsai.uz</button>' +
@@ -2230,6 +2231,7 @@
                     e.textContent = !allowed ? L('Ruxsat yo\'q', 'Нет доступа', 'Not allowed') : pushOn() ? L('Yoqilgan', 'Вкл', 'On') : L("O'chiq", 'Выкл', 'Off');
                 }
                 paintPush();
+                loadEmail().then(function () { var e = b.querySelector('#m-email'); if (e) e.textContent = state.email || L('Ulanmagan', 'Не привязан', 'Not linked'); });
                 b.querySelectorAll('[data-k]').forEach(function (x) {
                     x.onclick = function () {
                         var k = x.getAttribute('data-k');
@@ -2263,6 +2265,7 @@
                             }
                         }
                         else if (k === 'pass') { passSheet(); }
+                        else if (k === 'email') { emailSheet(); }
                         else if (k === 'bot') { closeSheet(true); openExternal((r.botRefUrl || '').split('?')[0] || 'https://t.me/'); }
                         else if (k === 'site') { closeSheet(true); openExternal('https://bilolsai.uz'); }
                         else if (k === 'priv') { closeSheet(true); openPrivacy(); }
@@ -2281,6 +2284,41 @@
                 b.querySelector('#ll').appendChild(o);
             });
         });
+    }
+    /* ---- Email: hisobga ulash (tasdiqlash havolasi emailga boradi) ---- */
+    async function loadEmail() {
+        try { var j = await api('/api/email/status'); if (j.success) state.email = j.email || ''; } catch (e) {}
+    }
+    function emailSheet() {
+        var linked = !!state.email;
+        openSheet('<div class="sh-title">📧 ' + esc(linked ? L('Ulangan email', 'Привязанный email', 'Linked email') : L('Emailni ulash', 'Привязать email', 'Link email')) + '</div>' +
+            '<p class="sh-sub">' + esc(linked
+                ? L("Shu email bilan saytga kirishingiz va parolni tiklashingiz mumkin.", 'С этим email можно входить на сайт и восстанавливать пароль.', 'You can log in on the website and reset your password with this email.')
+                : L("Emailingizni yozing — unga tasdiqlash havolasi yuboriladi. Havolani bosganingizdan keyin email ulanadi.", 'Введите email — мы отправим ссылку для подтверждения. После перехода по ней email будет привязан.', 'Enter your email — we will send a confirmation link. The email is linked once you open it.')) + '</p>' +
+            (linked ? '<div class="sh-input" style="font-weight:700">' + esc(state.email) + '</div>' : '') +
+            '<input class="sh-input" id="em-in" type="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="' + esc(linked ? L('Yangi email', 'Новый email', 'New email') : L('Email manzilingiz', 'Ваш email', 'Your email')) + '">' +
+            '<button class="btn primary big" id="em-go">' + esc(L('Tasdiqlash xatini yuborish', 'Отправить письмо', 'Send confirmation email')) + '</button>' +
+            (linked ? '<button class="btn ghost big" id="em-del" style="margin-top:10px;color:var(--err)">' + esc(L('Emailni uzish', 'Отвязать email', 'Unlink email')) + '</button>' : ''),
+            function (b) {
+                b.querySelector('#em-go').onclick = async function () {
+                    var em = b.querySelector('#em-in').value.trim().toLowerCase();
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { toast(L("Emailni to'g'ri kiriting", 'Введите правильный email', 'Enter a valid email'), 'err'); return; }
+                    this.disabled = true;
+                    try {
+                        var j = await api('/api/email/link', { email: em });
+                        if (j.success) { closeSheet(true); toast(L('📧 ' + em + " ga xat yuborildi. Undagi «Emailni tasdiqlash» tugmasini bosing (Spam papkasini ham tekshiring).", '📧 Письмо отправлено на ' + em + '. Нажмите в нём «Подтвердить» (проверьте и «Спам»).', '📧 Email sent to ' + em + '. Tap “Confirm email” in it (check Spam too).'), 'ok', 6000); return; }
+                        toast(j.error || 'Error', 'err');
+                    } catch (e) { netErr(); }
+                    this.disabled = false;
+                };
+                var del = b.querySelector('#em-del');
+                if (del) del.onclick = function () {
+                    ask(L('Emailni uzish', 'Отвязать email', 'Unlink email'), L('Emailni hisobdan uzasizmi? Keyin u bilan kira olmaysiz.', 'Отвязать email? Входить по нему будет нельзя.', 'Unlink this email? You will no longer be able to log in with it.'), L('Uzish', 'Отвязать', 'Unlink'), true).then(async function (ok) {
+                        if (!ok) return;
+                        try { var j = await api('/api/email/unlink'); if (j.success) { state.email = ''; toast(L('Email uzildi', 'Email отвязан', 'Email unlinked'), 'ok'); } else toast(j.error || 'Error', 'err'); } catch (e) { netErr(); }
+                    });
+                };
+            });
     }
     function passSheet() {
         openSheet('<div class="sh-title">🔑 ' + esc(L("Parolni o'zgartirish", 'Сменить пароль', 'Change password')) + '</div>' +
