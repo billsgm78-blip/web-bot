@@ -827,7 +827,7 @@ select.inp option { background: #12151c; color: var(--text); }
     // ================= PANEL =================
     var TABS = [
         ['stats', '📊', 'Statistika'], ['agent', '🤖', 'Yordamchi'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['aud', '📲', 'Ilova va bot'],
-        ['card', '💳', "Karta (avto to'lov)"], ['call', '📞', "AI qo'ng'iroq"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['mahalla', '🏘', 'Mahalla'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['nizom', '📕', 'Ichki nizom'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama']
+        ['card', '💳', "Karta (avto to'lov)"], ['call', '📞', "AI qo'ng'iroq"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['mahalla', '🏘', 'Mahalla'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['email', '📧', 'Email xabarlar'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['nizom', '📕', 'Ichki nizom'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama']
     ];
     var tab = 'stats';
     function buildNav() {
@@ -849,7 +849,7 @@ select.inp option { background: #12151c; color: var(--text); }
         // Kirish animatsiyasi faqat sahifa ochilganda (keyingi avto-yangilanishlarda qayta o'ynamaydi)
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
-        var fn = { stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, support: vSupport, shop: vShop, mahalla: vMahalla, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
+        var fn = { stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, email: vEmail, support: vSupport, shop: vShop, mahalla: vMahalla, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -2348,6 +2348,98 @@ select.inp option { background: #12151c; color: var(--text); }
         setTimeout(function () { (msgTarget ? ta : search).focus(); }, 50);
     }
     function openMessageTo(user) { msgMode = 'one'; msgTarget = user; tab = 'msg'; buildNav(); $('page-title').textContent = 'Xabar yuborish'; vMsg($('view'), true); }
+
+    // ---------- 📧 Email xabarlar: qo'lda, AI bilan va avtomatik ----------
+    var emMode = 'all';
+    async function vEmail(view) {
+        var j = await admin('email_get');
+        view.innerHTML = '';
+        if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        view.appendChild(h('div', { class: 'card', style: 'margin-bottom:12px' }, [
+            h('div', { style: 'font-weight:700', text: j.ready ? '✅ Email tayyor — ' + j.from + ' dan yuboriladi' : '⚠️ BREVO_API_KEY o\'rnatilmagan — xat yuborilmaydi' }),
+            h('div', { class: 'sum', text: '📧 Emailini ulagan foydalanuvchilar: ' + j.linked + ' ta · Brevo tekin tarifi: kuniga 300 ta xat' })
+        ]));
+
+        // --- 1) Xat yuborish ---
+        var seg = h('div', { class: 'seg', style: 'margin-bottom:4px' });
+        [['all', '📢 Hammaga (' + j.linked + ')'], ['one', '👤 Bitta odamga'], ['test', '🧪 Sinov (istalgan email)']].forEach(function (x) {
+            seg.appendChild(h('button', { class: emMode === x[0] ? 'active' : '', text: x[1], onclick: function () { emMode = x[0]; vEmail(view); } }));
+        });
+        var target = h('input', { class: 'inp', placeholder: emMode === 'one' ? 'Foydalanuvchi: ID (1011), telefon yoki email' : 'Qaysi emailga sinov xati: masalan siz@gmail.com' });
+        var aiIn = h('input', { class: 'inp', placeholder: "✨ AI'ga ayting: masalan «yangi rasm funksiyasi haqida xabar, 20% chegirma bilan»" });
+        var subj = h('input', { class: 'inp', placeholder: 'Mavzu (masalan: Bilols AI — yangi imkoniyat!)' });
+        var body = h('textarea', { class: 'inp', style: 'min-height:170px', placeholder: "Xat matni. {name} — foydalanuvchi ismi bilan almashtiriladi.\n\nSalom, {name}!\n..." });
+        var prev = h('div', { class: 'preview' }, [h('b', { text: '…' }), h('span', { text: '…' })]);
+        function paintPrev() { prev.firstChild.textContent = (subj.value || 'Mavzu').replace(/\{name\}/g, 'Ali'); prev.lastChild.textContent = (body.value || '…').replace(/\{name\}/g, 'Ali'); }
+        subj.oninput = paintPrev; body.oninput = paintPrev;
+        var aiBtn = h('button', { class: 'btn ghost', text: '✨ AI yozib bersin', onclick: async function () {
+            var q = aiIn.value.trim(); if (!q) { aiIn.focus(); return; }
+            aiBtn.disabled = true; aiBtn.textContent = '⏳ AI yozyapti…';
+            try {
+                var x = await admin('email_draft', { prompt: q });
+                if (x.success) { subj.value = x.subject; body.value = x.body; paintPrev(); toast('✨ Tayyor — tekshirib, kerak bo\'lsa tuzating'); }
+                else toast(x.error || 'Xato');
+            } finally { aiBtn.disabled = false; aiBtn.textContent = '✨ AI yozib bersin'; }
+        } });
+        var sendBtn = h('button', { class: 'btn', text: emMode === 'all' ? '📢 Hammaga yuborish' : '📧 Yuborish', onclick: async function () {
+            var sj = subj.value.trim(), bd = body.value.trim();
+            if (!sj) { subj.focus(); return; } if (!bd) { body.focus(); return; }
+            var tg = emMode === 'all' ? 'all' : target.value.trim();
+            if (!tg) { target.focus(); return; }
+            if (emMode === 'test' && tg.indexOf('@') < 0) { toast('Sinov uchun email yozing'); target.focus(); return; }
+            if (emMode === 'all' && !await dialog({ title: 'Hammaga email', text: j.linked + " ta foydalanuvchiga xat yuboriladi. Davom etasizmi?", ok: 'Yuborish' })) return;
+            sendBtn.disabled = true;
+            try {
+                var x = await admin('email_send', { target: tg, subject: sj, body: bd });
+                if (x.success) toast(x.queued != null ? '📧 ' + x.queued + ' ta xat yuborilmoqda. Natija Telegram\'ga keladi.' : '✅ Yuborildi' + (x.email ? ': ' + x.email : ''));
+                else toast(x.error || 'Xato');
+            } finally { sendBtn.disabled = false; }
+        } });
+        view.appendChild(h('div', { class: 'card form', style: 'margin-bottom:12px' }, [
+            h('div', { style: 'font-weight:700', text: '✉️ Xat yuborish' }), seg,
+            emMode === 'all' ? null : target,
+            h('div', { class: 'sum', text: '🤖 AI yordamchi — qisqacha ayting, xatni o\'zi yozadi:' }), aiIn, aiBtn,
+            subj, body, h('div', { class: 'sum', text: 'Ko\'rinishi (namuna: Ali):' }), prev, sendBtn
+        ]));
+        paintPrev();
+
+        // --- 2) Avtomatik xatlar ---
+        var conf = j.config, auto = h('div', { class: 'card form', style: 'margin-bottom:12px' }, [
+            h('div', { style: 'font-weight:700', text: '⚡ Avtomatik xatlar' }),
+            h('div', { class: 'sum', text: "Voqea bo'lganda emaili ulangan foydalanuvchiga o'zi xat boradi. Matndagi {..} o'rniga qiymat qo'yiladi." })
+        ]);
+        Object.keys(j.events).forEach(function (k) {
+            var ev = j.events[k], c = conf[k];
+            var sw = h('div', { class: 'switch' + (c.on ? ' ok' : ''), role: 'switch', onclick: function () { c.on = !c.on; sw.className = 'switch' + (c.on ? ' ok' : ''); } });
+            var s1 = h('input', { class: 'inp', value: c.subject, oninput: function () { c.subject = s1.value; } });
+            var b1 = h('textarea', { class: 'inp', style: 'min-height:110px', oninput: function () { c.body = b1.value; } }); b1.value = c.body;
+            var det = h('details', { style: 'margin-top:4px' }, [h('summary', { style: 'cursor:pointer;color:var(--muted);font-size:13px', text: "✏️ Matnni o'zgartirish" }),
+                h('div', { class: 'form', style: 'margin-top:8px' }, [s1, b1, h('div', { class: 'sum', text: "O'zgaruvchilar: " + ev.vars })])]);
+            auto.appendChild(h('div', { style: 'padding:10px 0;border-top:1px solid var(--line)' }, [
+                h('div', { style: 'display:flex;align-items:center;gap:10px' }, [h('b', { style: 'flex:1', text: ev.title }), sw]), det
+            ]));
+        });
+        auto.appendChild(h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+            var x = await admin('email_set', { config: conf });
+            toast(x.success ? '✅ Saqlandi' : (x.error || 'Xato'));
+        } }));
+        auto.appendChild(h('button', { class: 'btn ghost', text: '↩️ Standart matnlarga qaytarish', onclick: async function () {
+            if (!await dialog({ title: 'Standartga qaytarish', text: "Barcha avtomatik xat matnlari va yoqilgan/o'chirilgani boshlang'ich holatga qaytadi.", ok: 'Qaytarish' })) return;
+            var x = await admin('email_set', { reset: true }); if (x.success) { toast('✅ Qaytarildi'); vEmail(view); } else toast(x.error || 'Xato');
+        } }));
+        view.appendChild(auto);
+
+        // --- 3) Oxirgi xatlar ---
+        var lg = h('div', { class: 'card' }, [h('div', { style: 'font-weight:700;margin-bottom:6px', text: '📜 Oxirgi yuborilgan xatlar' })]);
+        var KIND = { manual: '👤', broadcast: '📢', test: '🧪', topup: '💰', purchase: '🛒', sub: '♾️', order_done: '✅', order_cancel: '↩️', support_reply: '💬', password: '🔐' };
+        if (!(j.log || []).length) lg.appendChild(h('div', { class: 'sum', text: "Hali xat yuborilmagan (server qayta ishga tushsa ro'yxat tozalanadi)." }));
+        (j.log || []).forEach(function (e) {
+            var d = new Date(e.t * 1000);
+            lg.appendChild(h('div', { class: 'row' }, [h('div', { class: 'r-ico', text: KIND[e.kind] || '📧' }),
+                h('div', { class: 'r-main' }, [h('b', { text: e.subject }), h('small', { text: e.to + ' · ' + pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + (e.ok ? '' : ' · ⚠️ yetkazilmadi') })])]));
+        });
+        view.appendChild(lg);
+    }
 
     // ---------- Sozlamalar ----------
     async function vSettings(view) {
