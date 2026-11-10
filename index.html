@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
+<script>
+/* Google'dan qaytish: sahifa chizilishidan oldin "kirilmoqda" ekrani — bosh sahifa bir lahza ham ko'rinmasin */
+(function () { try {
+    var h = location.hash || '';
+    if ((/id_token=/.test(h) && !sessionStorage.getItem('bl_gauth')) || sessionStorage.getItem('bl_g_wait')) document.documentElement.className += ' g-wait';
+} catch (e) {} })();
+</script>
+<style>
+html.g-wait::before { content: ""; position: fixed; inset: 0; z-index: 2147483646; background: #05070d; }
+html.g-wait::after { content: "⏳  Google bilan kirilmoqda…"; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2147483647; color: #e2e8f0; font: 600 16px/1.4 system-ui, sans-serif; white-space: nowrap; }
+</style>
     <meta charset="UTF-8">
     <script>
     /* Yangi landing (landing-sun.html) — eski kirish sahifasi o'rniga. Eskisiga qaytish: false qiling. */
@@ -12467,6 +12478,12 @@ html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::afte
                   "Вы входите в приложение Bilols AI (телефон или компьютер) через Google. Продолжайте, только если ВЫ сами нажали «Войти через Google» в приложении. Если ссылку кто-то прислал — не продолжайте!"),
                 T('Google bilan davom etish', 'Continue with Google', 'Продолжить с Google'), function (b) { startGoogle(b); });
         })();
+        if (sessionStorage.getItem('bl_g_wait')) {
+            sessionStorage.removeItem('bl_g_wait');
+            var gOff = function () { setTimeout(function () { document.documentElement.classList.remove('g-wait'); }, 250); };
+            if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', gOff); else gOff();
+            setTimeout(function () { document.documentElement.classList.remove('g-wait'); }, 6000);   // har ehtimolga qarshi
+        }
         // Google'dan qaytish: bilolsai.uz/#id_token=...&state=...
         (async function () {
             if (!/id_token=/.test(location.hash) && !/error=/.test(location.hash)) return;
@@ -12474,8 +12491,9 @@ html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::afte
             try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
             sessionStorage.removeItem('bl_g_nonce');
             var openAuth = function () { if (typeof openAuthModal === 'function') openAuthModal(); };
-            if (h.get('error') || !h.get('id_token')) { setTimeout(function () { openAuth(); gStatus(T('Google bilan kirish bekor qilindi.', 'Google sign-in was cancelled.', 'Вход через Google отменён.')); }, 500); return; }
-            if (!nonce || h.get('state') !== nonce) { setTimeout(function () { openAuth(); gStatus(T('Google javobi eskirgan. Qaytadan urining.', 'Google response expired. Try again.', 'Ответ Google устарел. Попробуйте снова.')); }, 500); return; }
+            var unwait = function () { document.documentElement.classList.remove('g-wait'); };
+            if (h.get('error') || !h.get('id_token')) { unwait(); setTimeout(function () { openAuth(); gStatus(T('Google bilan kirish bekor qilindi.', 'Google sign-in was cancelled.', 'Вход через Google отменён.')); }, 500); return; }
+            if (!nonce || h.get('state') !== nonce) { unwait(); setTimeout(function () { openAuth(); gStatus(T('Google javobi eskirgan. Qaytadan urining.', 'Google response expired. Try again.', 'Ответ Google устарел. Попробуйте снова.')); }, 500); return; }
             var gauth = sessionStorage.getItem('bl_gauth') || ''; sessionStorage.removeItem('bl_gauth');
             try {
                 var j = await api('/api/google/login', { idToken: h.get('id_token'), nonce: nonce, qr: gauth || undefined }, true);
@@ -12484,12 +12502,13 @@ html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::afte
                     else gScreen('⚠️', T("Kirib bo'lmadi", 'Could not log in', 'Не удалось войти'), j.error || 'Error');
                     return;
                 }
-                if (!j.success) { setTimeout(function () { openAuth(); gStatus(j.error || 'Error'); }, 500); return; }
+                if (!j.success) { unwait(); setTimeout(function () { openAuth(); gStatus(j.error || 'Error'); }, 500); return; }
+                sessionStorage.setItem('bl_g_wait', '1');      // qayta yuklangan sahifada ham ekran chat ochilguncha turadi
                 localStorage.setItem('bilol_ai_phone', j.phone);
                 localStorage.setItem('bilol_ai_name', j.name || '');
                 localStorage.setItem('bilol_ai_password', j.token);
                 location.replace(location.pathname);   // saqlangan sessiya bilan chat ochiladi
-            } catch (e) { setTimeout(function () { openAuth(); gStatus(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.')); }, 500); }
+            } catch (e) { unwait(); setTimeout(function () { openAuth(); gStatus(T("Server bilan bog'lanib bo'lmadi.", 'Server connection error.', 'Ошибка соединения с сервером.')); }, 500); }
         })();
 
         /* ---- Nastroyka: emailni ulash ---- */
