@@ -457,12 +457,14 @@ export default async function handler(req, res) {
     let resp = await openrouter(apiKey, requestBody);
 
     // OpenRouter ishlamasa (kredit tugagan, model xatosi) — admin ulagan Google kaliti bilan javob (kalit bot serverida)
+    if (!resp.ok) console.error("chat: openrouter", resp.status, "google chipta:", quota.google ? "bor" : "YO'Q");
     if (!resp.ok && quota.google) {
       const g = await fetch(`${RAILWAY_URL}/api/chat/google`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticket: quota.google, messages, maxTokens: requestBody.max_tokens, temperature: requestBody.temperature,
                                json: !!requestBody.response_format, web: !!useWeb })
       }).then(r => r.json()).catch(() => ({}));
+      if (!(g.success && g.text)) console.error("chat: google javob bermadi", g.error || "");
       if (g.success && g.text) {
         if (wantStream) {
           res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no" });
