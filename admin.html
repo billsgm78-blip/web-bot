@@ -826,7 +826,7 @@ select.inp option { background: #12151c; color: var(--text); }
 
     // ================= PANEL =================
     var TABS = [
-        ['stats', '📊', 'Statistika'], ['agent', '🤖', 'Yordamchi'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['aud', '📲', 'Ilova va bot'],
+        ['stats', '📊', 'Statistika'], ['agent', '🤖', 'Yordamchi'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['test', '🧪', 'Test (taqdimot)'], ['aud', '📲', 'Ilova va bot'],
         ['card', '💳', "Karta (avto to'lov)"], ['call', '📞', "AI qo'ng'iroq"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['mahalla', '🏘', 'Mahalla'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['email', '📧', 'Email xabarlar'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['nizom', '📕', 'Ichki nizom'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama']
     ];
     var tab = 'stats';
@@ -849,7 +849,7 @@ select.inp option { background: #12151c; color: var(--text); }
         // Kirish animatsiyasi faqat sahifa ochilganda (keyingi avto-yangilanishlarda qayta o'ynamaydi)
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
-        var fn = { stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, email: vEmail, support: vSupport, shop: vShop, mahalla: vMahalla, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
+        var fn = { test: vTest, stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, email: vEmail, support: vSupport, shop: vShop, mahalla: vMahalla, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -2205,6 +2205,62 @@ select.inp option { background: #12151c; color: var(--text); }
 
     // ---------- Promo-kodlar ----------
     function randomCode() { var a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = ''; for (var i = 0; i < 8; i++) s += a[Math.floor(Math.random() * a.length)]; return s; }
+    // ================= 🧪 TEST AKKAUNTLAR (taqdimot uchun) =================
+    async function vTest(view) {
+        view.innerHTML = '';
+        view.appendChild(h('div', { class: 'card', style: 'line-height:1.55' }, [
+            h('b', { text: '🎤 Taqdimot: «O\'zingiz sinab ko\'ring»' }),
+            h('div', { class: 'sum', text: "Test akkauntlar obuna bilan ochiladi (barcha agentlar, cheksiz xabar, rasm yaratish). Taqdimot oxirida ekranda QR kod chiqadi: bir kishi telefon kamerasi bilan skanerlaydi — sayt o'zi shu akkauntga kiradi. «1 skanerlandi» deb yoziladi va darhol keyingi akkaunt uchun yangi QR chiqadi. Har bir QR bir martalik." }),
+            h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;margin-top:12px' }, [
+                h('a', { class: 'act', href: '/prezentatsya', target: '_blank', rel: 'noopener', style: 'text-decoration:none', text: '🎤 Taqdimotni ochish' }),
+                h('a', { class: 'act', href: '/prezentatsya#sinab-koring', target: '_blank', rel: 'noopener', style: 'text-decoration:none', text: '📷 Faqat QR ekrani' })
+            ])
+        ]));
+        var head = h('div', { class: 'h', text: '🧪 Test akkauntlar' });
+        view.appendChild(head);
+        var box = h('div', { class: 'card' });
+        view.appendChild(box);
+        function paint(list) {
+            box.innerHTML = '';
+            if (!list.length) {
+                box.appendChild(h('div', { class: 'empty', text: "Test akkauntlar yo'q. Pastdagi tugma bilan 10 tasini oching." }));
+            } else {
+                var used = list.filter(function (a) { return a.used; }).length;
+                box.appendChild(h('div', { class: 'sum', text: list.length + ' ta akkaunt · ' + used + ' tasiga kirilgan · ' + (list.length - used) + ' tasi bo\'sh' }));
+                list.forEach(function (a) {
+                    box.appendChild(h('div', { class: 'row' }, [
+                        h('div', { class: 'r-ico', text: a.used ? '📱' : '🧪' }),
+                        h('div', { class: 'r-main' }, [h('b', { text: a.name + ' · ' + a.phone }),
+                            h('small', { text: (a.used ? '✅ Kirilgan: ' + fmtDate(a.usedAt) : "⏳ Bo'sh — QR kutmoqda") + (a.subUntil ? ' · obuna ' + fmtDay(a.subUntil) + ' gacha' : '') })]),
+                        h('span', { class: 'chip', text: a.used ? 'Band' : "Bo'sh" })
+                    ]));
+                });
+            }
+            var btns = h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;margin-top:14px' });
+            btns.appendChild(h('button', { class: 'btn', style: 'flex:1;min-width:200px', text: list.length ? "🔄 Qaytadan 10 ta ochish (eskilari o'chadi)" : '🧪 10 ta test akkaunt ochish', onclick: async function () {
+                var v = await dialog({ title: '🧪 Test akkauntlar', text: list.length ? "Eski test akkauntlar o'chiriladi, ularga kirganlar chiqib ketadi." : "Har biriga obuna beriladi. Parolni hech kim bilmaydi — faqat taqdimotdagi QR bilan kiriladi.",
+                    fields: [{ label: 'Nechta akkaunt', value: '10', type: 'number', inputmode: 'numeric' }, { label: 'Obuna, kun', value: '3', type: 'number', inputmode: 'numeric' }], ok: 'Ochish' });
+                if (!v) return;
+                var x = await admin('test_create', { count: +v[0] || 10, days: +v[1] || 3 });
+                if (!x.success) { toast(x.error || 'Xato'); return; }
+                toast('✅ ' + x.accounts.length + ' ta test akkaunt tayyor'); paint(x.accounts);
+            } }));
+            if (list.length) {
+                btns.appendChild(h('button', { class: 'act', text: '♻️ Hammasini bo\'shatish', onclick: async function () {
+                    if (!await dialog({ title: "Hammasini bo'shatish", text: "Kirganlar chiqarib yuboriladi va akkauntlar yana QR bilan berilishga tayyor bo'ladi. Yangi taqdimotdan oldin bosing.", ok: "Bo'shatish" })) return;
+                    var x = await admin('test_reset'); if (x.success) { toast('♻️ Tayyor'); paint(x.accounts); } else toast(x.error || 'Xato');
+                } }));
+                btns.appendChild(h('button', { class: 'act red', text: "🗑 O'chirish", onclick: async function () {
+                    if (!await dialog({ title: "Test akkauntlarni o'chirish", text: "Hamma test akkauntlar va ulardagi suhbatlar o'chadi.", ok: "O'chirish", danger: true })) return;
+                    var x = await admin('test_delete'); if (x.success) { toast("O'chirildi"); paint([]); } else toast(x.error || 'Xato');
+                } }));
+            }
+            box.appendChild(btns);
+        }
+        var j = await admin('test_list');
+        paint(j.accounts || []);
+    }
+
     async function vPromo(view) {
         view.innerHTML = '';
         var code = h('input', { class: 'inp mono', placeholder: 'KOD' }); code.value = randomCode();

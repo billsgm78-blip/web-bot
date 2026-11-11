@@ -13,3 +13,5 @@
 /mahalla  /mahalla.html  200
 /sizuchun  /sizuchun.html  200
 /reset/:token  /?reset=:token  302
+/prezentatsya  /prezentatsya.html  200
+/taqdimot  /prezentatsya.html  200
