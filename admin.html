@@ -1500,7 +1500,7 @@ select.inp option { background: #12151c; color: var(--text); }
         paintModels();
         var fb = c.fallback !== false;
         var fbSw = h('div', { class: 'switch' + (fb ? ' ok' : ''), role: 'switch', onclick: function () { fb = !fb; fbSw.className = 'switch' + (fb ? ' ok' : ''); } });
-        var LEN = [[800, 'Qisqa'], [1500, "O'rtacha"], [3000, 'Uzun (standart)'], [6000, 'Juda uzun']];
+        var LEN = [[800, 'Qisqa'], [1500, "O'rtacha (standart)"], [3000, 'Uzun'], [6000, 'Juda uzun']];
         var lenSel = h('select', { class: 'inp' });
         LEN.forEach(function (l) { var o = h('option', { value: l[0], text: l[1] + ' — ' + l[0] + ' token' }); if (+l[0] === +c.maxTokens) o.selected = true; lenSel.appendChild(o); });
         if (!LEN.some(function (l) { return +l[0] === +c.maxTokens; })) { var ol = h('option', { value: c.maxTokens, text: c.maxTokens + ' token' }); ol.selected = true; lenSel.appendChild(ol); }
