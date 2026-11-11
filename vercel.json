@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/cookie",
+      "destination": "/cookie.html"
+    },
+    {
+      "source": "/cookies",
+      "destination": "/cookie.html"
+    },
+    {
       "source": "/faq",
       "destination": "/faq.html"
     },

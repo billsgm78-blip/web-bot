@@ -3163,6 +3163,7 @@ window.addEventListener('message', function (e) {
     <div class="pd-foot-row">
       <span>© Bilols AI</span>
       <a href="/maxfiylik" target="_blank" rel="noopener"><span class="pm-t" data-l="uz">Maxfiylik siyosati</span><span class="pm-t" data-l="ru">Конфиденциальность</span><span class="pm-t" data-l="en">Privacy</span></a>
+      <a href="/cookie" target="_blank" rel="noopener"><span class="pm-t" data-l="uz">Cookie siyosati</span><span class="pm-t" data-l="ru">Политика cookie</span><span class="pm-t" data-l="en">Cookie policy</span></a>
       <a href="https://t.me/bilolsaiuz" target="_blank" rel="noopener">Admin: @bilolsaiuz</a>
       <a href="https://t.me/BilolsAIbot" target="_blank" rel="noopener">Telegram</a>
       <a href="/apk">Android</a>
@@ -3347,6 +3348,7 @@ window.addEventListener('message', function (e) {
             </div>
             <div id="status-box" style="margin-top: 12px; font-size: 13px;"></div>
             <a class="privacy-link" href="/maxfiylik" target="_blank" rel="noopener">🔒 <span class="lang-privacy">Maxfiylik siyosati</span></a>
+            <a class="privacy-link" href="/cookie" target="_blank" rel="noopener">🍪 Cookie siyosati</a>
         </div>
     </div>
 
@@ -3544,6 +3546,7 @@ window.addEventListener('message', function (e) {
                     <span class="ds-text"><b>Android ilova</b><small id="drawer-app-sub">Tez orada — texnik ishlar</small></span>
                 </a>
                 <a class="privacy-link" href="/maxfiylik" target="_blank" rel="noopener">🔒 <span class="lang-privacy">Maxfiylik siyosati</span></a>
+            <a class="privacy-link" href="/cookie" target="_blank" rel="noopener">🍪 Cookie siyosati</a>
             </aside>
         </div>
     </div>
@@ -3719,6 +3722,13 @@ window.addEventListener('message', function (e) {
                 <div class="settings-info">
                     <h4>🔒 <span class="lang-privacy">Maxfiylik siyosati</span></h4>
                     <p class="lang-privacy-sub">Ma'lumotlaringiz qanday himoyalanadi</p>
+                </div>
+                <span class="set-arrow">›</span>
+            </a>
+            <a class="settings-card clickable" id="cookie-card" href="/cookie" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+                <div class="settings-info">
+                    <h4>🍪 Cookie siyosati</h4>
+                    <p>Qurilmangizda nima saqlanadi va qanday o'chiriladi</p>
                 </div>
                 <span class="set-arrow">›</span>
             </a>
@@ -9349,7 +9359,7 @@ html[data-design="premium"] body .sh-hub .wsub-body { color: #18181b; }
         // 7) Yordam
         var pH = pane('help', T('Yordam', 'Help', 'Помощь'));
         var priv = scroll.querySelector('a.settings-card[href="/maxfiylik"]');
-        pH.appendChild(group(T('Aloqa', 'Contact', 'Связь'), [card('support-entry'), card('admin-tg-card'), priv]));
+        pH.appendChild(group(T('Aloqa', 'Contact', 'Связь'), [card('support-entry'), card('admin-tg-card'), priv, $('cookie-card')]));
 
         // qolgan kartalar (yangi qo'shilganlari) — Ilova bo'limiga
         Array.prototype.slice.call(scroll.children).forEach(function (n) { if (n !== hub) pA.appendChild(n); });

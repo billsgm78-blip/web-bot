@@ -5,6 +5,7 @@
   <url><loc>https://www.bilolsai.uz/kompyuter</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.bilolsai.uz/iphone</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.bilolsai.uz/faq</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.bilolsai.uz/cookie</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://www.bilolsai.uz/maxfiylik</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://www.bilolsai.uz/mahalla</loc></url>
 </urlset>
