@@ -2337,6 +2337,9 @@ body.theme-light .adm-act { background: #fff; color: #0f172a; border-color: rgba
     overflow-y: auto;
 }
 #reset-modal.open { display: flex; animation: authFade 0.25s ease-out both; }
+/* Havola orqali ochilgan parol tiklash: orqada sayt ko'rinmaydi — faqat bitta toza oyna */
+html.reset-only #reset-modal { background: #0E0E10; -webkit-backdrop-filter: none; backdrop-filter: none; z-index: 2147483000; }
+html.reset-only body { overflow: hidden; }
 #reset-modal .reset-card {
     margin: auto; max-width: 400px; padding: 24px 20px 20px; text-align: left;
     background: rgba(13, 18, 32, 0.97); border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 24px;
@@ -7471,6 +7474,7 @@ window.addEventListener('message', function (e) {
         }
         function closeReset() {
             resetModal.classList.remove('open');
+            document.documentElement.classList.remove('reset-only');   // oyna yopilsa — oddiy sayt
             if (resetToken) {
                 resetToken = null;
                 try { history.replaceState(null, '', /^\/reset\//.test(location.pathname) ? '/' : location.pathname); } catch (e) {}
@@ -7602,6 +7606,8 @@ window.addEventListener('message', function (e) {
             if (!tok) { var pm = location.pathname.match(/^\/reset\/([A-Za-z0-9_-]{16,64})\/?$/); if (pm) tok = pm[1]; }
             if (!tok || !/^[A-Za-z0-9_-]{16,64}$/.test(tok)) return;
             resetToken = tok;
+            document.documentElement.classList.add('reset-only');
+            try { history.replaceState(null, '', '/'); } catch (e) {}
             openReset('set');
             try {
                 var r = await fetch(RAILWAY_URL + '/api/reset/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: tok }) });
@@ -7741,7 +7747,7 @@ window.addEventListener('message', function (e) {
             // e'lon
             var a = st && !st.lockAll ? st.announcement : null;
             ban.classList.remove('show'); pop.classList.remove('show');
-            if (a && !seen(a.id)) {
+            if (a && !seen(a.id) && !document.documentElement.classList.contains('reset-only')) {   // parol tiklash oynasida e'lon chiqmaydi
                 var style = ICO[a.style] ? a.style : 'info';
                 if (a.mode === 'popup') {
                     var card = pop.querySelector('.ann-pop-card');
