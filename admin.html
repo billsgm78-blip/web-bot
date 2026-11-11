@@ -1430,7 +1430,7 @@ select.inp option { background: #12151c; color: var(--text); }
             box.appendChild(h('div', { class: 'sum', style: 'line-height:1.55', text: "Katta yoshli (18+) Google akkaunt egasi aistudio.google.com → «Get API key» dan kalit oladi. Rasm modellari uchun u yerda billing (karta) yoqilgan bo'lishi kerak. Kalit faqat bot serverida turadi." }));
             if (note) box.appendChild(h('div', { class: 'sum', style: 'color:#fda4af', text: note }));
             if (conf.lastError) box.appendChild(h('div', { class: 'sum', text: 'Oxirgi xato: ' + conf.lastError }));
-            var key = h('input', { class: 'inp', type: 'password', placeholder: conf.has ? 'Yangi kalit (almashtirish uchun)' : 'AIza…', autocomplete: 'off', spellcheck: 'false' });
+            var key = h('input', { class: 'inp', type: 'password', placeholder: conf.has ? 'Yangi kalit (almashtirish uchun)' : 'AI Studio kaliti', autocomplete: 'off', spellcheck: 'false' });
             var model = h('select', { class: 'inp' }); Object.keys(conf.models || {}).forEach(function (m) { var o = h('option', { value: m, text: conf.models[m] }); if (m === conf.model) o.selected = true; model.appendChild(o); });
             var size = h('select', { class: 'inp' }); (conf.sizes || ['1K', '2K', '4K']).forEach(function (z) { var o = h('option', { value: z, text: z + (z === '2K' ? ' (tavsiya)' : z === '4K' ? ' (eng tiniq, sekinroq va qimmatroq)' : '') }); if (z === conf.size) o.selected = true; size.appendChild(o); });
             box.appendChild(h('label', { class: 'lb', style: 'margin-bottom:10px' }, ['API kalit', key]));
