@@ -46,13 +46,24 @@ async function openrouter(apiKey, body) {
     headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://bilolsai.uz", "X-Title": "Bilols AI" },
     body: JSON.stringify(b)
   });
-  const r = await send(body);
-  if (r.ok || r.status !== 402) return r;
-  const txt = await r.clone().text().catch(() => "");
-  const m = /can only afford (\d+)/i.exec(txt);
-  const can = m ? parseInt(m[1], 10) - 16 : 0;
-  if (can >= 150 && can < (body.max_tokens || 4096)) return send({ ...body, max_tokens: can });
+  let r = await send(body), cur = body.max_tokens || 4096;
+  // Har urinishda OpenRouter yangi "can only afford N" aytadi (so'rov matni ham pul turadi) — 3 martagacha kamaytirib so'raymiz
+  for (let i = 0; i < 3 && !r.ok && r.status === 402; i++) {
+    const txt = await r.clone().text().catch(() => "");
+    const m = /can only afford (\d+)/i.exec(txt);
+    const can = m ? Math.floor(parseInt(m[1], 10) * 0.85) : 0;
+    if (can < 150 || can >= cur) break;
+    cur = can;
+    r = await send({ ...body, max_tokens: cur });
+  }
   return r;
+}
+
+// OpenRouter'ning texnik xatosi foydalanuvchiga ko'rsatilmaydi (kalit havolasi, kredit soni va h.k.)
+function friendlyError(msg) {
+  const t = String(msg || "");
+  if (/credits|afford|max_tokens|openrouter\.ai\/|insufficient/i.test(t)) return "AI xizmatida vaqtincha uzilish. Birozdan so'ng qayta urinib ko'ring.";
+  return t || "Model xatoligi yuz berdi.";
 }
 
 // Internet qidiruvi manbalari (OpenRouter "url_citation" izohlari)
@@ -212,7 +223,7 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
   try {
     const r = await openrouter(apiKey, body);
     const data = await r.json().catch(() => ({}));
-    if (!r.ok) return res.status(502).json({ error: data?.error?.message || "Model xatoligi yuz berdi." });
+    if (!r.ok) return res.status(502).json({ error: friendlyError(data?.error?.message) });
     let j = null;
     try { j = JSON.parse(String(data?.choices?.[0]?.message?.content || "").replace(/^```(?:json)?\s*|\s*```$/g, "")); } catch (e) {}
     if (!j || typeof j !== "object") return res.status(200).json({ pc: true, agent: { say: "…", actions: [{ type: "wait", ms: 300 }], done: false }, retry: true });
@@ -434,12 +445,12 @@ export default async function handler(req, res) {
     model: modelList[0],
     models: modelList,
     messages: messages,
-    max_tokens: Math.max(256, Math.min(8000, parseInt(ai.maxTokens, 10) || 3000))
+    max_tokens: Math.max(256, Math.min(8000, parseInt(ai.maxTokens, 10) || 1500))
   };
   if (typeof ai.temperature === "number") requestBody.temperature = Math.max(0, Math.min(1.5, ai.temperature));
   if (useWeb) requestBody.plugins = [{ id: "web", max_results: 5 }];
   if (isPc) { requestBody.response_format = { type: "json_object" }; requestBody.max_tokens = Math.min(requestBody.max_tokens, 1200); }
-  if (isQuiz) { requestBody.response_format = { type: "json_object" }; requestBody.max_tokens = Math.max(requestBody.max_tokens, 6000); }
+  if (isQuiz) { requestBody.response_format = { type: "json_object" }; requestBody.max_tokens = Math.max(requestBody.max_tokens, 4000); }
   if (wantStream) requestBody.stream = true;
 
   try {
@@ -471,7 +482,7 @@ export default async function handler(req, res) {
           if (!payload || payload === "[DONE]") continue;
           try {
             const j = JSON.parse(payload);
-            if (j.error) streamError = j.error.message || "Model xatoligi yuz berdi.";
+            if (j.error) streamError = friendlyError(j.error.message);
             const ann = j?.choices?.[0]?.delta?.annotations;
             if (Array.isArray(ann)) collectSources(ann, sources);
             const piece = j?.choices?.[0]?.delta?.content;
@@ -491,7 +502,7 @@ export default async function handler(req, res) {
 
     if (!resp.ok) {
       return res.status(resp.status).json({
-        error: data?.error?.message || "Model xatoligi yuz berdi."
+        error: friendlyError(data?.error?.message)
       });
     }
 
