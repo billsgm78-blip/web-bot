@@ -1413,10 +1413,58 @@ select.inp option { background: #12151c; color: var(--text); }
         ['openai/gpt-6-luna', '🌙 GPT-6 Luna — OpenAI, yangi, juda katta xotira'],
         ['z-ai/glm-5.3-flash', '🧩 GLM 5.3 Flash — juda arzon, kodda kuchli']
     ];
+    // 🎨 Google Gemini bilan rasm: kalit faqat bot serverida saqlanadi, bu yerga qaytib kelmaydi
+    async function gimgCard() {
+        var box = h('div', { class: 'card form', style: 'margin-bottom:6px' });
+        async function paint(conf, note) {
+            box.innerHTML = '';
+            if (!conf) { var g = await admin('gimg_get'); conf = g.conf || {}; }
+            var on = conf.has && conf.on;
+            box.appendChild(h('div', { class: 'row', style: 'border:none;padding-top:0' }, [
+                h('div', { class: 'r-ico', text: on ? '🎨' : '—' }),
+                h('div', { class: 'r-main' }, [h('b', { text: conf.has ? ('Google kaliti ulangan: ' + conf.masked) : 'Google kaliti ulanmagan' }),
+                    h('small', { text: conf.has ? ((conf.models || {})[conf.model] || conf.model) + ' · ' + conf.size + ' · ' + (conf.used || 0) + ' ta rasm chizildi' + (conf.fails ? ' · ' + conf.fails + ' ta xato' : '') + (conf.checked ? ' · tekshirildi: ' + fmtDate(conf.checked) : '')
+                        : "Rasmlar hozir OpenRouter / Pollinations orqali chiziladi." })]),
+                h('span', { class: 'chip', text: on ? 'Faol' : (conf.has ? "O'chiq" : "Yo'q") })
+            ]));
+            box.appendChild(h('div', { class: 'sum', style: 'line-height:1.55', text: "Katta yoshli (18+) Google akkaunt egasi aistudio.google.com → «Get API key» dan kalit oladi. Rasm modellari uchun u yerda billing (karta) yoqilgan bo'lishi kerak. Kalit faqat bot serverida turadi." }));
+            if (note) box.appendChild(h('div', { class: 'sum', style: 'color:#fda4af', text: note }));
+            if (conf.lastError) box.appendChild(h('div', { class: 'sum', text: 'Oxirgi xato: ' + conf.lastError }));
+            var key = h('input', { class: 'inp', type: 'password', placeholder: conf.has ? 'Yangi kalit (almashtirish uchun)' : 'AIza…', autocomplete: 'off', spellcheck: 'false' });
+            var model = h('select', { class: 'inp' }); Object.keys(conf.models || {}).forEach(function (m) { var o = h('option', { value: m, text: conf.models[m] }); if (m === conf.model) o.selected = true; model.appendChild(o); });
+            var size = h('select', { class: 'inp' }); (conf.sizes || ['1K', '2K', '4K']).forEach(function (z) { var o = h('option', { value: z, text: z + (z === '2K' ? ' (tavsiya)' : z === '4K' ? ' (eng tiniq, sekinroq va qimmatroq)' : '') }); if (z === conf.size) o.selected = true; size.appendChild(o); });
+            box.appendChild(h('label', { class: 'lb', style: 'margin-bottom:10px' }, ['API kalit', key]));
+            box.appendChild(h('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px' }, [h('label', { class: 'lb' }, ['Model', model]), h('label', { class: 'lb' }, ["Tiniqlik (faqat Pro'da)", size])]));
+            var btns = h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap' });
+            btns.appendChild(h('button', { class: 'btn', style: 'flex:1;min-width:180px', text: conf.has ? '💾 Saqlash' : '🔗 Ulash va tekshirish', onclick: async function (e) {
+                var b = e.currentTarget; b.disabled = true; b.textContent = '⏳ Tekshirilmoqda…';
+                var x = await admin('gimg_set', { key: key.value.trim(), model: model.value, size: size.value });
+                if (x.success) { toast('✅ Saqlandi'); paint(x.conf); } else { paint(null, x.error || 'Xato'); }
+            } }));
+            if (conf.has) {
+                btns.appendChild(h('button', { class: 'act', text: '🔍 Tekshirish', onclick: async function () {
+                    var x = await admin('gimg_test'); x.success ? (toast('✅ Kalit ishlayapti'), paint(x.conf)) : paint(x.conf, 'Kalit ishlamadi: ' + (x.error || ''));
+                } }));
+                btns.appendChild(h('button', { class: 'act', text: on ? "⏸ O'chirish" : '▶️ Yoqish', onclick: async function () {
+                    var x = await admin('gimg_set', { on: !on }); if (x.success) paint(x.conf); else toast(x.error || 'Xato');
+                } }));
+                btns.appendChild(h('button', { class: 'act red', text: '🗑 Kalitni olib tashlash', onclick: async function () {
+                    if (!await dialog({ title: 'Kalitni olib tashlash', text: 'Rasmlar yana OpenRouter / Pollinations orqali chiziladi.', ok: 'Olib tashlash', danger: true })) return;
+                    var x = await admin('gimg_set', { remove: true }); if (x.success) paint(x.conf);
+                } }));
+            }
+            box.appendChild(btns);
+        }
+        await paint();
+        return box;
+    }
+
     async function vAI(view) {
         var j = await admin('ai_get');
         view.innerHTML = '';
         if (!j.success) { view.appendChild(h('div', { class: 'empty', text: j.error || 'Xato' })); return; }
+        view.appendChild(h('div', { class: 'h', text: '🎨 Rasm yaratish — Google Gemini' }));
+        view.appendChild(await gimgCard());
         var c = j.config;
         var models = (c.models || []).map(function (m) { return Object.assign({}, m); });
         var mbox = h('div');

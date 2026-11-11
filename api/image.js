@@ -252,7 +252,6 @@ export default async function handler(req, res) {
   const apiKey = (process.env.GEMINI_API_KEY || "").trim();
   const { phone, password, prompt, image: srcImage, aspect } = req.body || {};
   const text = String(prompt || "").trim().slice(0, 1500);
-  if (!apiKey) return res.status(500).json({ error: "API kaliti sozlanmagan." });
   if (!text) return res.status(400).json({ error: srcImage ? "Rasmni qanday o'zgartirish kerakligini yozing." : "Rasm tavsifini yozing." });
   const isEdit = typeof srcImage === "string" && srcImage.length > 0;
   if (isEdit && (!/^data:image\/(png|jpe?g|webp);base64,[A-Za-z0-9+/=]+$/.test(srcImage) || srcImage.length > 4_000_000)) {
@@ -273,15 +272,24 @@ export default async function handler(req, res) {
   let image = null;
   lastError = "";
   const deadline = Date.now() + 48000;
+  // 0-usul: admin panelda ulangan Google Gemini kaliti (Nano Banana Pro, 2K). Kalit bot serverida, bu yerga kelmaydi.
+  const viaGoogle = async (prompt, img) => {
+    if (!charge.google) return null;
+    const g = await railway("/api/image/google", { ticket: charge.google, prompt, image: img || "", aspect: Number(aspect) || 1 }).catch(() => ({}));
+    if (g.success && g.image) return g.image;
+    lastError += ` | google: ${g.error || g._status || "javob yo'q"}`;
+    return null;
+  };
   if (isEdit) {
-    const instr = await toEnglishInstruction(apiKey, text) || text;
-    try { image = await viaChatEdit(apiKey, instr, srcImage); } catch (e) { lastError += ` | ${e.message || e}`; }
+    const instr = (apiKey && await toEnglishInstruction(apiKey, text)) || text;
+    image = await viaGoogle(instr, srcImage);
+    if (!image && apiKey && Date.now() < deadline - 15000) { try { image = await viaChatEdit(apiKey, instr, srcImage); } catch (e) { lastError += ` | ${e.message || e}`; } }
     let approx = false;
     if (!image) image = await viaPollinationsEdit(instr, srcImage, deadline);
     // Taxminiy "tasvirlab qayta chizish" faqat Pollinations kaliti yo'q paytda (kalit bo'lsa — haqiqiy tahrir yoki pul qaytariladi)
     if (!image && !(process.env.POLLINATIONS_TOKEN || "").trim()) {
       // OpenRouter rasm chiqara olmadi (masalan, balans 1$ dan kam) — bepul usul: tasvirlab, qaytadan chizish
-      const desc = await describeForEdit(apiKey, srcImage, instr);
+      const desc = apiKey ? await describeForEdit(apiKey, srcImage, instr) : null;
       if (desc) {
         const a = Math.max(0.5, Math.min(2, Number(aspect) || 1));
         const size = a >= 1 ? { w: 1024, h: Math.round(1024 / a / 64) * 64 } : { w: Math.round(1024 * a / 64) * 64, h: 1024 };
@@ -298,13 +306,14 @@ export default async function handler(req, res) {
     return res.status(200).json(charge.balance != null ? { image, balance: charge.balance, approx, ...extra } : { image, approx, ...extra });
   }
   const enPrompt = (charge.prompt || "").trim()
-    || await toEnglishPrompt(apiKey, text)
+    || (apiKey && await toEnglishPrompt(apiKey, text))
     || await toEnglishViaPollinations(text)
     || text;
   if (enPrompt === text) lastError += " | tarjima ishlamadi";
+  image = await viaGoogle(enPrompt);
   try {
-    image = await viaImagesEndpoint(apiKey, enPrompt);
-    if (!image) image = await viaChat(apiKey, enPrompt);
+    if (!image && apiKey && Date.now() < deadline - 15000) image = await viaImagesEndpoint(apiKey, enPrompt);
+    if (!image && apiKey && Date.now() < deadline - 15000) image = await viaChat(apiKey, enPrompt);
   } catch (e) {
     lastError += ` | ${e.message || e}`;
     image = null;
