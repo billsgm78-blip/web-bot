@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/faq",
+      "destination": "/faq.html"
+    },
+    {
+      "source": "/savollar",
+      "destination": "/faq.html"
+    },
+    {
       "source": "/prezentatsya",
       "destination": "/prezentatsya.html"
     },

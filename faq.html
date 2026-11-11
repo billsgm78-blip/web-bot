@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bilols AI — ko'p beriladigan savollar</title>
+<meta name="description" content="Bilols AI haqida savol-javoblar: hisob, AI chat, rasm yaratish, to'lov, obuna, Telegram Stars va Premium, Android, iPhone va Windows ilovalari.">
+<link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* FAQ: bitta ustun, bo'limlar bo'yicha ochiladigan qatorlar, tepada qidiruv. Brend ranglari taqdimot bilan bir xil. */
+:root {
+  --bg: #FFF9F4; --surface: #FFFFFF; --raised: #FFF1E7; --line: #F1E2D6;
+  --ink: #1D1A20; --muted: #6E6375; --accent: #FF6A1A; --accent-dark: #B3420A; --accent-soft: #FFE8D9;
+  --display: "Archivo", "Segoe UI", system-ui, sans-serif;
+  --body: "Nunito", "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 600 16px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
+a { color: var(--accent-dark); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.top { position: sticky; top: 0; z-index: 5; background: rgba(255,249,244,.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 860px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; text-decoration: none; color: var(--ink); }
+.brand img { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line); }
+.go { text-decoration: none; background: var(--ink); color: #fff; border-radius: 99px; padding: 9px 16px; font-weight: 800; font-size: 14px; white-space: nowrap; }
+main { max-width: 860px; margin: 0 auto; padding: 36px 20px 64px; display: flex; flex-direction: column; gap: 28px; }
+h1 { margin: 0; font: 800 clamp(32px, 6vw, 48px)/1.08 var(--display); letter-spacing: -.02em; text-wrap: balance; }
+.lead { margin: 10px 0 0; color: var(--muted); max-width: 60ch; }
+.search { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 0 16px; box-shadow: 0 6px 20px rgba(120,70,30,.06); }
+.search input { flex: 1; min-width: 0; border: 0; outline: none; background: none; font: inherit; height: 52px; color: var(--ink); }
+.cats { display: flex; gap: 8px; flex-wrap: wrap; }
+.cats a { text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 7px 14px; font-weight: 800; font-size: 14px; }
+.cats a:hover { background: var(--raised); }
+section { display: flex; flex-direction: column; gap: 10px; scroll-margin-top: 80px; }
+h2 { margin: 6px 0 2px; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+summary { list-style: none; cursor: pointer; padding: 16px 52px 16px 18px; font-weight: 800; position: relative; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border-radius: 50%; background: var(--raised); display: grid; place-items: center; font-size: 18px; line-height: 1; transition: transform .2s; }
+details[open] summary::after { content: "−"; background: var(--accent-soft); color: var(--accent-dark); }
+summary:hover { background: #FFFCF9; }
+.a { padding: 0 18px 18px; color: #3E3742; display: flex; flex-direction: column; gap: 8px; }
+.a p { margin: 0; }
+.a ol, .a ul { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
+details[open] .a { animation: open .25s ease; }
+@keyframes open { from { opacity: 0; transform: translateY(-4px); } }
+.empty { display: none; text-align: center; color: var(--muted); padding: 24px; }
+.help { background: var(--ink); color: #fff; border-radius: 22px; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.help b { font-size: 19px; }
+.help p { margin: 4px 0 0; color: #CFC8D3; }
+.help a { color: var(--ink); background: #fff; text-decoration: none; border-radius: 99px; padding: 11px 18px; font-weight: 800; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <a class="brand" href="/"><img src="/icons/icon-192.png" alt="">Bilols AI</a>
+  <a class="go" href="/">Saytga o'tish</a>
+</div></header>
+
+<main>
+  <div>
+    <h1>Ko'p beriladigan savollar</h1>
+    <p class="lead">Bilols AI haqida qisqa va aniq javoblar. Savolingizni pastdagi qidiruvga yozing yoki bo'limni tanlang.</p>
+  </div>
+  <label class="search"><span aria-hidden="true">🔎</span><input type="search" id="q" placeholder="Masalan: parol, obuna, iPhone" aria-label="Savollardan qidirish"></label>
+  <nav class="cats" aria-label="Bo'limlar">
+    <a href="#umumiy">💡 Umumiy</a><a href="#hisob">🔐 Hisob</a><a href="#ai">💬 AI imkoniyatlari</a><a href="#tolov">👛 To'lov va obuna</a><a href="#dokon">🛍️ Do'kon</a><a href="#ilovalar">📱 Ilovalar</a><a href="#yordam">🛡 Xavfsizlik va yordam</a>
+  </nav>
+
+  <section id="umumiy">
+    <h2>💡 Umumiy</h2>
+    <details><summary>Bilols AI nima?</summary><div class="a"><p>O'zbek tilida so'zlashadigan shaxsiy AI yordamchi. Savolga javob beradi, matn va insho yozadi, tarjima qiladi, rasm chizadi, hujjat o'qiydi va test tuzib beradi.</p><p>Sayt, Telegram bot, Android ilova va Windows dasturida ishlaydi.</p></div></details>
+    <details><summary>Bilols AI bepulmi?</summary><div class="a"><p>Ha. Bepul agent bilan har kuni bepul xabar yozasiz, kunlik soni cheklangan.</p><p>Kuchli agentlar (GPT-4o, Gemini 2.5, DeepSeek), cheksiz xabar va bepul rasm yaratish — obuna bilan.</p></div></details>
+    <details><summary>Qaysi tillarda ishlaydi?</summary><div class="a"><p>Interfeys o'zbek, rus va ingliz tillarida. Tilni Sozlamalar → Interfeys tili bo'limida almashtirasiz.</p><p>AI esa qaysi tilda yozsangiz, o'sha tilda javob beradi.</p></div></details>
+    <details><summary>Bitta hisob hamma qurilmada ishlaydimi?</summary><div class="a"><p>Ha. Sayt, Android ilova va Windows dasturida bitta telefon raqam va parol bilan kirasiz. Balans, obuna va suhbatlar hamma joyda bir xil.</p></div></details>
+  </section>
+
+  <section id="hisob">
+    <h2>🔐 Hisob</h2>
+    <details><summary>Qanday ro'yxatdan o'taman?</summary><div class="a"><ol><li>bilolsai.uz ni oching va «Ro'yxatdan o'tish» ni bosing.</li><li>Telefon raqam, ism va parol kiriting.</li><li>Tasdiqlash kodi Telegram botimizga keladi — uni saytga yozing.</li></ol></div></details>
+    <details><summary>Nega kirishda Telegram kodi so'raladi?</summary><div class="a"><p>Bu hisobingizni himoya qiladi: parolingizni kimdir bilib qolsa ham, Telegram'ingizga kelgan kodsiz kira olmaydi.</p></div></details>
+    <details><summary>Google bilan kirsa bo'ladimi?</summary><div class="a"><p>Ha. Kirish oynasida «Google bilan kirish» ni bosing. Ilova ichida bosilsa, brauzer ochiladi va kirgach ilova o'zi kiradi.</p></div></details>
+    <details><summary>Parolni unutsam-chi?</summary><div class="a"><p>Kirish oynasida «Parolni tiklash» ni bosing. Yangi parolni Telegram bot orqali yoki hisobga ulangan email orqali o'rnatasiz.</p></div></details>
+    <details><summary>Emailni qanday ulayman?</summary><div class="a"><p>Sozlamalar → Email. Emailni yozasiz, unga tasdiqlash havolasi keladi. Ulangach, email bilan kirish va parolni tiklash mumkin bo'ladi.</p></div></details>
+    <details><summary>Kompyuterda telefonsiz qanday kiraman?</summary><div class="a"><p>Kompyuterda kirish oynasidagi «QR kod orqali kirish» ni bosing. Telefoningizda saytni oching → Sozlamalar → QR orqali kirish → kodni skanerlang va tasdiqlang.</p></div></details>
+    <details><summary>Hisobim qaysi qurilmalarda ochiq?</summary><div class="a"><p>Sozlamalar → Faol qurilmalar. Ro'yxatda hamma qurilmalar ko'rinadi, begonasini bir bosishda chiqarib yuborasiz.</p></div></details>
+    <details><summary>Parolni qanday o'zgartiraman?</summary><div class="a"><p>Sozlamalar → Profil → Parol → «Parolni o'zgartirish».</p></div></details>
+  </section>
+
+  <section id="ai">
+    <h2>💬 AI imkoniyatlari</h2>
+    <details><summary>Qaysi AI modellar bor?</summary><div class="a"><ul><li>⚡ Gemini Flash — tez, kundalik savollar uchun</li><li>✨ Gemini 2.5 — chuqurroq fikrlaydi</li><li>🧠 GPT-4o — universal</li><li>🐋 DeepSeek — kod va mantiq uchun yaxshi</li></ul><p>Modelni chat tepasidagi nomni bosib tanlaysiz.</p></div></details>
+    <details><summary>AI rejimlari nima?</summary><div class="a"><p>AI'ga kerakli «kasb» berasiz: O'qituvchi, Dasturchi, Tarjimon, Insho yozuvchi yoki Imtihonga tayyorlov (DTM, IELTS). Biriktirish tugmasi → AI rejimi.</p></div></details>
+    <details><summary>Rasm yaratsa bo'ladimi?</summary><div class="a"><p>Ha. Biriktirish → «Rasm yaratish», keyin nimani chizish kerakligini yozing. Obunada bepul va cheksiz.</p><p>«Rasmni tahrirlash» bilan o'z rasmingizni yuklab, nimani o'zgartirishni yozasiz.</p></div></details>
+    <details><summary>Qanday hujjatlarni o'qiydi?</summary><div class="a"><p>PDF, Word (DOCX) va matnli fayllar (TXT, MD, CSV, JSON). Faylni biriktirib, savol bering: qisqacha mazmun, tarjima yoki tahlil qiladi.</p></div></details>
+    <details><summary>Rasmdagi masalani yecha oladimi?</summary><div class="a"><p>Ha. Kamera tugmasi bilan suratga oling yoki galereyadan rasm tanlang — AI rasmni ko'rib, tushuntirib beradi.</p></div></details>
+    <details><summary>Internetdan yangi ma'lumot topadimi?</summary><div class="a"><p>Ha. Biriktirish → «Internetdan qidirish» ni yoqing. Javobda eng so'nggi ma'lumot bo'ladi.</p></div></details>
+    <details><summary>Test yechish qanday ishlaydi?</summary><div class="a"><p>Biriktirish → «Test yechish». Mavzu, savollar soni (5, 10, 15 yoki 20) va qiyinlikni tanlaysiz. Javob bergach, natija va xatolaringiz tushuntiriladi.</p></div></details>
+    <details><summary>Suhbatlarim saqlanadimi?</summary><div class="a"><p>Ha. Chap tomondagi «Suhbatlar» ro'yxatida turadi. Keraksizini o'chirasiz, yaxshi javobni havola qilib do'stingizga ulashasiz.</p></div></details>
+    <details><summary>Agentlar ofisi nima?</summary><div class="a"><p>AI agentlaringiz jonli ko'rinadigan bo'lim: kim ishlayapti, kim dam olyapti. Obuna bilan barcha agentlar ochiladi.</p></div></details>
+  </section>
+
+  <section id="tolov">
+    <h2>👛 To'lov va obuna</h2>
+    <details><summary>Hisobni qanday to'ldiraman?</summary><div class="a"><ol><li>Hamyon → To'ldirish.</li><li>Summani tanlang yoki yozing.</li><li>Karta raqami Telegram botga keladi — o'tkazma qiling va chekni yuboring.</li><li>Tekshirilgach pul balansga tushadi va xabar keladi.</li></ol><p>Click va Payme admin yoqqan paytda ishlaydi.</p></div></details>
+    <details><summary>Obuna nima beradi?</summary><div class="a"><p>Barcha agentlar (GPT-4o, Gemini 2.5, DeepSeek), cheksiz xabar va bepul rasm yaratish. Narxi va muddati Hamyon → Obuna bo'limida ko'rsatilgan.</p></div></details>
+    <details><summary>Kunlik bonus nima?</summary><div class="a"><p>Hamyonda har kuni bir marta «Kunlik bonus» ni bosib, bepul so'm olasiz.</p></div></details>
+    <details><summary>Do'stlarni taklif qilsam nima olaman?</summary><div class="a"><p>Hamyon → Do'stlarni taklif qilish. Havolangizni yuborasiz; do'stingiz botga kirib telefon raqamini yuborsa, balansingizga bonus tushadi.</p></div></details>
+    <details><summary>Promo-kod qayerga yoziladi?</summary><div class="a"><p>Hamyon → Promo-kod maydoniga yozib, «Faollashtirish» ni bosing.</p></div></details>
+    <details><summary>To'lovlarim tarixini qayerda ko'raman?</summary><div class="a"><p>Hamyon → To'lovlar tarixi. Har bir kirim va chiqim sanasi bilan ko'rinadi.</p></div></details>
+  </section>
+
+  <section id="dokon">
+    <h2>🛍️ Do'kon</h2>
+    <details><summary>Do'konda nimalar bor?</summary><div class="a"><ul><li>Obuna — barcha agentlar</li><li>Telegram Stars: 50, 100, 250 va 500 dona</li><li>Telegram Premium: 3 va 6 oylik</li></ul><p>To'lov hamyon balansidan yechiladi.</p></div></details>
+    <details><summary>Telegram Stars va Premium qachon keladi?</summary><div class="a"><p>Buyurtmani admin bajaradi. Holati Do'kon → Buyurtmalarim bo'limida ko'rinadi, bajarilganda bildirishnoma keladi.</p></div></details>
+    <details><summary>Buyurtma bekor qilinsa pulim nima bo'ladi?</summary><div class="a"><p>Savol bo'lsa, «Yordam» chatiga buyurtma nomini yozing — admin tekshirib javob beradi.</p></div></details>
+  </section>
+
+  <section id="ilovalar">
+    <h2>📱 Ilovalar</h2>
+    <details><summary>Android ilovasi bormi?</summary><div class="a"><p>Ha. <a href="/apk">bilolsai.uz/apk</a> sahifasidan APK faylni yuklab o'rnating. Telefon «Noma'lum manba» deb so'rasa, ruxsat bering.</p><p>Ilova faqat internet va bildirishnoma ruxsatini so'raydi: SMS, kontaktlar va joylashuvga kirmaydi.</p></div></details>
+    <details><summary>iPhone'da ishlaydimi?</summary><div class="a"><p>Ha. Safari'da bilolsai.uz ni oching → Ulashish → «Bosh ekranga». Ilova kabi to'liq ekranda ochiladi. Batafsil: <a href="/iphone">bilolsai.uz/iphone</a>.</p></div></details>
+    <details><summary>Kompyuter uchun dastur bormi?</summary><div class="a"><p>Ha, Windows uchun. <a href="/kompyuter">bilolsai.uz/kompyuter</a> sahifasidan yuklab oling. Windows ogohlantirsa: «More info» → «Run anyway».</p></div></details>
+    <details><summary>/usecomputer nima?</summary><div class="a"><p>Windows dasturida Premium foydalanuvchilar chatga <b>/usecomputer</b> va vazifani yozadi — AI dastur va fayllarni o'zi topib ochadi, klaviatura bilan ishlaydi. Sichqonchangizga tegmaydi, istalgan payt to'xtatasiz.</p></div></details>
+    <details><summary>Bildirishnomalar qayerga keladi?</summary><div class="a"><p>Telegram botga, ilovada telefon ekraniga (push) va ulangan bo'lsa emailga: pul tushganda, buyurtma bajarilganda va admin javob berganda.</p></div></details>
+  </section>
+
+  <section id="yordam">
+    <h2>🛡 Xavfsizlik va yordam</h2>
+    <details><summary>Ma'lumotlarim xavfsizmi?</summary><div class="a"><p>Parolingiz serverda faqat shifrlangan holda saqlanadi. Kirish Telegram kodi bilan himoyalangan. Batafsil: <a href="/maxfiylik">Maxfiylik siyosati</a>.</p></div></details>
+    <details><summary>Muammo bo'lsa kimga yozaman?</summary><div class="a"><p>Saytdagi 💬 Yordam chatiga yozing — admin shu yerning o'zida javob beradi. Yoki Telegram: <a href="https://t.me/bilolsaiuz" target="_blank" rel="noopener">@bilolsaiuz</a>.</p></div></details>
+    <details><summary>Chat tarixini o'chirsa bo'ladimi?</summary><div class="a"><p>Ha. Sozlamalar → Ilova → «Chat tarixini tozalash». O'chirilgan suhbatlarni qaytarib bo'lmaydi.</p></div></details>
+  </section>
+
+  <p class="empty" id="empty">Hech narsa topilmadi. Savolingizni Yordam chatiga yozing.</p>
+
+  <div class="help">
+    <div><b>Javob topmadingizmi?</b><p>Admin bilan saytdagi Yordam chatida yoki Telegram'da bog'laning.</p></div>
+    <a href="https://t.me/bilolsaiuz" target="_blank" rel="noopener">✈️ @bilolsaiuz</a>
+  </div>
+</main>
+
+<script>
+(function () {
+  var q = document.getElementById('q'), all = Array.prototype.slice.call(document.querySelectorAll('details')), secs = document.querySelectorAll('main section');
+  q.addEventListener('input', function () {
+    var v = q.value.trim().toLowerCase(), any = false;
+    all.forEach(function (d) {
+      var hit = !v || d.textContent.toLowerCase().indexOf(v) >= 0;
+      d.style.display = hit ? '' : 'none'; if (hit) any = true;
+      if (v && hit) d.open = true;
+    });
+    secs.forEach(function (s) { s.style.display = s.querySelector('details:not([style*="none"])') ? '' : 'none'; });
+    document.getElementById('empty').style.display = any ? 'none' : 'block';
+  });
+})();
+</script>
+</body>
+</html>

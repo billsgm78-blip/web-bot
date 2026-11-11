@@ -15,3 +15,5 @@
 /reset/:token  /?reset=:token  302
 /prezentatsya  /prezentatsya.html  200
 /taqdimot  /prezentatsya.html  200
+/faq  /faq.html  200
+/savollar  /faq.html  200
