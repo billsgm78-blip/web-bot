@@ -454,38 +454,11 @@ export default async function handler(req, res) {
   if (wantStream) requestBody.stream = true;
 
   try {
-    let resp = await openrouter(apiKey, requestBody);
+    const resp = await openrouter(apiKey, requestBody);
 
-    // OpenRouter ishlamasa (kredit tugagan, model xatosi) — admin ulagan Google kaliti bilan javob (kalit bot serverida)
     if (!resp.ok) {
       const why = await resp.clone().text().catch(() => "");
-      console.error("chat: openrouter", resp.status, requestBody.model, "max_tokens", requestBody.max_tokens, "| sabab:", why.replace(/https?:\/\/\S+/g, "[havola]").slice(0, 300), "| google chipta:", quota.google ? "bor" : "YO'Q");
-    }
-    if (!resp.ok && quota.google) {
-      const gStream = wantStream && !requestBody.response_format;
-      const gr = await fetch(`${RAILWAY_URL}/api/chat/google`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticket: quota.google, messages, maxTokens: requestBody.max_tokens, temperature: requestBody.temperature,
-                               json: !!requestBody.response_format, web: !!useWeb, stream: gStream })
-      }).catch(() => null);
-      const isText = gr && gr.ok && /text\/plain/.test(gr.headers.get("content-type") || "");
-      if (isText && gStream && gr.body) {
-        // Google javobi bo'lak-bo'lak keladi — foydalanuvchi darhol yozilayotganini ko'radi
-        res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no" });
-        const reader = gr.body.getReader(), dec = new TextDecoder();
-        while (true) { const { done, value } = await reader.read(); if (done) break; res.write(dec.decode(value, { stream: true })); }
-        return res.end();
-      }
-      const g = gr ? await gr.json().catch(() => ({})) : {};
-      if (!(g.success && g.text)) console.error("chat: google javob bermadi", gr && gr.status, g.error || "", g.detail || "");
-      if (g.success && g.text) {
-        if (wantStream) {
-          res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no" });
-          res.write(g.text);
-          return res.end();
-        }
-        resp = { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: g.text } }] }) };
-      }
+      console.error("chat: openrouter", resp.status, requestBody.model, "max_tokens", requestBody.max_tokens, "| sabab:", why.replace(/https?:\/\/\S+/g, "[havola]").slice(0, 300));
     }
 
     if (wantStream && resp.ok && resp.body) {
