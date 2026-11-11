@@ -459,12 +459,22 @@ export default async function handler(req, res) {
     // OpenRouter ishlamasa (kredit tugagan, model xatosi) — admin ulagan Google kaliti bilan javob (kalit bot serverida)
     if (!resp.ok) console.error("chat: openrouter", resp.status, "google chipta:", quota.google ? "bor" : "YO'Q");
     if (!resp.ok && quota.google) {
-      const g = await fetch(`${RAILWAY_URL}/api/chat/google`, {
+      const gStream = wantStream && !requestBody.response_format;
+      const gr = await fetch(`${RAILWAY_URL}/api/chat/google`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticket: quota.google, messages, maxTokens: requestBody.max_tokens, temperature: requestBody.temperature,
-                               json: !!requestBody.response_format, web: !!useWeb })
-      }).then(r => r.json()).catch(() => ({}));
-      if (!(g.success && g.text)) console.error("chat: google javob bermadi", g.error || "", g.detail || "");
+                               json: !!requestBody.response_format, web: !!useWeb, stream: gStream })
+      }).catch(() => null);
+      const isText = gr && gr.ok && /text\/plain/.test(gr.headers.get("content-type") || "");
+      if (isText && gStream && gr.body) {
+        // Google javobi bo'lak-bo'lak keladi — foydalanuvchi darhol yozilayotganini ko'radi
+        res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no" });
+        const reader = gr.body.getReader(), dec = new TextDecoder();
+        while (true) { const { done, value } = await reader.read(); if (done) break; res.write(dec.decode(value, { stream: true })); }
+        return res.end();
+      }
+      const g = gr ? await gr.json().catch(() => ({})) : {};
+      if (!(g.success && g.text)) console.error("chat: google javob bermadi", gr && gr.status, g.error || "", g.detail || "");
       if (g.success && g.text) {
         if (wantStream) {
           res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no" });
