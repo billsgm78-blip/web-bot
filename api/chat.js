@@ -454,7 +454,24 @@ export default async function handler(req, res) {
   if (wantStream) requestBody.stream = true;
 
   try {
-    const resp = await openrouter(apiKey, requestBody);
+    let resp = await openrouter(apiKey, requestBody);
+
+    // OpenRouter ishlamasa (kredit tugagan, model xatosi) — admin ulagan Google kaliti bilan javob (kalit bot serverida)
+    if (!resp.ok && quota.google) {
+      const g = await fetch(`${RAILWAY_URL}/api/chat/google`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticket: quota.google, messages, maxTokens: requestBody.max_tokens, temperature: requestBody.temperature,
+                               json: !!requestBody.response_format, web: !!useWeb })
+      }).then(r => r.json()).catch(() => ({}));
+      if (g.success && g.text) {
+        if (wantStream) {
+          res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no" });
+          res.write(g.text);
+          return res.end();
+        }
+        resp = { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: g.text } }] }) };
+      }
+    }
 
     if (wantStream && resp.ok && resp.body) {
       // Javobni bo'lak-bo'lak yuboramiz: foydalanuvchi matnni yozilib borayotganini ko'radi
