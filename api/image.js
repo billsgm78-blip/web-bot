@@ -277,7 +277,7 @@ export default async function handler(req, res) {
     if (!charge.google) { lastError += " | google chipta YO'Q (admin kaliti yo'q yoki bot server eski)"; return null; }
     const g = await railway("/api/image/google", { ticket: charge.google, prompt, image: img || "", aspect: Number(aspect) || 1 }).catch(() => ({}));
     if (g.success && g.image) return g.image;
-    lastError += ` | google: ${g.error || g._status || "javob yo'q"}`;
+    lastError += ` | google: ${g.error || g._status || "javob yo'q"} ${g.detail || ""}`;
     return null;
   };
   if (isEdit) {

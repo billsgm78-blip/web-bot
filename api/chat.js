@@ -464,7 +464,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({ ticket: quota.google, messages, maxTokens: requestBody.max_tokens, temperature: requestBody.temperature,
                                json: !!requestBody.response_format, web: !!useWeb })
       }).then(r => r.json()).catch(() => ({}));
-      if (!(g.success && g.text)) console.error("chat: google javob bermadi", g.error || "");
+      if (!(g.success && g.text)) console.error("chat: google javob bermadi", g.error || "", g.detail || "");
       if (g.success && g.text) {
         if (wantStream) {
           res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no" });
