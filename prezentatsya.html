@@ -42,10 +42,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .slide { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 72px 64px 96px; opacity: 0; visibility: hidden; transform: translateX(40px); transition: opacity .5s ease, transform .5s ease, visibility .5s; overflow-y: auto; }
 .slide.on { opacity: 1; visibility: visible; transform: none; }
 .slide.past { transform: translateX(-40px); }
-.wrap { width: 100%; max-width: 1180px; display: flex; flex-direction: column; gap: 28px; }
+.wrap { width: 100%; max-width: 1180px; display: flex; flex-direction: column; gap: clamp(14px, 3vh, 28px); margin: auto 0; }
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; }
 .tag { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; padding: 6px 14px; border-radius: 99px; background: var(--accent-soft); color: #B3420A; font-weight: 800; font-size: 14px; letter-spacing: .02em; }
-.slide h2 { font-size: clamp(34px, 4.6vw, 60px); }
+.slide h2 { font-size: clamp(30px, min(4.6vw, 7.4vh), 60px); }
 .lead { font-size: clamp(18px, 1.7vw, 22px); color: var(--muted); max-width: 52ch; }
 .e { display: inline-block; font-style: normal; line-height: 1; }
 .bob { animation: bob 2.6s ease-in-out infinite; }
@@ -62,8 +62,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .grid.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .grid.g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 22px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px; }
-.card .e { font-size: 34px; margin-bottom: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: clamp(14px, 2.4vh, 22px); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px; }
+.card .e { font-size: clamp(26px, 4vh, 34px); margin-bottom: 6px; }
 .card b { font-size: 19px; font-weight: 800; }
 .card small { color: var(--muted); font-size: 15px; line-height: 1.45; }
 .card:hover .e { animation: wig .5s ease; }
@@ -78,7 +78,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .hint { color: var(--muted); font-size: 14px; }
 
 /* chat namunasi */
-.phone { background: var(--surface); border: 1px solid var(--line); border-radius: 32px; box-shadow: 0 30px 60px rgba(120,70,30,.14); padding: 18px; display: flex; flex-direction: column; gap: 12px; min-height: 420px; }
+.phone { width: 100%; max-width: 520px; justify-self: end; background: var(--surface); border: 1px solid var(--line); border-radius: 32px; box-shadow: 0 30px 60px rgba(120,70,30,.14); padding: 18px; display: flex; flex-direction: column; gap: 12px; min-height: min(420px, 52vh); }
 .ph-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--line); font-weight: 800; }
 .ph-top span.m { font-size: 14px; background: var(--raised); border-radius: 99px; padding: 5px 12px; transition: background .3s; }
 .bub { max-width: 86%; padding: 12px 16px; border-radius: 20px; font-size: 15.5px; line-height: 1.45; }
@@ -136,7 +136,21 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .mini svg { width: 34px; height: 34px; border-radius: 10px; }
 .fs { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 10px 16px; font-weight: 800; font-size: 14px; box-shadow: var(--shadow); }
 
+/* past ekranlar (noutbuk, proyektor): slayd sig'masa — aylantiriladi, tugmalar ostida qolmaydi */
+.slide { overflow-y: auto; overflow-x: hidden; align-items: flex-start; }
+.slide > .wrap { min-height: 100%; justify-content: center; }
+.bar { background: linear-gradient(to top, var(--bg) 55%, transparent); }
+.qr-card { width: min(440px, 86vw, calc(100vh - 230px)); }
+@media (max-height: 720px) and (min-width: 901px) {
+  .slide { padding-top: 48px; }
+  .grid.g2 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .split .grid.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lead { font-size: 17px; }
+  .cover .hint { display: none; }
+}
+@media (max-width: 1100px) and (min-width: 901px) { .split { gap: 32px; } .grid.g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 900px) {
+  .phone { justify-self: stretch; max-width: none; }
   body { overflow: auto; }
   .slide { padding: 56px 18px 96px; align-items: flex-start; }
   .split, .final { grid-template-columns: minmax(0, 1fr); gap: 28px; }
@@ -193,10 +207,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
         <span class="tag in">💬 AI chat</span>
         <h2 class="in">To'rtta kuchli model, bitta chatda</h2>
         <p class="lead in">Kerakli modelni bir bosishda tanlaysiz. Javob o'zbek, rus yoki ingliz tilida.</p>
-        <div class="chips in"><span class="chip">⚡ Gemini Flash</span><span class="chip">✨ Gemini 2.5</span><span class="chip">🧠 GPT-4o</span><span class="chip">🐋 DeepSeek</span></div>
+        <div class="chips in"><span class="chip">🤖 GPT-6 Astra</span><span class="chip">🌙 GPT-6 Luna</span><span class="chip">🐋 DeepSeek</span><span class="chip">✨ Gemini Pro</span></div>
+        <p class="hint in">Bepul: ⚡ Gemini Flash — har kuni. Qolganlari obuna bilan.</p>
       </div>
       <div class="phone in" aria-hidden="true">
-        <div class="ph-top"><span>Bilols AI</span><span class="m" id="model-pill">⚡ Gemini Flash</span></div>
+        <div class="ph-top"><span>Bilols AI</span><span class="m" id="model-pill">🤖 GPT-6 Astra</span></div>
         <div class="bub me">Ertaga matematikadan imtihon. Kvadrat tenglamani tushuntirib ber 🙏</div>
         <div class="bub ai">Albatta! ax² + bx + c = 0 ko'rinishidagi tenglama. Avval diskriminantni topamiz: D = b² − 4ac 👇</div>
         <div class="bub me">D manfiy bo'lsa-chi?</div>
@@ -259,45 +274,30 @@ button { font: inherit; color: inherit; cursor: pointer; }
     <div class="wrap">
       <span class="tag in">🏢 Agentlar ofisi</span>
       <h2 class="in">Siz uchun ishlaydigan AI jamoa</h2>
-      <p class="lead in">Har bir agent o'z ishini qiladi. Kim ishlayapti, kim dam olyapti — jonli ko'rinib turadi.</p>
+      <p class="lead in">Har bir so'rovingizni jonli ofisdagi agentlar bajaradi: ish stollari, majlislar zali, choyxona va baza — kun va tun Toshkent vaqtida.</p>
       <div class="desks">
-        <div class="desk in"><i class="st"></i><span class="e face bob">👩‍💻</span><b>Kamola</b><small>✍️ Insho yozmoqda</small></div>
-        <div class="desk in"><i class="st"></i><span class="e face bob" style="animation-delay:.3s">🧑‍💻</span><b>Bilol</b><small>💻 Kod tekshirmoqda</small></div>
-        <div class="desk in"><i class="st"></i><span class="e face bob" style="animation-delay:.6s">👨‍🏫</span><b>Timur</b><small>🌐 Tarjima qilmoqda</small></div>
-        <div class="desk in"><i class="st"></i><span class="e face bob" style="animation-delay:.9s">🧑‍🎨</span><b>Aziz</b><small>🎨 Rasm chizmoqda</small></div>
-        <div class="desk in off"><i class="st"></i><span class="e face">😴</span><b>Malika</b><small>☕ Dam olmoqda</small></div>
+        <div class="desk in"><i class="st"></i><span class="e face bob">🧑‍💼</span><b>Bilol</b><small>📋 Jamoani boshqaradi</small></div>
+        <div class="desk in"><i class="st"></i><span class="e face bob" style="animation-delay:.3s">👩‍💻</span><b>Malika</b><small>✍️ Matn yozmoqda</small></div>
+        <div class="desk in"><i class="st"></i><span class="e face bob" style="animation-delay:.6s">🧑‍🎨</span><b>Sardor</b><small>🎨 Rasm chizmoqda</small></div>
+        <div class="desk in"><i class="st"></i><span class="e face bob" style="animation-delay:.9s">👩‍🏫</span><b>Dilnoza</b><small>🌐 Tarjima qilmoqda</small></div>
+        <div class="desk in off"><i class="st"></i><span class="e face">🍵</span><b>Timur</b><small>💻 Kodchi · choyxonada</small></div>
       </div>
     </div>
   </section>
 
   <!-- 8 -->
-  <section class="slide" data-title="Hamyon">
+  <section class="slide" data-title="Hamyon va do'kon">
     <div class="wrap">
-      <span class="tag in">👛 Hamyon</span>
-      <h2 class="in">Balans so'mda, to'ldirish bir daqiqada</h2>
+      <span class="tag in">👛 Hamyon va do'kon</span>
+      <h2 class="in">Balans so'mda, xaridlar bir bosishda</h2>
       <div class="grid">
-        <div class="card in"><span class="e">🏦</span><b>Karta orqali</b><small>Summani tanlaysiz, karta raqami botga keladi, chekni yuborasiz — pul tushadi</small></div>
-        <div class="card in"><span class="e">💳</span><b>Click va Payme</b><small>Admin yoqqanda — summani tanlab, darhol to'laysiz</small></div>
-        <div class="card in"><span class="e">🎁</span><b>Kunlik bonus</b><small>Har kuni bepul so'm</small></div>
-        <div class="card in"><span class="e">👥</span><b>Do'stlarni taklif qilish</b><small>Har bir do'st uchun bonus</small></div>
-        <div class="card in"><span class="e">🎟️</span><b>Promo-kod</b><small>Aksiyalarda qo'shimcha balans</small></div>
-        <div class="card in"><span class="e">🧾</span><b>To'lovlar tarixi</b><small>Har bir kirim va chiqim ko'rinadi</small></div>
+        <div class="card in"><span class="e">💳</span><b>Karta, Click, Payme</b><small>Summani tanlaysiz — bir daqiqada hisobda</small></div>
+        <div class="card in"><span class="e">🎁</span><b>Bonuslar</b><small>Kunlik bonus, do'st taklifi va promo-kod</small></div>
+        <div class="card in"><span class="e">🧾</span><b>Tarix va buyurtmalar</b><small>Har kirim-chiqim va buyurtma holati ko'rinadi</small></div>
+        <div class="card in"><span class="e">♾️</span><b>Obuna</b><small>Barcha modellar, cheksiz xabar</small><span class="price">25 000 so'm / 30 kun</span></div>
+        <div class="card in"><span class="e">⭐</span><b>Telegram Stars</b><small>50 dan 500 tagacha</small><span class="price">15 000 so'mdan</span></div>
+        <div class="card in"><span class="e">💎</span><b>Telegram Premium</b><small>3 yoki 6 oy</small><span class="price">160 000 so'mdan</span></div>
       </div>
-    </div>
-  </section>
-
-  <!-- 9 -->
-  <section class="slide" data-title="Do'kon">
-    <div class="wrap">
-      <span class="tag in">🛍️ Do'kon</span>
-      <h2 class="in">Obuna, Telegram Stars va Premium</h2>
-      <div class="grid g4">
-        <div class="card in"><span class="e">♾️</span><b>Obuna</b><small>Barcha agentlar, cheksiz xabar, rasm yaratish bepul</small></div>
-        <div class="card in"><span class="e">⭐</span><b>50 Stars</b><small>Telegram Stars</small><span class="price">15 000 so'm</span></div>
-        <div class="card in"><span class="e">⭐</span><b>500 Stars</b><small>Telegram Stars</small><span class="price">135 000 so'm</span></div>
-        <div class="card in"><span class="e">💎</span><b>Premium</b><small>Telegram Premium, 3 yoki 6 oy</small><span class="price">160 000 so'mdan</span></div>
-      </div>
-      <p class="lead in">Buyurtma holati «Buyurtmalarim» bo'limida ko'rinadi, bajarilganda bildirishnoma keladi.</p>
     </div>
   </section>
 
@@ -317,43 +317,20 @@ button { font: inherit; color: inherit; cursor: pointer; }
     </div>
   </section>
 
+  <!-- 10 -->
+  <section class="slide" data-title="Ilovalar">
+    <div class="wrap">
+      <span class="tag in">📲 Ilovalar</span>
+      <h2 class="in">Telefonda, kompyuterda — bitta hisob</h2>
+      <div class="grid">
+        <div class="card in"><span class="e">🤖</span><b>Android · APK</b><small>Yengil, brauzersiz. Faqat internet va bildirishnoma ruxsati — SMS, kontakt, joylashuvga kirmaydi.</small><span class="price" style="font-size:17px">bilolsai.uz/apk</span></div>
+        <div class="card in"><span class="e">💻</span><b>Windows dastur</b><small>Chatda <b style="font-size:inherit">/usecomputer</b> deb yozasiz — AI dastur va fayllarni o'zi ochadi, klaviatura bilan ishlaydi.</small><span class="price" style="font-size:17px">bilolsai.uz/kompyuter</span></div>
+        <div class="card in"><span class="e">🍏</span><b>iPhone</b><small>Safari → Ulashish → «Bosh ekranga» — ilova kabi to'liq ekranda ochiladi.</small><span class="price" style="font-size:17px">bilolsai.uz/iphone</span></div>
+      </div>
+    </div>
+  </section>
+
   <!-- 11 -->
-  <section class="slide" data-title="Android ilova">
-    <div class="wrap split">
-      <div style="display:flex;flex-direction:column;gap:22px">
-        <span class="tag in">📱 Android · APK</span>
-        <h2 class="in">Telefoningizda, brauzersiz</h2>
-        <p class="lead in">AI chat, rasm yaratish, Stars va Premium, hamyon va yordam chati — hammasi ilovada. Pul tushganda va admin javob berganda bildirishnoma keladi.</p>
-        <p class="url in">bilolsai.uz/apk</p>
-      </div>
-      <div class="grid g2">
-        <div class="card in"><span class="e">⚡</span><b>Yengil</b><small>Tez ochiladi, kam joy egallaydi</small></div>
-        <div class="card in"><span class="e">🛡</span><b>Kam ruxsat</b><small>Faqat internet va bildirishnoma. SMS, kontakt, joylashuvga kirmaydi</small></div>
-        <div class="card in"><span class="e">🔏</span><b>Imzolangan</b><small>Faylning asl ekanini SHA-256 bilan tekshirsa bo'ladi</small></div>
-        <div class="card in"><span class="e">🍏</span><b>iPhone'da</b><small>Safari → «Bosh ekranga» — ilova kabi ochiladi</small></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 12 -->
-  <section class="slide" data-title="Windows dastur">
-    <div class="wrap split">
-      <div style="display:flex;flex-direction:column;gap:22px">
-        <span class="tag in">💻 Windows · EXE</span>
-        <h2 class="in">AI kompyuteringizni o'zi boshqaradi</h2>
-        <p class="lead in">Chatda <b>/usecomputer</b> deb yozasiz — AI kerakli dastur va fayllarni topib ochadi, klaviatura bilan ishlaydi. Sichqonchangizga tegmaydi, istalgan payt to'xtatasiz.</p>
-        <p class="url in">bilolsai.uz/kompyuter</p>
-      </div>
-      <div class="phone in" aria-hidden="true" style="min-height:0">
-        <div class="ph-top"><span>💻 Bilols AI · Windows</span><span class="m">⭐ Premium</span></div>
-        <div class="bub me">/usecomputer kalkulyatorni och va 1250 × 12 ni hisobla</div>
-        <div class="bub ai">🖥️ Kalkulyator ochildi… 1250 × 12 = 15 000 ✅</div>
-        <div class="bub me">Rahmat! Endi Word'da xat boshlab ber</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 13 -->
   <section class="slide" data-title="Bildirishnomalar">
     <div class="wrap">
       <span class="tag in">🔔 Bildirishnomalar</span>
@@ -367,7 +344,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     </div>
   </section>
 
-  <!-- 14 -->
+  <!-- 12 -->
   <section class="slide" id="sinab-koring" data-title="O'zingiz sinab ko'ring">
     <div class="wrap final">
       <div style="display:flex;flex-direction:column;gap:24px">
@@ -396,7 +373,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   <div class="mini"><span data-icon></span><span>Bilols AI</span></div>
   <div class="nav">
     <button type="button" class="nb" id="prev" aria-label="Oldingi slayd">←</button>
-    <span class="pos" id="pos">1 / 14</span>
+    <span class="pos" id="pos">1 / 12</span>
     <button type="button" class="nb" id="next" aria-label="Keyingi slayd">→</button>
   </div>
   <button type="button" class="fs" id="fs">⛶ To'liq ekran</button>
@@ -457,7 +434,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   window.addEventListener('hashchange', fromHash);
 
   /* chat slaydida model nomi almashib turadi */
-  var models = ['⚡ Gemini Flash', '✨ Gemini 2.5', '🧠 GPT-4o', '🐋 DeepSeek'], mi = 0;
+  var models = ['🤖 GPT-6 Astra', '🌙 GPT-6 Luna', '🐋 DeepSeek', '✨ Gemini Pro'], mi = 0;
   setInterval(function () { mi = (mi + 1) % models.length; $('model-pill').textContent = models[mi]; }, 2200);
 
   /* ---------- yakuniy slayd: almashib turadigan QR ---------- */
