@@ -1116,7 +1116,7 @@ select.inp option { background: #12151c; color: var(--text); }
             });
             tList.appendChild(h('button', { class: 'btn ghost', text: "➕ Admin qo'shish", style: 'margin-top:8px', onclick: function () { targets.push({ name: '', to: '', on: true }); paintTargets(); } }));
         }
-        var on = !!c.on, incall = c.incall !== false, trig = Object.assign({}, c.triggers || {});
+        var on = !!c.on, incall = c.incall !== false, talk = c.talk !== false, trig = Object.assign({}, c.triggers || {});
         function sw(get, set) { var el = h('div', { class: 'switch' + (get() ? ' ok' : ''), role: 'switch', onclick: function () { set(!get()); el.className = 'switch' + (get() ? ' ok' : ''); } }); return el; }
         function line(title, sub, el) { return h('div', { style: 'display:flex;align-items:center;gap:12px;padding:6px 0' }, [h('div', { style: 'flex:1' }, [h('b', { text: title }), sub ? h('div', { class: 'sum', text: sub }) : null]), el]); }
         var elKey = h('input', { class: 'inp mono', type: 'password', placeholder: c.elKey ? '•••••••• (saqlangan — almashtirish uchun yangisini yozing)' : 'sk_...' });
@@ -1185,6 +1185,7 @@ select.inp option { background: #12151c; color: var(--text); }
                 return h('div', null, [btn, box]);
             })(),
             line("Ko'targanimda AI gapirsin", j.voiceCall ? "Qo'ng'iroqni ko'tarsangiz ovoz eshittiriladi" : "Serverda ovozli qo'ng'iroq kutubxonasi yo'q — ovoz qo'ng'iroqdan keyin ovozli xabar bo'lib keladi", sw(function () { return incall; }, function (v) { incall = v; })),
+            line("AI men bilan suhbatlashsin", j.voiceCall ? "Ko'targach gapirsangiz — AI eshitadi va shu ovozda javob beradi (3 daqiqagacha; «bo'ldi», «rahmat» desangiz xayrlashadi). Suhbat matni keyin Telegramga yoziladi." : "Serverda ovozli qo'ng'iroq kutubxonasi yo'q — suhbat ishlamaydi", sw(function () { return talk; }, function (v) { talk = v; })),
             h('button', { class: 'btn ghost', text: '🔊 Ovozni eshitib ko\'rish', onclick: async function () {
                 voiceRes.textContent = '⏳ Ovoz yaratilmoqda…';
                 try {
@@ -1202,7 +1203,7 @@ select.inp option { background: #12151c; color: var(--text); }
         view.appendChild(h('div', { class: 'card form', style: 'margin-top:12px' }, [
             h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap' }, [
                 h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
-                    var body = { targets: targets.filter(function (t) { return (t.to || '').trim(); }), on: on, incall: incall, triggers: trig, elVoice: elVoice.value, elModel: elModel.value };
+                    var body = { targets: targets.filter(function (t) { return (t.to || '').trim(); }), on: on, incall: incall, talk: talk, triggers: trig, elVoice: elVoice.value, elModel: elModel.value };
                     if (elKey.value.trim()) body.elKey = elKey.value.trim();
                     var x = await admin('call_set', body);
                     toast(x.success ? '✅ Saqlandi' : (x.error || 'Xato')); if (x.success) reload();
@@ -1210,7 +1211,7 @@ select.inp option { background: #12151c; color: var(--text); }
                 h('button', { class: 'btn ghost', text: "📞 Sinov qo'ng'irog'i", onclick: async function () {
                     testRes.textContent = "⏳ Qo'ng'iroq qilinmoqda… (telefoningizni tekshiring, 25 soniyagacha)";
                     var x = await admin('call_test', {});
-                    var how = { spoke: "✅ Ko'tardingiz — AI gapirdi", answered: "✅ Ko'tardingiz", missed: "✅ Jiringladi (ko'tarilmadi)", declined: '✅ Jiringladi (rad etildi)' };
+                    var how = { talked: "✅ Ko'tardingiz — AI siz bilan suhbatlashdi", spoke: "✅ Ko'tardingiz — AI gapirdi", answered: "✅ Ko'tardingiz", missed: "✅ Jiringladi (ko'tarilmadi)", declined: '✅ Jiringladi (rad etildi)' };
                     if (x.success && (x.results || []).length > 1) { testRes.textContent = x.results.map(function (r) { return (r.success ? (how[r.result] || '✅ ' + r.result) : '❌ ' + r.error) + ' — ' + r.name; }).join(' · '); return; }
                     testRes.textContent = x.success ? (how[x.result] || '✅ ' + x.result) + (x.voiceError ? ' · ⚠️ Ovoz: ' + x.voiceError : '') + (x.voiceCallError ? " · ⚠️ Ovozli qo'ng'iroq bo'lmadi, oddiy jiringladi: " + x.voiceCallError : '') : '❌ ' + (x.error || 'Xato');
                 } })
