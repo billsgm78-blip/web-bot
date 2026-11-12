@@ -119,6 +119,12 @@ html.g-wait::after { content: "⏳  Google bilan kirilmoqda…"; position: fixed
     body.theme-light .bc-card { background: #fff; border-color: rgba(15, 23, 42, .1); }
     body.theme-light .bc-msg { color: #0f172a; }
     body.theme-light .bc-no { background: #f1f5f9; color: #334155; }
+    /* ◑ To'q rejimda tasdiqlash oynasi */
+    html[data-design][data-pm-dark] body .bc-card { background: #1e1d21 !important; border-color: #37343c !important; color: #f2eff4 !important; }
+    html[data-design][data-pm-dark] body .bc-card .bc-msg { color: #f2eff4 !important; }
+    html[data-design][data-pm-dark] body .bc-card .bc-no { background: #2a282e !important; color: #ddd8e0 !important; }
+    html[data-design][data-pm-dark] body .bc-card .bc-yes { background: #f2eff4 !important; color: #18181b !important; }
+    html[data-design][data-pm-dark] body .bc-card .bc-yes.danger { background: #e5484d !important; color: #fff !important; }
     html.in-app input, html.in-app textarea, html.in-app [contenteditable], html.in-app .msg-ai, html.in-app .msg-user { -webkit-user-select: text; user-select: text; }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
