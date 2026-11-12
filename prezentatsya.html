@@ -474,7 +474,19 @@ button { font: inherit; color: inherit; cursor: pointer; }
     var j = {}; try { j = await r.json(); } catch (e) {}
     j._status = r.status; return j;
   }
-  var Q = { run: 0, started: false, token: null, refresh: 0 };
+  var Q = { run: 0, started: false, token: null, refresh: 0, waitAdmin: false };
+  var ADMIN_MSG = "QR kodni ko'rsatish uchun <b>shu kompyuterning shu brauzerida</b> admin panelga kiring. " +
+    "<a href=\"/admin\" target=\"_blank\" rel=\"noopener\" style=\"color:#FF6A1A;font-weight:700\">Admin panelni ochish →</a><br><small>Kirganingizdan keyin QR o'zi chiqadi.</small>";
+  // telefon QR'ni har doim asosiy saytga olib boradi (taqdimot boshqa manzildan ochilgan bo'lsa ham)
+  var SITE = /(^|\.)bilolsai\.uz$/.test(location.hostname) ? location.origin : 'https://bilolsai.uz';
+  function needAdmin() {
+    msg(ADMIN_MSG); $('qr-n').textContent = '🔒 Admin kerak'; Q.waitAdmin = true;
+  }
+  // boshqa varaqda admin panelga kirilsa — sahifani yangilamasdan QR boshlanadi
+  window.addEventListener('storage', function (e) {
+    if (e.key === 'bilols_admin_token' && Q.waitAdmin && adminToken()) { Q.waitAdmin = false; next(++Q.run); }
+  });
+  setInterval(function () { if (Q.waitAdmin && adminToken()) { Q.waitAdmin = false; next(++Q.run); } }, 2000);
   function msg(t) { $('qr-box').innerHTML = '<div class="qr-no">' + t + '</div>'; }
   function meter(used, total) {
     var m = $('meter'); if (m.children.length !== total) { m.innerHTML = ''; for (var i = 0; i < total; i++) m.appendChild(document.createElement('i')); }
@@ -512,13 +524,19 @@ button { font: inherit; color: inherit; cursor: pointer; }
     var j;
     try { j = await admin('test_qr_next'); } catch (e) { msg('Internet yo\'q. Qayta urinilmoqda…'); await wait(3000); return run === Q.run && next(run); }
     if (run !== Q.run) return;
-    if (j._status === 401) { msg("QR kod faqat admin uchun. Shu brauzerda <a href=\"/admin\" target=\"_blank\" rel=\"noopener\">admin panelga</a> kiring, keyin sahifani yangilang."); $('qr-n').textContent = '🔒 Admin kerak'; return; }
-    if (!j.success) { msg(j.error || 'Xato'); $('qr-n').textContent = '⚠️'; return; }
+    if (j._status === 401) {                                   // admin sessiyasi tugagan — eski kalitni tozalab, qayta kirishni so'raymiz
+      try { localStorage.removeItem('bilols_admin_token'); } catch (e) {}
+      needAdmin(); return;
+    }
+    if (!j.success) {
+      msg((j.error || "Server javob bermadi") + '<br><small>10 soniyadan keyin qayta uriniladi…</small>'); $('qr-n').textContent = '⚠️';
+      await wait(10000); return run === Q.run && next(run);
+    }
     meter(j.used || 0, j.total || 0);
     if (j.done) { msg('🎉 Hamma test akkauntlar band! Rahmat.'); $('qr-n').textContent = 'Tayyor'; return; }
     Q.token = j.token;
     $('qr-n').textContent = '📱 ' + (j.name || ('Test ' + j.n));
-    drawQr(location.origin + '/?demo=' + encodeURIComponent(j.token));
+    drawQr(SITE + '/?demo=' + encodeURIComponent(j.token));
     Q.refresh = Date.now() + Math.max(60, (j.ttl || 900) - 60) * 1000;
     watch(run, j.token);
   }
@@ -543,7 +561,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   function qrStart() {
     if (Q.started) return; Q.started = true;
     if (typeof qrcode !== 'function') { msg("QR kutubxonasi yuklanmadi. Sahifani yangilang."); return; }
-    if (!adminToken()) { msg("QR kod faqat admin uchun. Shu brauzerda <a href=\"/admin\" target=\"_blank\" rel=\"noopener\">admin panelga</a> kiring, keyin sahifani yangilang."); $('qr-n').textContent = '🔒 Admin kerak'; return; }
+    if (!adminToken()) { needAdmin(); return; }
+    msg('Yuklanmoqda… <br><small>Server uyg\'onyapti bo\'lsa, 30 soniyagacha kuting</small>');
     next(++Q.run);
   }
   fromHash();
