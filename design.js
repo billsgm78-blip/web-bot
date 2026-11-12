@@ -39,7 +39,13 @@
 
     // ◑ To'q rejim — sahifa chizilishidan oldin (oq "chaqnash" bo'lmasin). Landing (iframe) bunga bog'liq emas.
     // Neon dizayn: to'q rejim odatiy holat; foydalanuvchi yorug'ni tanlasa ('0') — yorug'
-    function wantDark() { try { return localStorage.getItem('bilol_ai_dark') !== '0'; } catch (e) { return true; } }
+    // Ichki sahifalar (maxfiylik, cookie, FAQ...) yorug' uchun chizilgan — ularda faqat foydalanuvchi o'zi tanlasa to'q
+    function wantDark() {
+        try {
+            var v = localStorage.getItem('bilol_ai_dark');
+            return root.getAttribute('data-page') === 'sub' ? v === '1' : v !== '0';
+        } catch (e) { return root.getAttribute('data-page') !== 'sub'; }
+    }
     function applyDark() {
         var on = wantDark();
         if (on) root.setAttribute('data-pm-dark', ''); else root.removeAttribute('data-pm-dark');

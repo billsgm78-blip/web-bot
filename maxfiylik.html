@@ -85,7 +85,7 @@ html.in-app .top a, html.in-app .bar .print { display: none; }
 }
 </style>
 <script>if (/BilolsAIApp/.test(navigator.userAgent)) document.documentElement.classList.add('in-app');</script>
-<script src="/design.js?v=9"></script>
+<script src="/design.js?v=12"></script>
 <link rel="stylesheet" href="/design.css?v=10">
 </head>
 <body>
@@ -116,6 +116,10 @@ html[data-design="premium"][data-page="sub"] .pv-lang{--pv-acc:#1f5c4a;--pv-soft
 .pv-lang .pv-sum li i{position:absolute;left:12px;top:12px;display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:var(--pv-soft);font-style:normal;font-size:16px}
 .pv-lang .pv-sum li b{display:block;margin-bottom:2px;font-size:14.5px;color:inherit;filter:brightness(1.25)}
 html[data-design="premium"][data-page="sub"] .pv-lang .pv-sum li b{filter:none;color:#171512}
+/* to'q rejim: kartalar to'q fonda, matn och */
+html[data-design="premium"][data-page="sub"][data-pm-dark] .pv-lang .pv-sum li{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);color:#cbc5cf}
+html[data-design="premium"][data-page="sub"][data-pm-dark] .pv-lang .pv-sum li b{color:#f2eff4}
+html[data-design="premium"][data-page="sub"][data-pm-dark] .pv-lang .pv-sum li i{background:rgba(255,255,255,.08)}
 .pv-lang .pv-note{margin:14px 0;padding:12px 15px;border:1px solid var(--pv-ln);border-left:4px solid var(--pv-acc);border-radius:14px;background:var(--pv-soft);line-height:1.55}
 .pv-lang .pv-note.warn{border-left-color:#f59e0b;background:rgba(245,158,11,.09)}
 .pv-lang .pv-tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:10px 0;border:1px solid var(--pv-ln);border-radius:14px}
