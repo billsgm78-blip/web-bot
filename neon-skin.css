@@ -1,0 +1,146 @@
+/* =====================================================================
+   Bilols AI — NEON DIZAYN (Premium ustidan qatlam).
+   To'q ko'k fon, yozish maydoni chetida qizil-ko'k RGB neon nur,
+   markazda shar, kartalar va oynalarda neon chet.
+   Faqat ko'rinish: hech qanday tugma yoki funksiya o'zgarmaydi.
+   O'chirish: design.js da data-nd qo'yilmasa, bu fayl hech narsa qilmaydi.
+   ===================================================================== */
+
+/* ---------- ranglar (to'q rejim) ---------- */
+html[data-design="premium"][data-nd][data-pm-dark] {
+    --cg-acc: #3d7bff; --cg-acc2: #6f9bff;
+    --cg-ink: #eef0f5; --cg-ink2: #c6cad5; --cg-ink3: #d9dce5;
+    --cg-mute: #8d93a3; --cg-mute2: #9aa1b2;
+    --cg-line: #2b303c; --cg-line2: #353b49;
+    --cg-side: #13161d; --cg-card: #1f232d; --cg-hover: #262b37; --cg-soft: #232835;
+    --cg-solid: #eef0f5; --cg-on-solid: #0b0d12;
+    --nd-red: #ff4d3d; --nd-blue: #3d7bff; --nd-page: #0b0d12; --nd-stage: #181b23; --nd-box: #12151c;
+    color-scheme: dark;
+}
+html[data-nd] { --nd-red: #ff4d3d; --nd-blue: #3d7bff; }
+html[data-design="premium"][data-nd][data-pm-dark] body { background: var(--nd-page) !important; }
+
+/* ---------- sahna (o'ng tomondagi katta oyna) ---------- */
+html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen { background: var(--nd-page) !important; }
+@media (min-width: 992px) {
+    html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen::before {
+        background:
+            radial-gradient(60% 50% at 30% -10%, rgba(61, 123, 255, .22), transparent 70%),
+            radial-gradient(45% 40% at 85% 0%, rgba(255, 77, 61, .10), transparent 70%),
+            var(--nd-stage) !important;
+        border-color: var(--cg-line) !important; border-radius: 24px !important;
+        box-shadow: 0 30px 60px -40px #000 !important;
+    }
+    /* yon panel — alohida to'q panel */
+    html[data-design="premium"][data-nd][data-pm-dark] body #chats-drawer .drawer-panel {
+        background: var(--cg-side) !important; border: 1px solid var(--cg-line) !important; border-radius: 22px !important;
+        margin: 14px 0 14px 14px; height: calc(100% - 28px) !important; width: calc(100% - 14px) !important;
+    }
+}
+@media (max-width: 991px) {
+    html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen {
+        background:
+            radial-gradient(80% 40% at 30% -5%, rgba(61, 123, 255, .20), transparent 70%),
+            radial-gradient(60% 30% at 90% 0%, rgba(255, 77, 61, .08), transparent 70%),
+            var(--nd-page) !important;
+    }
+}
+
+/* ---------- yon panel ---------- */
+html[data-design="premium"][data-nd][data-pm-dark] body #new-chat-btn {
+    background: linear-gradient(90deg, rgba(255, 77, 61, .18), rgba(61, 123, 255, .18)) !important;
+    border: 1px solid var(--cg-line) !important; color: var(--cg-ink) !important; box-shadow: none !important;
+}
+html[data-design="premium"][data-nd][data-pm-dark] body #new-chat-btn:hover { border-color: #4a5163 !important; }
+html[data-design="premium"][data-nd][data-pm-dark] body .chat-item.active { box-shadow: inset 2px 0 0 var(--nd-blue) !important; }
+html[data-nd] .cg-brand .cg-mark { border-radius: 50%; }
+
+/* ---------- shar (logo o'rniga) ---------- */
+html[data-design="premium"][data-nd] body .cg-hero .cg-mark {
+    width: 92px !important; height: 92px !important; border-radius: 50%; margin-bottom: 6px;
+    background: radial-gradient(circle at 34% 28%, #f2fdff 0 5%, #9eeaff 12%, #36b4ff 30%, #1f6dff 50%, #16309a 70%, #060c26 90%);
+    box-shadow: 0 0 40px rgba(54, 160, 255, .55), inset -10px -14px 26px rgba(0, 0, 0, .55), inset 6px 8px 18px rgba(255, 255, 255, .25);
+    animation: ndOrb 6s ease-in-out infinite;
+}
+html[data-design="premium"][data-nd] body .cg-hero .cg-mark > * { display: none; }
+@keyframes ndOrb { 50% { transform: translateY(-8px); } }
+html[data-design="premium"][data-nd] body .cg-hero h2::before {
+    content: "XUSH KELIBSIZ"; display: block; margin-bottom: 8px;
+    font-size: 13px; font-weight: 500; letter-spacing: .3em; color: var(--cg-mute2);
+}
+html[data-design="premium"][data-nd][lang="ru"] body .cg-hero h2::before { content: "С ВОЗВРАЩЕНИЕМ"; }
+html[data-design="premium"][data-nd][lang="en"] body .cg-hero h2::before { content: "WELCOME BACK"; }
+html[data-design="premium"][data-nd][data-pm-dark] body .cg-pill { background: rgba(31, 35, 45, .7) !important; border-radius: 999px !important; }
+
+/* ---------- yozish maydoni: RGB neon ---------- */
+html[data-design="premium"][data-nd] body #chat-screen .input-bar::after {
+    border: 1.5px solid transparent !important; border-radius: 20px !important;
+    background:
+        linear-gradient(var(--nd-box, #fff), var(--nd-box, #fff)) padding-box,
+        linear-gradient(90deg, var(--nd-red), rgba(255, 77, 61, .55) 18%, rgba(128, 128, 140, .25) 38%, rgba(128, 128, 140, .25) 62%, rgba(61, 123, 255, .55) 82%, var(--nd-blue)) border-box !important;
+}
+html[data-design="premium"][data-nd] body #chat-screen .input-bar::before {
+    content: "" !important; display: block !important; position: absolute; z-index: 0; pointer-events: none;
+    top: 2px !important; bottom: calc(8px + env(safe-area-inset-bottom)); left: 10px; right: 10px; height: auto !important; width: auto !important;
+    border-radius: 24px; opacity: .75; filter: blur(22px);
+    background: linear-gradient(90deg, var(--nd-red), rgba(255, 77, 61, .55) 18%, transparent 38%, transparent 62%, rgba(61, 123, 255, .55) 82%, var(--nd-blue)) !important;
+    animation: ndBreathe 4.5s ease-in-out infinite !important;
+}
+@keyframes ndBreathe { 50% { opacity: .4; transform: scaleX(.985); } }
+@media (min-width: 992px) {
+    html[data-design="premium"][data-nd] body #chat-screen .input-bar::before { left: max(10px, calc((100% - 768px) / 2)); right: max(10px, calc((100% - 768px) / 2)); }
+    html[data-design="premium"][data-nd] body #chat-screen.cg-empty .input-bar::before { left: 10px; right: 10px; }
+}
+html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen #chat-input { color: var(--cg-ink) !important; }
+html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen .send-btn {
+    background: #fff !important; color: #0b0d12 !important; box-shadow: 0 0 18px -4px rgba(61, 123, 255, .8) !important;
+}
+html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen .send-btn svg { color: #0b0d12 !important; stroke: #0b0d12 !important; }
+html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen .media-btn { background: rgba(255, 255, 255, .03) !important; border-color: var(--cg-line) !important; border-radius: 999px !important; }
+
+/* ---------- tezkor kartalar ---------- */
+html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen .suggest-card {
+    background: linear-gradient(180deg, #1d212b, #171a22) padding-box, linear-gradient(90deg, rgba(255, 77, 61, .45), rgba(128, 128, 140, .18) 40%, rgba(128, 128, 140, .18) 60%, rgba(61, 123, 255, .45)) border-box !important;
+    border: 1px solid transparent !important; border-radius: 16px !important; transition: transform .25s, box-shadow .25s !important;
+}
+html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen .suggest-card:hover {
+    transform: translateY(-3px); box-shadow: -14px 0 30px -18px rgba(255, 77, 61, .7), 14px 0 30px -18px rgba(61, 123, 255, .8) !important;
+}
+
+/* ---------- xabarlar ---------- */
+html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen .msg-user { background: var(--cg-card) !important; color: var(--cg-ink) !important; border: 1px solid var(--cg-line) !important; }
+
+/* ---------- yuqori panel ---------- */
+html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen .model-btn,
+html[data-design="premium"][data-nd][data-pm-dark] body #chat-screen .wallet-pill { border-radius: 999px !important; background: rgba(31, 35, 45, .7) !important; }
+
+/* ---------- oynalar (do'kon, sozlamalar, yordam...) ---------- */
+html[data-design="premium"][data-nd][data-pm-dark] body #wallet-modal,
+html[data-design="premium"][data-nd][data-pm-dark] body #settings-modal { background: var(--cg-side) !important; }
+html[data-design="premium"][data-nd][data-pm-dark] body .balance-badge {
+    background: linear-gradient(120deg, #1a2342, #151822 60%) padding-box, linear-gradient(90deg, var(--nd-red), rgba(128, 128, 140, .25) 40%, rgba(128, 128, 140, .25) 60%, var(--nd-blue)) border-box !important;
+    border: 1.5px solid transparent !important; box-shadow: -20px 0 50px -30px rgba(255, 77, 61, .8), 20px 0 50px -30px rgba(61, 123, 255, .9) !important;
+}
+html[data-design="premium"][data-nd][data-pm-dark] body .bc-card {
+    background: #151822 !important; border: 1px solid var(--cg-line) !important;
+    box-shadow: -24px 0 60px -30px rgba(255, 77, 61, .6), 24px 0 60px -30px rgba(61, 123, 255, .7), 0 30px 70px -20px #000 !important;
+}
+
+/* ---------- agentlar ofisi ---------- */
+html[data-design="premium"][data-nd][data-pm-dark] body .ag-box {
+    border: 1px solid transparent !important;
+    background: linear-gradient(#161a22, #161a22) padding-box, linear-gradient(90deg, rgba(255, 77, 61, .7), rgba(128, 128, 140, .2) 40%, rgba(128, 128, 140, .2) 60%, rgba(61, 123, 255, .7)) border-box !important;
+}
+html[data-design="premium"][data-nd][data-pm-dark] body .ag-box .ag-head { background: #0f1218 !important; color: var(--cg-ink) !important; }
+html[data-design="premium"][data-nd][data-pm-dark] body .ag-card,
+html[data-design="premium"][data-nd][data-pm-dark] body .ag-upcard,
+html[data-design="premium"][data-nd][data-pm-dark] body .ag-dbcard {
+    box-shadow: -30px 0 70px -30px rgba(255, 77, 61, .55), 30px 0 70px -30px rgba(61, 123, 255, .6), 0 40px 90px -30px #000 !important;
+}
+
+/* ---------- yengil rejim (Android, kuchsiz telefon): harakat yo'q, nur joyida ---------- */
+html.lite[data-nd] body #chat-screen .input-bar::before, html.lite[data-nd] body .cg-hero .cg-mark { animation: none !important; }
+html.lite[data-nd] body #chat-screen .input-bar::before { filter: blur(14px); opacity: .55; }
+@media (prefers-reduced-motion: reduce) {
+    html[data-nd] body #chat-screen .input-bar::before, html[data-nd] body .cg-hero .cg-mark { animation: none !important; }
+}
