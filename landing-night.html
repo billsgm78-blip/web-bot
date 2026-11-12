@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bilols AI</title>
+<meta name="description" content="Bilols AI — o'zbek tilini tushunadigan sun'iy intellekt: chat, rasm, hujjat, tarjima, hamyon va ilovalar.">
+<meta name="theme-color" content="#0a0e1a">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one dark night-sky page; calm left-aligned headings with hand-drawn
+   strokes, a floating phone, an orange band for numbers and for the footer. */
+:root{
+  color-scheme:dark;
+  --ink:#0a0e1a;        /* page */
+  --ink-2:#0f1420;      /* raised surface */
+  --ink-3:#161c2b;      /* cards */
+  --line:#232b3d;
+  --text:#eef1f7;
+  --mute:#8e98ad;
+  --spark:#2f66f5;      /* cobalt: buttons, band, footer */
+  --spark-ink:#ffffff;  /* text on cobalt */
+  --warm:#ff8a3d;       /* small brand-orange touches only */
+  --sky:#8fb0ff;        /* cool secondary for strokes and dots */
+  --display:'Outfit',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+  --body:'Manrope',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --wrap:1120px;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--spark);outline-offset:3px;border-radius:6px}
+.wrap{width:min(var(--wrap),100% - 40px);margin-inline:auto}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.12;text-wrap:balance;letter-spacing:-.01em}
+h2{font-size:clamp(28px,3.6vw,40px)}
+p{text-wrap:pretty}
+.mute{color:var(--mute)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--sky)}
+.eyebrow::before{content:"";display:inline-block;width:28px;height:1px;background:currentColor;vertical-align:middle;margin-right:10px;transform-origin:0 50%;transition:transform .9s .35s}
+.js .rv:not(.in) .eyebrow::before{transform:scaleX(0)}
+
+/* ---------- background sky ---------- */
+.sky{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.sky canvas{position:absolute;inset:0;width:100%;height:100%}
+.glow{position:absolute;width:70vmax;height:70vmax;border-radius:50%;will-change:transform}
+.glow.a{left:-25vmax;top:-30vmax;background:radial-gradient(closest-side,rgba(47,102,245,.22),transparent);animation:drift 26s ease-in-out infinite alternate}
+.glow.b{right:-30vmax;top:20vh;background:radial-gradient(closest-side,rgba(120,90,255,.12),transparent);animation:drift 32s ease-in-out infinite alternate-reverse}
+@keyframes drift{to{transform:translate3d(8vmax,6vmax,0) scale(1.15)}}
+.spot{position:absolute;left:0;top:0;width:560px;height:560px;margin:-280px;border-radius:50%;background:radial-gradient(closest-side,rgba(143,176,255,.09),transparent);opacity:0;transition:opacity .5s;will-change:transform}
+.bar{position:fixed;left:0;top:0;height:2px;width:100%;background:var(--spark);transform-origin:0 50%;transform:scaleX(0);z-index:50}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font-weight:700;font-size:14.5px;transition:transform .25s,background .25s,border-color .25s,box-shadow .25s;white-space:nowrap}
+.btn.pri{position:relative;overflow:hidden;background:var(--spark);color:var(--spark-ink);box-shadow:0 8px 28px -10px rgba(47,102,245,.8)}
+.btn.pri::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:translateX(-140%) skewX(-18deg);animation:shine 4.5s ease-in-out infinite}
+@keyframes shine{0%,60%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(380%) skewX(-18deg)}}
+.btn svg{transition:transform .25s}.btn:hover svg{transform:translateX(3px)}.btn:active{transform:scale(.96)}
+.btn.pri:hover{transform:translateY(-2px);box-shadow:0 14px 34px -10px rgba(47,102,245,.95)}
+.btn.sec{border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.btn.sec:hover{border-color:var(--mute);transform:translateY(-2px)}
+.btn.sm{padding:8px 16px;font-size:13.5px}
+
+/* ---------- nav ---------- */
+header{position:sticky;top:0;z-index:40;background:rgba(10,14,26,.97);border-bottom:1px solid transparent;transition:border-color .3s}
+header.stuck{border-color:var(--line)}
+.nav{display:flex;align-items:center;gap:28px;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:19px}
+.mark{position:relative;width:34px;height:34px;border-radius:10px;background:var(--text);color:#111;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-style:italic;font-size:21px}
+.mark svg{position:absolute;right:-5px;top:-6px;width:15px;height:15px;animation:twinkle 3.4s ease-in-out infinite}
+@keyframes twinkle{50%{transform:scale(.6) rotate(45deg);opacity:.6}}
+.links{display:flex;gap:26px;margin-left:auto;font-size:14.5px;color:var(--mute)}
+.links a{position:relative;padding:4px 0;transition:color .2s}
+.links a::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--spark);transform:scaleX(0);transform-origin:0 50%;transition:transform .3s}
+.links a:hover{color:var(--text)}.links a:hover::after{transform:scaleX(1)}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;font-family:var(--mono);font-size:11.5px}
+.lang button{padding:5px 9px;border-radius:999px;color:var(--mute)}
+.lang button{transition:background .25s,color .25s}
+.lang button[aria-pressed="true"]{background:var(--ink-3);color:var(--text)}
+.burger{display:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);place-items:center;flex:none}
+.burger i{display:block;width:16px;height:2px;border-radius:2px;background:var(--text);transition:transform .3s,opacity .3s}
+.burger i+i{margin-top:4px}
+.burger[aria-expanded="true"] i:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.burger[aria-expanded="true"] i:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] i:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.logo .mark{transition:transform .5s cubic-bezier(.2,.9,.3,1.5)}.logo:hover .mark{transform:rotate(-8deg) scale(1.08)}
+
+/* ---------- hero ---------- */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:64px 0 88px}
+.hero h1{font-size:clamp(40px,6.2vw,72px);position:relative;display:inline-block}
+.hero h1 .ul{position:relative;white-space:nowrap}
+.hero h1 .ul svg{position:absolute;left:-2%;bottom:-.16em;width:104%;height:.3em;overflow:visible}
+.strokes{position:absolute;right:-46px;top:-22px;width:44px;height:44px}
+.draw path{stroke-dasharray:var(--len,120);stroke-dashoffset:var(--len,120);animation:draw 1s .5s cubic-bezier(.6,0,.2,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.hero .lead{margin:22px 0 30px;max-width:50ch;color:var(--mute);font-size:17px}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.note{margin-top:26px;font-size:13.5px;color:var(--mute);display:flex;flex-wrap:wrap;gap:8px 18px}
+.note span{display:inline-flex;align-items:center;gap:7px}
+.note i{width:6px;height:6px;border-radius:50%;background:var(--warm)}
+
+.stage{position:relative;display:grid;place-items:center;min-height:560px}
+.halo{position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(closest-side,rgba(47,102,245,.22),transparent 72%);animation:pulse 6s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.12);opacity:.7}}
+.ring{position:absolute;width:470px;height:470px;border:1px dashed rgba(142,152,173,.22);border-radius:50%;animation:spin 60s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tilt{will-change:transform;transform:rotate(-7deg)}
+.phone{width:272px;height:548px;border-radius:42px;background:#05070b;border:2px solid #2a3348;padding:10px;box-shadow:0 40px 80px -30px #000,0 0 0 8px rgba(255,255,255,.02);animation:float 7s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-16px)}}
+.screen{height:100%;border-radius:32px;background:linear-gradient(180deg,#101624,#0b0f19);display:flex;flex-direction:column;overflow:hidden;position:relative}
+.screen::before{content:"";position:absolute;left:50%;top:9px;width:84px;height:22px;margin-left:-42px;border-radius:14px;background:#05070b;z-index:2}
+.ph-top{padding:44px 16px 12px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--line);font-family:var(--display);font-weight:600;font-size:14px}
+.ph-top .mark{width:26px;height:26px;border-radius:8px;font-size:16px}
+.ph-top small{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--sky);border:1px solid rgba(47,102,245,.4);padding:3px 7px;border-radius:999px}
+.chat{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:10px;font-size:12.5px;line-height:1.45;overflow:hidden}
+.msg{max-width:86%;padding:9px 12px;border-radius:15px;animation:pop .45s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.94)}}
+.msg.u{align-self:flex-end;background:var(--spark);color:var(--spark-ink);font-weight:600;border-bottom-right-radius:5px}
+.msg.b{align-self:flex-start;background:var(--ink-3);border:1px solid var(--line);border-bottom-left-radius:5px}
+.msg.b b{display:block;font-family:var(--display);margin-bottom:4px}
+.msg.b div{display:flex;gap:6px;animation:pop .4s both}
+.msg.b div span{color:var(--sky);font-family:var(--mono)}
+.dots{display:flex;gap:4px;padding:4px 2px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--mute);animation:blink 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes blink{50%{opacity:.25;transform:translateY(-3px)}}
+.ph-in{margin:0 10px 12px;padding:10px 12px;border-radius:999px;border:1px solid var(--line);color:var(--mute);font-size:12px;display:flex;align-items:center}
+.ph-in em{margin-left:auto;width:24px;height:24px;border-radius:50%;background:var(--spark);display:grid;place-items:center}
+.chip{position:absolute;display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:14px;background:var(--ink-3);border:1px solid var(--line);font-size:13px;font-weight:600;box-shadow:0 18px 40px -18px #000;animation:bob 6s ease-in-out infinite}
+.chip svg{width:18px;height:18px;color:var(--sky)}
+.chip.c1{left:0;top:16%}.chip.c2{right:-4px;top:38%;animation-delay:-2s}.chip.c3{left:6%;bottom:14%;animation-delay:-4s}
+@keyframes bob{50%{transform:translateY(-12px) rotate(1.5deg)}}
+
+/* ---------- number band ---------- */
+.band{position:relative;overflow:hidden;background:var(--spark);color:var(--spark-ink)}
+.band::after{content:"";position:absolute;top:0;bottom:0;left:0;width:30%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);animation:sweep 7s linear infinite;pointer-events:none}
+@keyframes sweep{from{transform:translateX(-120%)}to{transform:translateX(460%)}}
+.band .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{display:flex;align-items:center;gap:14px;padding:26px 22px;border-left:1px solid rgba(255,255,255,.22)}
+.stat:first-child{border-left:0;padding-left:0}
+.stat b{font-family:var(--display);font-size:40px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;font-weight:600;line-height:1.35;opacity:.85}
+
+/* ---------- sections ---------- */
+main{overflow-x:clip}
+section{padding:104px 0;scroll-margin-top:56px}
+.head{position:relative;display:inline-block}
+.head .tick{position:absolute;left:-26px;top:-18px;width:26px;height:26px}
+.sub{margin-top:14px;color:var(--mute);max-width:46ch}
+
+.feat{display:grid;grid-template-columns:1.1fr repeat(3,1fr);gap:36px;align-items:start}
+.f svg{width:44px;height:44px;margin-bottom:16px;animation:bob 6s ease-in-out infinite}
+.f:nth-child(3) svg{animation-delay:-2s}.f:nth-child(4) svg{animation-delay:-4s}
+.f h3{font-size:18px;margin-bottom:8px}
+.f p{font-size:14.5px;color:var(--mute)}
+.f:hover svg{animation:wiggle .6s}
+@keyframes wiggle{30%{transform:rotate(-8deg) scale(1.08)}60%{transform:rotate(6deg)}}
+
+.modes{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;margin-top:84px}
+.grid{position:relative;aspect-ratio:1/.66;border-radius:28px;animation:pan 14s linear infinite;
+  background-image:radial-gradient(circle,rgba(111,155,255,.38) 1.4px,transparent 1.8px);background-size:16px 16px;
+  -webkit-mask:radial-gradient(ellipse 62% 60% at 50% 50%,#000 30%,transparent 78%);mask:radial-gradient(ellipse 62% 60% at 50% 50%,#000 30%,transparent 78%)}
+.pins{position:absolute;inset:0}
+.pin{position:absolute;transform:translate(-50%,-100%);display:grid;justify-items:center;gap:6px}
+.pin .dot{position:relative;width:54px;height:54px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--ink-3);border:2px solid var(--line);display:grid;place-items:center;transition:background .3s,border-color .3s,transform .4s cubic-bezier(.2,.9,.3,1.4)}
+.pin .dot svg{width:22px;height:22px;transform:rotate(45deg);color:var(--text)}
+.pin small{font-size:12px;font-weight:700;color:var(--mute);margin-top:8px;transition:color .3s}
+.pin::after{content:"";position:absolute;bottom:14px;width:10px;height:10px;border-radius:50%;background:var(--spark);opacity:0}
+.pin.on .dot{background:var(--spark);border-color:var(--sky);transform:rotate(-45deg) scale(1.18)}
+.pin.on .dot svg{color:var(--spark-ink)}
+.pin.on small{color:var(--text)}
+.pin.on::after{animation:ping 1.6s ease-out infinite}
+@keyframes pan{to{background-position:16px 16px}}
+@keyframes ping{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(6)}}
+.js .modes .pin{opacity:0;transform:translate(-50%,-130%) scale(.4)}
+.js .modes.in .pin{opacity:1;transform:translate(-50%,-100%);transition:opacity .5s,transform .7s cubic-bezier(.2,.9,.3,1.5);transition-delay:calc(var(--i)*.13s)}
+.ask{margin-top:26px;display:flex;align-items:center;gap:14px;padding:10px 10px 10px 20px;border:1px solid var(--line);border-radius:999px;background:var(--ink-2)}
+.ask div{flex:1;min-width:0}
+.ask small{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--sky)}
+.ask p{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:1.6em}
+.ask p::after{content:"";display:inline-block;width:2px;height:1em;background:var(--text);vertical-align:-2px;margin-left:2px;animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+.ask a{flex:none;width:44px;height:44px;border-radius:50%;background:var(--text);color:var(--ink);display:grid;place-items:center;transition:transform .25s}
+.ask a:hover{transform:rotate(-45deg) scale(1.06)}
+
+/* ---------- app / orbit ---------- */
+.app{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.list{list-style:none;padding:0;margin:26px 0 30px;display:grid;gap:14px}
+.list li{display:flex;gap:12px;font-size:15px;color:var(--mute)}
+.list svg{flex:none;width:20px;height:20px;margin-top:3px;color:var(--sky)}
+.orbit{position:relative;aspect-ratio:1/.9;max-width:480px;width:100%;margin-inline:auto}
+.orbit .wires{position:absolute;inset:0;width:100%;height:100%}
+.orbit .wires line{stroke:var(--sky);stroke-width:.35;stroke-dasharray:1.4 1.8;opacity:.6;animation:flow 1.6s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-3.2}}
+.orbit .plate{position:absolute;inset:12% 8%;border-radius:36px;background:linear-gradient(160deg,rgba(143,176,255,.14),rgba(47,102,245,.10));border:1px solid var(--line);transform:rotate(-4deg)}
+.node{position:absolute;display:grid;place-items:center;border-radius:50%;background:var(--ink-3);border:2px solid var(--line);animation:bob 7s ease-in-out infinite;box-shadow:0 16px 36px -16px #000}
+.node svg{width:46%;height:46%}
+.node.me{left:50%;top:50%;width:112px;height:112px;margin:-56px;background:var(--text);border-color:var(--text);animation:float 6s ease-in-out infinite}
+.node.me::before,.node.me::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--sky);animation:wave 3s ease-out infinite}
+.node.me::after{animation-delay:1.5s}
+@keyframes wave{from{opacity:.7;transform:scale(1)}to{opacity:0;transform:scale(1.9)}}
+.node.me .mark{width:64px;height:64px;font-size:40px;border-radius:18px;background:none}
+.node.me .mark svg{width:24px;height:24px;right:-8px;top:-6px}
+.say{position:absolute;padding:6px 12px;border-radius:999px;background:var(--text);color:var(--ink);font-size:12px;font-weight:700;animation:bob 5s ease-in-out infinite}
+.say::after{content:"";position:absolute;left:14px;bottom:-4px;width:9px;height:9px;background:inherit;transform:rotate(45deg)}
+
+/* ---------- prompts rail ---------- */
+.rail-top{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.arrows{display:flex;gap:10px}
+.arrows button{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;transition:background .25s,color .25s,transform .25s}
+.arrows button:hover{background:var(--text);color:var(--ink);transform:scale(1.06)}
+.arrows button:disabled{opacity:.3;pointer-events:none}
+.rail{margin-top:40px;display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:6px}
+.rail::-webkit-scrollbar{display:none}
+.card{flex:0 0 calc((100% - 48px)/3);scroll-snap-align:start;padding:26px;border-radius:22px;background:var(--ink-2);border:1px solid var(--line);display:flex;flex-direction:column;gap:18px;min-height:200px;transition:transform .3s,border-color .35s,box-shadow .35s}
+.card:hover{border-color:rgba(47,102,245,.7);box-shadow:0 24px 50px -28px rgba(47,102,245,.9)}
+.card .q{animation:bob 5s ease-in-out infinite}
+.card .q{font-family:var(--display);font-size:44px;line-height:.6;color:var(--sky);height:22px}
+.card p{font-family:var(--display);font-size:19px;line-height:1.35}
+.card p b{color:var(--sky);font-weight:600}
+.tag{margin-top:auto;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mute);font-weight:600}
+.tag i{width:30px;height:30px;border-radius:50%;background:var(--ink-3);border:1px solid var(--line);display:grid;place-items:center;font-style:normal}
+.tag svg{width:15px;height:15px;color:var(--text)}
+
+/* ---------- steps + pricing ---------- */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:44px;counter-reset:s}
+.step{position:relative;padding:26px 0 0;border-top:1px solid var(--line)}
+.step::before{counter-increment:s;content:"0" counter(s);font-family:var(--mono);font-size:12px;color:var(--sky);letter-spacing:.1em}
+.step::after{content:"";position:absolute;left:0;top:-1px;height:1px;width:100%;background:var(--spark);transform-origin:0 50%;transition:transform 1.1s .3s}
+.js .step:not(.seen)::after{transform:scaleX(0)}
+.step h3{font-size:20px;margin:10px 0 8px}
+.step p{font-size:14.5px;color:var(--mute)}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:44px}
+.plan{position:relative;transition:transform .3s,border-color .35s;padding:34px;border-radius:26px;border:1px solid var(--line);background:var(--ink-2);display:flex;flex-direction:column;gap:20px}
+.plan.hot{background:linear-gradient(165deg,#111d42,var(--ink-2) 62%);border-color:rgba(47,102,245,.55)}
+.plan.hot::after{content:"";position:absolute;inset:-1px;border-radius:inherit;box-shadow:0 0 60px -6px rgba(47,102,245,.9);opacity:.25;animation:glowp 3.2s ease-in-out infinite alternate;pointer-events:none}
+@keyframes glowp{to{opacity:.75}}
+.plan h3{font-size:16px;color:var(--mute);font-weight:500}
+.price{font-family:var(--display);font-size:46px;font-weight:700;line-height:1}
+.price small{font-size:15px;color:var(--mute);font-weight:500;margin-left:8px;white-space:nowrap}
+.plan .for{font-size:14.5px;color:var(--mute);margin-top:-8px}
+.plan ul{list-style:none;padding:0;display:grid;gap:10px;font-size:15px}
+.plan li{display:flex;gap:10px}.plan li svg{flex:none;width:18px;height:18px;margin-top:4px;color:var(--sky)}
+.plan .btn{align-self:flex-start;margin-top:auto}
+.shop{margin-top:24px;padding:22px 26px;border-radius:22px;border:1px dashed var(--line);display:flex;flex-wrap:wrap;gap:14px 34px;align-items:center}
+.shop strong{font-family:var(--display);font-size:16px;font-weight:600}
+.shop dl{display:flex;flex-wrap:wrap;gap:10px 26px;margin:0;font-size:14px}
+.shop dl div{display:flex;gap:8px;align-items:baseline}
+.shop dt{color:var(--mute)}.shop dd{margin:0;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+
+/* ---------- faq ---------- */
+.faq{display:grid;grid-template-columns:.8fr 1.2fr;gap:56px;align-items:start}
+.faq .btn{margin-top:26px}
+details{border-bottom:1px solid var(--line)}
+summary{list-style:none;display:flex;justify-content:space-between;gap:20px;align-items:center;padding:20px 0;font-family:var(--display);font-size:17.5px;font-weight:500;cursor:pointer;transition:color .2s}
+summary::-webkit-details-marker{display:none}
+summary:hover{color:var(--sky)}summary:hover svg{transform:translateX(4px)}
+summary svg{flex:none;width:22px;height:22px;color:var(--sky);transition:transform .35s}
+details[open] summary svg{transform:rotate(90deg);color:var(--sky)}
+details p{padding:0 40px 22px 0;color:var(--mute);font-size:15px}
+details[open] p{animation:rise .5s both}
+
+/* ---------- footer ---------- */
+footer{background:var(--spark);color:var(--spark-ink);padding:64px 0 28px;margin-top:40px}
+.foot{display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:36px}
+footer .mark{background:#fff;color:var(--spark)}
+footer p{font-size:14px;max-width:32ch;margin-top:14px;opacity:.85}
+footer h4{font-family:var(--display);font-size:14px;font-weight:700;margin-bottom:14px}
+footer ul{list-style:none;padding:0;display:grid;gap:9px;font-size:14px}
+footer ul a{opacity:.82;transition:opacity .2s}footer ul a:hover{opacity:1;text-decoration:underline}
+.copy{margin-top:44px;padding-top:20px;border-top:1px solid rgba(255,255,255,.22);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+/* ---------- reveal ---------- */
+.js .rv{opacity:0;transform:translateY(34px)}
+.js .rv.in{opacity:1;transform:none;transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--d,0)*.11s)}
+.js .rv .draw path{animation-play-state:paused}
+.js .rv.in .draw path{animation-play-state:running}
+.js header{animation:drop .8s cubic-bezier(.2,.7,.2,1) both}
+@keyframes drop{from{transform:translateY(-100%)}}
+.js .hi{animation:rise 1s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(.25s + var(--d,0)*.13s)}
+@keyframes rise{from{opacity:0;transform:translateY(36px)}}
+.js .stage{animation:stageIn 1.3s .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes stageIn{from{opacity:0;transform:scale(.86) translateY(40px)}}
+.js .chip{opacity:0;animation:chipIn .7s cubic-bezier(.2,.9,.3,1.4) forwards,bob 6s ease-in-out infinite}
+.js .chip.c1{animation-delay:1.1s,1.8s}.js .chip.c2{animation-delay:1.3s,2s}.js .chip.c3{animation-delay:1.5s,2.2s}
+@keyframes chipIn{from{opacity:0;scale:.5}to{opacity:1;scale:1}}
+
+@media (max-width:900px){
+  .nav{gap:10px}.burger{display:grid}.lang{margin-left:auto}.lang button{padding:5px 6px}
+  .links{position:absolute;left:0;right:0;top:68px;margin:0;flex-direction:column;gap:0;padding:8px 20px 18px;background:var(--ink-2);border-bottom:1px solid var(--line);font-size:17px;visibility:hidden;opacity:0;transform:translateY(-12px);transition:opacity .3s,transform .35s,visibility .35s}
+  .links.open{visibility:visible;opacity:1;transform:none}
+  .links a{padding:13px 0;border-bottom:1px solid var(--line);color:var(--text)}.links a::after{display:none}
+  .card{flex-basis:82%}
+  .hero{grid-template-columns:1fr;padding:36px 0 56px}
+  .stage{min-height:610px}.chip.c1{top:0}.chip.c3{bottom:0}.ring{width:360px;height:360px}.halo{width:340px;height:340px}
+  .strokes{right:-10px;top:-34px}
+  .band .wrap{grid-template-columns:1fr 1fr}
+  .stat{padding:20px 14px}.stat:nth-child(odd){border-left:0;padding-left:0}
+  .stat:nth-child(n+3){border-top:1px solid rgba(255,255,255,.22)}
+  section{padding:72px 0}
+  .feat,.modes,.app,.faq,.plans,.steps{grid-template-columns:1fr}
+  .modes{margin-top:56px}
+  .foot{grid-template-columns:1fr 1fr}
+  .head .tick{left:-6px;top:-24px}
+}
+@media (max-width:420px){.stat b{font-size:32px}.chip.c2{right:0}.chip.c1{left:0}.pin .dot{width:44px;height:44px}.pin small{font-size:11px}}
+.lite .grid,.lite .glow,.lite .band::after,.lite .node.me::before,.lite .node.me::after,.lite .plan.hot::after,.lite .ring{animation:none}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+  .js .rv,.js .modes .pin,.js .chip{opacity:1;transform:none}.js .modes .pin{transform:translate(-50%,-100%)}
+  .draw path{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"><div class="glow a"></div><div class="glow b"></div><canvas id="stars"></canvas><div class="spot" id="spot"></div></div>
+<div class="bar" id="bar"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="spark" viewBox="708 158 184 184"><path fill="#FF6A1A" d="M800 158C818 232 818 232 892 250 818 268 818 268 800 342 782 268 782 268 708 250 782 232 782 232 800 158Z"/></symbol>
+  <symbol id="ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></symbol>
+  <symbol id="i-teach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11.5V16c1.5 1.5 3.2 2 5 2s3.500-.5 5-2v-4.500M21 9v5"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.500 5l-3 14"/></symbol>
+  <symbol id="i-lang" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.200 3 14.800 0 18M12 3c-3 3.200-3 14.800 0 18"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16.500 4.500a2.100 2.100 0 013 3L8 19l-4 1zM14 7l3 3"/></symbol>
+  <symbol id="i-test" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.500" width="14" height="17" rx="2.500"/><path d="M9 9l1.500 1.500L13 8M9 15h6M15 9.500h.01"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.500-2.500h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.500"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5"/></symbol>
+  <symbol id="i-img" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.500" y="4.500" width="17" height="15" rx="2.500"/><path d="M4 16l4.500-4.500 4 4 3-3 4.500 4.500"/><circle cx="15.500" cy="9" r="1.300"/></symbol>
+  <symbol id="i-tg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4L3 11l6 2.500L11 20l3.500-4.500L19 19z"/><path d="M9 13.500L21 4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.500" width="10" height="19" rx="2.500"/><path d="M11 18h2"/></symbol>
+  <symbol id="i-pc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.500" width="18" height="12" rx="2"/><path d="M9 20h6M12 16.500V20"/></symbol>
+  <symbol id="i-web" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.500" width="18" height="15" rx="2.500"/><path d="M3 9h18M6.500 6.800h.01M9.500 6.800h.01"/></symbol>
+</svg>
+
+<header id="top">
+  <div class="wrap nav">
+    <a class="logo" href="#top" aria-label="Bilols AI"><span class="mark">B<svg><use href="#spark"/></svg></span>Bilols AI</a>
+    <nav class="links" id="menu" aria-label="Asosiy">
+      <a href="#imkoniyatlar" data-k="n1">Imkoniyatlar</a>
+      <a href="#ilova" data-k="n2">Ilova</a>
+      <a href="#narxlar" data-k="n3">Narxlar</a>
+      <a href="#savollar" data-k="n4">Savollar</a>
+    </nav>
+    <div class="lang" role="group" aria-label="Til">
+      <button data-l="uz" aria-pressed="true">UZ</button><button data-l="ru" aria-pressed="false">RU</button><button data-l="en" aria-pressed="false">EN</button>
+    </div>
+    <a class="btn pri sm" href="https://bilolsai.uz" data-k="login">Kirish</a>
+    <button class="burger" id="burger" aria-label="Menyu" aria-controls="menu" aria-expanded="false"><span><i></i><i></i><i></i></span></button>
+  </div>
+</header>
+
+<main>
+<div class="wrap hero">
+  <div>
+    <h1 class="hi"><span data-k="h1a">Savol bering.</span><br><span data-k="h1b">Javob</span> <span class="ul"><span data-k="h1c">oling.</span><svg class="draw" viewBox="0 0 200 20" preserveAspectRatio="none" fill="none" aria-hidden="true"><path style="--len:230" d="M3 12C40 3 70 17 105 9s60-6 92 3" stroke="#ff6a1a" stroke-width="5" stroke-linecap="round"/></svg></span>
+      <svg class="strokes draw" viewBox="0 0 44 44" fill="none" stroke="#8fb0ff" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path style="--len:20" d="M6 30L14 20"/><path style="--len:22" d="M20 26L24 6"/><path style="--len:20" d="M30 32L42 22"/></svg>
+    </h1>
+    <p class="lead hi" style="--d:1" data-k="lead">Bilols AI — o'zbek tilini tushunadigan shaxsiy sun'iy intellekt. Yozing, rasm yuboring yoki hujjat biriktiring — soniyalar ichida aniq javob.</p>
+    <div class="cta hi" style="--d:2">
+      <a class="btn pri" href="https://bilolsai.uz"><span data-k="cta1">Bepul boshlash</span><svg width="16" height="16"><use href="#arr"/></svg></a>
+      <a class="btn sec" href="https://t.me/BilolsAIbot" target="_blank" rel="noopener"><svg width="16" height="16"><use href="#i-tg"/></svg><span data-k="cta2">Telegram bot</span></a>
+    </div>
+    <div class="note hi" style="--d:3"><span><i></i><span data-k="nt1">Sayt, Android ilova, Telegram bot</span></span><span><i></i><span data-k="nt2">O'zbek, rus, ingliz</span></span></div>
+  </div>
+
+  <div class="stage" aria-hidden="true">
+    <div class="halo"></div><div class="ring"></div>
+    <div class="tilt" id="tilt">
+      <div class="phone"><div class="screen">
+        <div class="ph-top"><span class="mark">B<svg><use href="#spark"/></svg></span>Bilols AI<small>Gemini Flash</small></div>
+        <div class="chat" id="chat">
+          <div class="msg u">Insho uchun reja tuzib ber: «Kitobning ahamiyati»</div>
+          <div class="msg b"><b>Reja</b><div><span>1.</span>Kirish — kitob va inson</div><div><span>2.</span>Bilim va tafakkur manbai</div><div><span>3.</span>Xulosa — o'qish madaniyati</div></div>
+        </div>
+        <div class="ph-in"><span data-k="phin">Savolingizni yozing…</span><em><svg width="12" height="12" style="color:#fff"><use href="#arr"/></svg></em></div>
+      </div></div>
+    </div>
+    <div class="chip c1"><svg><use href="#i-cam"/></svg><span data-k="ch1">Rasmni o'qiydi</span></div>
+    <div class="chip c2"><svg><use href="#i-doc"/></svg><span data-k="ch2">PDF tahlili</span></div>
+    <div class="chip c3"><svg><use href="#i-img"/></svg><span data-k="ch3">Rasm chizadi</span></div>
+  </div>
+</div>
+
+<div class="band">
+  <div class="wrap">
+    <div class="stat rv"><b data-n="24" data-suf="/7">24/7</b><span data-k="s1">Har doim javob beradi — kechasi ham</span></div>
+    <div class="stat rv" style="--d:1"><b data-n="5">5</b><span data-k="s2">Rejim: o'qituvchi, dasturchi, tarjimon, insho, imtihon</span></div>
+    <div class="stat rv" style="--d:2"><b data-n="3">3</b><span data-k="s3">Til: o'zbek, rus, ingliz</span></div>
+    <div class="stat rv" style="--d:3"><b data-n="1">1</b><span data-k="s4">Hisob — sayt, ilova va Telegram botda</span></div>
+  </div>
+</div>
+
+<section id="imkoniyatlar">
+  <div class="wrap">
+    <div class="feat">
+      <div class="rv">
+        <div class="head"><svg class="tick draw" viewBox="0 0 26 26" fill="none" stroke="#8fb0ff" stroke-width="2.600" stroke-linecap="round" aria-hidden="true"><path style="--len:14" d="M4 14L12 20"/><path style="--len:14" d="M12 4L16 14"/></svg>
+          <h2 data-k="f0">Chat, rasm, hujjat — bitta oynada.</h2></div>
+        <p class="sub" data-k="f0s">Oddiy tilda yozing. Kerakli rejimni Bilols AI o'zi tushunadi.</p>
+      </div>
+      <div class="f rv" style="--d:1"><svg viewBox="0 0 44 44" fill="none"><rect x="4" y="7" width="30" height="22" rx="8" fill="#8fb0ff"/><path d="M12 29v8l9-8" fill="#8fb0ff"/><rect x="18" y="16" width="22" height="16" rx="6" fill="#ff6a1a"/><circle cx="25" cy="24" r="1.600" fill="#190b02"/><circle cx="29.500" cy="24" r="1.600" fill="#190b02"/><circle cx="34" cy="24" r="1.600" fill="#190b02"/></svg>
+        <h3 data-k="f1">Matn va suhbat</h3><p data-k="f1s">Insho, reja, tarjima, kod. Masalani bosqichma-bosqich tushuntirib beradi.</p></div>
+      <div class="f rv" style="--d:2"><svg viewBox="0 0 44 44" fill="none"><rect x="5" y="11" width="34" height="25" rx="7" fill="#ff6a1a"/><path d="M15 11l3-5h8l3 5" fill="#ff6a1a"/><circle cx="22" cy="23.500" r="7.500" fill="#190b02"/><circle cx="22" cy="23.500" r="4" fill="#8fb0ff"/></svg>
+        <h3 data-k="f2">Rasm va kamera</h3><p data-k="f2s">Masala, matn yoki chekni suratga oling — o'qiydi, yechadi, tarjima qiladi. Rasm ham chizadi.</p></div>
+      <div class="f rv" style="--d:3"><svg viewBox="0 0 44 44" fill="none"><path d="M11 5h15l9 9v25H11z" fill="#eef1f7"/><path d="M26 5v9h9" fill="#8fb0ff"/><rect x="16" y="20" width="14" height="2.600" rx="1.300" fill="#ff6a1a"/><rect x="16" y="26" width="14" height="2.600" rx="1.300" fill="#8e98ad"/><rect x="16" y="32" width="9" height="2.600" rx="1.300" fill="#8e98ad"/></svg>
+        <h3 data-k="f3">Hujjat tahlili</h3><p data-k="f3s">PDF yoki faylni biriktiring — asosiy fikrlarni ajratib, savollaringizga javob beradi.</p></div>
+    </div>
+
+    <div class="modes" id="modes">
+      <div class="grid-box" style="position:relative">
+        <div class="grid"></div>
+        <div class="pins">
+          <button class="pin on" style="left:50%;top:60%;--i:0" data-m="0"><span class="dot"><svg><use href="#i-teach"/></svg></span><small data-k="m0">O'qituvchi</small></button>
+          <button class="pin" style="left:22%;top:42%;--i:1" data-m="1"><span class="dot"><svg><use href="#i-code"/></svg></span><small data-k="m1">Dasturchi</small></button>
+          <button class="pin" style="left:76%;top:38%;--i:2" data-m="2"><span class="dot"><svg><use href="#i-lang"/></svg></span><small data-k="m2">Tarjimon</small></button>
+          <button class="pin" style="left:30%;top:88%;--i:3" data-m="3"><span class="dot"><svg><use href="#i-pen"/></svg></span><small data-k="m3">Insho</small></button>
+          <button class="pin" style="left:72%;top:86%;--i:4" data-m="4"><span class="dot"><svg><use href="#i-test"/></svg></span><small data-k="m4">Imtihon</small></button>
+        </div>
+      </div>
+      <div class="rv">
+        <p class="eyebrow" data-k="me">Besh rejim</p>
+        <h2 style="margin-top:12px" data-k="mh">O'qish, ish, imtihon. Yana nima kerak?</h2>
+        <p class="sub" data-k="ms">Rejimni tanlang yoki shunchaki yozing — Bilols AI savolga qarab o'zi moslashadi.</p>
+        <div class="ask"><div><small id="askMode">O'qituvchi</small><p id="askText">Bu misolni yech: 2x + 6 = 14</p></div><a href="https://bilolsai.uz" aria-label="Bilols AI'da so'rash"><svg width="18" height="18"><use href="#arr"/></svg></a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ilova">
+  <div class="wrap app">
+    <div class="rv">
+      <p class="eyebrow" data-k="ae">Ilova</p>
+      <div class="head" style="margin-top:12px"><h2 data-k="ah">Cho'ntagingizda. Bitta hisob hamma joyda.</h2>
+        <svg class="strokes draw" style="right:-40px;top:-18px;width:34px;height:34px" viewBox="0 0 44 44" fill="none" stroke="#ff6a1a" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path style="--len:20" d="M6 30L14 20"/><path style="--len:22" d="M20 26L24 6"/><path style="--len:20" d="M30 32L42 22"/></svg></div>
+      <ul class="list">
+        <li><svg><use href="#ok"/></svg><span data-k="a1">Android ilova — tez, yengil, bildirishnomalar bilan</span></li>
+        <li><svg><use href="#ok"/></svg><span data-k="a2">Kamera bilan rasm yuboring — masala, matn, chek</span></li>
+        <li><svg><use href="#ok"/></svg><span data-k="a3">Kompyuterda QR kod bilan bir zumda kiring</span></li>
+        <li><svg><use href="#ok"/></svg><span data-k="a4">iPhone'da Safari orqali bosh ekranga qo'shing</span></li>
+        <li><svg><use href="#ok"/></svg><span data-k="a5">Hamyon: Telegram Stars va Premium xaridi</span></li>
+      </ul>
+      <div class="cta">
+        <a class="btn pri" href="https://bilolsai.uz/apk" data-k="ab1">APK yuklab olish</a>
+        <a class="btn sec" href="https://bilolsai.uz/kompyuter" data-k="ab2">Kompyuter uchun</a>
+      </div>
+    </div>
+    <div class="orbit rv" style="--d:1" aria-hidden="true">
+      <div class="plate"></div>
+      <svg class="wires" viewBox="0 0 100 90" preserveAspectRatio="none"><line x1="50" y1="45" x2="15" y2="16"/><line x1="50" y1="45" x2="88" y2="22"/><line x1="50" y1="45" x2="8" y2="68"/><line x1="50" y1="45" x2="80" y2="75"/></svg>
+      <div class="node me"><span class="mark">B<svg><use href="#spark"/></svg></span></div>
+      <div class="node" style="left:8%;top:10%;width:68px;height:68px;color:#8fb0ff"><svg><use href="#i-phone"/></svg></div>
+      <div class="node" style="right:6%;top:18%;width:60px;height:60px;animation-delay:-2s"><svg><use href="#i-tg"/></svg></div>
+      <div class="node" style="left:2%;bottom:18%;width:60px;height:60px;animation-delay:-3.500s;color:#8fb0ff"><svg><use href="#i-pc"/></svg></div>
+      <div class="node" style="right:12%;bottom:8%;width:72px;height:72px;animation-delay:-5s"><svg><use href="#i-web"/></svg></div>
+      <div class="say" style="left:24%;top:6%">Android</div>
+      <div class="say" style="right:20%;top:8%;animation-delay:-1.500s;background:#2f66f5;color:#fff">Telegram</div>
+      <div class="say" style="left:14%;bottom:40%;animation-delay:-3s">QR</div>
+      <div class="say" style="right:4%;bottom:34%;animation-delay:-4s;background:#8fb0ff">bilolsai.uz</div>
+    </div>
+  </div>
+</section>
+
+<section id="misollar" style="padding-top:40px">
+  <div class="wrap">
+    <div class="rail-top rv">
+      <div><div class="head"><svg class="tick draw" viewBox="0 0 26 26" fill="none" stroke="#8fb0ff" stroke-width="2.600" stroke-linecap="round" aria-hidden="true"><path style="--len:14" d="M4 14L12 20"/><path style="--len:14" d="M12 4L16 14"/></svg>
+        <h2 data-k="rh">Shunchaki shunday yozing.</h2></div>
+        <p class="sub" data-k="rs">Maxsus buyruq kerak emas. Mana odamlar har kuni so'raydigan narsalar.</p></div>
+      <div class="arrows"><button id="prev" aria-label="Oldingi"><svg width="20" height="20" style="transform:scaleX(-1)"><use href="#arr"/></svg></button><button id="next" aria-label="Keyingi"><svg width="20" height="20"><use href="#arr"/></svg></button></div>
+    </div>
+    <div class="rail rv" id="rail" style="--d:1" tabindex="0">
+      <article class="card"><div class="q">“</div><p data-k="p1">Masalani <b>bosqichma-bosqich</b> yechib ber</p><div class="tag"><i><svg><use href="#i-teach"/></svg></i><span data-k="m0">O'qituvchi</span></div></article>
+      <article class="card"><div class="q">“</div><p data-k="p2">Rasmdagi matnni <b>ingliz tiliga</b> tarjima qil</p><div class="tag"><i><svg><use href="#i-cam"/></svg></i><span data-k="t2">Kamera</span></div></article>
+      <article class="card"><div class="q">“</div><p data-k="p3">Shu PDF'dan <b>asosiy fikrlarni</b> ayt</p><div class="tag"><i><svg><use href="#i-doc"/></svg></i><span data-k="t3">Hujjat</span></div></article>
+      <article class="card"><div class="q">“</div><p data-k="p4">«Vatan» mavzusida <b>insho</b> yoz</p><div class="tag"><i><svg><use href="#i-pen"/></svg></i><span data-k="m3">Insho</span></div></article>
+      <article class="card"><div class="q">“</div><p data-k="p5">Kodimdagi <b>xatoni</b> topib ber</p><div class="tag"><i><svg><use href="#i-code"/></svg></i><span data-k="m1">Dasturchi</span></div></article>
+      <article class="card"><div class="q">“</div><p data-k="p6">Tog'lardagi shom, <b>akvarel</b> uslubida rasm chiz</p><div class="tag"><i><svg><use href="#i-img"/></svg></i><span data-k="t6">Rasm</span></div></article>
+    </div>
+  </div>
+</section>
+
+<section id="narxlar">
+  <div class="wrap">
+    <div class="rv"><p class="eyebrow" data-k="se">Boshlash</p><h2 style="margin-top:12px" data-k="sh">Uch qadamda tayyor.</h2></div>
+    <div class="steps">
+      <div class="step rv"><h3 data-k="st1">Ro'yxatdan o'ting</h3><p data-k="st1s">Telefon raqamingiz va parol kifoya. Google bilan ham kirish mumkin.</p></div>
+      <div class="step rv" style="--d:1"><h3 data-k="st2">Kodni tasdiqlang</h3><p data-k="st2s">Tasdiqlash kodi Telegram botimizga keladi — bir zumda.</p></div>
+      <div class="step rv" style="--d:2"><h3 data-k="st3">So'rang</h3><p data-k="st3s">Yozing, rasm yuboring yoki fayl biriktiring. Kuniga 30 ta xabar bepul.</p></div>
+    </div>
+
+    <div class="rv" style="margin-top:96px"><p class="eyebrow" data-k="pe">Narxlar</p><h2 style="margin-top:12px" data-k="ph">Bepul boshlang. Ko'proq kerak bo'lsa — obuna yoki faqat ishlatganingiz uchun to'lang.</h2></div>
+    <div class="plans">
+      <div class="plan rv"><h3 data-k="pl1">Bepul</h3><div class="price">0<small data-k="sum">so'm</small></div><p class="for" data-k="pl1f">Har kuni AI bilan suhbat.</p>
+        <ul><li><svg><use href="#ok"/></svg><span data-k="pl1a">Kuniga 30 ta xabar</span></li><li><svg><use href="#ok"/></svg><span data-k="pl1b">Kuniga 20 ta internet qidiruv</span></li><li><svg><use href="#ok"/></svg><span data-k="pl1c">Kunlik bonus 500 so'm</span></li><li><svg><use href="#ok"/></svg><span data-k="pl1e">Sayt va ilovalar</span></li></ul>
+        <a class="btn sec" href="https://bilolsai.uz" data-k="pl1d">Boshlash</a></div>
+      <div class="plan hot rv" style="--d:1"><h3 data-k="pl2">Obuna</h3><div class="price">25 000<small data-k="per30">so'm / 30 kun</small></div><p class="for" data-k="pl2f">Cheklovsiz — barcha AI agentlar bilan.</p>
+        <ul><li><svg><use href="#ok"/></svg><span data-k="pl2a">Cheklovsiz xabarlar</span></li><li><svg><use href="#ok"/></svg><span data-k="pl2b">Barcha AI modellar</span></li><li><svg><use href="#ok"/></svg><span data-k="pl2c">Cheklovsiz internet qidiruv</span></li><li><svg><use href="#ok"/></svg><span data-k="pl2d">30 kun amal qiladi</span></li></ul>
+        <a class="btn pri" href="https://bilolsai.uz" data-k="pl2e">Obuna bo'lish</a></div>
+      <div class="plan rv" style="--d:2"><h3 data-k="pl3">Rasm yaratish</h3><div class="price">1 500<small data-k="perimg">so'm / rasm</small></div><p class="for" data-k="pl3f">Faqat yaratgan rasmingiz uchun to'laysiz.</p>
+        <ul><li><svg><use href="#ok"/></svg><span data-k="pl3a">Matndan rasm</span></li><li><svg><use href="#ok"/></svg><span data-k="pl3b">Saqlash va ulashish</span></li><li><svg><use href="#ok"/></svg><span data-k="pl3c">Xato bo'lsa — pul qaytadi</span></li><li><svg><use href="#ok"/></svg><span data-k="pl3d">Hamyondan avtomatik</span></li></ul>
+        <a class="btn sec" href="https://bilolsai.uz" data-k="pl3e">Rasm yaratish</a></div>
+    </div>
+    <div class="shop rv">
+      <strong data-k="sp">Hamyon</strong>
+      <dl>
+        <div><dt data-k="w1">To'ldirish</dt><dd>Click · Payme · karta</dd></div>
+        <div><dt data-k="w2">Kunlik bonus</dt><dd>+500</dd></div>
+        <div><dt data-k="w3">Do'st taklifi</dt><dd>+2 000</dd></div>
+        <div><dt data-k="w4">Do'konda</dt><dd>Telegram Stars · Premium</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section id="savollar" style="padding-top:40px">
+  <div class="wrap faq">
+    <div class="rv">
+      <div class="head"><h2 data-k="qh">Savolingiz bormi?</h2>
+        <svg class="strokes draw" style="right:-40px;top:-18px;width:34px;height:34px" viewBox="0 0 44 44" fill="none" stroke="#ff6a1a" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path style="--len:20" d="M6 30L14 20"/><path style="--len:22" d="M20 26L24 6"/><path style="--len:20" d="M30 32L42 22"/></svg></div>
+      <p class="sub" data-k="qs">Javobi shu yerda bo'lmasa, Telegram'da yozing — admin o'zi javob beradi.</p>
+      <a class="btn sec" href="https://t.me/bilolsaiuz" target="_blank" rel="noopener"><svg width="16" height="16"><use href="#i-tg"/></svg>@bilolsaiuz</a>
+    </div>
+    <div class="rv" style="--d:1">
+      <details open><summary><span data-k="q1">Bilols AI bepulmi?</span><svg><use href="#arr"/></svg></summary><p data-k="q1a">Ha. Kuniga 30 ta xabar bepul. Cheklovsiz xabar va barcha AI modellar — obuna bilan: 25 000 so'm / 30 kun.</p></details>
+      <details><summary><span data-k="q2">Qanday ro'yxatdan o'taman?</span><svg><use href="#arr"/></svg></summary><p data-k="q2a">Telefon raqamingiz va parol bilan. Tasdiqlash kodi Telegram botimizga keladi.</p></details>
+      <details><summary><span data-k="q3">Kompyuterda qanday kiraman?</span><svg><use href="#arr"/></svg></summary><p data-k="q3a">Kirish oynasida «QR kod orqali kirish»ni bosing va telefoningizda Sozlamalar → QR orqali kirish bilan skanerlang.</p></details>
+      <details><summary><span data-k="q4">Hisobni qanday to'ldiraman?</span><svg><use href="#arr"/></svg></summary><p data-k="q4a">Hamyon → To'ldirish. Summani tanlaysiz, karta raqami Telegram botga keladi, chekni yuborasiz — pul balansga tushadi.</p></details>
+      <details><summary><span data-k="q5">Ma'lumotlarim xavfsizmi?</span><svg><use href="#arr"/></svg></summary><p data-k="q5a">Parolingiz serverda faqat shifrlangan holda saqlanadi. Batafsil — Maxfiylik siyosatida.</p></details>
+      <details><summary><span data-k="q6">iPhone'da ishlaydimi?</span><svg><use href="#arr"/></svg></summary><p data-k="q6a">Ha. Safari'da bilolsai.uz ni oching → Ulashish → «Bosh ekranga» — ilova kabi to'liq ekranda ochiladi.</p></details>
+      <details><summary><span data-k="q7">Parolni unutsam-chi?</span><svg><use href="#arr"/></svg></summary><p data-k="q7a">Kirish oynasida «Parolni tiklash»ni bosing: yangi parolni Telegram bot yoki ulangan email orqali o'rnatasiz.</p></details>
+      <a class="btn sec sm" style="margin-top:24px" href="https://bilolsai.uz/faq"><span data-k="qall">Barcha savollar</span><svg width="14" height="14"><use href="#arr"/></svg></a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div><a class="logo" href="#top"><span class="mark">B<svg><use href="#spark"/></svg></span>Bilols AI</a><p data-k="ft">Uy vazifasi, ish, o'qish va kundalik savollar uchun yaratilgan sun'iy intellekt.</p></div>
+      <div><h4 data-k="fh1">Mahsulot</h4><ul><li><a href="#imkoniyatlar" data-k="n1">Imkoniyatlar</a></li><li><a href="#narxlar" data-k="n3">Narxlar</a></li><li><a href="https://bilolsai.uz/portfolio" data-k="fp">Portfolio</a></li></ul></div>
+      <div><h4 data-k="fh2">Yuklab olish</h4><ul><li><a href="https://bilolsai.uz/apk">Android APK</a></li><li><a href="https://bilolsai.uz/kompyuter">Windows</a></li><li><a href="https://bilolsai.uz/iphone">iPhone</a></li><li><a href="https://t.me/BilolsAIbot" target="_blank" rel="noopener">Telegram bot</a></li></ul></div>
+      <div><h4 data-k="fh3">Yordam</h4><ul><li><a href="https://bilolsai.uz/faq" data-k="n4">Savollar</a></li><li><a href="https://bilolsai.uz/maxfiylik" data-k="fm">Maxfiylik siyosati</a></li><li><a href="https://bilolsai.uz/cookie" data-k="fc">Cookie siyosati</a></li><li><a href="https://t.me/bilolsaiuz" target="_blank" rel="noopener">@bilolsaiuz</a></li></ul></div>
+    </div>
+    <div class="copy"><span>© 2026 Bilols AI</span><span>bilolsai.uz</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+var d=document, root=d.documentElement; root.classList.add('js');
+var calm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+var ua=navigator.userAgent||'', lite=/BilolsAIApp|Android/i.test(ua)||(navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4);
+if(lite)root.classList.add('lite');
+var framed=window.top!==window;
+
+/* ---- translations (uz is the markup itself) ---- */
+var T={
+n1:["Возможности","Features"],n2:["Приложение","App"],n3:["Цены","Pricing"],n4:["Вопросы","FAQ"],login:["Войти","Log in"],
+h1a:["Спросите.","Ask it."],h1b:["Получите","Get the"],h1c:["ответ.","answer."],
+lead:["Bilols AI — личный искусственный интеллект, который понимает узбекский. Пишите, отправляйте фото или документы — точный ответ за секунды.","Bilols AI is a personal AI that understands Uzbek. Type, send a photo or attach a document — a precise answer in seconds."],
+cta1:["Начать бесплатно","Start for free"],cta2:["Telegram-бот","Telegram bot"],
+nt1:["Сайт, Android-приложение, Telegram-бот","Web, Android app, Telegram bot"],nt2:["Узбекский, русский, английский","Uzbek, Russian, English"],
+phin:["Напишите вопрос…","Ask anything…"],ch1:["Читает фото","Reads photos"],ch2:["Анализ PDF","PDF analysis"],ch3:["Рисует картинки","Draws images"],
+s1:["Отвечает всегда — даже ночью","Always answers — even at night"],s2:["Режимов: учитель, программист, переводчик, сочинения, экзамен","Modes: teacher, coder, translator, essays, exams"],s3:["Языка: узбекский, русский, английский","Languages: Uzbek, Russian, English"],s4:["Аккаунт — на сайте, в приложении и боте","Account — web, app and Telegram bot"],
+f0:["Чат, фото, документы — в одном окне.","Chat, photos, documents — one window."],f0s:["Пишите обычным языком. Нужный режим Bilols AI поймёт сам.","Write in plain language. Bilols AI picks up the right mode."],
+f1:["Текст и диалог","Text and chat"],f1s:["Сочинения, планы, переводы, код. Объясняет решение задачи по шагам.","Essays, outlines, translation, code. It explains a solution step by step."],
+f2:["Фото и камера","Photos and camera"],f2s:["Сфотографируйте задачу, текст или чек — прочитает, решит, переведёт. И сам рисует картинки.","Snap a problem, a text or a receipt — it reads, solves and translates. It draws images too."],
+f3:["Анализ документов","Document analysis"],f3s:["Прикрепите PDF или файл — выделит главное и ответит на ваши вопросы.","Attach a PDF or a file — it pulls out the key points and answers your questions."],
+m0:["Учитель","Teacher"],m1:["Программист","Coder"],m2:["Переводчик","Translator"],m3:["Сочинение","Essay"],m4:["Экзамен","Exam"],
+me:["Пять режимов","Five modes"],mh:["Учёба, работа, экзамен. Что ещё нужно?","Study, work, exams. What else do you need?"],ms:["Выберите режим или просто пишите — Bilols AI сам подстроится под вопрос.","Pick a mode or just type — Bilols AI adapts to the question."],
+ae:["Приложение","App"],ah:["В вашем кармане. Один аккаунт везде.","In your pocket. One account everywhere."],
+a1:["Android-приложение — быстрое, лёгкое, с уведомлениями","Android app — fast, light, with notifications"],a2:["Отправляйте фото с камеры — задачи, тексты, чеки","Send photos from the camera — problems, texts, receipts"],a3:["На компьютере — вход по QR-коду за секунду","Log in on a computer in a second with a QR code"],a4:["На iPhone добавьте на экран «Домой» через Safari","On iPhone, add it to the Home Screen from Safari"],a5:["Кошелёк: покупка Telegram Stars и Premium","Wallet: buy Telegram Stars and Premium"],
+ab1:["Скачать APK","Download APK"],ab2:["Для компьютера","For Windows"],
+rh:["Просто пишите вот так.","Just type it like this."],rs:["Специальные команды не нужны. Вот что спрашивают каждый день.","No special commands. Here is what people ask every day."],
+p1:["Реши задачу <b>по шагам</b>","Solve this problem <b>step by step</b>"],p2:["Переведи текст с фото <b>на английский</b>","Translate the text in this photo <b>into English</b>"],p3:["Выдели <b>главное</b> из этого PDF","Give me <b>the key points</b> of this PDF"],p4:["Напиши <b>сочинение</b> о Родине","Write an <b>essay</b> about my homeland"],p5:["Найди <b>ошибку</b> в моём коде","Find the <b>bug</b> in my code"],p6:["Нарисуй закат в горах <b>акварелью</b>","Draw a mountain sunset <b>in watercolor</b>"],
+t2:["Камера","Camera"],t3:["Документ","Document"],t6:["Рисунок","Image"],
+se:["Начало","Getting started"],sh:["Готово за три шага.","Ready in three steps."],
+st1:["Зарегистрируйтесь","Sign up"],st1s:["Достаточно номера телефона и пароля. Можно войти и через Google.","A phone number and a password are enough. You can also sign in with Google."],
+st2:["Подтвердите код","Confirm the code"],st2s:["Код подтверждения мгновенно придёт в наш Telegram-бот.","The confirmation code arrives in our Telegram bot right away."],
+st3:["Спрашивайте","Ask"],st3s:["Пишите, отправляйте фото или прикрепляйте файл. 30 сообщений в день бесплатно.","Type, send a photo or attach a file. 30 messages a day are free."],
+pe:["Цены","Pricing"],ph:["Начните бесплатно. Нужно больше — подписка или платите только за то, чем пользуетесь.","Start free. Need more — subscribe, or pay only for what you use."],
+pl1:["Бесплатно","Free"],sum:["сум","UZS"],pl1f:["Общение с ИИ каждый день.","Chat with AI every day."],pl1a:["30 сообщений в день","30 messages a day"],pl1b:["20 поисков в интернете в день","20 web searches a day"],pl1c:["Ежедневный бонус 500 сум","Daily bonus of 500 UZS"],pl1e:["Сайт и приложения","Web and apps"],pl1d:["Начать","Start"],
+pl2:["Подписка","Subscription"],per30:["сум / 30 дней","UZS / 30 days"],pl2f:["Без ограничений — со всеми ИИ-агентами.","Unlimited — with every AI agent."],pl2a:["Сообщения без ограничений","Unlimited messages"],pl2b:["Все модели ИИ","All AI models"],pl2c:["Поиск в интернете без ограничений","Unlimited web search"],pl2d:["Действует 30 дней","Valid for 30 days"],pl2e:["Оформить подписку","Subscribe"],
+pl3:["Создание изображений","Image generation"],perimg:["сум / изображение","UZS / image"],pl3f:["Платите только за созданные изображения.","Pay only for the images you create."],pl3a:["Изображение из текста","Text to image"],pl3b:["Сохранение и отправка","Save and share"],pl3c:["При ошибке деньги возвращаются","Refund if it fails"],pl3d:["Автоматически из кошелька","Charged from the wallet"],pl3e:["Создать изображение","Create an image"],
+sp:["Кошелёк","Wallet"],w1:["Пополнение","Top up"],w2:["Ежедневный бонус","Daily bonus"],w3:["Приглашение друга","Friend invite"],w4:["В Магазине","In the Shop"],
+qh:["Есть вопрос?","Got a question?"],qs:["Если ответа здесь нет, напишите в Telegram — админ ответит лично.","If the answer is not here, write on Telegram — the admin replies personally."],
+q1:["Bilols AI бесплатный?","Is Bilols AI free?"],q1a:["Да. 30 сообщений в день бесплатно. Безлимит и все модели ИИ — по подписке: 25 000 сум / 30 дней.","Yes. 30 messages a day are free. Unlimited messages and all AI models come with a subscription: 25,000 UZS / 30 days."],
+q2:["Как зарегистрироваться?","How do I sign up?"],q2a:["По номеру телефона и паролю. Код подтверждения придёт в наш Telegram-бот.","With your phone number and a password. The confirmation code arrives in our Telegram bot."],
+q3:["Как войти на компьютере?","How do I log in on a computer?"],q3a:["В окне входа нажмите «Войти по QR-коду» и отсканируйте его на телефоне: Настройки → Вход по QR.","In the login window tap “Log in with a QR code” and scan it on your phone: Settings → Log in with QR."],
+q4:["Как пополнить баланс?","How do I top up?"],q4a:["Кошелёк → Пополнить. Выберите сумму, номер карты придёт в бот, отправьте чек — деньги зачислятся.","Wallet → Top up. Pick an amount, the card number arrives in the bot, send the receipt — the money is credited."],
+q5:["Мои данные в безопасности?","Is my data safe?"],q5a:["Пароль хранится на сервере только в зашифрованном виде. Подробнее — в Политике конфиденциальности.","Your password is stored only in encrypted form. Details are in the Privacy policy."],
+q6:["Работает на iPhone?","Does it work on iPhone?"],q6a:["Да. Откройте bilolsai.uz в Safari → Поделиться → «На экран Домой» — откроется как приложение.","Yes. Open bilolsai.uz in Safari → Share → “Add to Home Screen” — it opens full screen like an app."],
+q7:["Что если я забыл пароль?","What if I forget my password?"],q7a:["Нажмите «Восстановить пароль» в окне входа: новый пароль задаётся через Telegram-бота или привязанный email.","Tap “Reset password” on the login screen: set a new one via the Telegram bot or your linked email."],
+qall:["Все вопросы","All questions"],
+ft:["Искусственный интеллект для учёбы, работы и повседневных вопросов.","An AI built for homework, work, study and everyday questions."],
+fh1:["Продукт","Product"],fh2:["Скачать","Download"],fh3:["Помощь","Help"],fp:["Портфолио","Portfolio"],fm:["Политика конфиденциальности","Privacy policy"],fc:["Политика cookie","Cookie policy"]
+};
+var DEMO={
+uz:[{q:"Insho uchun reja tuzib ber: «Kitobning ahamiyati»",t:"Reja",a:["Kirish — kitob va inson","Bilim va tafakkur manbai","Xulosa — o'qish madaniyati"]},{q:"Bu misolni yech: 2x + 6 = 14",t:"Yechim",a:["2x = 14 − 6 = 8","x = 8 : 2","x = 4 ✓"]}],
+ru:[{q:"Составь план эссе: «Роль книги»",t:"План",a:["Введение — книга и человек","Источник знаний и мысли","Вывод — культура чтения"]},{q:"Реши: 2x + 6 = 14",t:"Решение",a:["2x = 14 − 6 = 8","x = 8 : 2","x = 4 ✓"]}],
+en:[{q:"Outline an essay: “Why books matter”",t:"Outline",a:["Intro — books and people","A source of knowledge","Conclusion — reading culture"]},{q:"Solve: 2x + 6 = 14",t:"Solution",a:["2x = 14 − 6 = 8","x = 8 : 2","x = 4 ✓"]}]
+};
+var ASK={
+uz:["Bu misolni yech: 2x + 6 = 14","Python kodimdagi xatoni topib ber","Bu matnni rus tiliga tarjima qil","«Vatan» mavzusida insho yoz","DTM uchun 10 ta savolli test tuz"],
+ru:["Реши: 2x + 6 = 14","Найди ошибку в моём коде на Python","Переведи этот текст на русский","Напиши сочинение о Родине","Составь тест из 10 вопросов для DTM"],
+en:["Solve: 2x + 6 = 14","Find the bug in my Python code","Translate this text into Russian","Write an essay about my homeland","Make a 10-question IELTS practice test"]
+};
+var lang='uz', nodes=[].slice.call(d.querySelectorAll('[data-k]'));
+nodes.forEach(function(n){n._uz=n.innerHTML});
+function setLang(l){
+  lang=l; root.lang=l; var i=l==='ru'?0:1;
+  nodes.forEach(function(n){var k=n.getAttribute('data-k'); n.innerHTML=(l==='uz'||!T[k])?n._uz:T[k][i]});
+  [].forEach.call(d.querySelectorAll('.lang button'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-l')===l)});
+  try{localStorage.setItem('bilol_ai_lang',l)}catch(e){}
+  setMode(mode,true); demoIdx=0; runDemo();
+}
+d.querySelector('.lang').addEventListener('click',function(e){var l=e.target.getAttribute&&e.target.getAttribute('data-l'); if(!l)return; setLang(l);
+  /* bosh sahifa ichida: kirish oynasi ham shu tilda ochilsin */
+  if(framed)try{if(typeof parent.setAppLanguage==='function')parent.setAppLanguage(l)}catch(e){}});
+
+/* ---- phone chat demo ---- */
+var chat=d.getElementById('chat'), demoIdx=0, demoT=[];
+function later(f,ms){demoT.push(setTimeout(f,ms))}
+function el(c,h){var x=d.createElement('div');x.className=c;x.innerHTML=h;return x}
+function runDemo(){
+  demoT.forEach(clearTimeout); demoT=[];
+  var s=DEMO[lang][demoIdx%2]; chat.innerHTML='';
+  chat.appendChild(el('msg u',s.q));
+  if(calm){chat.appendChild(el('msg b','<b>'+s.t+'</b>'+s.a.map(function(x,i){return '<div><span>'+(i+1)+'.</span>'+x+'</div>'}).join('')));return}
+  var typing=el('msg b','<div class="dots"><i></i><i></i><i></i></div>');
+  later(function(){chat.appendChild(typing)},700);
+  later(function(){
+    typing.innerHTML='<b>'+s.t+'</b>';
+    s.a.forEach(function(x,i){later(function(){typing.appendChild(el('',' <span>'+(i+1)+'.</span>'+x))},350+i*520)});
+  },1900);
+  later(function(){demoIdx++;runDemo()},7200);
+}
+
+/* ---- mode pins + typed prompt ---- */
+var pins=[].slice.call(d.querySelectorAll('.pin')), askMode=d.getElementById('askMode'), askText=d.getElementById('askText'), mode=0, typeT, autoT;
+function setMode(m,instant){
+  mode=m; pins.forEach(function(p,i){p.classList.toggle('on',i===m)});
+  askMode.textContent=pins[m].querySelector('small').textContent;
+  var s=ASK[lang][m]; clearInterval(typeT);
+  if(calm||instant){askText.textContent=s;return}
+  var n=0; askText.textContent='';
+  typeT=setInterval(function(){askText.textContent=s.slice(0,++n); if(n>=s.length)clearInterval(typeT)},32);
+}
+function auto(){clearInterval(autoT); if(!calm)autoT=setInterval(function(){setMode((mode+1)%5)},3800)}
+pins.forEach(function(p,i){p.addEventListener('click',function(){setMode(i);auto()})});
+
+/* ---- rail arrows ---- */
+var rail=d.getElementById('rail');
+function slide(dir){var c=rail.querySelector('.card'); rail.scrollBy({left:dir*(c.offsetWidth+24),behavior:calm?'auto':'smooth'})}
+var prev=d.getElementById('prev'), next=d.getElementById('next');
+prev.onclick=function(){slide(-1)}; next.onclick=function(){slide(1)};
+function ends(){prev.disabled=rail.scrollLeft<4; next.disabled=rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4}
+rail.addEventListener('scroll',ends,{passive:true}); addEventListener('resize',ends); ends();
+
+/* ---- reveal on scroll ---- */
+['.list li','.plan li','.shop dl div','#savollar details','.foot > div','.copy'].forEach(function(sel){
+  [].forEach.call(d.querySelectorAll(sel),function(n){n.classList.add('rv');n.style.setProperty('--d',[].indexOf.call(n.parentNode.children,n))});
+});
+function count(b){
+  var to=+b.getAttribute('data-n'), suf=b.getAttribute('data-suf')||'', t0=performance.now(), dur=900+to*25;
+  (function f(t){var k=Math.min((t-t0)/dur,1); b.textContent=Math.round(to*(1-Math.pow(1-k,3)))+suf; if(k<1)requestAnimationFrame(f)})(t0);
+}
+function shown(n){
+  n.classList.add('in','seen');
+  var b=n.querySelector&&n.querySelector('[data-n]'); if(b&&!calm)count(b);
+  if(n.id==='modes'){auto();return}
+  /* drop the reveal classes once it has played, so hover and tilt are not delayed by it */
+  setTimeout(function(){n.classList.remove('rv','in')},(parseFloat(n.style.getPropertyValue('--d'))||0)*110+1300);
+}
+var rv=[].slice.call(d.querySelectorAll('.rv,.modes'));
+if('IntersectionObserver' in window&&!calm){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);shown(e.target)}})},{threshold:.12,rootMargin:'0px 0px -5% 0px'});
+  rv.forEach(function(n){io.observe(n)});
+}else rv.forEach(function(n){n.classList.add('in','seen')});
+
+/* ---- mobile menu + in-page links ---- */
+var burger=d.getElementById('burger'), menu=d.getElementById('menu');
+function menuSet(o){menu.classList.toggle('open',o);burger.setAttribute('aria-expanded',o)}
+burger.onclick=function(){menuSet(!menu.classList.contains('open'))};
+d.addEventListener('click',function(e){
+  var ext=e.target.closest&&e.target.closest('a[href^="http"]');
+  /* bosh sahifa ichida (iframe): Kirish/Boshlash — saytning kirish oynasi, boshqa havolalar — butun oynada */
+  if(ext&&framed){var u=ext.getAttribute('href');
+    if(u==='https://bilolsai.uz'||u==='https://bilolsai.uz/'){e.preventDefault();menuSet(false);parent.postMessage({bilols:'auth'},location.origin);return}
+    if(ext.target!=='_blank')ext.target='_top'}
+  var a=e.target.closest&&e.target.closest('a[href^="#"]');
+  if(a){var t=d.getElementById(a.getAttribute('href').slice(1)); if(t){e.preventDefault();menuSet(false);t.scrollIntoView({behavior:calm?'auto':'smooth',block:'start'})}}
+  else if(!e.target.closest('header'))menuSet(false);
+});
+
+/* ---- smooth FAQ open and close ---- */
+[].forEach.call(d.querySelectorAll('details'),function(dt){
+  var sm=dt.querySelector('summary'), busy;
+  sm.addEventListener('click',function(e){
+    if(calm||!dt.animate)return; e.preventDefault(); if(busy)return; busy=true;
+    var from=dt.offsetHeight, closing=dt.open; if(!closing)dt.open=true;
+    var to=closing?sm.offsetHeight:dt.offsetHeight; dt.style.overflow='hidden';
+    dt.animate({height:[from+'px',to+'px']},{duration:340,easing:'cubic-bezier(.3,.7,.2,1)'}).onfinish=function(){if(closing)dt.open=false;dt.style.overflow='';busy=false};
+  });
+});
+
+/* ---- pointer: card tilt + soft spotlight ---- */
+if(matchMedia('(hover:hover)').matches&&!calm){
+  [].forEach.call(d.querySelectorAll('.card,.plan'),function(c){
+    c.addEventListener('pointermove',function(e){var r=c.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+      c.style.transform='perspective(800px) rotateX('+(-y*7)+'deg) rotateY('+(x*7)+'deg) translateY(-6px)'});
+    c.addEventListener('pointerleave',function(){c.style.transform=''});
+  });
+  var spot=d.getElementById('spot'), sx=0, sy=0, sq=false;
+  addEventListener('pointermove',function(e){sx=e.clientX;sy=e.clientY;spot.style.opacity=1;
+    if(!sq){sq=true;requestAnimationFrame(function(){spot.style.transform='translate3d('+sx+'px,'+sy+'px,0)';sq=false})}},{passive:true});
+}
+
+/* ---- scroll: progress bar, header line, phone tilt ---- */
+var bar=d.getElementById('bar'), head=d.querySelector('header'), tilt=d.getElementById('tilt'), tick=false;
+function onScroll(){
+  var y=window.scrollY||0, max=d.documentElement.scrollHeight-innerHeight;
+  bar.style.transform='scaleX('+(max>0?y/max:0)+')';
+  head.classList.toggle('stuck',y>8);
+  if(!calm){var k=Math.min(y/600,1); tilt.style.transform='rotate('+(-7+k*9)+'deg) translateY('+(k*-34)+'px)'}
+  tick=false;
+}
+addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(onScroll)}},{passive:true});
+
+/* ---- stars ---- */
+var cv=d.getElementById('stars'), cx=cv.getContext('2d'), stars=[], W,H, lastW=0, shoot=null, nextShoot=2500;
+function size(){if(innerWidth===lastW)return; lastW=innerWidth; var r=Math.min(devicePixelRatio||1,2);W=cv.width=innerWidth*r;H=cv.height=innerHeight*r;stars=[];
+  for(var i=0;i<Math.round(innerWidth/14);i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:(Math.random()*1.1+.3)*r,p:Math.random()*6.28,s:Math.random()*.9+.3,o:Math.random()<.12});
+  paint(0)}
+function paint(t){cx.clearRect(0,0,W,H);
+  for(var i=0;i<stars.length;i++){var s=stars[i]; cx.globalAlpha=.25+.55*(.5+.5*Math.sin(s.p+t*.001*s.s)); cx.fillStyle=s.o?'#8fb0ff':'#cfd8ee'; cx.beginPath(); cx.arc(s.x,(s.y+t*.004*s.s*s.r)%H,s.r,0,6.28); cx.fill()}
+  if(!shoot&&t>nextShoot)shoot={x:Math.random()*W*.7+W*.2,y:Math.random()*H*.35,t:t};
+  if(shoot){var k=(t-shoot.t)/900, L=W*.16, hx=shoot.x-k*W*.35, hy=shoot.y+k*W*.16;
+    if(k>=1){shoot=null;nextShoot=t+3500+Math.random()*5000}
+    else{var g=cx.createLinearGradient(hx,hy,hx+L,hy-L*.46); g.addColorStop(0,'rgba(207,216,238,'+(1-k)+')'); g.addColorStop(1,'rgba(207,216,238,0)');
+      cx.globalAlpha=1; cx.strokeStyle=g; cx.lineWidth=1.6; cx.beginPath(); cx.moveTo(hx,hy); cx.lineTo(hx+L,hy-L*.46); cx.stroke()}}
+  cx.globalAlpha=1}
+function loop(t){paint(t); if(!d.hidden)requestAnimationFrame(loop)}
+size(); addEventListener('resize',size);
+if(!calm&&!lite){requestAnimationFrame(loop); d.addEventListener('visibilitychange',function(){if(!d.hidden)requestAnimationFrame(loop)})}
+
+/* ---- start ---- */
+var saved; try{saved=localStorage.getItem('bilol_ai_lang')}catch(e){}
+if(saved==='ru'||saved==='en')setLang(saved); else{setMode(0,true);runDemo()}
+onScroll();
+})();
+</script>
+</body>
+</html>
