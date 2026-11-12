@@ -1,7 +1,7 @@
 // Bilols AI — oddiy service worker: sahifa internet bo'lmasa ham ochiladi.
 // API so'rovlari va boshqa saytlarga tegilmaydi.
-const CACHE = "bilols-ai-v43";
-const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icons/icon-192.png", "/design.js?v=9", "/design.css?v=10"];
+const CACHE = "bilols-ai-v44";
+const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icons/icon-192.png", "/design.js?v=10", "/design.css?v=11"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).catch(() => {}));

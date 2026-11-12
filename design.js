@@ -26,7 +26,7 @@
         if (!prem && b.classList.contains('theme-light') && b.hasAttribute('data-pm-light') && !userWantsLight()) b.classList.remove('theme-light');
         if (prem) b.setAttribute('data-pm-light', ''); else b.removeAttribute('data-pm-light');
         var meta = document.querySelector('meta[name="theme-color"]');
-        if (meta && prem) meta.setAttribute('content', '#f6f3ec');
+        if (meta && prem) meta.setAttribute('content', wantDark() ? '#121113' : '#f6f3ec');
     }
     var watching = false;
     function watchBody() {
@@ -37,8 +37,21 @@
         syncLight();
     }
 
+    // ◑ To'q rejim — sahifa chizilishidan oldin (oq "chaqnash" bo'lmasin). Landing (iframe) bunga bog'liq emas.
+    function wantDark() { try { return localStorage.getItem('bilol_ai_dark') === '1'; } catch (e) { return false; } }
+    function applyDark() {
+        var on = wantDark();
+        if (on) root.setAttribute('data-pm-dark', ''); else root.removeAttribute('data-pm-dark');
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', on ? '#121113' : '#f6f3ec');
+    }
+    window.BILOLS_SET_DARK = function (on) {
+        try { localStorage.setItem('bilol_ai_dark', on ? '1' : '0'); } catch (e) {}
+        applyDark();
+    };
     function apply() {
         root.setAttribute('data-design', 'premium');
+        applyDark();
         addFont();
         syncLight();
     }
