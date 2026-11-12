@@ -1120,7 +1120,7 @@ select.inp option { background: #12151c; color: var(--text); }
         function sw(get, set) { var el = h('div', { class: 'switch' + (get() ? ' ok' : ''), role: 'switch', onclick: function () { set(!get()); el.className = 'switch' + (get() ? ' ok' : ''); } }); return el; }
         function line(title, sub, el) { return h('div', { style: 'display:flex;align-items:center;gap:12px;padding:6px 0' }, [h('div', { style: 'flex:1' }, [h('b', { text: title }), sub ? h('div', { class: 'sum', text: sub }) : null]), el]); }
         var elKey = h('input', { class: 'inp mono', type: 'password', placeholder: c.elKey ? '•••••••• (saqlangan — almashtirish uchun yangisini yozing)' : 'sk_...' });
-        var elVoice = h('input', { class: 'inp mono', placeholder: 'Voice ID, masalan 21m00Tcm4TlvDq8ikWAM' }); elVoice.value = c.elVoice || '';
+        var elVoice = h('input', { class: 'inp mono', placeholder: 'Voice ID — bir nechtasini vergul bilan yozsangiz, har qo\'ng\'iroqda boshqasi' }); elVoice.value = c.elVoice || '';
         var elModel = h('input', { class: 'inp mono', placeholder: 'eleven_v3 (bo\'sh qoldirsa ham bo\'ladi)' }); elModel.value = c.elModel || '';
         var trigBox = h('div');
         Object.keys(j.triggerNames || {}).forEach(function (k) {
@@ -1142,6 +1142,48 @@ select.inp option { background: #12151c; color: var(--text); }
                 ". Voice ID: Voices bo'limida ovozni tanlang → «ID» ni nusxalang."]),
             field('ElevenLabs API kaliti', elKey),
             h('div', { class: 'form-row' }, [field('Voice ID', elVoice), field('Model (ixtiyoriy)', elModel)]),
+            h('div', { class: 'sum', style: 'line-height:1.55', text: "Har qo'ng'iroqda AI gapni o'zi yangidan tuzadi (vaqtga mos salom, sabab o'z so'zlari bilan). Bir nechta ovoz tanlasangiz — har safar boshqa ovozda gapiradi." }),
+            (function () {
+                var box = h('div', { style: 'display:grid;gap:6px;margin-top:6px' });
+                var btn = h('button', { class: 'btn ghost', text: "🎙 Ovozlarni ko'rish va tanlash", onclick: async function () {
+                    box.textContent = "⏳ Ovozlar yuklanmoqda…";
+                    var x = await admin('call_voices', { elKey: elKey.value.trim() });
+                    if (!x.success) { box.textContent = '❌ ' + (x.error || 'Xato'); return; }
+                    box.textContent = '';
+                    function picked() { return elVoice.value.split(/[\s,;]+/).filter(Boolean); }
+                    (x.voices || []).forEach(function (v) {
+                        var au = null;
+                        var add = h('button', { class: 'act', text: picked().indexOf(v.id) >= 0 ? '✓ Tanlangan' : '+ Tanlash' });
+                        add.onclick = function () {
+                            var p = picked(), i = p.indexOf(v.id);
+                            if (i >= 0) p.splice(i, 1); else p.push(v.id);
+                            elVoice.value = p.join(', ');
+                            add.textContent = i >= 0 ? '+ Tanlash' : '✓ Tanlangan';
+                        };
+                        var play = h('button', { class: 'act', text: '▶', title: 'Eshitib ko\'rish (ElevenLabs namunasi)', onclick: function () {
+                            if (!v.preview) { toast("Bu ovozda namuna yo'q — «Ovozni eshitib ko'rish» tugmasidan foydalaning"); return; }
+                            if (!au) au = new Audio(v.preview);
+                            au.currentTime = 0; au.play().catch(function () {});
+                        } });
+                        var say = h('button', { class: 'act', text: '🗣', title: "O'zbekcha gapirtirib ko'rish", onclick: async function () {
+                            say.textContent = '⏳';
+                            try {
+                                await apiReady;
+                                var r = await fetch(API + '/api/admin/call_voice_test', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token || '' }, body: JSON.stringify({ elKey: elKey.value.trim(), voiceId: v.id, elModel: elModel.value.trim() }) });
+                                if (!r.ok) { var e = {}; try { e = await r.json(); } catch (q) {} toast('❌ ' + (e.error || 'Xato')); return; }
+                                new Audio(URL.createObjectURL(await r.blob())).play().catch(function () {});
+                            } finally { say.textContent = '🗣'; }
+                        } });
+                        box.appendChild(h('div', { style: 'display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)' }, [
+                            h('div', { style: 'flex:1;min-width:0' }, [h('b', { text: v.name }), h('div', { class: 'sum', text: [v.labels, v.cat].filter(Boolean).join(' · ') })]),
+                            play, say, add
+                        ]));
+                    });
+                    if (!(x.voices || []).length) box.textContent = "Akkauntda ovoz yo'q — elevenlabs.io → Voices → Voice Library dan qo'shing";
+                    else box.appendChild(h('div', { class: 'sum', text: "Tanlagach «💾 Saqlash»ni bosing." }));
+                } });
+                return h('div', null, [btn, box]);
+            })(),
             line("Ko'targanimda AI gapirsin", j.voiceCall ? "Qo'ng'iroqni ko'tarsangiz ovoz eshittiriladi" : "Serverda ovozli qo'ng'iroq kutubxonasi yo'q — ovoz qo'ng'iroqdan keyin ovozli xabar bo'lib keladi", sw(function () { return incall; }, function (v) { incall = v; })),
             h('button', { class: 'btn ghost', text: '🔊 Ovozni eshitib ko\'rish', onclick: async function () {
                 voiceRes.textContent = '⏳ Ovoz yaratilmoqda…';
