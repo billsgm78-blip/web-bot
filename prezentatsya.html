@@ -468,10 +468,18 @@ button { font: inherit; color: inherit; cursor: pointer; }
   function adminToken() {
     try { var s = JSON.parse(localStorage.getItem('bilols_admin_token') || 'null'); return s && s.exp > Date.now() ? s.t : null; } catch (e) { return null; }
   }
+  // QR doim tayyor: ochiq manzil (admin kirishi shart emas); server eski bo'lsa — admin manzili
+  var PUB = { test_qr_next: '/api/test/qr', test_qr_status: '/api/test/qr/status' }, pubOk = true;
   async function admin(action, body) {
     await apiReady;
-    var r = await fetch(API + '/api/admin/' + action, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': adminToken() || '' }, body: JSON.stringify(body || {}) });
-    var j = {}; try { j = await r.json(); } catch (e) {}
+    var r, j = {};
+    if (pubOk && PUB[action]) {
+      r = await fetch(API + PUB[action], { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+      if (r.status === 404 || r.status === 405) pubOk = false;
+      else { try { j = await r.json(); } catch (e) {} j._status = r.status; return j; }
+    }
+    r = await fetch(API + '/api/admin/' + action, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': adminToken() || '' }, body: JSON.stringify(body || {}) });
+    try { j = await r.json(); } catch (e) {}
     j._status = r.status; return j;
   }
   var Q = { run: 0, started: false, token: null, refresh: 0, waitAdmin: false };
@@ -522,18 +530,18 @@ button { font: inherit; color: inherit; cursor: pointer; }
   function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
   async function next(run) {
     var j;
-    try { j = await admin('test_qr_next'); } catch (e) { msg('Internet yo\'q. Qayta urinilmoqda…'); await wait(3000); return run === Q.run && next(run); }
+    try { j = await admin('test_qr_next'); } catch (e) { msg('Server uyg\'onyapti yoki internet yo\'q. Qayta urinilmoqda…'); await wait(3000); return run === Q.run && next(run); }
     if (run !== Q.run) return;
     if (j._status === 401) {                                   // admin sessiyasi tugagan — eski kalitni tozalab, qayta kirishni so'raymiz
       try { localStorage.removeItem('bilols_admin_token'); } catch (e) {}
       needAdmin(); return;
     }
     if (!j.success) {
-      msg((j.error || "Server javob bermadi") + '<br><small>10 soniyadan keyin qayta uriniladi…</small>'); $('qr-n').textContent = '⚠️';
+      msg((j.error || "Server javob bermadi") + '<br><small>Qayta uriniladi…</small>'); $('qr-n').textContent = '⚠️';
       await wait(10000); return run === Q.run && next(run);
     }
     meter(j.used || 0, j.total || 0);
-    if (j.done) { msg('🎉 Hamma test akkauntlar band! Rahmat.'); $('qr-n').textContent = 'Tayyor'; return; }
+    if (j.done) { msg('🎉 Hamma test akkauntlar band! Rahmat.<br><small>Admin panel → Test → «Qayta tayyorlash» bossangiz, QR o\'zi qaytadi.</small>'); $('qr-n').textContent = 'Tayyor'; await wait(8000); return run === Q.run && next(run); }
     Q.token = j.token;
     $('qr-n').textContent = '📱 ' + (j.name || ('Test ' + j.n));
     drawQr(SITE + '/?demo=' + encodeURIComponent(j.token));
@@ -561,7 +569,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   function qrStart() {
     if (Q.started) return; Q.started = true;
     if (typeof qrcode !== 'function') { msg("QR kutubxonasi yuklanmadi. Sahifani yangilang."); return; }
-    if (!adminToken()) { needAdmin(); return; }
     msg('Yuklanmoqda… <br><small>Server uyg\'onyapti bo\'lsa, 30 soniyagacha kuting</small>');
     next(++Q.run);
   }
