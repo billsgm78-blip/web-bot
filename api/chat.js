@@ -447,7 +447,9 @@ export default async function handler(req, res) {
     messages: messages,
     max_tokens: Math.max(256, Math.min(8000, parseInt(ai.maxTokens, 10) || 1500))
   };
-  if (typeof ai.temperature === "number") requestBody.temperature = Math.max(0, Math.min(1.5, ai.temperature));
+  // 1 dan yuqori «ijodkorlik»da model (ayniqsa o'zbekcha) ma'nosiz so'zlar yozib yuboradi — 0.9 dan oshirmaymiz
+  requestBody.temperature = typeof ai.temperature === "number" ? Math.max(0, Math.min(0.9, ai.temperature)) : 0.7;
+  requestBody.top_p = 0.95;
   if (useWeb) requestBody.plugins = [{ id: "web", max_results: 5 }];
   if (isPc) { requestBody.response_format = { type: "json_object" }; requestBody.max_tokens = Math.min(requestBody.max_tokens, 1200); }
   if (isQuiz) { requestBody.response_format = { type: "json_object" }; requestBody.max_tokens = Math.max(requestBody.max_tokens, 4000); }

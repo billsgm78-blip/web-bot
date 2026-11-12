@@ -1547,7 +1547,7 @@ select.inp option { background: #12151c; color: var(--text); }
         var lenSel = h('select', { class: 'inp' });
         LEN.forEach(function (l) { var o = h('option', { value: l[0], text: l[1] + ' — ' + l[0] + ' token' }); if (+l[0] === +c.maxTokens) o.selected = true; lenSel.appendChild(o); });
         if (!LEN.some(function (l) { return +l[0] === +c.maxTokens; })) { var ol = h('option', { value: c.maxTokens, text: c.maxTokens + ' token' }); ol.selected = true; lenSel.appendChild(ol); }
-        var temp = h('input', { type: 'range', min: '0', max: '1.5', step: '0.1', style: 'width:100%' }); temp.value = c.temperature;
+        var temp = h('input', { type: 'range', min: '0', max: '0.9', step: '0.1', style: 'width:100%' }); temp.value = Math.min(0.9, c.temperature);
         var tempLbl = h('small');
         function tl() { var v = +temp.value; tempLbl.textContent = v.toFixed(1) + ' — ' + (v <= 0.3 ? 'aniq va qisqa, fantaziyasiz' : v <= 0.9 ? 'muvozanatli (tavsiya)' : 'ijodiy, erkin'); }
         temp.oninput = tl; tl();
