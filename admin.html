@@ -2342,7 +2342,7 @@ select.inp option { background: #12151c; color: var(--text); }
                     var x = await admin('test_reset'); if (x.success) { toast('♻️ Tayyor'); paint(x.accounts); } else toast(x.error || 'Xato');
                 } }));
                 btns.appendChild(h('button', { class: 'act red', text: "🗑 O'chirish", onclick: async function () {
-                    if (!await dialog({ title: "Test akkauntlarni o'chirish", text: "Hamma test akkauntlar va ulardagi suhbatlar o'chadi.", ok: "O'chirish", danger: true })) return;
+                    if (!await dialog({ title: "Test akkauntlarni o'chirish", text: "Hamma test akkauntlar va ulardagi suhbatlar o'chadi. ⚠️ Taqdimotdagi QR kod ishlamay qoladi — yana ochmaguningizcha. Faqat kirganlarni chiqarish kerak bo'lsa, «♻️ Hammasini bo'shatish»ni bosing.", ok: "O'chirish", danger: true })) return;
                     var x = await admin('test_delete'); if (x.success) { toast("O'chirildi"); paint([]); } else toast(x.error || 'Xato');
                 } }));
             }

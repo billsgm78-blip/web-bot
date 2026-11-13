@@ -514,7 +514,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
       needAdmin(); return;
     }
     if (!j.success) {
-      msg((j.error || "Server javob bermadi") + '<br><small>Qayta uriniladi…</small>'); $('qr-n').textContent = '⚠️';
+      msg((/akkauntlar yo'q/i.test(j.error || '') ? "Test akkauntlar ochilmagan.<br><small>Admin panel → 🧪 Test → «10 ta test akkaunt ochish». Ochilgach QR o'zi chiqadi.</small>"
+        : (j.error || "Server javob bermadi") + '<br><small>Qayta uriniladi…</small>')); $('qr-n').textContent = '⚠️';
       await wait(10000); return run === Q.run && next(run);
     }
     meter(j.used || 0, j.total || 0);
