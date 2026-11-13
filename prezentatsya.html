@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
+<script>
+/* taqdimot.bilolsai.uz da manzil satrida faqat domen ko'rinsin ("/prezentatsya" emas) */
+try { if (location.hostname === 'taqdimot.bilolsai.uz' && /^\/prezentatsya(\.html)?\/?$/.test(location.pathname)) history.replaceState(null, '', '/' + location.search + location.hash); } catch (e) {}
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bilols AI — taqdimot</title>
@@ -538,7 +542,8 @@ body { background: radial-gradient(70% 55% at 25% -10%, rgba(61,123,255,.22), tr
   var ADMIN_MSG = "QR kodni ko'rsatish uchun <b>shu kompyuterning shu brauzerida</b> admin panelga kiring. " +
     "<a href=\"/admin\" target=\"_blank\" rel=\"noopener\" style=\"color:#FF6A1A;font-weight:700\">Admin panelni ochish →</a><br><small>Kirganingizdan keyin QR o'zi chiqadi.</small>";
   // telefon QR'ni har doim asosiy saytga olib boradi (taqdimot boshqa manzildan ochilgan bo'lsa ham)
-  var SITE = /(^|\.)bilolsai\.uz$/.test(location.hostname) ? location.origin : 'https://bilolsai.uz';
+  // QR doim asosiy saytga (taqdimot.bilolsai.uz yoki boshqa manzildan ochilgan bo'lsa ham) — u yerda test akkauntga kiriladi
+  var SITE = /^(www\.)?bilolsai\.uz$/.test(location.hostname) ? location.origin : 'https://www.bilolsai.uz';
   function needAdmin() {
     msg(ADMIN_MSG); $('qr-n').textContent = '🔒 Admin kerak'; Q.waitAdmin = true;
   }

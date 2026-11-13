@@ -186,9 +186,35 @@
           "value": "DENY"
         }
       ]
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "taqdimot.bilolsai.uz"
+        }
+      ],
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ],
   "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "taqdimot.bilolsai.uz"
+        }
+      ],
+      "destination": "/prezentatsya",
+      "permanent": false
+    },
     {
       "source": "/",
       "has": [
