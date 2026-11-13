@@ -209,6 +209,17 @@
       "has": [
         {
           "type": "host",
+          "value": "portfolio.bilolsai.uz"
+        }
+      ],
+      "destination": "/portfolio",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "taqdimot.bilolsai.uz"
         }
       ],
