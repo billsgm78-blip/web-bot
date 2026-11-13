@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
+<script>
+/* admin.bilolsai.uz da manzil satrida faqat domen ko'rinsin ("/admin" emas). Sahifa yangilansa ham shu yerga qaytadi. */
+try { if (location.hostname === 'admin.bilolsai.uz' && /^\/admin(\.html)?\/?$/.test(location.pathname)) history.replaceState(null, '', '/' + location.search + location.hash); } catch (e) {}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
