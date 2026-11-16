@@ -165,6 +165,45 @@
   .achip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .achip button{background:rgba(255,255,255,.12);border:none;color:var(--text);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;font-weight:700}
   @media (max-width:520px){.logo{font-size:15px}.achip{max-width:130px;font-size:12px}header{padding:10px}.hbtns{gap:5px}.hbtn{padding:7px 9px}}
+  /* ---------- 📱 Telefon uchun ---------- */
+  body{overflow-x:clip}
+  .play{overflow-x:clip}
+  .hcoins{display:none;font-weight:900;color:var(--gold);font-size:15px;white-space:nowrap}
+  .mnav{display:none}
+  @media (hover:none){.item:hover{transform:none;background:var(--card)}.hbtn:hover{background:var(--card)}}
+  .toast{max-width:calc(100vw - 24px);text-align:center;line-height:1.35}
+  @media (max-width:900px){
+    body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+    .hcoins.on{display:block}
+    .mnav{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;
+      background:rgba(8,30,30,.92);backdrop-filter:blur(10px);border-top:1px solid var(--border);
+      padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+    .mnav button{background:none;border:none;color:var(--muted);font-weight:800;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:12px;cursor:pointer}
+    .mnav button b{font-size:22px;line-height:1}
+    .mnav button.on{color:var(--gold);background:rgba(255,200,61,.1)}
+    .toast{bottom:calc(80px + env(safe-area-inset-bottom))}
+    .panel{scroll-margin-top:76px}.typebox{scroll-margin-top:76px}
+    .play{gap:10px}
+  }
+  @media (max-width:520px){
+    header{padding:8px 10px;gap:6px}
+    .logo{font-size:0;display:flex;align-items:center;gap:4px}
+    .logo::before{content:"🥥";font-size:24px}
+    .logo span{display:none}
+    .hbtns{gap:5px;flex-wrap:nowrap;min-width:0}
+    .hbtn{padding:7px 8px;font-size:13px}
+    #loginBtn .t{display:none}
+    .achip{padding:5px 6px 5px 8px;font-size:12px;max-width:120px}
+    .coins{font-size:40px}.coins .ic{font-size:34px}
+    .pill{font-size:13px;padding:5px 10px}
+    .typebox{padding:12px;border-radius:16px}
+    .tw canvas{height:96px}
+    .tw input{font-size:18px;height:50px}
+    .tw .tbtn{font-size:12px;height:40px;padding:0 4px}
+    .list{padding:10px}
+    .item{padding:9px 10px;gap:10px}.item .em{font-size:30px;width:38px}
+  }
+  @media (max-width:360px){.hcoins{font-size:13px}.idchip{font-size:11px;padding:5px 6px}.hbtn{padding:6px 6px}}
 </style>
 </head>
 <body>
@@ -190,11 +229,12 @@
 <div class="palm" style="right:-40px;transform:scaleX(-1)">🌴</div>
 
 <header>
-  <div class="logo">🥥 Coconut <span>Simulator</span></div>
+  <div class="logo" aria-label="Coconut Simulator">🥥 Coconut <span>Simulator</span></div>
+  <div class="hcoins" id="hcoins">🪙 0</div>
   <div class="hbtns">
     <div class="achip idchip" id="idchip" title="ID ni nusxalash">🆔 <span id="pidT">…</span></div>
     <div class="achip" id="achip" style="display:none"><span id="aname">👤</span><button id="logoutBtn">Chiqish</button></div>
-    <button class="hbtn" id="loginBtn">🔑 Kirish</button>
+    <button class="hbtn" id="loginBtn">🔑<span class="t"> Kirish</span></button>
     <button class="hbtn" id="soundBtn" title="Ovoz">🔊</button>
     <button class="hbtn" id="resetBtn" title="Qaytadan boshlash">♻️</button>
   </div>
@@ -310,8 +350,9 @@
     <div class="list" id="list"></div>
   </aside>
 </main>
+<nav class="mnav" id="mnav"><button data-go="top" class="on"><b>🥥</b>Kokos</button><button data-go="type"><b>⌨️</b>So'z</button><button data-go="shop"><b>🛒</b>Shop</button></nav>
 <footer>🌴 coconut.bilolsai.uz — Bilols AI hisobi bilan · progress avtomatik saqlanadi</footer>
 
-<script src="/app.js?v=4"></script>
+<script src="/app.js?v=5"></script>
 </body>
 </html>

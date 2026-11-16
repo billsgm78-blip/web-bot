@@ -417,7 +417,7 @@ function typeUI(){
   if (!T.ui){
     const d = document.createElement('div'); d.className = 'tw';
     d.innerHTML = '<div class="lvl"></div><canvas></canvas><div class="mean"></div>' +
-      '<input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" placeholder="So\'zni shu yerga yozing…" aria-label="So\'zni yozing">' +
+      '<input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" placeholder="Shu yerga yozing…" aria-label="So\'zni yozing">' +
       '<div class="tmsg"></div>' +
       '<div class="trow"><button class="tbtn" id="tySkip">⏭ Boshqa so\'z</button><button class="tbtn" id="tyClr">⌫ Tozalash</button><button class="tbtn" id="tyHint">💡 Qoida</button></div>' +
       '<div class="stats"><div class="stat"><div class="v" id="tyN" style="font-size:15px"></div></div><div class="stat"><div class="v" id="tyS" style="font-size:15px"></div></div><div class="stat" style="grid-column:1/-1"><div class="v" id="tyC" style="font-size:15px"></div></div></div>' +
@@ -621,5 +621,24 @@ async function sync(){
 showPid(); setTimeout(sync, 400); setInterval(sync, 15000);
 
 $('typeBox').appendChild(typeUI());
+// ---------- 📱 Telefon: pastki menyu, sarlavhada coin, klaviatura ----------
+(function mobile(){
+  const nav = $('mnav'), hc = $('hcoins'), stage = document.querySelector('.stage');
+  const targets = { top: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+    type: () => document.querySelector('.typebox').scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    shop: () => document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' }) };
+  nav.addEventListener('click', e => { const b = e.target.closest('button'); if (b) targets[b.dataset.go](); });
+  function onScroll(){
+    const y = window.scrollY, tb = document.querySelector('.typebox').offsetTop, pn = document.querySelector('.panel').offsetTop;
+    const cur = y + 140 >= pn ? 'shop' : y + 200 >= tb ? 'type' : 'top';
+    nav.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.go === cur));
+    hc.classList.toggle('on', stage.getBoundingClientRect().bottom < 60);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  setInterval(() => { if (hc.classList.contains('on')) hc.textContent = '🪙 ' + fmt(S.coins); }, 250);
+  // klaviatura ochilganda yozish maydoni ko'rinib tursin
+  T.inp.addEventListener('focus', () => { if (innerWidth <= 900) setTimeout(() => T.inp.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); });
+})();
+
 render(); requestAnimationFrame(loop); scheduleGolden();
 })();
