@@ -17,6 +17,14 @@
       "destination": "/faq.html"
     },
     {
+      "source": "/akkaunt",
+      "destination": "/akkaunt.html"
+    },
+    {
+      "source": "/akkauntlar",
+      "destination": "/akkaunt.html"
+    },
+    {
       "source": "/prezentatsya",
       "destination": "/prezentatsya.html"
     },

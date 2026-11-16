@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bilols AI — test akkauntlar</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#141414">
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<style>
+  :root { --bg: #141414; --card: #1f1f1f; --line: #2c2c2c; --txt: #fff; --muted: #a3a3a3; --acc: #FF6A1A; --ok: #22c55e; --bad: #ef4444; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--txt); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: max(22px, env(safe-area-inset-top)) 18px 40px; }
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  header img { width: 44px; height: 44px; border-radius: 12px; background: #fff; }
+  header b { font-size: 22px; letter-spacing: -.01em; }
+  .lead { color: var(--muted); margin: 6px 0 16px; }
+  .sum { display: flex; gap: 10px; margin-bottom: 14px; }
+  .sum div { flex: 1; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; }
+  .sum b { display: block; font-size: 24px; }
+  .sum small { color: var(--muted); }
+  .mine { background: var(--acc); color: #fff; border-radius: 18px; padding: 14px 16px; margin-bottom: 14px; display: none; align-items: center; gap: 12px; }
+  .mine.on { display: flex; }
+  .mine span { flex: 1; font-weight: 600; }
+  .mine button { background: #fff; color: #141414; }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  li { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; }
+  li .ic { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 20px; background: #2a2a2a; flex: none; }
+  li .nm { flex: 1; min-width: 0; }
+  li .nm b { display: block; font-size: 17px; }
+  .st { font-size: 13px; font-weight: 700; }
+  .st.free { color: var(--ok); } .st.busy { color: var(--bad); }
+  li.busy { opacity: .55; }
+  button { border: 0; border-radius: 99px; padding: 11px 18px; font: 700 15px/1 inherit; font-family: inherit; cursor: pointer; background: var(--acc); color: #fff; min-width: 96px; }
+  button:disabled { background: #333; color: #888; cursor: not-allowed; }
+  .msg { text-align: center; color: var(--muted); padding: 28px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; }
+  .msg .e { font-size: 44px; display: block; margin-bottom: 8px; }
+  .toast { position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); transform: translateX(-50%); background: #fff; color: #141414; padding: 12px 18px; border-radius: 14px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,.4); max-width: 90vw; text-align: center; display: none; z-index: 10; }
+  .toast.on { display: block; }
+  .over { position: fixed; inset: 0; background: rgba(20,20,20,.94); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 24px; z-index: 9; }
+  .over.on { display: flex; }
+  .over .e { font-size: 56px; }
+  .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 18px; }
+  .foot a { color: var(--acc); }
+</style>
+</head>
+<body>
+<main>
+  <header><img src="/icons/icon-192.png" alt=""><b>Bilols AI</b></header>
+  <p class="lead">Bo‘sh akkauntni tanlang — bir bosishda kirasiz. Obuna faol: barcha AI modellar, rasm yaratish, cheksiz xabar.</p>
+  <div class="sum" id="sum" hidden>
+    <div><b id="s-free">0</b><small>bo‘sh</small></div>
+    <div><b id="s-busy">0</b><small>band</small></div>
+  </div>
+  <div class="mine" id="mine"><span id="mine-t"></span><button type="button" id="mine-b">Davom etish</button></div>
+  <ul id="list"></ul>
+  <div class="msg" id="msg"><span class="e">⏳</span>Yuklanmoqda…</div>
+  <p class="foot">Bitta telefon — bitta akkaunt. <a href="/">bilolsai.uz</a></p>
+</main>
+<div class="over" id="over"><span class="e">🎉</span><b style="font-size:20px" id="over-t">Kirilmoqda…</b><span id="over-s" style="color:#a3a3a3"></span></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var API = 'https://bilolsai-api.onrender.com';
+  var apiReady = fetch('/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
+    var m = t.match(/const\s+RAILWAY_URL\s*=\s*"([^"]+)"/); if (m) API = m[1].replace(/\/$/, '');
+  }).catch(function () {});
+
+  // qurilma belgisi: shu telefon qayta kirsa — o'zining akkauntiga qaytadi
+  var DEV_KEY = 'bilols_test_dev', MINE_KEY = 'bilols_test_mine';
+  var dev = '';
+  try {
+    dev = localStorage.getItem(DEV_KEY) || '';
+    if (!/^[A-Za-z0-9_-]{16,64}$/.test(dev)) {
+      var a = new Uint8Array(16); (window.crypto || window.msCrypto).getRandomValues(a);
+      dev = Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+      localStorage.setItem(DEV_KEY, dev);
+    }
+  } catch (e) { dev = ''; }
+
+  var busy = false, timer = null, tries = 0;
+
+  function toast(t) { var el = $('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(function () { el.classList.remove('on'); }, 3500); }
+  function msg(icon, t) { $('list').innerHTML = ''; $('sum').hidden = true; $('msg').hidden = false; $('msg').innerHTML = '<span class="e">' + icon + '</span>' + t; }
+
+  async function call(path, body) {
+    await apiReady;
+    var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 25000);
+    try {
+      var r = await fetch(API + path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: ctl.signal } : { cache: 'no-store', signal: ctl.signal });
+      var j = null; try { j = await r.json(); } catch (e) {}
+      if (!j) throw new Error('bad');
+      return j;
+    } finally { clearTimeout(to); }
+  }
+
+  function mineInfo() { try { return JSON.parse(localStorage.getItem(MINE_KEY) || 'null'); } catch (e) { return null; } }
+
+  function paint(j) {
+    $('msg').hidden = true;
+    if (!j.open || !j.accounts || !j.accounts.length) { msg('🔒', 'Test akkauntlar hali ochilmagan.<br><small>Ochilishi bilan ro‘yxat shu yerda o‘zi chiqadi.</small>'); return; }
+    var free = j.accounts.filter(function (a) { return !a.used; }).length;
+    $('sum').hidden = false; $('s-free').textContent = free; $('s-busy').textContent = j.accounts.length - free;
+    var m = mineInfo();
+    var mineOn = m && j.accounts.some(function (a) { return a.n === m.n && a.used; });
+    $('mine').classList.toggle('on', !!mineOn);
+    if (mineOn) { $('mine-t').textContent = '📱 Sizning akkauntingiz: ' + (m.name || ('Test ' + m.n)); $('mine-b').onclick = function () { pick(m.n); }; }
+    var ul = $('list'); ul.innerHTML = '';
+    if (!free && !mineOn) { $('msg').hidden = false; $('msg').innerHTML = '<span class="e">🎉</span>Hamma akkauntlar band. Rahmat!'; }
+    j.accounts.forEach(function (a) {
+      var own = mineOn && a.n === m.n;
+      var li = document.createElement('li'); if (a.used && !own) li.className = 'busy';
+      li.innerHTML = '<span class="ic">' + (a.used ? '📱' : '🧪') + '</span><span class="nm"><b></b><span class="st ' + (own ? 'free">📱 Sizniki' : a.used ? 'busy">🔴 Band' : 'free">🟢 Bo‘sh') + '</span></span>';
+      li.querySelector('b').textContent = a.name || ('Test ' + a.n);
+      var b = document.createElement('button'); b.type = 'button';
+      b.textContent = own ? 'Davom etish' : a.used ? 'Band' : 'Kirish'; b.disabled = (!!a.used && !own) || busy;
+      b.onclick = function () { pick(a.n); };
+      li.appendChild(b); ul.appendChild(li);
+    });
+  }
+
+  async function load() {
+    clearTimeout(timer);
+    if (busy) return;
+    try {
+      var j = await call('/api/test/accounts');
+      tries = 0;
+      if (!busy) paint(j);
+      timer = setTimeout(load, document.hidden ? 15000 : 5000);
+    } catch (e) {
+      tries++;
+      if (!$('list').children.length) msg('☕', 'Server uyg‘onmoqda… 10–30 soniya kuting.<br><small>Sahifani yopmang — o‘zi ochiladi.</small>');
+      timer = setTimeout(load, Math.min(3000 * tries, 10000));
+    }
+  }
+
+  async function pick(n) {
+    if (busy) return; busy = true; clearTimeout(timer);
+    $('over').classList.add('on'); $('over-t').textContent = 'Kirilmoqda…'; $('over-s').textContent = '';
+    try {
+      var j;
+      for (var k = 0; k < 4; k++) {                       // server uxlab yotgan bo'lsa — bir necha marta urinamiz
+        try { j = await call('/api/test/pick', { n: n, dev: dev }); break; }
+        catch (e) { if (k === 3) throw e; $('over-s').textContent = 'Server uyg‘onmoqda…'; await new Promise(function (r) { setTimeout(r, 4000); }); }
+      }
+      if (!j.success || !j.login) {
+        busy = false; $('over').classList.remove('on');
+        toast('⚠️ ' + (j.error || 'Kirib bo‘lmadi'));
+        if (j.accounts) paint(j);
+        timer = setTimeout(load, 5000);
+        return;
+      }
+      localStorage.setItem('bilol_ai_phone', String(j.login.phone || '').replace(/\D/g, ''));
+      localStorage.setItem('bilol_ai_name', j.login.name || '');
+      localStorage.setItem('bilol_ai_password', j.login.password);
+      localStorage.setItem(MINE_KEY, JSON.stringify({ n: j.n, name: j.login.name || '' }));
+      $('over-t').textContent = '✅ Kirildi!'; $('over-s').textContent = 'Obuna faol — hamma narsani sinab ko‘ring.';
+      setTimeout(function () { location.replace('/'); }, 900);
+    } catch (e) {
+      busy = false; $('over').classList.remove('on');
+      toast('⚠️ Internet yoki server javob bermadi. Qayta bosing.');
+      timer = setTimeout(load, 3000);
+    }
+  }
+
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && !busy) load(); });
+  load();
+})();
+</script>
+</body>
+</html>

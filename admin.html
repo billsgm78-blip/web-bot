@@ -520,6 +520,7 @@ select.inp option { background: #12151c; color: var(--text); }
     .ag-m { max-width: 92%; font-size: 14px; }
 </style>
 <script src="/notify.js"></script>
+<script src="/vendor/qrcode-generator-1.4.4.js"></script>
 </head>
 <body>
 <div class="glow-bg"></div>
@@ -2300,6 +2301,96 @@ select.inp option { background: #12151c; color: var(--text); }
 
     // ---------- Promo-kodlar ----------
     function randomCode() { var a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = ''; for (var i = 0; i < 8; i++) s += a[Math.floor(Math.random() * a.length)]; return s; }
+    // ---------- 📌 Doimiy QR: bilolsai.uz/akkaunt (taqdimot slaydiga rasm qilib qo'yiladi) ----------
+    var TQR_URL = 'https://bilolsai.uz/akkaunt';
+    var TQR_STYLES = [
+        { id: 'brand', name: 'Bilols (logo bilan)', bg: '#FFFFFF', fg: '#141414', eye: '#C2410C', dots: true, logo: true },
+        { id: 'classic', name: 'Klassik', bg: '#FFFFFF', fg: '#000000', eye: '#000000', dots: false, logo: false },
+        { id: 'orange', name: "To'q sariq", bg: '#FFFFFF', fg: '#B23A06', eye: '#141414', dots: true, logo: true },
+        { id: 'night', name: 'Tungi (qora fon)', bg: '#141414', fg: '#FFFFFF', eye: '#FF6A1A', dots: true, logo: true }
+    ];
+    var tqrLogo = null;
+    function tqrLoadLogo() {
+        if (tqrLogo) return tqrLogo;
+        tqrLogo = new Promise(function (ok) { var im = new Image(); im.onload = function () { ok(im); }; im.onerror = function () { ok(null); }; im.src = '/icons/icon-512.png'; });
+        return tqrLogo;
+    }
+    function rrect(c, x, y, w, hh, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + hh, r); c.arcTo(x + w, y + hh, x, y + hh, r); c.arcTo(x, y + hh, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+    async function tqrDraw(canvas, st, caption) {
+        var qr = qrcode(0, 'H'); qr.addData(TQR_URL); qr.make();
+        var n = qr.getModuleCount(), S = 1200, quiet = 4, capH = caption ? 150 : 0;
+        var cell = Math.floor((S - 2 * 60) / (n + 2 * quiet)), size = cell * (n + 2 * quiet), off = Math.floor((S - size) / 2);
+        canvas.width = S; canvas.height = S + capH;
+        var c = canvas.getContext('2d');
+        c.fillStyle = st.bg; rrect(c, 0, 0, S, S + capH, 70); c.fill();
+        var ox = off + quiet * cell, oy = off + quiet * cell;
+        function isEye(r, k) { return (r < 7 && k < 7) || (r < 7 && k >= n - 7) || (r >= n - 7 && k < 7); }
+        var lr = Math.ceil(n * 0.22 / 2);   // markazdagi logo uchun bo'sh joy (H daraja 30% xatoni ko'taradi)
+        var mid = (n - 1) / 2;
+        c.fillStyle = st.fg;
+        for (var r = 0; r < n; r++) for (var k = 0; k < n; k++) {
+            if (!qr.isDark(r, k) || isEye(r, k)) continue;
+            if (st.logo && Math.abs(r - mid) <= lr && Math.abs(k - mid) <= lr) continue;
+            var x = ox + k * cell, y = oy + r * cell;
+            if (st.dots) { rrect(c, x + cell * 0.04, y + cell * 0.04, cell * 0.92, cell * 0.92, cell * 0.32); c.fill(); }
+            else c.fillRect(x, y, cell, cell);
+        }
+        [[0, 0], [0, n - 7], [n - 7, 0]].forEach(function (p) {
+            var x = ox + p[1] * cell, y = oy + p[0] * cell, rad = st.dots ? cell * 1.8 : 0;
+            c.fillStyle = st.eye; rrect(c, x, y, 7 * cell, 7 * cell, rad || 0.01); c.fill();
+            c.fillStyle = st.bg; rrect(c, x + cell, y + cell, 5 * cell, 5 * cell, rad ? rad * 0.65 : 0.01); c.fill();
+            c.fillStyle = st.eye; rrect(c, x + 2 * cell, y + 2 * cell, 3 * cell, 3 * cell, rad ? rad * 0.5 : 0.01); c.fill();
+        });
+        if (st.logo) {
+            var im = await tqrLoadLogo(), ls = (2 * lr - 1) * cell, lx = ox + (mid - lr + 1) * cell, ly = oy + (mid - lr + 1) * cell;
+            c.fillStyle = '#FFFFFF'; rrect(c, lx, ly, ls, ls, ls * 0.22); c.fill();
+            if (im) c.drawImage(im, lx + ls * 0.06, ly + ls * 0.06, ls * 0.88, ls * 0.88);
+        }
+        if (caption) {
+            c.fillStyle = st.bg === '#FFFFFF' ? '#141414' : '#FFFFFF';
+            c.font = '700 64px system-ui, -apple-system, Segoe UI, Roboto, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+            c.fillText('bilolsai.uz/akkaunt', S / 2, S + capH / 2 - 30);
+        }
+    }
+    function testQrCard() {
+        var st = TQR_STYLES[0], cap = true;
+        try { st = TQR_STYLES.filter(function (x) { return x.id === localStorage.getItem('bilols_tqr_style'); })[0] || st; cap = localStorage.getItem('bilols_tqr_cap') !== '0'; } catch (e) {}
+        var canvas = h('canvas', { style: 'width:100%;max-width:340px;height:auto;display:block;margin:0 auto;border-radius:22px;box-shadow:0 10px 30px rgba(0,0,0,.18)' });
+        var wrap = h('div', { style: 'background:#e9eaee;border-radius:18px;padding:16px;display:flex;align-items:center;justify-content:center' }, [canvas]);
+        var chips = h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;margin:12px 0' });
+        function redraw() {
+            if (typeof qrcode !== 'function') { wrap.textContent = 'QR kutubxonasi yuklanmadi — sahifani yangilang.'; return; }
+            tqrDraw(canvas, st, cap);
+            Array.prototype.forEach.call(chips.children, function (b) { b.className = 'act' + (b.dataset.id === st.id || (b.dataset.id === 'cap' && cap) ? '' : ' ghost'); b.style.opacity = (b.dataset.id === st.id || (b.dataset.id === 'cap' && cap)) ? '1' : '.55'; });
+        }
+        TQR_STYLES.forEach(function (x) {
+            var b = h('button', { class: 'act', text: x.name, onclick: function () { st = x; try { localStorage.setItem('bilols_tqr_style', x.id); } catch (e) {} redraw(); } });
+            b.dataset.id = x.id; chips.appendChild(b);
+        });
+        var capB = h('button', { class: 'act', text: '🔤 Pastida manzil', onclick: function () { cap = !cap; try { localStorage.setItem('bilols_tqr_cap', cap ? '1' : '0'); } catch (e) {} redraw(); } });
+        capB.dataset.id = 'cap'; chips.appendChild(capB);
+        var btns = h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;margin-top:12px' }, [
+            h('button', { class: 'btn', style: 'flex:1;min-width:160px', text: '⬇️ PNG yuklab olish', onclick: function () {
+                var a = document.createElement('a'); a.download = 'bilolsai-akkaunt-qr-' + st.id + '.png'; a.href = canvas.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove();
+            } }),
+            h('button', { class: 'act', text: '⛶ To\'liq ekran (skrinshot)', onclick: function () {
+                var ov = h('div', { style: 'position:fixed;inset:0;z-index:99999;background:' + (st.bg === '#141414' ? '#141414' : '#ffffff') + ';display:flex;align-items:center;justify-content:center;padding:4vmin;cursor:zoom-out' });
+                var c2 = h('canvas', { style: 'max-width:100%;max-height:100%;width:auto;height:auto' }); ov.appendChild(c2); tqrDraw(c2, st, cap);
+                function close() { if (document.fullscreenElement) document.exitFullscreen().catch(function () {}); ov.remove(); }
+                ov.addEventListener('click', close); document.body.appendChild(ov);
+                if (ov.requestFullscreen) ov.requestFullscreen().catch(function () {});
+                document.addEventListener('fullscreenchange', function f() { if (!document.fullscreenElement) { ov.remove(); document.removeEventListener('fullscreenchange', f); } });
+            } }),
+            h('a', { class: 'act', href: '/akkaunt', target: '_blank', rel: 'noopener', style: 'text-decoration:none', text: '📋 Ro\'yxatni ochish' })
+        ]);
+        var card = h('div', { class: 'card', style: 'line-height:1.55' }, [
+            h('b', { text: '📌 Doimiy QR — taqdimot slaydi uchun' }),
+            h('div', { class: 'sum', text: "Bu QR o'zgarmaydi: dizaynni tanlang, PNG yuklab oling yoki to'liq ekranda skrinshot qiling va slaydga qo'ying. Skanerlagan odamda " + TQR_URL.replace('https://', '') + " ochiladi: test akkauntlar ro'yxati — 🟢 bo'sh / 🔴 band. Bo'shiga bosib kiradi, bandiga kirib bo'lmaydi. Akkauntlar ochilmagan bo'lsa, sahifa «hali ochilmagan» deb kutib turadi." }),
+            chips, wrap, btns
+        ]);
+        setTimeout(redraw, 0);
+        return card;
+    }
     // ================= 🧪 TEST AKKAUNTLAR (taqdimot uchun) =================
     async function vTest(view) {
         view.innerHTML = '';
@@ -2311,6 +2402,7 @@ select.inp option { background: #12151c; color: var(--text); }
                 h('a', { class: 'act', href: '/prezentatsya#sinab-koring', target: '_blank', rel: 'noopener', style: 'text-decoration:none', text: '📷 Faqat QR ekrani' })
             ])
         ]));
+        view.appendChild(testQrCard());
         var head = h('div', { class: 'h', text: '🧪 Test akkauntlar' });
         view.appendChild(head);
         var box = h('div', { class: 'card' });
