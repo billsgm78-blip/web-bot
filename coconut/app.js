@@ -434,7 +434,7 @@ function typeUI(){
     pickWord();
   }
   paintTypeStats();
-  setTimeout(() => { drawWord(); if (matchMedia('(pointer:fine)').matches) T.inp.focus(); }, 30);
+  setTimeout(drawWord, 30);
   return T.ui;
 }
 
@@ -491,8 +491,6 @@ function render(){
       h += `<div class="sec">Sotib olingan (${owned.length}/${UPGRADES.length})</div>`;
       owned.forEach(u=>{ h += `<div class="item owned"><div class="em">${u.em}</div><div class="info"><div class="name">${u.name} ✅</div><div class="desc">${u.desc}</div></div></div>`; });
     }
-  } else if (tab === 'type'){
-    L.innerHTML = ''; L.appendChild(typeUI()); renderTop(); return;
   } else if (tab === 'skins'){
     SKINS.forEach(k=>{
       const own = S.skins.includes(k.id), eq = S.skin===k.id;
@@ -622,5 +620,6 @@ async function sync(){
 }
 showPid(); setTimeout(sync, 400); setInterval(sync, 15000);
 
+$('typeBox').appendChild(typeUI());
 render(); requestAnimationFrame(loop); scheduleGolden();
 })();
