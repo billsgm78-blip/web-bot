@@ -61,7 +61,8 @@ input, textarea, select { font-family: inherit; color: var(--text); }
 /* ---------- Panel ---------- */
 #app { position: relative; z-index: 1; display: none; min-height: 100svh; }
 .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100svh; }
-.side { position: sticky; top: 0; height: 100svh; border-right: 1px solid var(--line); background: rgba(8,11,22,0.85); padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; padding-top: calc(18px + env(safe-area-inset-top)); }
+.side { position: sticky; top: 0; height: 100svh; border-right: 1px solid var(--line); background: rgba(8,11,22,0.85); padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; padding-top: calc(18px + env(safe-area-inset-top)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+.side > * { flex-shrink: 0; }
 .side .brand { margin: 0 6px 16px; }
 .nav { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 12px; border-radius: 12px; border: none; background: transparent; color: var(--muted); font-size: 14px; font-weight: 600; text-align: left; transition: background .15s, color .15s; }
 .nav:hover { background: rgba(255,255,255,0.04); color: var(--text); }
@@ -432,7 +433,6 @@ select.inp option { background: #12151c; color: var(--text); }
 .ds-badge { font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: rgba(56, 189, 248, .15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, .35); }
 /* ---------- 🤖 Yordamchi (admin agent) ---------- */
 .ag-wrap { display: grid; grid-template-columns: minmax(300px, 480px) 1fr; gap: 16px; align-items: start; }
-}
 .ag-office { border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: #0d1117; position: sticky; top: 12px; }
 .ag-office canvas { display: block; width: 100%; height: auto; }
 .ld-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
