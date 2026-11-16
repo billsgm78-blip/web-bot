@@ -611,10 +611,18 @@ async function sync(){
     const r = await res.json();
     if (res.status === 401){ S.pid = ''; showPid(); return; }   // server bu ID ni tanimadi — yangisi olinadi
     (r.grants || []).forEach(g => {
-      gain(g.amount); save(); beep(990,0.25,'triangle',0.12);
-      toast('🎁 Admin sizga +' + fmt(g.amount) + ' coin berdi!' + (g.note ? ' (' + g.note + ')' : ''));
-      floatText(innerWidth/2, innerHeight/3, '+' + fmt(g.amount), true);
-      renderTop();
+      const note = g.note ? ' (' + g.note + ')' : '';
+      if (g.amount > 0){
+        gain(g.amount); beep(990,0.25,'triangle',0.12);
+        toast('🎁 Admin sizga +' + fmt(g.amount) + ' coin berdi!' + note);
+        floatText(innerWidth/2, innerHeight/3, '+' + fmt(g.amount), true);
+      } else {
+        const take = Math.min(S.coins, -g.amount);       // coin 0 dan pastga tushmaydi
+        S.coins -= take; beep(180,0.3,'sawtooth',0.06);
+        toast('➖ Admin sizdan ' + fmt(-g.amount) + ' coin ayirdi' + note);
+        floatText(innerWidth/2, innerHeight/3, '-' + fmt(take), false);
+      }
+      save(); renderTop();
     });
   } catch(e){} finally { syncing = false; }
 }
