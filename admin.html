@@ -831,7 +831,7 @@ select.inp option { background: #12151c; color: var(--text); }
 
     // ================= PANEL =================
     var TABS = [
-        ['stats', '📊', 'Statistika'], ['agent', '🤖', 'Yordamchi'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['test', '🧪', 'Test (taqdimot)'], ['aud', '📲', 'Ilova va bot'],
+        ['stats', '📊', 'Statistika'], ['agent', '🤖', 'Yordamchi'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['test', '🧪', 'Test (taqdimot)'], ['coconut', '🥥', "Coconut o'yini"], ['aud', '📲', 'Ilova va bot'],
         ['card', '💳', "Karta (avto to'lov)"], ['call', '📞', "AI qo'ng'iroq"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['mahalla', '🏘', 'Mahalla'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['email', '📧', 'Email xabarlar'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['nizom', '📕', 'Ichki nizom'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama']
     ];
     var tab = 'stats';
@@ -854,7 +854,7 @@ select.inp option { background: #12151c; color: var(--text); }
         // Kirish animatsiyasi faqat sahifa ochilganda (keyingi avto-yangilanishlarda qayta o'ynamaydi)
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
-        var fn = { test: vTest, stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, email: vEmail, support: vSupport, shop: vShop, mahalla: vMahalla, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
+        var fn = { coconut: vCoconut, test: vTest, stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, email: vEmail, support: vSupport, shop: vShop, mahalla: vMahalla, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -2448,6 +2448,100 @@ select.inp option { background: #12151c; color: var(--text); }
         paint(j.accounts || []);
     }
 
+    // ---------- 🥥 Coconut o'yini (coconut.bilolsai.uz): o'yinchilar va coin berish ----------
+    var COCO_SRV = 'https://blwapspmzvcpadoydzwg.supabase.co/functions/v1/coconut';
+    async function coco(action, body) {
+        var r = await fetch(COCO_SRV, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: action, token: token }, body || {})) });
+        var j = {}; try { j = await r.json(); } catch (e) {}
+        if (r.status === 401) { logout(true); throw new Error('auth'); }
+        return j;
+    }
+    function cocoNum(n) {
+        n = Number(n || 0);
+        if (n < 1000) return String(Math.floor(n));
+        var suf = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx'], i = Math.min(Math.floor(Math.log10(n) / 3), suf.length - 1);
+        return (n / Math.pow(1000, i)).toFixed(2).replace(/\.?0+$/, '') + suf[i];
+    }
+    function cocoAgo(iso) {
+        var s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+        if (s < 120) return 'hozir onlayn';
+        if (s < 3600) return Math.floor(s / 60) + ' daq oldin';
+        if (s < 86400) return Math.floor(s / 3600) + ' soat oldin';
+        return Math.floor(s / 86400) + ' kun oldin';
+    }
+    async function vCoconut(view, q) {
+        q = q || '';
+        view.innerHTML = '';
+        var pid = h('input', { class: 'inp mono', inputmode: 'numeric', maxlength: '6', placeholder: '123456' });
+        var amount = h('input', { class: 'inp', inputmode: 'numeric', placeholder: '1000000' });
+        var note = h('input', { class: 'inp', maxlength: '80', placeholder: "Masalan: Yutuq uchun sovg'a" });
+        var quick = h('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px' });
+        [['1K', 1e3], ['100K', 1e5], ['1M', 1e6], ['1B', 1e9], ['1T', 1e12]].forEach(function (x) {
+            quick.appendChild(h('button', { class: 'btn ghost', style: 'width:auto;height:34px;padding:0 12px;font-size:13px', text: '+' + x[0], onclick: function () { amount.value = String(x[1]); } }));
+        });
+        var sendBtn = h('button', { class: 'btn', text: '🎁 Coin berish', onclick: async function () {
+            var id = pid.value.replace(/\D/g, ''), a = Number(String(amount.value).replace(/[\s,]/g, ''));
+            if (id.length !== 6) { toast("ID 6 xonali raqam bo'lishi kerak"); return; }
+            if (!(a > 0)) { toast("Coin miqdorini yozing"); return; }
+            if (!await dialog({ title: '🎁 Coin berish', text: 'ID ' + id + ' ga ' + cocoNum(a) + ' coin beriladi. O\'yinchi o\'yinni ochganda (15 soniya ichida) coin tushadi.', ok: 'Berish' })) return;
+            sendBtn.disabled = true;
+            try {
+                var x = await coco('admin_grant', { pid: id, amount: a, note: note.value });
+                if (x.ok) { toast('✅ ' + (x.name || id) + ' ga ' + cocoNum(a) + ' coin yuborildi'); amount.value = ''; note.value = ''; vCoconut(view, q); }
+                else toast(x.error || 'Xato');
+            } catch (e) { if (e.message !== 'auth') toast("Server bilan bog'lanib bo'lmadi"); }
+            sendBtn.disabled = false;
+        } });
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'form-row' }, [
+                h('label', { class: 'lb' }, ["O'yinchi ID (o'yinda 🆔 da ko'rinadi)", pid]),
+                h('label', { class: 'lb' }, ['Coin miqdori', amount, quick]),
+                h('label', { class: 'lb' }, ['Izoh (o\'yinchiga ko\'rinadi, ixtiyoriy)', note])
+            ]),
+            sendBtn
+        ]));
+        view.appendChild(h('div', { class: 'sum', style: 'margin-top:10px', text: "Har bir o'yinchi coconut.bilolsai.uz ga kirishi bilan 6 xonali ID oladi (Bilols AI hisobi bilan kirgan yoki mehmon). Pastdagi ro'yxatdan o'yinchini bossangiz — ID o'zi yoziladi." }));
+
+        var search = h('input', { class: 'inp', placeholder: '🔍 ID yoki ism bo\'yicha qidirish', value: q });
+        var st;
+        search.addEventListener('input', function () { clearTimeout(st); st = setTimeout(function () { vCoconut(view, search.value.trim()); }, 500); });
+        var head = h('div', { class: 'h', text: "O'yinchilar" });
+        view.appendChild(head);
+        view.appendChild(search);
+        var box = h('div', {}, [h('div', { class: 'loading', text: '⏳' })]);
+        view.appendChild(box);
+        var j = await coco('admin_list', { q: q });
+        box.innerHTML = '';
+        if (!j.ok) { box.appendChild(h('div', { class: 'empty', text: j.error || 'Server xatosi' })); return; }
+        head.textContent = "O'yinchilar — jami " + (j.count || 0) + ' · onlayn ' + (j.online || 0);
+        var players = j.players || [];
+        if (!players.length) box.appendChild(h('div', { class: 'empty', text: q ? 'Topilmadi' : "Hali o'yinchi yo'q" }));
+        players.forEach(function (p) {
+            var on = (Date.now() - new Date(p.last_seen).getTime()) < 120000;
+            box.appendChild(h('div', { class: 'row click', onclick: function () { pid.value = p.pid; amount.focus(); window.scrollTo({ top: 0, behavior: 'smooth' }); } }, [
+                h('div', { class: 'r-ico' + (on ? ' in' : ''), text: p.is_account ? '👤' : '🥥' }),
+                h('div', { class: 'r-main' }, [
+                    h('b', { text: (p.name || 'Mehmon') + ' · ' }, [h('span', { class: 'mono', text: '#' + p.pid })]),
+                    h('small', { text: '🪙 ' + cocoNum(p.coins) + ' coin · jami ' + cocoNum(p.total) + ' · ' + cocoNum(p.clicks) + ' bosish · ' + cocoAgo(p.last_seen) }),
+                    h('span', { class: 'tag ' + (p.is_account ? 'done' : 'off'), text: p.is_account ? 'Bilols AI hisobi' : 'Mehmon' })
+                ])
+            ]));
+        });
+        var recent = j.recent || [];
+        if (recent.length) {
+            view.appendChild(h('div', { class: 'h', text: 'Oxirgi berilgan coinlar' }));
+            recent.forEach(function (g) {
+                view.appendChild(h('div', { class: 'row' }, [
+                    h('div', { class: 'r-ico in', text: '🎁' }),
+                    h('div', { class: 'r-main' }, [
+                        h('b', { text: '+' + cocoNum(g.amount) + ' coin → #' + g.pid }),
+                        h('small', { text: fmtDate(new Date(g.created_at).getTime() / 1000) + (g.note ? ' · ' + g.note : '') }),
+                        h('span', { class: 'tag ' + (g.claimed_at ? 'done' : 'off'), text: g.claimed_at ? 'Olindi' : 'Kutilmoqda' })
+                    ])
+                ]));
+            });
+        }
+    }
     async function vPromo(view) {
         view.innerHTML = '';
         var code = h('input', { class: 'inp mono', placeholder: 'KOD' }); code.value = randomCode();
