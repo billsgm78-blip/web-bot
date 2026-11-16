@@ -114,6 +114,7 @@ const SKINS = [
   { id:'cowboy', em:'🤠', name:'Kovboy',         desc:'Shlyapa + ro\'mol · +25% bosish', cost:5e4,   bonus:0.25, col:['#f0b36b','#a0592a'] },
   { id:'pirate', em:'🏴‍☠️', name:'Pirat',          desc:'Uchburchak shlyapa + ko\'z bog\'ich · +50% bosish', cost:2e6, bonus:0.50, col:['#a78bfa','#4c1d95'] },
   { id:'hero',   em:'🦸', name:'Superqahramon',  desc:'Niqob + plash · +100% bosish',   cost:1e8,   bonus:1.00, col:['#ff7a9a','#c0264f'] },
+  { id:'tropic', em:'🌺', name:'Tropik qahramon', desc:'Faqat 7 kun ketma-ket kunlik bonus bilan ochiladi · +150% bosish', cost:-1, bonus:1.50, col:['#5eead4','#0f766e'] },
   { id:'king',   em:'👑', name:'Oltin Qirol',    desc:'Olmosli toj, qirollik plashi, oltin zanjir · +200% bosish', cost:1e10, bonus:2.00, col:['#ffe680','#c98a00'] },
 ];
 
@@ -142,7 +143,7 @@ const KEY = window.COCO_AUTH.saveKey;
 try { const old = localStorage.getItem('coconut-sim-v1'); if (KEY !== 'coconut-sim-v1' && old && !localStorage.getItem(KEY)) { localStorage.setItem(KEY, old); localStorage.removeItem('coconut-sim-v1'); } } catch(e){}
 const fresh = () => ({
   coins:0, total:0, allTime:0, clicks:0, workers:{}, upgrades:[], skins:['coco'], skin:'coco',
-  gems:0, prestiges:0, goldenCaught:0, ach:[], started:Date.now(), last:Date.now(), sound:true, pid:'', ptok:'', typed:0, typeBest:0, typeCoins:0
+  gems:0, prestiges:0, goldenCaught:0, ach:[], started:Date.now(), last:Date.now(), sound:true, pid:'', ptok:'', typed:0, typeBest:0, typeCoins:0, nick:'', tlevel:'hard', tmode:'en', annSeen:0
 });
 let S = fresh();
 try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) S = Object.assign(fresh(), s); } catch(e){}
@@ -150,6 +151,9 @@ S.skins = (S.skins || []).filter(id => SKINS.some(k => k.id === id)); if (!S.ski
 if (!S.skins.includes(S.skin)) S.skin = 'coco';
 
 let boost = { mult:1, until:0, click:1 };
+// Event (admin yoqadi): hamma daromad xN
+let EV = null;
+function eventMult(){ return EV && EV.until > Date.now() ? EV.mult : 1; }
 let buyN = 1;
 let tab = 'workers';
 
@@ -171,14 +175,14 @@ function workerCps(w){
 }
 function cps(){
   let t = 0; WORKERS.forEach(w=> t += (S.workers[w.id]||0) * workerCps(w));
-  return t * allMult() * boost.mult;
+  return t * allMult() * boost.mult * eventMult();
 }
 function perClick(){
   let c = 1; UPGRADES.forEach(u=>{ if(u.type==='click'&&has(u.id)) c*=u.mult; });
   let pc = 0; UPGRADES.forEach(u=>{ if(u.type==='clickcps'&&has(u.id)) pc+=u.val; });
   const sk = SKINS.find(k=>k.id===S.skin);
   c = c * (1 + (sk?sk.bonus:0)) * allMult();
-  return (c + cps()*pc) * boost.click;
+  return (c * eventMult() + cps()*pc) * boost.click;
 }
 function critChance(){ let c=0; UPGRADES.forEach(u=>{ if(u.type==='crit'&&has(u.id)) c+=u.val; }); return c; }
 function workerCost(w, n){
@@ -205,8 +209,11 @@ function beep(freq=520, dur=0.06, type='sine', vol=0.08){
 // ---------- UI HELPERS ----------
 const $ = id => document.getElementById(id);
 function toast(msg){
+  let box = document.getElementById('toasts');
+  if (!box){ box = document.createElement('div'); box.id = 'toasts'; document.body.appendChild(box); }
   const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
-  document.body.appendChild(t); setTimeout(()=>t.remove(), 2200);
+  box.appendChild(t); while (box.children.length > 3) box.firstChild.remove();
+  setTimeout(()=>t.remove(), 2600);
 }
 function floatText(x, y, txt, crit){
   const f = document.createElement('div'); f.className='float'+(crit?' crit':'');
@@ -324,32 +331,61 @@ pupils.style.transition = 'transform .12s ease-out';
 coco.addEventListener('pointerenter', ()=>{ spring.vy += 1.5; spring.vx -= 1; });
 setTimeout(()=>say('Salom! Meni bos! 👋'), 800);
 
-// ---------- ⌨️ SO'Z YOZISH: eng qiyin inglizcha so'zlar, copy-paste yo'q ----------
-const WORDS = [
-  ['rhythm','ritm'],['squirrel','olmaxon'],['colonel','polkovnik'],['pharaoh','fir\'avn'],['fuchsia','fuksiya (rang)'],
-  ['zucchini','qovoqcha'],['epitome','timsol, namuna'],['liaison','aloqa, bog\'lovchi'],['mnemonic','eslab qolish usuli'],
-  ['pneumonia','zotiljam'],['xylophone','ksilofon'],['pseudonym','taxallus'],['bourgeois','burjua'],['dichotomy','ikkiga bo\'linish'],
-  ['acquiesce','rozi bo\'lmoq'],['necessary','zarur'],['embarrass','uyaltirmoq'],['millennium','ming yillik'],['quarantine','karantin'],
-  ['silhouette','siluet'],['psychology','psixologiya'],['phenomenon','hodisa'],['rhinoceros','karkidon'],['lieutenant','leytenant'],
-  ['hemorrhage','qon ketish'],['pterodactyl','pterodaktil'],['accommodate','joylashtirmoq'],['mischievous','sho\'x, sho\'rtumshuq'],
-  ['bureaucracy','byurokratiya'],['archipelago','arxipelag'],['connoisseur','bilimdon, ixlosmand'],['sovereignty','suverenitet'],
-  ['handkerchief','dastro\'mol'],['entrepreneur','tadbirkor'],['surveillance','kuzatuv'],['perseverance','qat\'iyat'],
-  ['kaleidoscope','kaleydoskop'],['onomatopoeia','tovushga taqlid so\'z'],['jurisprudence','huquqshunoslik'],['questionnaire','so\'rovnoma'],
-  ['miscellaneous','turli-tuman'],['conscientious','vijdonli'],['idiosyncrasy','o\'ziga xoslik'],['chrysanthemum','xrizantema gul'],
-  ['unequivocally','shubhasiz'],['quintessential','mukammal namuna'],['sesquipedalian','juda uzun so\'zli'],
-  ['incomprehensibility','tushunib bo\'lmaslik'],['otorhinolaryngologist','LOR shifokori'],
-  ['floccinaucinihilipilification','biror narsani qadrsiz deb bilish'],['antidisestablishmentarianism','davlat cherkovini saqlash tarafdorligi'],
-];
+// ---------- ⌨️ SO'Z YOZISH: 3 daraja, 2 rejim (inglizcha / o'zbekcha→inglizcha), talaffuz; copy-paste yo'q ----------
+const WORDSETS = {
+  easy: [
+    ['because','chunki'],['friend','do\'st'],['beautiful','chiroyli'],['different','boshqacha'],['language','til'],['tomorrow','ertaga'],
+    ['weather','ob-havo'],['library','kutubxona'],['orange','apelsin'],['people','odamlar'],['school','maktab'],['family','oila'],
+    ['country','mamlakat'],['question','savol'],['answer','javob'],['business','biznes'],['calendar','taqvim'],['believe','ishonmoq'],
+    ['receive','qabul qilmoq'],['government','hukumat'],['knowledge','bilim'],['island','orol'],['yellow','sariq'],['strength','kuch'],
+    ['journey','sayohat'],['science','fan'],['minute','daqiqa'],['address','manzil'],['separate','alohida'],['definitely','albatta'],
+  ],
+  mid: [
+    ['restaurant','restoran'],['environment','atrof-muhit'],['temperature','harorat'],['vegetable','sabzavot'],['february','fevral'],
+    ['wednesday','chorshanba'],['achievement','yutuq'],['occasionally','ba\'zan'],['privilege','imtiyoz'],['recommend','tavsiya qilmoq'],
+    ['guarantee','kafolat'],['neighbour','qo\'shni'],['thorough','puxta'],['cemetery','qabriston'],['exaggerate','oshirib yubormoq'],
+    ['maintenance','texnik xizmat'],['occurrence','hodisa, voqea'],['pronunciation','talaffuz'],['rehearsal','mashq, repetitsiya'],
+    ['threshold','ostona'],['tongue','til (a\'zo)'],['yacht','yaxta'],['knight','ritsar'],['scissors','qaychi'],['muscle','muskul'],
+    ['committee','qo\'mita'],['conscience','vijdon'],['height','balandlik'],['weird','g\'alati'],['foreign','xorijiy'],
+  ],
+  hard: [
+    ['rhythm','ritm'],['squirrel','olmaxon'],['colonel','polkovnik'],['pharaoh','fir\'avn'],['fuchsia','fuksiya (rang)'],
+    ['zucchini','qovoqcha'],['epitome','timsol, namuna'],['liaison','aloqa, bog\'lovchi'],['mnemonic','eslab qolish usuli'],
+    ['pneumonia','zotiljam'],['xylophone','ksilofon'],['pseudonym','taxallus'],['bourgeois','burjua'],['dichotomy','ikkiga bo\'linish'],
+    ['acquiesce','rozi bo\'lmoq'],['necessary','zarur'],['embarrass','uyaltirmoq'],['millennium','ming yillik'],['quarantine','karantin'],
+    ['silhouette','siluet'],['psychology','psixologiya'],['phenomenon','hodisa'],['rhinoceros','karkidon'],['lieutenant','leytenant'],
+    ['hemorrhage','qon ketish'],['pterodactyl','pterodaktil'],['accommodate','joylashtirmoq'],['mischievous','sho\'x, sho\'rtumshuq'],
+    ['bureaucracy','byurokratiya'],['archipelago','arxipelag'],['connoisseur','bilimdon, ixlosmand'],['sovereignty','suverenitet'],
+    ['handkerchief','dastro\'mol'],['entrepreneur','tadbirkor'],['surveillance','kuzatuv'],['perseverance','qat\'iyat'],
+    ['kaleidoscope','kaleydoskop'],['onomatopoeia','tovushga taqlid so\'z'],['jurisprudence','huquqshunoslik'],['questionnaire','so\'rovnoma'],
+    ['miscellaneous','turli-tuman'],['conscientious','vijdonli'],['idiosyncrasy','o\'ziga xoslik'],['chrysanthemum','xrizantema gul'],
+    ['unequivocally','shubhasiz'],['quintessential','mukammal namuna'],['sesquipedalian','juda uzun so\'zli'],
+    ['incomprehensibility','tushunib bo\'lmaslik'],['otorhinolaryngologist','LOR shifokori'],
+    ['floccinaucinihilipilification','biror narsani qadrsiz deb bilish'],['antidisestablishmentarianism','davlat cherkovini saqlash tarafdorligi'],
+  ],
+};
+const LEVELS = { easy:['🟢','Oson',0.6], mid:['🟡','O\'rta',1], hard:['🔴','Qiyin',1.4] };
+if (!LEVELS[S.tlevel]) S.tlevel = 'hard';
+if (S.tmode !== 'uz') S.tmode = 'en';
 const RARE = /[qxzjkvwy]/g;
 function wordDiff(w){ return w.length + 2 * ((w.match(RARE) || []).length) + (/(.)\1/.test(w) ? 3 : 0) + (w.length >= 15 ? 12 : 0); }
 function wordStars(w){ const d = wordDiff(w); return d < 12 ? 1 : d < 16 ? 2 : d < 22 ? 3 : d < 32 ? 4 : 5; }
-const T = { word:'', mean:'', start:0, mistakes:0, streak:0, last:'', ui:null, cv:null, inp:null, msg:null, prev:'' };
+const T = { word:'', mean:'', start:0, mistakes:0, streak:0, heard:false, ui:null, cv:null, inp:null, msg:null, prev:'' };
 function pickWord(){
-  let w; do { w = WORDS[Math.floor(Math.random() * WORDS.length)]; } while (WORDS.length > 1 && w[0] === T.word);
-  T.word = w[0]; T.mean = w[1]; T.start = 0; T.mistakes = 0; T.prev = '';
+  const list = WORDSETS[S.tlevel];
+  let w; do { w = list[Math.floor(Math.random() * list.length)]; } while (list.length > 1 && w[0] === T.word);
+  T.word = w[0]; T.mean = w[1]; T.start = 0; T.mistakes = 0; T.prev = ''; T.heard = false;
   if (T.inp){ T.inp.value = ''; T.inp.maxLength = T.word.length; }
-  if (T.ui){ T.ui.querySelector('.mean').textContent = '🇺🇿 ' + T.mean; T.ui.querySelector('.lvl').textContent = 'Qiyinlik: ' + '★'.repeat(wordStars(T.word)) + '☆'.repeat(5 - wordStars(T.word)) + ' · ' + T.word.length + ' harf'; }
-  drawWord();
+  paintTypeHead(); drawWord();
+}
+function paintTypeHead(){
+  if (!T.ui) return;
+  const uz = S.tmode === 'uz';
+  T.ui.querySelector('.mean').textContent = uz ? '🇺🇿 ' + T.mean + ' — inglizchasini yozing' : '🇺🇿 ' + T.mean;
+  T.ui.querySelector('.mean').classList.toggle('big', uz);
+  T.ui.querySelector('.lvl').textContent = LEVELS[S.tlevel][0] + ' ' + LEVELS[S.tlevel][1] + ' · ' + '★'.repeat(wordStars(T.word)) + '☆'.repeat(5 - wordStars(T.word)) + ' · ' + T.word.length + ' harf' + (uz ? ' · tarjima x1.5' : '');
+  T.ui.querySelectorAll('[data-lv]').forEach(b => b.classList.toggle('on', b.dataset.lv === S.tlevel));
+  T.ui.querySelectorAll('[data-md]').forEach(b => b.classList.toggle('on', b.dataset.md === S.tmode));
 }
 function typeBase(){ return Math.max(10, perClick() * 4 + cps() / Math.max(1, boost.mult) * 3); }
 function drawWord(){
@@ -357,20 +393,35 @@ function drawWord(){
   const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 360, h = cv.clientHeight || 120;
   cv.width = w * dpr; cv.height = h * dpr;
   const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
-  const typed = T.inp ? T.inp.value : '', n = T.word.length;
+  const typed = T.inp ? T.inp.value : '', n = T.word.length, uz = S.tmode === 'uz';
   let fs = Math.min(44, (w - 24) / (n * 0.62)); fs = Math.max(fs, 11);
   c.font = '800 ' + fs + 'px ui-monospace,Menlo,Consolas,monospace'; c.textBaseline = 'middle';
   const cw = c.measureText('M').width, x0 = (w - cw * n) / 2;
   for (let i = 0; i < n; i++){
-    const ch = T.word[i], t = typed[i];
-    c.fillStyle = t == null ? '#fff8ec' : (t.toLowerCase() === ch ? '#3ddc84' : '#ff5d5d');
-    if (i === typed.length){ c.fillStyle = '#ffc83d'; c.fillRect(x0 + i * cw, h / 2 + fs * 0.55, cw - 2, 3); }
+    const ch = T.word[i], t = typed[i], ok = t != null && t.toLowerCase() === ch;
+    c.fillStyle = t == null ? '#fff8ec' : (ok ? '#3ddc84' : '#ff5d5d');
+    if (i === typed.length){ c.fillStyle = '#ffc83d'; c.fillRect(x0 + i * cw, h / 2 + fs * 0.55, cw - 2, 3); c.fillStyle = '#fff8ec'; }
+    if (uz && !ok){
+      // tarjima rejimi: harflar yashirin, faqat birinchisi xira ko'rinadi
+      if (i === 0 && t == null){ c.globalAlpha = .35; c.fillText(ch, x0, h / 2); c.globalAlpha = 1; }
+      else { c.fillStyle = t == null ? 'rgba(255,248,236,.35)' : '#ff5d5d'; c.fillText(t == null ? '_' : t.toLowerCase(), x0 + i * cw, h / 2); }
+      continue;
+    }
     c.fillText(ch, x0 + i * cw, h / 2);
   }
-  // nusxalash/OCR ni qiyinlashtiruvchi yengil shovqin
   c.globalAlpha = .08; c.strokeStyle = '#fff';
   for (let i = 0; i < 6; i++){ c.beginPath(); c.moveTo(Math.random() * w, Math.random() * h); c.lineTo(Math.random() * w, Math.random() * h); c.stroke(); }
   c.globalAlpha = 1;
+}
+function speak(){
+  try {
+    if (!('speechSynthesis' in window)) { tmsg('Bu brauzerda ovoz yo\'q', 'err'); return; }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(T.word); u.lang = 'en-US'; u.rate = 0.8;
+    const v = speechSynthesis.getVoices().find(x => /^en(-|_)/i.test(x.lang)); if (v) u.voice = v;
+    speechSynthesis.speak(u);
+    if (S.tmode === 'uz' && !T.heard){ T.heard = true; tmsg('🔊 Eshitdingiz — bu so\'z uchun tarjima bonusi (x1.5) yo\'q'); }
+  } catch(e){}
 }
 function tmsg(t, k){ if (T.msg){ T.msg.textContent = t; T.msg.className = 'tmsg' + (k ? ' ' + k : ''); } }
 function badInput(why){
@@ -399,8 +450,8 @@ function finishWord(){
   const diff = wordDiff(T.word), spM = Math.max(0.6, Math.min(2.2, speed / 3)), accM = Math.max(0.25, 1 - 0.12 * T.mistakes);
   if (T.mistakes === 0) T.streak++; else T.streak = 0;
   S.typeBest = Math.max(S.typeBest || 0, T.streak);
-  const stM = 1 + Math.min(T.streak, 10) * 0.1;
-  const reward = Math.floor(typeBase() * diff * spM * accM * stM);
+  const stM = 1 + Math.min(T.streak, 10) * 0.1, lvM = LEVELS[S.tlevel][2], mdM = S.tmode === 'uz' && !T.heard ? 1.5 : 1;
+  const reward = Math.floor(typeBase() * diff * spM * accM * stM * lvM * mdM);
   gain(reward); S.typed = (S.typed || 0) + 1; S.typeCoins = (S.typeCoins || 0) + reward; save();
   const r = T.inp.getBoundingClientRect(); floatText(r.left + r.width / 2, r.top, '+' + fmt(reward), T.mistakes === 0);
   beep(990, 0.18, 'triangle', 0.1);
@@ -416,16 +467,22 @@ function paintTypeStats(){
 function typeUI(){
   if (!T.ui){
     const d = document.createElement('div'); d.className = 'tw';
-    d.innerHTML = '<div class="lvl"></div><canvas></canvas><div class="mean"></div>' +
+    d.innerHTML =
+      '<div class="tsel"><button data-lv="easy">🟢 Oson</button><button data-lv="mid">🟡 O\'rta</button><button data-lv="hard">🔴 Qiyin</button></div>' +
+      '<div class="tsel"><button data-md="en">🇬🇧 So\'zni ko\'chir</button><button data-md="uz">🇺🇿→🇬🇧 Tarjima qil</button></div>' +
+      '<div class="lvl"></div><div class="cvw"><canvas></canvas><button class="say" id="tySay" title="Talaffuz">🔊</button></div><div class="mean"></div>' +
       '<input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" placeholder="Shu yerga yozing…" aria-label="So\'zni yozing">' +
       '<div class="tmsg"></div>' +
       '<div class="trow"><button class="tbtn" id="tySkip">⏭ Boshqa so\'z</button><button class="tbtn" id="tyClr">⌫ Tozalash</button><button class="tbtn" id="tyHint">💡 Qoida</button></div>' +
       '<div class="stats"><div class="stat"><div class="v" id="tyN" style="font-size:15px"></div></div><div class="stat"><div class="v" id="tyS" style="font-size:15px"></div></div><div class="stat" style="grid-column:1/-1"><div class="v" id="tyC" style="font-size:15px"></div></div></div>' +
-      '<div class="rule" id="tyRule" style="display:none">🪙 Coin = so\'z qiyinligi (uzunlik, kam uchraydigan harflar q x z j k v w y, qo\'sh harflar) × tezlik (tezroq — ko\'proq, x2.2 gacha) × aniqlik (har xato −12%) × seriya (ketma-ket xatosiz so\'zlar +10% dan, x2 gacha). Daromadingiz o\'sgani sari har so\'z ham qimmatlashadi. Copy-paste, sudrab tashlash va avto-to\'ldirish ishlamaydi.</div>';
+      '<div class="rule" id="tyRule" style="display:none">🪙 Coin = so\'z qiyinligi × tezlik (x2.2 gacha) × aniqlik (har xato −12%) × seriya (ketma-ket xatosiz +10%, x2 gacha) × daraja (oson x0.6, o\'rta x1, qiyin x1.4). 🇺🇿→🇬🇧 tarjima rejimida so\'z yashirin — o\'zbekchasiga qarab inglizchasini yozasiz, mukofot x1.5 (🔊 eshitsangiz bonus yo\'q). Copy-paste, sudrab tashlash va avto-to\'ldirish ishlamaydi.</div>';
     T.ui = d; T.cv = d.querySelector('canvas'); T.inp = d.querySelector('input'); T.msg = d.querySelector('.tmsg');
     T.inp.addEventListener('input', onType);
-    ['paste','drop','copy','cut','contextmenu','dragstart'].forEach(ev => d.addEventListener(ev, e => { e.preventDefault(); if (ev === 'paste' || ev === 'drop') badInput("🚫 Copy-paste mumkin emas — harfma-harf yozing!"); }));
+    ['paste','drop','copy','cut','contextmenu','dragstart'].forEach(ev => d.addEventListener(ev, e => { if (e.target.closest && e.target.closest('button')) return; e.preventDefault(); if (ev === 'paste' || ev === 'drop') badInput("🚫 Copy-paste mumkin emas — harfma-harf yozing!"); }));
     T.inp.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && /^[vV]$/.test(e.key)) { e.preventDefault(); badInput("🚫 Copy-paste mumkin emas — harfma-harf yozing!"); } });
+    d.querySelectorAll('[data-lv]').forEach(b => b.onclick = () => { S.tlevel = b.dataset.lv; T.streak = 0; save(); tmsg(LEVELS[S.tlevel][0] + ' ' + LEVELS[S.tlevel][1] + ' daraja'); pickWord(); paintTypeStats(); });
+    d.querySelectorAll('[data-md]').forEach(b => b.onclick = () => { S.tmode = b.dataset.md; save(); tmsg(S.tmode === 'uz' ? '🇺🇿→🇬🇧 O\'zbekchasiga qarab inglizchasini yozing' : '🇬🇧 Ko\'rsatilgan so\'zni yozing'); pickWord(); });
+    d.querySelector('#tySay').onclick = speak;
     d.querySelector('#tySkip').onclick = () => { T.streak = 0; tmsg('⏭ So\'z almashtirildi — seriya 0 ga tushdi'); pickWord(); paintTypeStats(); T.inp.focus(); };
     d.querySelector('#tyClr').onclick = () => { T.inp.value = ''; T.prev = ''; drawWord(); T.inp.focus(); };
     d.querySelector('#tyHint').onclick = () => { const r = d.querySelector('#tyRule'); r.style.display = r.style.display === 'none' ? '' : 'none'; };
@@ -447,8 +504,10 @@ function renderTop(){
   $('gemBonus').textContent = S.gems*2;
   applySkin();
   const left = boost.until - Date.now();
-  $('boostBox').innerHTML = left > 0
-    ? `<div class="boost">${boost.mult>1?'🔥 Daromad x'+boost.mult:'⚡ Bosish x'+boost.click} — ${Math.ceil(left/1000)}s</div>` : '';
+  const evL = EV && EV.until > Date.now() ? EV.until - Date.now() : 0;
+  $('boostBox').innerHTML = (left > 0
+    ? `<div class="boost">${boost.mult>1?'🔥 Daromad x'+boost.mult:'⚡ Bosish x'+boost.click} — ${Math.ceil(left/1000)}s</div>` : '')
+    + (evL > 0 ? `<div class="boost ev">⚡ EVENT: ${EV.title.replace(/[<>&]/g,'')} · x${EV.mult} · ${evL > 3600e3 ? Math.ceil(evL/3600e3)+' soat' : Math.ceil(evL/60e3)+' daq'}</div>` : '');
   if (left <= 0 && (boost.mult!==1||boost.click!==1)) boost = {mult:1, click:1, until:0};
   updateAffordability();
   document.title = fmt(S.coins) + ' 🥥 Coconut Simulator';
@@ -491,12 +550,14 @@ function render(){
       h += `<div class="sec">Sotib olingan (${owned.length}/${UPGRADES.length})</div>`;
       owned.forEach(u=>{ h += `<div class="item owned"><div class="em">${u.em}</div><div class="info"><div class="name">${u.name} ✅</div><div class="desc">${u.desc}</div></div></div>`; });
     }
+  } else if (tab === 'top'){
+    h = topHTML();
   } else if (tab === 'skins'){
     SKINS.forEach(k=>{
       const own = S.skins.includes(k.id), eq = S.skin===k.id;
       h += `<div class="item ${own?'owned':''} ${eq?'equipped':''}" data-skin="${k.id}" style="${own?'cursor:pointer':''}">
         <div class="em">${k.em}</div><div class="info"><div class="name">${k.name}</div><div class="desc">${k.desc}</div>
-        ${own ? `<div class="price" style="color:var(--green)">${eq?'✔ Kiyilgan':'Kiyish'}</div>` : `<div class="price" data-cost="${k.cost}">🪙 ${fmt(k.cost)}</div>`}
+        ${own ? `<div class="price" style="color:var(--green)">${eq?'✔ Kiyilgan':'Kiyish'}</div>` : k.cost < 0 ? `<div class="price" style="color:var(--muted)">🔒 7 kunlik bonus sovg'asi</div>` : `<div class="price" data-cost="${k.cost}">🪙 ${fmt(k.cost)}</div>`}
         </div></div>`;
     });
   } else {
@@ -537,6 +598,7 @@ $('list').addEventListener('click', e => {
   } else if (it.dataset.skin){
     const k = SKINS.find(x=>x.id===it.dataset.skin);
     if (S.skins.includes(k.id)){ S.skin = k.id; render(); return; }
+    if (k.cost < 0){ toast('🔒 Bu skin 7 kun ketma-ket kunlik bonus olganda ochiladi'); return; }
     if (S.coins < k.cost) return beep(160,0.1,'square',0.04);
     S.coins -= k.cost; S.skins.push(k.id); S.skin = k.id; beep(880,0.12,'triangle'); toast(k.em+' '+k.name+' skin olindi!'); render();
   }
@@ -591,25 +653,106 @@ document.addEventListener('visibilitychange', ()=>{
 });
 window.addEventListener('beforeunload', save);
 
-// ---------- SERVER: o'yinchi ID va admin bergan coinlar ----------
+// ---------- SERVER: ID, bulutda saqlash, admin coinlari, event, e'lon, blok, kunlik bonus, reyting ----------
 const SRV = 'https://blwapspmzvcpadoydzwg.supabase.co/functions/v1/coconut';
 if (!S.ptok){ const a = new Uint8Array(24); crypto.getRandomValues(a); S.ptok = Array.from(a, x => x.toString(16).padStart(2,'0')).join(''); }
-const pname = () => (window.COCO_AUTH.user && window.COCO_AUTH.user.name) || 'Mehmon';
+const AUSER = window.COCO_AUTH.user;
+const acct = () => AUSER ? { phone: AUSER.phone, token: AUSER.token } : undefined;
+const pname = () => (S.nick || (AUSER && AUSER.name) || 'Mehmon').slice(0, 24);
+const api = async (action, body) => {
+  const res = await fetch(SRV, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action, ...body }) });
+  const j = await res.json().catch(() => ({})); j._http = res.status; return j;
+};
 function showPid(){ $('pidT').textContent = S.pid || '…'; }
 $('idchip').onclick = () => { if (!S.pid) return; try { navigator.clipboard.writeText(S.pid); } catch(e){} toast('🆔 ID nusxalandi: ' + S.pid); };
+function saveBlob(){ const o = Object.assign({}, S); delete o.ptok; return o; }
+
+// Bilols AI hisobi bilan kirganda — avval bulutdagi o'yinni yuklaymiz (boshqa telefon/kompyuterdagi progress)
+let cloudReady = !AUSER;
+async function cloudLoad(){
+  try {
+    const r = await api('cloud_load', { acct: acct() });
+    if (r.ok && r.pid){
+      const remote = r.save && typeof r.save === 'object' ? r.save : null;
+      if (remote && (remote.allTime || 0) > (S.allTime || 0)){
+        const keep = { ptok: S.ptok, sound: S.sound };
+        S = Object.assign(fresh(), remote, keep);
+        S.skins = (S.skins || []).filter(id => SKINS.some(k => k.id === id)); if (!S.skins.includes('coco')) S.skins.unshift('coco');
+        if (!S.skins.includes(S.skin)) S.skin = 'coco';
+        lastSkin = null; render(); if (T.ui) { pickWord(); paintTypeStats(); }
+        toast('☁️ Bulutdagi o\'yiningiz yuklandi: ' + fmt(S.coins) + ' coin');
+      }
+      S.pid = r.pid; save(); showPid();
+    }
+  } catch(e){}
+  cloudReady = true;
+}
+
+
+function showBanned(){
+  if ($('banned')) return;
+  const d = document.createElement('div'); d.id = 'banned';
+  d.innerHTML = '<div><div style="font-size:64px">🚫</div><h2>Siz bloklangansiz</h2><p>Admin sizni o\'yindan chetlatdi. Xato deb o\'ylasangiz — bilolsai.uz orqali admin bilan bog\'laning.</p><p class="bid"></p></div>';
+  d.querySelector('.bid').textContent = '🆔 ' + S.pid;
+  document.body.appendChild(d);
+}
+function showAnnounce(a){
+  if (!a || !a.text || S.annSeen === a.id) return;
+  S.annSeen = a.id; save();
+  const d = document.createElement('div'); d.className = 'announce';
+  d.innerHTML = '<b>📢 Admin xabari</b><span></span><button>✕</button>';
+  d.querySelector('span').textContent = a.text;
+  d.querySelector('button').onclick = () => d.remove();
+  document.body.appendChild(d); beep(880, 0.2, 'triangle', 0.08);
+}
+
+// Kunlik bonus
+let DAILY = null;
+function dailyReward(day){ return Math.floor(day * Math.max(500, cps() / eventMult() * 120 + perClick() * 30)); }
+function paintDaily(){
+  const b = $('dailyBtn'); if (!b) return;
+  const can = DAILY && DAILY.day !== DAILY.today;
+  const streak = DAILY ? (DAILY.day && can && DAILY.day !== prevDay(DAILY.today) ? 0 : DAILY.streak || 0) : 0;
+  const next = can ? (streak % 7) + 1 : ((streak - 1) % 7) + 1;
+  b.style.display = DAILY ? '' : 'none';
+  b.disabled = !can;
+  b.innerHTML = can ? '🎁 Kunlik bonus: <b>' + next + '-kun</b> · +' + fmt(dailyReward(next)) : '✅ Bugungi bonus olindi · ertaga ' + ((streak % 7) + 1) + '-kun';
+  const dots = $('dailyDots'); if (dots){ dots.innerHTML = ''; for (let i = 1; i <= 7; i++){ const s = document.createElement('span'); const done = can ? i < next : i <= next; s.className = done ? 'on' : ''; s.textContent = i === 7 ? '🌺' : i; dots.appendChild(s); } }
+}
+function prevDay(iso){ const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); }
+async function claimDaily(){
+  const b = $('dailyBtn'); b.disabled = true;
+  try {
+    const r = await api('daily', { pid: S.pid, token: S.ptok, acct: acct() });
+    if (r.ok){
+      const v = dailyReward(r.day); gain(v); save();
+      const rr = b.getBoundingClientRect(); floatText(rr.left + rr.width / 2, rr.top, '+' + fmt(v), true); beep(1040, 0.25, 'triangle', 0.12);
+      toast('🎁 ' + r.day + '-kun bonusi: +' + fmt(v) + ' coin! Seriya: ' + r.streak + ' kun');
+      if (r.skin && !S.skins.includes('tropic')){ S.skins.push('tropic'); save(); toast('🌺 7 kun ketma-ket! «Tropik qahramon» skini ochildi!'); }
+      DAILY = { day: DAILY.today, today: DAILY.today, streak: r.streak };
+    } else if (r.already){ DAILY.day = DAILY.today; toast('Bugungi bonus allaqachon olingan'); }
+    else toast(r.error === 'banned' ? '🚫 Siz bloklangansiz' : 'Bonusni olib bo\'lmadi, keyinroq urining');
+  } catch(e){ toast('Server bilan bog\'lanib bo\'lmadi'); }
+  paintDaily(); renderTop();
+}
+
 let syncing = false;
 async function sync(){
-  if (syncing) return; syncing = true;
+  if (syncing || !cloudReady) return; syncing = true;
   try {
-    const base = { token:S.ptok, name:pname(), acct:!!window.COCO_AUTH.user, coins:Math.floor(S.coins), total:Math.floor(S.total), clicks:S.clicks };
+    const base = { token:S.ptok, name:pname(), acct:acct(), coins:Math.floor(S.coins), total:Math.floor(S.total), clicks:S.clicks, typed:S.typed||0 };
     if (!S.pid){
-      const r = await (await fetch(SRV, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'register', ...base }) })).json();
-      if (r.ok && r.pid){ S.pid = r.pid; save(); showPid(); toast('🆔 Sizning ID: ' + r.pid); }
+      const r = await api('register', base);
+      if (r.ok && r.pid){ S.pid = r.pid; save(); showPid(); toast('🆔 Sizning ID: ' + r.pid); setTimeout(sync, 500); }
       return;
     }
-    const res = await fetch(SRV, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'sync', pid:S.pid, ...base }) });
-    const r = await res.json();
-    if (res.status === 401){ S.pid = ''; showPid(); return; }   // server bu ID ni tanimadi — yangisi olinadi
+    const r = await api('sync', { pid:S.pid, ...base, save: AUSER ? saveBlob() : undefined });
+    if (r._http === 401){ if (!AUSER) { S.pid = ''; showPid(); } return; }   // server bu ID ni tanimadi — yangisi olinadi
+    if (!r.ok) return;
+    if (r.banned) showBanned(); else if ($('banned')) $('banned').remove();
+    EV = r.event || null;
+    showAnnounce(r.announce);
+    if (r.daily){ DAILY = r.daily; paintDaily(); }
     (r.grants || []).forEach(g => {
       const note = g.note ? ' (' + g.note + ')' : '';
       if (g.amount > 0){
@@ -624,9 +767,44 @@ async function sync(){
       }
       save(); renderTop();
     });
+    renderTop();
   } catch(e){} finally { syncing = false; }
 }
-showPid(); setTimeout(sync, 400); setInterval(sync, 15000);
+$('dailyBtn').onclick = claimDaily;
+showPid();
+(async () => { if (AUSER) await cloudLoad(); sync(); })();
+setInterval(sync, 15000);
+
+// 🏆 Reyting
+let topKind = 'all', topCache = {};
+const TOPK = { all:['🪙','Jami coin'], week:['📅','Shu hafta'], typed:['⌨️','So\'zlar'] };
+async function loadTop(kind){
+  try { const r = await api('top', { kind, pid: S.pid }); if (r.ok){ topCache[kind] = { at: Date.now(), r }; if (tab === 'top' && topKind === kind) render(); } } catch(e){}
+}
+function topHTML(){
+  const c = topCache[topKind];
+  if (!c || Date.now() - c.at > 30000) loadTop(topKind);
+  let h = '<div class="tsel">' + Object.keys(TOPK).map(k => `<button data-top="${k}" class="${k===topKind?'on':''}">${TOPK[k][0]} ${TOPK[k][1]}</button>`).join('') + '</div>';
+  if (!c) return h + '<div class="pill" style="text-align:center">⏳ Yuklanmoqda…</div>';
+  const r = c.r, val = v => topKind === 'typed' ? fmt(v) + ' so\'z' : '🪙 ' + fmt(v);
+  const esc = s => String(s || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  if (!r.rows.length) h += '<div class="pill" style="text-align:center">Hali hech kim yo\'q — birinchi bo\'ling!</div>';
+  r.rows.forEach((x, i) => {
+    const medal = ['🥇','🥈','🥉'][i] || (i + 1);
+    h += `<div class="lrow ${x.pid===S.pid?'me':''}"><span class="lr">${medal}</span><span class="ln">${esc(x.name)}${x.acct?' ✅':''}<small>#${x.pid}</small></span><span class="lv">${val(x.value)}</span></div>`;
+  });
+  if (r.me && !r.rows.some(x => x.pid === r.me.pid)) h += `<div class="lrow me"><span class="lr">${r.me.rank}</span><span class="ln">Siz<small>#${r.me.pid}</small></span><span class="lv">${val(r.me.value)}</span></div>`;
+  h += `<div class="sec">Ismingiz reytingda</div><div class="nick"><input id="nickIn" maxlength="20" placeholder="${esc((AUSER && AUSER.name) || 'Mehmon')}" value="${esc(S.nick||'')}"><button id="nickBtn">Saqlash</button></div>`;
+  h += '<div class="desc" style="color:var(--muted);font-size:12px;margin-top:6px">Reytingda server tasdiqlagan coinlar hisoblanadi. Hafta reytingi har dushanba yangilanadi.</div>';
+  return h;
+}
+$('list').addEventListener('click', e => {
+  const b = e.target.closest('[data-top]'); if (b){ topKind = b.dataset.top; render(); return; }
+  if (e.target.id === 'nickBtn'){
+    const v = $('nickIn').value.replace(/[<>]/g, '').trim().slice(0, 20);
+    S.nick = v; save(); toast('✅ Ism saqlandi: ' + (v || pname())); topCache = {}; sync(); setTimeout(() => loadTop(topKind), 1500);
+  }
+});
 
 $('typeBox').appendChild(typeUI());
 // ---------- 📱 Telefon: pastki menyu, sarlavhada coin, klaviatura ----------

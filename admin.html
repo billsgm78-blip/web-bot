@@ -2507,29 +2507,80 @@ select.inp option { background: #12151c; color: var(--text); }
         ]));
         view.appendChild(h('div', { class: 'sum', style: 'margin-top:10px', text: "Har bir o'yinchi coconut.bilolsai.uz ga kirishi bilan 6 xonali ID oladi (Bilols AI hisobi bilan kirgan yoki mehmon). Pastdagi ro'yxatdan o'yinchini bossangiz — ID o'zi yoziladi." }));
 
-        var search = h('input', { class: 'inp', placeholder: '🔍 ID yoki ism bo\'yicha qidirish', value: q });
+        // ---- 📢 Hammaga: coin, xabar, event ----
+        var gAmt = h('input', { class: 'inp', inputmode: 'numeric', placeholder: '1000000' });
+        var gNote = h('input', { class: 'inp', maxlength: '80', placeholder: "Masalan: Bayram sovg'asi" });
+        async function cocoAll(sign, btn) {
+            var a = Number(String(gAmt.value).replace(/[\s,]/g, ''));
+            if (!(a > 0)) { toast('Coin miqdorini yozing'); return; }
+            if (!await dialog({ title: sign > 0 ? '🎁 Hammaga coin' : '➖ Hammadan ayirish', text: "Oxirgi 30 kunda o'ynagan barcha o'yinchilarga (bloklanganlardan tashqari) " + (sign > 0 ? cocoNum(a) + ' coin beriladi.' : cocoNum(a) + ' coin ayiriladi.'), ok: sign > 0 ? 'Hammaga berish' : 'Hammadan ayirish', danger: sign < 0 })) return;
+            btn.disabled = true;
+            try { var x = await coco('admin_grant_all', { amount: sign * a, note: gNote.value }); if (x.ok) { toast('✅ ' + x.count + " ta o'yinchiga yuborildi"); gAmt.value = ''; gNote.value = ''; vCoconut(view, q); } else toast(x.error || 'Xato'); }
+            catch (e) { if (e.message !== 'auth') toast("Server bilan bog'lanib bo'lmadi"); }
+            btn.disabled = false;
+        }
+        var gGive = h('button', { class: 'btn', text: '🎁 Hammaga berish', onclick: function () { cocoAll(1, gGive); } });
+        var gTake = h('button', { class: 'btn danger', text: '➖ Hammadan ayirish', onclick: function () { cocoAll(-1, gTake); } });
+        var annIn = h('textarea', { class: 'inp', maxlength: '200', placeholder: "O'yinchilar ekranida chiqadigan xabar…", style: 'min-height:70px' });
+        var annBtn = h('button', { class: 'btn', text: '📢 Xabar yuborish', onclick: async function () {
+            if (!annIn.value.trim()) { toast('Xabar matnini yozing'); return; }
+            var x = await coco('admin_announce', { text: annIn.value }); if (x.ok) { toast("📢 Xabar yuborildi — o'yinchilar 15 soniyada ko'radi"); vCoconut(view, q); } else toast(x.error || 'Xato');
+        } });
+        var annOff = h('button', { class: 'btn ghost', text: "Xabarni o'chirish", onclick: async function () { var x = await coco('admin_announce', { text: '' }); if (x.ok) { toast("Xabar o'chirildi"); vCoconut(view, q); } } });
+        var evMult = h('select', { class: 'inp' }); [2, 3, 5, 10].forEach(function (m) { evMult.appendChild(h('option', { value: String(m), text: 'x' + m + ' coin' })); });
+        var evMin = h('select', { class: 'inp' }); [[15, '15 daqiqa'], [30, '30 daqiqa'], [60, '1 soat'], [180, '3 soat'], [720, '12 soat'], [1440, '1 kun'], [4320, '3 kun']].forEach(function (m) { evMin.appendChild(h('option', { value: String(m[0]), text: m[1] })); });
+        evMin.value = '60';
+        var evTitle = h('input', { class: 'inp', maxlength: '60', placeholder: 'Nomi (masalan: Bayram!)' });
+        var evStart = h('button', { class: 'btn', text: '⚡ Eventni boshlash', onclick: async function () {
+            var x = await coco('admin_event', { mult: +evMult.value, minutes: +evMin.value, title: evTitle.value }); if (x.ok) { toast('⚡ Event boshlandi'); vCoconut(view, q); } else toast(x.error || 'Xato');
+        } });
+        var evStop = h('button', { class: 'btn danger', text: "⏹ To'xtatish", onclick: async function () { var x = await coco('admin_event', { mult: 1, minutes: 0 }); if (x.ok) { toast('⏹ Event toʻxtatildi'); vCoconut(view, q); } } });
+        var evState = h('div', { class: 'sum', text: '⏳' }), annState = h('div', { class: 'sum', text: '' });
+        view.appendChild(h('div', { class: 'h', text: '📢 Hamma o\'yinchilar uchun' }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { class: 'form-row' }, [h('label', { class: 'lb' }, ['Coin miqdori (hammaga)', gAmt]), h('label', { class: 'lb' }, ['Izoh', gNote])]),
+            h('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' }, [gGive, gTake]),
+            h('label', { class: 'lb', style: 'margin-top:14px' }, ['Xabar (o\'yinda oynacha bo\'lib chiqadi)', annIn]), annState,
+            h('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' }, [annBtn, annOff]),
+            h('div', { class: 'form-row', style: 'margin-top:14px' }, [h('label', { class: 'lb' }, ['⚡ Event: daromad', evMult]), h('label', { class: 'lb' }, ['Davomiyligi', evMin]), h('label', { class: 'lb' }, ['Nomi', evTitle])]),
+            evState,
+            h('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' }, [evStart, evStop])
+        ]));
+
+        var search = h('input', { class: 'inp', placeholder: "🔍 ID yoki ism bo'yicha qidirish (! — shubhalilar)", value: q });
         var st;
         search.addEventListener('input', function () { clearTimeout(st); st = setTimeout(function () { vCoconut(view, search.value.trim()); }, 500); });
         var head = h('div', { class: 'h', text: "O'yinchilar" });
         view.appendChild(head);
-        view.appendChild(search);
+        view.appendChild(h('div', { style: 'display:flex;gap:8px' }, [search, h('button', { class: 'btn ghost', style: 'width:auto;padding:0 14px;white-space:nowrap', text: '⚠️ Shubhalilar', onclick: function () { vCoconut(view, '!'); } })]));
         var box = h('div', {}, [h('div', { class: 'loading', text: '⏳' })]);
         view.appendChild(box);
         var j = await coco('admin_list', { q: q });
         box.innerHTML = '';
         if (!j.ok) { box.appendChild(h('div', { class: 'empty', text: j.error || 'Server xatosi' })); return; }
         head.textContent = "O'yinchilar — jami " + (j.count || 0) + ' · onlayn ' + (j.online || 0);
+        evState.textContent = j.event ? '🟢 Faol event: «' + j.event.title + '» x' + j.event.mult + ' — ' + fmtDate(j.event.until / 1000) + ' gacha' : 'Hozir event yo\'q';
+        annState.textContent = j.announce && j.announce.text ? '📢 Hozirgi xabar: «' + j.announce.text + '»' : '';
         var players = j.players || [];
         if (!players.length) box.appendChild(h('div', { class: 'empty', text: q ? 'Topilmadi' : "Hali o'yinchi yo'q" }));
         players.forEach(function (p) {
             var on = (Date.now() - new Date(p.last_seen).getTime()) < 120000;
+            var banBtn = h('button', { class: 'act', title: p.banned ? 'Blokdan chiqarish' : 'Bloklash', text: p.banned ? '✅' : '🚫', onclick: async function (e) {
+                e.stopPropagation();
+                if (!await dialog({ title: p.banned ? '✅ Blokdan chiqarish' : '🚫 Bloklash', text: (p.name || 'Mehmon') + ' #' + p.pid + (p.banned ? " yana o'ynay oladi va reytingga qaytadi." : " o'ynay olmaydi va reytingdan chiqariladi."), ok: p.banned ? 'Chiqarish' : 'Bloklash', danger: !p.banned })) return;
+                var x = await coco('admin_ban', { pid: p.pid, banned: !p.banned }); if (x.ok) { toast(p.banned ? '✅ Blokdan chiqarildi' : '🚫 Bloklandi'); vCoconut(view, q); } else toast(x.error || 'Xato');
+            } });
+            var tags = [h('span', { class: 'tag ' + (p.is_account ? 'done' : 'off'), text: p.is_account ? 'Bilols AI' + (p.linked ? ' ☁️' : '') : 'Mehmon' })];
+            if (p.banned) tags.push(h('span', { class: 'tag off', style: 'background:rgba(244,63,94,.18);color:#fda4af', text: '🚫 Bloklangan' }));
+            if (p.flags > 0) tags.push(h('span', { class: 'tag off', style: 'background:rgba(251,191,36,.16);color:#fcd34d', text: '⚠️ Shubhali ×' + p.flags }));
             box.appendChild(h('div', { class: 'row click', onclick: function () { pid.value = p.pid; amount.focus(); window.scrollTo({ top: 0, behavior: 'smooth' }); } }, [
                 h('div', { class: 'r-ico' + (on ? ' in' : ''), text: p.is_account ? '👤' : '🥥' }),
                 h('div', { class: 'r-main' }, [
                     h('b', { text: (p.name || 'Mehmon') + ' · ' }, [h('span', { class: 'mono', text: '#' + p.pid })]),
-                    h('small', { text: '🪙 ' + cocoNum(p.coins) + ' coin · jami ' + cocoNum(p.total) + ' · ' + cocoNum(p.clicks) + ' bosish · ' + cocoAgo(p.last_seen) }),
-                    h('span', { class: 'tag ' + (p.is_account ? 'done' : 'off'), text: p.is_account ? 'Bilols AI hisobi' : 'Mehmon' })
-                ])
+                    h('small', { text: '🪙 ' + cocoNum(p.coins) + ' · reyting ' + cocoNum(p.lb_total) + ' · ⌨️ ' + (p.typed || 0) + ' · 🔥 ' + (p.daily_streak || 0) + ' kun · ' + cocoAgo(p.last_seen) }),
+                    h('div', { style: 'display:flex;gap:6px;flex-wrap:wrap' }, tags)
+                ]),
+                banBtn
             ]));
         });
         var recent = j.recent || [];
