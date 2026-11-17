@@ -2451,7 +2451,9 @@ select.inp option { background: #12151c; color: var(--text); }
     // ---------- 🥥 Coconut o'yini (coconut.bilolsai.uz): o'yinchilar va coin berish ----------
     var COCO_SRV = 'https://blwapspmzvcpadoydzwg.supabase.co/functions/v1/coconut';
     async function coco(action, body) {
-        var r = await fetch(COCO_SRV, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: action, token: token }, body || {})) });
+        var r;
+        try { r = await fetch(COCO_SRV, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: action, token: token }, body || {})) }); }
+        catch (e) { return { ok: false, error: "Coconut serveri bilan bog'lanib bo'lmadi (internet yoki server). «Yangilash» ni bosing." }; }
         var j = {}; try { j = await r.json(); } catch (e) {}
         if (r.status === 401) { logout(true); throw new Error('auth'); }
         return j;

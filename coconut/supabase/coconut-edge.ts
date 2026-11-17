@@ -7,7 +7,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 const BILOLS_API = "https://bilolsai-api.onrender.com";
-const ORIGIN_RX = /^(https:\/\/(coconut|admin)\.bilolsai\.uz|https:\/\/coconut-simulator[a-z0-9-]*\.vercel\.app|https:\/\/web-bot[a-z0-9-]*\.vercel\.app|http:\/\/localhost(:\d+)?)$/;
+const ORIGIN_RX = /^(https:\/\/([a-z0-9-]+\.)?bilolsai\.uz|https:\/\/coconut-simulator[a-z0-9-]*\.vercel\.app|https:\/\/web-bot[a-z0-9-]*\.vercel\.app|http:\/\/localhost(:\d+)?)$/;
 
 function cors(origin: string | null) {
   return {
