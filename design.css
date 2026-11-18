@@ -431,6 +431,9 @@ html[data-design="premium"] body .chat-header, html[data-design="premium"] body 
 html[data-design="premium"] body .chat-header h3 { color: var(--pm-ink) !important; font-weight: 800; }
 html[data-design="premium"] body .msg-ai, html[data-design="premium"] body #welcome-bubble { background: var(--pm-paper) !important; color: var(--pm-ink) !important; border: 1px solid var(--pm-line) !important; box-shadow: none !important; }
 html[data-design="premium"] body .msg-user { background: var(--pm-ink) !important; color: var(--pm-bg) !important; box-shadow: none !important; }
+/* Admin bilan chat pufakchasi va urg'u tugmalari: fon --pm-ink (to'q rejimda och rang) — yozuv oq qolmasin */
+html[data-design="premium"] body .sp-msg.me, html[data-design="premium"] body .new-chat-btn, html[data-design="premium"] body .wx-btn { background: var(--pm-ink) !important; color: var(--pm-bg) !important; box-shadow: none !important; }
+html[data-design="premium"] body .sp-msg.me small { color: var(--pm-bg) !important; opacity: .65; }
 html[data-design="premium"] body .send-btn, html[data-design="premium"] body .avatar { background: var(--pm-ink) !important; color: var(--pm-bg) !important; box-shadow: none !important; animation: none !important; }
 html[data-design="premium"] body .send-btn:hover { background: #000 !important; }
 html[data-design="premium"] body .avatar { position: relative; }
