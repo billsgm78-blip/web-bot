@@ -2878,6 +2878,17 @@ select.inp option { background: #12151c; color: var(--text); }
                 } })
             ])
         ]));
+        // 🤖 Admin bilan chatda AI yordamchi
+        var supAi = j.supportAi !== false;
+        var supSw = h('div', { class: 'switch' + (supAi ? ' ok' : ''), role: 'switch', onclick: async function () {
+            supAi = !supAi; supSw.className = 'switch' + (supAi ? ' ok' : '');
+            var x = await admin('settings_set', { values: {}, supportAi: supAi }); toast(x.success ? (supAi ? '✅ AI yordamchi yoqildi' : '⏸ AI yordamchi o\'chirildi') : (x.error || 'Xato'));
+        } });
+        view.appendChild(h('div', { class: 'h', text: '🤖 Admin bilan chatda AI yordamchi' }));
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('div', { style: 'display:flex;align-items:center;gap:12px' }, [h('div', { style: 'flex:1' }, [h('b', { text: 'Siz javob bermasangiz, AI birinchi javob beradi' }),
+                h('div', { class: 'sum', text: "Oddiy savollarga (sayt qanday ishlaydi, AI kim, narxlar) AI o'zi javob beradi. Akkaunt, parol, pul, xato yoki bilmagan savol bo'lsa — «Operatorga bog'layapman» deydi va sizga 📞 qo'ng'iroq qilib «murojaat bor» deydi, keyin siz javob berasiz. AI hech qanday amal (pul, obuna, parol) bajara olmaydi. Qo'ng'iroqni 📞 AI qo'ng'iroq bo'limida o'chirish mumkin." })]), supSw])
+        ]));
         view.appendChild(h('div', { class: 'sum', style: 'margin-top:12px', text: "Saytni yoki alohida funksiyalarni to'xtatish — 🚦 Boshqaruv bo'limida. Stars/Premium narxlari — 🏷 Narxlar bo'limida." }));
     }
 
