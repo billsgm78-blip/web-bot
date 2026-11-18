@@ -309,7 +309,9 @@ footer ul a{opacity:.82;transition:opacity .2s}footer ul a:hover{opacity:1;text-
   .head .tick{left:-6px;top:-24px}
 }
 @media (max-width:420px){.stat b{font-size:32px}.chip.c2{right:0}.chip.c1{left:0}.pin .dot{width:44px;height:44px}.pin small{font-size:11px}}
-.lite .grid,.lite .glow,.lite .band::after,.lite .node.me::before,.lite .node.me::after,.lite .plan.hot::after,.lite .ring{animation:none}
+/* ekranda ko'rinmayotgan bo'limlar animatsiyasi to'xtaydi — telefon qotmasin */
+.zz,.zz *,.zz *::before,.zz *::after{animation-play-state:paused!important}
+.lite .orbit .wires line,.lite .grid,.lite .glow,.lite .band::after,.lite .node.me::before,.lite .node.me::after,.lite .plan.hot::after,.lite .ring{animation:none}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
   html{scroll-behavior:auto}
@@ -688,6 +690,12 @@ if('IntersectionObserver' in window&&!calm){
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);shown(e.target)}})},{threshold:.12,rootMargin:'0px 0px -5% 0px'});
   rv.forEach(function(n){io.observe(n)});
 }else rv.forEach(function(n){n.classList.add('in','seen')});
+
+/* ---- ko'rinmayotgan bo'limlarda cheksiz animatsiyalar pauza (har kadrda stil qayta hisoblanmasin) ---- */
+if('IntersectionObserver' in window){
+  var zio=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle('zz',!e.isIntersecting)})},{rootMargin:'150px 0px'});
+  [].forEach.call(d.querySelectorAll('main > .hero, main > .band, main > section, footer'),function(n){zio.observe(n)});
+}
 
 /* ---- mobile menu + in-page links ---- */
 var burger=d.getElementById('burger'), menu=d.getElementById('menu');

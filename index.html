@@ -5612,16 +5612,19 @@ window.addEventListener('message', function (e) {
                 // Oqim: matn kelishi bilan ko'rsatiladi
                 const reader = res.body.getReader();
                 const decoder = new TextDecoder();
-                let lastPaint = 0;
+                let lastPaint = 0, paintGap = 90;
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
                     reply += decoder.decode(value, { stream: true });
                     if (!bubble && reply) { hideTyping(); bubble = createAIBubble(); }
                     const now = performance.now();
-                    if (bubble && now - lastPaint > 90) {
-                        lastPaint = now;
+                    if (bubble && now - lastPaint > paintGap) {
+                        // Uzun javobda har safar butun matn qayta chiziladi — qancha og'ir bo'lsa, shuncha kam chizamiz (telefon qotmasin)
                         bubble.querySelector(".ai-body").innerHTML = renderRich(reply);
+                        const cost = performance.now() - now;
+                        paintGap = Math.min(1000, Math.max(90, cost * 6));
+                        lastPaint = performance.now();
                         bubble.querySelector(".ai-body").classList.add("is-typing");
                         scrollDown();
                     }
