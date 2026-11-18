@@ -2597,6 +2597,9 @@ body.theme-light .logout-btn { background: rgba(244, 63, 94, 0.08) !important; }
 .sp-msg.me small { color: rgba(255,255,255,0.75); }
 .sp-msg.admin { align-self: flex-start; background: rgba(255, 255, 255, 0.07); border: 1px solid var(--border-glass); border-bottom-left-radius: 5px; }
 .sp-msg.admin::before { content: "🛠 Admin"; display: block; font-size: 11px; font-weight: 700; color: #a78bfa; margin-bottom: 2px; }
+.sp-msg.admin.ai::before { content: "🤖 AI yordamchi"; color: #34d399; }
+html[lang="ru"] .sp-msg.admin.ai::before { content: "🤖 AI-помощник"; }
+html[lang="en"] .sp-msg.admin.ai::before { content: "🤖 AI assistant"; }
 .sp-msg.sending { opacity: 0.6; }
 .sp-msg.sp-old { animation: none; }
 .sp-tick { letter-spacing: -3px; margin-left: 2px; }
@@ -7961,12 +7964,12 @@ window.addEventListener('message', function (e) {
                 var c = nodeCache[k], el;
                 if (c && c.sig === sig) el = c.el;
                 else if (c && c.img === imgSrc) {            // faqat holat o'zgardi (✓ → ✓✓, ⏳ → vaqt) — rasmga tegmaymiz
-                    el = c.el; el.className = 'sp-msg sp-old ' + (m.sender === 'admin' ? 'admin' : 'me') + (m.sending ? ' sending' : '') + (imgSrc ? ' has-img' : '');
+                    el = c.el; el.className = 'sp-msg sp-old ' + who(m) + (m.sending ? ' sending' : '') + (imgSrc ? ' has-img' : '');
                     el.querySelector('small').innerHTML = stamp(m);
                 } else {
                     el = document.createElement('div');
-                    el.className = 'sp-msg ' + (seenKeys[k] ? 'sp-old ' : '') + (m.sender === 'admin' ? 'admin' : 'me') + (m.sending ? ' sending' : '') + (imgSrc ? ' has-img' : '');
-                    el.innerHTML = (imgSrc ? '<img alt="" src="' + imgSrc + '">' : '') + (m.text ? '<span class="sp-txt">' + esc(m.text) + '</span>' : '') + '<small>' + stamp(m) + '</small>';
+                    el.className = 'sp-msg ' + (seenKeys[k] ? 'sp-old ' : '') + who(m) + (m.sending ? ' sending' : '') + (imgSrc ? ' has-img' : '');
+                    el.innerHTML = (imgSrc ? '<img alt="" src="' + imgSrc + '">' : '') + (m.text ? '<span class="sp-txt">' + esc(shownText(m)) + '</span>' : '') + '<small>' + stamp(m) + '</small>';
                     var im = el.querySelector('img');
                     if (im) { im.onload = function () { if (list.scrollHeight - list.scrollTop - list.clientHeight < 400) list.scrollTop = list.scrollHeight; }; im.onclick = function () { zoom(im.src); }; }
                     if (!seenKeys[k]) added = true;
@@ -7981,6 +7984,10 @@ window.addEventListener('message', function (e) {
             nodeCache = nextCache;
             if (added || nearBottom) list.scrollTop = list.scrollHeight;
         }
+        // AI yordamchi xabari serverda «🤖 » bilan boshlanadi: ustida «🤖 AI yordamchi» yoziladi, belgining o'zi matndan olinadi
+        function isAi(m) { return m.sender === 'admin' && typeof m.text === 'string' && m.text.indexOf('🤖 ') === 0; }
+        function who(m) { return m.sender === 'admin' ? (isAi(m) ? 'admin ai' : 'admin') : 'me'; }
+        function shownText(m) { return isAi(m) ? m.text.slice(3) : m.text; }
         function stamp(m) { return m.sending ? '⏳' : hm(m.at) + (m.sender === 'user' ? (m.read ? ' <span class="sp-tick read">✓✓</span>' : ' <span class="sp-tick">✓</span>') : ''); }
         var ver = null, polling = false;
         function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
