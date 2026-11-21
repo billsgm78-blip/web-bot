@@ -832,7 +832,7 @@ select.inp option { background: #12151c; color: var(--text); }
     // ================= PANEL =================
     var TABS = [
         ['stats', '📊', 'Statistika'], ['agent', '🤖', 'Yordamchi'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['test', '🧪', 'Test (taqdimot)'], ['coconut', '🥥', "Coconut o'yini"], ['aud', '📲', 'Ilova va bot'],
-        ['card', '💳', "Karta (avto to'lov)"], ['call', '📞', "AI qo'ng'iroq"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['mahalla', '🏘', 'Mahalla'], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['email', '📧', 'Email xabarlar'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['nizom', '📕', 'Ichki nizom'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama']
+        ['card', '💳', "Karta (avto to'lov)"], ['call', '📞', "AI qo'ng'iroq"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['mahalla', '🏘', 'Mahalla'], ['gift', '🎁', "Sovg'a (Malika)"], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['email', '📧', 'Email xabarlar'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['nizom', '📕', 'Ichki nizom'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama']
     ];
     var tab = 'stats';
     function buildNav() {
@@ -854,7 +854,7 @@ select.inp option { background: #12151c; color: var(--text); }
         // Kirish animatsiyasi faqat sahifa ochilganda (keyingi avto-yangilanishlarda qayta o'ynamaydi)
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
-        var fn = { coconut: vCoconut, test: vTest, stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, email: vEmail, support: vSupport, shop: vShop, mahalla: vMahalla, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
+        var fn = { coconut: vCoconut, test: vTest, stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, email: vEmail, support: vSupport, shop: vShop, mahalla: vMahalla, gift: vGift, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
     }
@@ -2599,6 +2599,37 @@ select.inp option { background: #12151c; color: var(--text); }
                 ]));
             });
         }
+    }
+    async function vGift(view) {
+        var j = await admin('gift_get');
+        view.innerHTML = '';
+        var q = h('textarea', { class: 'inp', rows: 3, placeholder: 'Masalan: Meni qanchalik sevasiz?' }); q.value = j.question || '';
+        function toLocal(sec) { var d = new Date(sec * 1000); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+        var at = h('input', { class: 'inp', type: 'datetime-local' }); at.value = toLocal(j.openAt || 1797361200);
+        view.appendChild(h('div', { class: 'card form' }, [
+            h('label', { class: 'lb' }, ['❓ Savol (Malika istalgan javob yozsa ham «to\'g\'ri» bo\'ladi)', q]),
+            h('label', { class: 'lb' }, ['⏰ Sovg\'a ochiladigan vaqt', at, h('small', { text: 'Odatda 16.12.2026 00:00. Sinab ko\'rish uchun hozirgi vaqtga qo\'yib, keyin qaytaring.' })]),
+            h('button', { class: 'btn', text: '💾 Saqlash', onclick: async function () {
+                var t = at.value ? Math.floor(new Date(at.value).getTime() / 1000) : 0;
+                var x = await admin('gift_save', { question: q.value, openAt: t });
+                toast(x.success ? '✅ Saqlandi' : (x.error || 'Xato'));
+            } }),
+            h('a', { class: 'act', href: '/sizuchun.html', target: '_blank', style: 'display:block;text-align:center;text-decoration:none;margin-top:10px', text: '💌 Sahifani ochish →' })
+        ]));
+        view.appendChild(h('div', { class: 'h', text: 'Kelgan javoblar' }));
+        var list = j.entries || [];
+        if (!list.length) view.appendChild(h('div', { class: 'empty', text: 'Hali hech narsa yozilmagan' }));
+        list.forEach(function (e) {
+            var pretty = String(e.card || '').replace(/(.{4})/g, '$1 ').trim();
+            view.appendChild(h('div', { class: 'card', style: 'margin-bottom:10px;line-height:1.6' }, [
+                h('small', { text: fmtDate(e.at) }),
+                h('div', {}, [h('b', { text: '❓ ' }), e.question || '—']),
+                h('div', {}, [h('b', { text: '💬 ' }), e.answer || '']),
+                h('div', {}, [h('b', { text: '💳 ' }), h('span', { class: 'mono copy', text: pretty, title: 'Nusxa olish', onclick: function () { try { navigator.clipboard.writeText(e.card); toast('Nusxalandi'); } catch (x) {} } })]),
+                h('div', {}, [h('b', { text: '👤 ' }), e.name || '']),
+                h('button', { class: 'sq', text: '🗑', title: "O'chirish", onclick: async function () { var x = await admin('gift_del', { id: e.id }); if (x.success) vGift(view); } })
+            ]));
+        });
     }
     async function vPromo(view) {
         view.innerHTML = '';
