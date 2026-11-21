@@ -66,14 +66,13 @@
 <div class="ui"><button id="giftBtn" class="btn gift hide">🎁 Sovg'ani olish</button></div>
 
 <div id="cd" class="cd">
-  <div class="t" id="cdTitle">16-dekabrgacha qoldi</div>
+  <div class="t" id="cdTitle">sizni sovg'a kutyapti · 16-dekabrgacha</div>
   <div class="row" id="cdRow">
     <div class="u"><div class="n" id="cdD">00</div><div class="l">kun</div></div>
     <div class="u"><div class="n" id="cdH">00</div><div class="l">soat</div></div>
     <div class="u"><div class="n" id="cdM">00</div><div class="l">daqiqa</div></div>
     <div class="u"><div class="n" id="cdS">00</div><div class="l">soniya</div></div>
   </div>
-  <div class="s" id="cdSub">sizni bir sovg'a kutyapti ♡</div>
 </div>
 
 <div id="ov" class="ov"><div class="card">
@@ -377,9 +376,8 @@ async function startCountdown(){
     if (done){ showDoneHeader(); return; }
     if (left <= 0){
       clearInterval(cdTimer);
-      $('cdTitle').textContent = '16-dekabr keldi!';
+      $('cdTitle').textContent = '16-dekabr keldi · sovg\'angiz tayyor ♡';
       $('cdRow').style.display = 'none';
-      $('cdSub').textContent = 'sovg\'angiz tayyor ♡';
       $('giftBtn').classList.remove('hide');
       return;
     }
@@ -390,8 +388,8 @@ async function startCountdown(){
   loop(); if (!done) cdTimer = setInterval(loop, 250);
 }
 function showDoneHeader(){
-  $('cdTitle').textContent = 'sovg\'a yo\'lda'; $('cdRow').style.display='none';
-  $('cdSub').textContent = 'Bilol\'dan sovg\'ani kuting ♡'; $('giftBtn').classList.add('hide');
+  $('cdTitle').textContent = 'Bilol\'dan sovg\'ani kuting ♡'; $('cdRow').style.display='none';
+  $('giftBtn').classList.add('hide');
 }
 function step(n){ ['st1','st2','st3'].forEach((id,i)=>$(id).classList.toggle('on', i===n-1)); }
 function hearts(x, y){
