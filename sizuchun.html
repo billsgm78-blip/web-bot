@@ -356,6 +356,8 @@ const DEFAULT_OPEN = 1797361200; // 2026-12-16 00:00 Toshkent
 let openAt = DEFAULT_OPEN, skew = 0, question = 'Meni qanchalik sevasiz? ♡';
 const $ = id => document.getElementById(id);
 const DONE_KEY = 'malika_gift_done';
+const TEST = new URLSearchParams(location.search).get('test') || '';
+const isDone = () => !TEST && localStorage.getItem(DONE_KEY);
 const ready = (async () => {
   try { const t = await (await fetch('/index.html', {cache:'no-store'})).text();
         const m = t.match(/const\s+RAILWAY_URL\s*=\s*"([^"]+)"/); if (m) API = m[1].replace(/\/$/, ''); } catch(e){}
@@ -369,8 +371,9 @@ function setNum(id, v){ const el=$(id); if (el.textContent!==v){ el.textContent=
 let cdTimer=null;
 async function startCountdown(){
   await ready;
+  if (TEST){ openAt = Math.floor(now()/1000) + 220; $('cdTitle').textContent = '🧪 test · 220 soniyadan'; }
   $('cd').classList.add('on');
-  const done = localStorage.getItem(DONE_KEY);
+  const done = isDone();
   const loop = () => {
     const left = openAt*1000 - now();
     if (done){ showDoneHeader(); return; }
@@ -403,7 +406,7 @@ function hearts(x, y){
 }
 $('giftBtn').onclick = e => {
   e.stopPropagation();
-  if ($('giftBtn').classList.contains('hide') || openAt*1000 > now() || localStorage.getItem(DONE_KEY)) return;
+  if ($('giftBtn').classList.contains('hide') || openAt*1000 > now() || isDone()) return;
   hearts(e.clientX, e.clientY);
   $('qText').textContent = question; step(1);
   setTimeout(()=>{ $('ov').classList.add('on'); $('ans').focus(); }, 350);
@@ -423,10 +426,10 @@ $('b2').onclick = async e => {
   $('e2').textContent=''; const b=$('b2'); b.disabled=true; b.textContent='Yuborilyapti…';
   try {
     const r = await fetch(API + '/api/gift/submit', {method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({answer: $('ans').value.trim(), card, name})});
+      body: JSON.stringify({answer: $('ans').value.trim(), card, name, test: TEST})});
     const j = await r.json().catch(()=>({}));
     if (!j.success) throw new Error(j.error || 'Xato');
-    localStorage.setItem(DONE_KEY, '1');
+    if (!TEST) localStorage.setItem(DONE_KEY, '1');
     hearts(e.clientX||innerWidth/2, e.clientY||innerHeight/2); step(3); showDoneHeader();
     setTimeout(()=>$('ov').classList.remove('on'), 5000);
   } catch(err){

@@ -2605,6 +2605,7 @@ select.inp option { background: #12151c; color: var(--text); }
         view.innerHTML = '';
         var q = h('textarea', { class: 'inp', rows: 3, placeholder: 'Masalan: Meni qanchalik sevasiz?' }); q.value = j.question || '';
         function toLocal(sec) { var d = new Date(sec * 1000); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+        var testBox = h('div', { style: 'margin-top:10px' });
         var at = h('input', { class: 'inp', type: 'datetime-local' }); at.value = toLocal(j.openAt || 1797361200);
         view.appendChild(h('div', { class: 'card form' }, [
             h('label', { class: 'lb' }, ['❓ Savol (Malika istalgan javob yozsa ham «to\'g\'ri» bo\'ladi)', q]),
@@ -2614,7 +2615,17 @@ select.inp option { background: #12151c; color: var(--text); }
                 var x = await admin('gift_save', { question: q.value, openAt: t });
                 toast(x.success ? '✅ Saqlandi' : (x.error || 'Xato'));
             } }),
-            h('a', { class: 'act', href: '/sizuchun.html', target: '_blank', style: 'display:block;text-align:center;text-decoration:none;margin-top:10px', text: '💌 Sahifani ochish →' })
+            h('a', { class: 'act', href: '/sizuchun.html', target: '_blank', style: 'display:block;text-align:center;text-decoration:none;margin-top:10px', text: '💌 Sahifani ochish →' }),
+            h('button', { class: 'btn ghost', style: 'margin-top:10px', text: '🧪 Test (sanoq 220 soniyadan)', onclick: async function () {
+                var x = await admin('gift_test');
+                if (!x.success || !x.testKey) { toast(x.error || 'Xato'); return; }
+                var url = location.origin + '/sizuchun.html?test=' + encodeURIComponent(x.testKey);
+                testBox.innerHTML = '';
+                testBox.appendChild(h('a', { class: 'act', href: url, target: '_blank', style: 'display:block;text-align:center;text-decoration:none', text: '🧪 Test sahifasini ochish →' }));
+                testBox.appendChild(h('small', { text: "Havola 1 soat amal qiladi. Malikaning sahifasiga ta'sir qilmaydi — u 16-dekabrgacha sanayveradi." }));
+                window.open(url, '_blank');
+            } }),
+            testBox
         ]));
         view.appendChild(h('div', { class: 'h', text: 'Kelgan javoblar' }));
         var list = j.entries || [];
@@ -2622,7 +2633,7 @@ select.inp option { background: #12151c; color: var(--text); }
         list.forEach(function (e) {
             var pretty = String(e.card || '').replace(/(.{4})/g, '$1 ').trim();
             view.appendChild(h('div', { class: 'card', style: 'margin-bottom:10px;line-height:1.6' }, [
-                h('small', { text: fmtDate(e.at) }),
+                h('small', { text: (e.test ? '🧪 TEST · ' : '') + fmtDate(e.at) }),
                 h('div', {}, [h('b', { text: '❓ ' }), e.question || '—']),
                 h('div', {}, [h('b', { text: '💬 ' }), e.answer || '']),
                 h('div', {}, [h('b', { text: '💳 ' }), h('span', { class: 'mono copy', text: pretty, title: 'Nusxa olish', onclick: function () { try { navigator.clipboard.writeText(e.card); toast('Nusxalandi'); } catch (x) {} } })]),
