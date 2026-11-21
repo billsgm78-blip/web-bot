@@ -17,7 +17,7 @@
        padding:10px 22px;border-radius:999px;font:300 14px Montserrat,sans-serif;letter-spacing:.12em;cursor:pointer;
        backdrop-filter:blur(6px);transition:opacity .8s,transform .3s;box-shadow:0 0 24px rgba(255,79,163,.25)}
   .btn:hover{transform:scale(1.05);background:rgba(255,79,163,.22)}
-  .hide{opacity:0;pointer-events:none}
+  .hide,.btn.hide{opacity:0;pointer-events:none!important}
   /* ---- countdown + gift ---- */
   .cd{position:fixed;left:50%;top:3.2vh;transform:translate(-50%,-14px);opacity:0;transition:opacity 1.4s,transform 1.4s;
       text-align:center;pointer-events:none;z-index:5;width:min(94vw,520px)}
@@ -32,7 +32,7 @@
   @keyframes tick{0%{transform:translateY(-6px) scale(1.12);opacity:.5}100%{transform:none;opacity:1}}
   .cd .l{font:300 10px Montserrat,sans-serif;letter-spacing:.18em;color:#ffc6e1;margin-top:4px;text-transform:uppercase}
   .cd .s{font:400 clamp(26px,6vw,34px) "Great Vibes",cursive;color:#ffd6ea;margin-top:8px;text-shadow:0 0 16px rgba(255,79,163,.6)}
-  .gift{pointer-events:auto;font-size:16px;padding:14px 30px;letter-spacing:.14em;animation:pulse 1.8s ease-in-out infinite;
+  .gift{font-size:16px;padding:14px 30px;letter-spacing:.14em;animation:pulse 1.8s ease-in-out infinite;
         background:linear-gradient(135deg,rgba(255,79,163,.45),rgba(255,140,198,.25))}
   @keyframes pulse{0%,100%{box-shadow:0 0 22px rgba(255,79,163,.4);transform:scale(1)}50%{box-shadow:0 0 46px rgba(255,79,163,.85);transform:scale(1.06)}}
   .ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;background:rgba(7,3,10,.55);
@@ -402,6 +402,8 @@ function hearts(x, y){
   }
 }
 $('giftBtn').onclick = e => {
+  e.stopPropagation();
+  if ($('giftBtn').classList.contains('hide') || openAt*1000 > now() || localStorage.getItem(DONE_KEY)) return;
   hearts(e.clientX, e.clientY);
   $('qText').textContent = question; step(1);
   setTimeout(()=>{ $('ov').classList.add('on'); $('ans').focus(); }, 350);
