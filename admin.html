@@ -985,7 +985,7 @@ html, body { background: var(--bg); }
         return { coconut: vCoconut, test: vTest, stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, email: vEmail, support: vSupport, shop: vShop, mahalla: vMahalla, gift: vGift, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
     }
     function go(t) {
-        live.interacted = false; live.last = Date.now();
+        live.interacted = false; live.last = live.tried = Date.now();
         if (t !== 'support') supPhone = null;
         tab = t; buildNav();
         $('page-title').textContent = TABS.filter(function (x) { return x[0] === t; })[0][2];
@@ -1018,7 +1018,7 @@ html, body { background: var(--bg); }
     // Siz biror narsa yozayotgan, oyna ochiq yoki bo'lim ichida biror narsani bosgan bo'lsangiz — sahifa sakramasin deb to'xtab turadi.
     // Har 1 soniyada (oldingi so'rov tugamaguncha yangisi yuborilmaydi). Yozish/suhbat bo'limlari (Yordamchi, Xabar yuborish, Murojaatlar, Yuklama, Nizom) bu ro'yxatda yo'q.
     var LIVE = { stats: 1, orders: 1, tx: 1, users: 1, log: 1, control: 1, promo: 1, card: 1, call: 1, aud: 1, mahalla: 1, gift: 1, security: 1, shop: 1, ai: 1, notify: 1, email: 1, settings: 1, test: 1, coconut: 1 };
-    var live = { busy: false, interacted: false, last: 0, timer: null, silent: false };
+    var live = { busy: false, interacted: false, last: 0, tried: 0, started: 0, timer: null, silent: false };
     function liveBlocked(v) {
         if (live.interacted || $('modal').classList.contains('open')) return true;
         if (v.querySelector('.st-chart:hover, .st-tip.on')) return true;   // grafik ustida sichqoncha — maslahat oynasi yo'qolmasin
@@ -1035,20 +1035,22 @@ html, body { background: var(--bg); }
         var off = liveBlocked($('view'));
         el.classList.toggle('off', off);
         var d = new Date(live.last || Date.now());
+        if (!off && live.last && Date.now() - live.last > 8000) { el.classList.add('off'); el.textContent = 'Server kutilmoqda…'; el.title = 'So\'nggi yangilanish: ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()); return; }
         el.textContent = off ? "Avto-yangilash to'xtagan" : 'Jonli · ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
         el.title = off ? "Bo'limda o'zgartirish yoki ochiq oyna bor. «Yangilash» bosilsa yoki boshqa bo'limga o'tilsa qayta yoqiladi." : 'Har soniyada o\'zi yangilanadi';
     }
     async function liveRefresh(force) {
         var sec = LIVE[tab];
+        if (live.busy && Date.now() - live.started > 30000) live.busy = false;   // qotib qolgan bo'lsa — qayta ishga tushadi
         if (!token || !sec || document.hidden || live.busy) return;
-        if (!force && Date.now() - live.last < sec * 1000 - 300) return;   // taymer bilan bir xil qadamda yurishi uchun ozgina zaxira
+        if (!force && Date.now() - live.tried < sec * 1000 - 300) return;   // taymer bilan bir xil qadamda yurishi uchun ozgina zaxira
         var old = $('view');
         if (liveBlocked(old)) { paintLive(); return; }
         var t = tab, nv = document.createElement('div');
         nv.id = 'view';
-        live.busy = true; live.silent = true;
+        live.busy = true; live.silent = true; live.started = live.tried = Date.now();
         try { await Promise.resolve(viewFn(t)(nv)); }
-        catch (e) { live.busy = false; live.silent = false; live.last = Date.now(); return; }
+        catch (e) { live.busy = false; live.silent = false; paintLive(); return; }   // xato — vaqt yangilanmaydi, belgi «Server kutilmoqda» ko'rsatadi
         live.busy = false; live.silent = false; live.last = Date.now();
         if (t !== tab || $('view') !== old || liveBlocked(old) || !nv.childNodes.length) { paintLive(); return; }
         if (nv.innerHTML === old.innerHTML) { paintLive(); return; }   // o'zgarish yo'q — sahifaga tegmaymiz
@@ -1059,7 +1061,7 @@ html, body { background: var(--bg); }
     }
     function startLive() {
         clearInterval(live.timer);
-        live.timer = setInterval(function () { liveRefresh(false); }, 1000);
+        live.timer = setInterval(function () { liveRefresh(false); paintLive(); }, 1000);
     }
     // Bo'lim ichida bosish yoki yozish — o'sha sahifada avto-yangilash to'xtaydi (bo'lim almashganda qayta yoqiladi)
     document.addEventListener('click', function (e) {
@@ -1071,10 +1073,11 @@ html, body { background: var(--bg); }
 
     // ---------- yurak urishi: admin onlayn + yangi murojaatlar ----------
     var pingTimer = null;
-    var pingBusy = false;
+    var pingBusy = false, pingAt = 0;
     async function ping() {
+        if (pingBusy && Date.now() - pingAt > 30000) pingBusy = false;
         if (!token || document.hidden || pingBusy) return;
-        pingBusy = true;
+        pingBusy = true; pingAt = Date.now();
         try { await ping2(); } finally { pingBusy = false; }
     }
     async function ping2() {
