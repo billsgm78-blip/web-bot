@@ -3357,7 +3357,7 @@ window.addEventListener('message', function (e) {
             </div>
             <div id="status-box" style="margin-top: 12px; font-size: 13px;"></div>
             <a class="privacy-link" href="/maxfiylik" target="_blank" rel="noopener">🔒 <span class="lang-privacy">Maxfiylik siyosati</span></a>
-            <a class="privacy-link" href="/cookie" target="_blank" rel="noopener">🍪 Cookie siyosati</a>
+            <a class="privacy-link" href="/cookie" target="_blank" rel="noopener">🍪 <span class="lang-cookie">Cookie siyosati</span></a>
         </div>
     </div>
 
@@ -3555,7 +3555,7 @@ window.addEventListener('message', function (e) {
                     <span class="ds-text"><b>Android ilova</b><small id="drawer-app-sub">Tez orada — texnik ishlar</small></span>
                 </a>
                 <a class="privacy-link" href="/maxfiylik" target="_blank" rel="noopener">🔒 <span class="lang-privacy">Maxfiylik siyosati</span></a>
-            <a class="privacy-link" href="/cookie" target="_blank" rel="noopener">🍪 Cookie siyosati</a>
+            <a class="privacy-link" href="/cookie" target="_blank" rel="noopener">🍪 <span class="lang-cookie">Cookie siyosati</span></a>
             </aside>
         </div>
     </div>
@@ -3744,8 +3744,8 @@ window.addEventListener('message', function (e) {
             </a>
             <a class="settings-card clickable" id="cookie-card" href="/cookie" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
                 <div class="settings-info">
-                    <h4>🍪 Cookie siyosati</h4>
-                    <p>Qurilmangizda nima saqlanadi va qanday o'chiriladi</p>
+                    <h4>🍪 <span class="lang-cookie">Cookie siyosati</span></h4>
+                    <p class="lang-cookie-sub">Qurilmangizda nima saqlanadi va qanday o'chiriladi</p>
                 </div>
                 <span class="set-arrow">›</span>
             </a>
@@ -8237,6 +8237,9 @@ window.addEventListener('message', function (e) {
             input.placeholder = T('Xabaringizni yozing...', 'Type your message...', 'Напишите сообщение...');
             $('lang-pass-forgot').textContent = T('Eski parolni unutdingizmi? Admin yordam beradi', 'Forgot your old password? Admin will help', 'Забыли старый пароль? Админ поможет');
             document.querySelectorAll('.lang-privacy').forEach(function (e) { e.textContent = T('Maxfiylik siyosati', 'Privacy policy', 'Политика конфиденциальности'); });
+            document.querySelectorAll('.lang-cookie').forEach(function (e) { e.textContent = T('Cookie siyosati', 'Cookie policy', 'Политика cookie'); });
+            document.querySelectorAll('.lang-cookie-sub').forEach(function (e) { e.textContent = T("Qurilmangizda nima saqlanadi va qanday o'chiriladi", 'What is stored on your device and how to delete it', 'Что хранится на устройстве и как это удалить'); });
+            document.querySelectorAll('.lang-privacy-sub').forEach(function (e) { e.textContent = T("Ma'lumotlaringiz qanday himoyalanadi", 'How your data is protected', 'Как защищены ваши данные'); });
             if (view.classList.contains('open')) paintQuick();
             paintPresence(); paintMode(); paintShop(); if (view.classList.contains('open')) render();
         }
