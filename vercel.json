@@ -200,6 +200,25 @@
       "has": [
         {
           "type": "host",
+          "value": "control.bilolsai.uz"
+        }
+      ],
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
           "value": "taqdimot.bilolsai.uz"
         }
       ],
@@ -240,6 +259,17 @@
         {
           "type": "host",
           "value": "admin.bilolsai.uz"
+        }
+      ],
+      "destination": "/admin",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "control.bilolsai.uz"
         }
       ],
       "destination": "/admin",
