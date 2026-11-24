@@ -9,7 +9,7 @@ try { if (location.hostname === 'admin.bilolsai.uz' && /^\/admin(\.html)?\/?$/.t
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#06070a">
-<title>Bilols AI — Admin</title>
+<title>Bilolsai Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="/fonts/twemoji.woff2" as="font" type="font/woff2" crossorigin>
@@ -519,6 +519,121 @@ select.inp option { background: #12151c; color: var(--text); }
     .ag-chips button { flex: none; }
     .ag-m { max-width: 92%; font-size: 14px; }
 </style>
+<!-- ============ Bilolsai Control — jiddiy, toza boshqaruv markazi ko'rinishi (faqat dizayn, mantiqqa tegmaydi) ============ -->
+<style id="control-skin">
+:root {
+    --bg: #0B0D12; --panel: #0E1117; --card: #0F1219; --line: #1C212B; --line2: #262C38;
+    --text: #E6E8EC; --muted: #8A93A3; --dim: #7C8596;
+    --acc: #5B7CFA; --violet: #5B7CFA; --blue: #5B7CFA;
+    --grad: #5B7CFA;
+}
+* { font-family: 'Twemoji', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+h1, h2, h3, .top h2, .auth-card h1, .user-head b, .m-card h3, .h { font-family: 'Twemoji', 'Inter', system-ui, sans-serif !important; letter-spacing: -.015em; }
+html, body { background: var(--bg); }
+::selection { background: rgba(91,124,250,.35); }
+.glow-bg, .glow-bg::before, .glow-bg::after, body::after { display: none !important; animation: none !important; }
+::-webkit-scrollbar-thumb { background: #262C38; border-color: var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: #3A4357; }
+
+/* Logo: oddiy "B" belgisi */
+.logo { width: 32px !important; height: 32px !important; border-radius: 8px !important; background: #E6E8EC !important; color: #0B0D12 !important; box-shadow: none !important; animation: none !important;
+    font: 700 15px/1 'Inter', system-ui, sans-serif !important; }
+.brand { gap: 10px; }
+.brand b { font-size: 14.5px !important; font-weight: 700 !important; color: var(--text) !important; font-family: 'Inter', system-ui, sans-serif !important; letter-spacing: -.01em; }
+.brand small { font-size: 11.5px !important; color: var(--muted) !important; }
+
+/* ---------- Kirish ---------- */
+#auth { background: var(--bg); }
+.auth-card { background: var(--card) !important; border: 1px solid var(--line) !important; border-radius: 12px !important; box-shadow: none !important; padding: 28px !important; max-width: 400px; animation: none; }
+.auth-card::before, .auth-card::after { display: none !important; }
+.auth-card .brand { margin-bottom: 20px; }
+.auth-card h1 { font-size: 20px !important; font-weight: 700 !important; margin-bottom: 6px; }
+.auth-card p.sub { font-size: 13px; color: var(--muted); }
+.step-tag { display: block; font: 500 11.5px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .04em; color: var(--dim); margin-bottom: 8px; }
+.field input, .inp, textarea.inp, .code-boxes input { background: #0B0D12 !important; border: 1px solid var(--line2) !important; border-radius: 8px !important; box-shadow: none !important; }
+.field input { height: 42px; font-size: 14px; }
+.field input:focus, .inp:focus, textarea:focus, .code-boxes input:focus { background: #0B0D12 !important; border-color: var(--acc) !important; box-shadow: 0 0 0 3px rgba(91,124,250,.2) !important; }
+.code-boxes input { height: 52px; border-radius: 8px !important; font-size: 20px; font-weight: 600; }
+.eye { color: var(--muted); display: grid; place-items: center; }
+.btn { background: var(--acc) !important; border-radius: 8px !important; box-shadow: none !important; height: 42px; font-size: 14px; font-weight: 600 !important; animation: none !important; }
+.btn::after { display: none !important; }
+.btn:hover { background: #6E8BFB !important; box-shadow: none !important; }
+.btn:active { transform: scale(.99); }
+.btn.ghost { background: transparent !important; border: 1px solid var(--line2) !important; color: var(--text) !important; }
+.btn.ghost:hover { background: #131720 !important; }
+.btn.danger { background: #1E0F13 !important; border: 1px solid #5B1E28 !important; color: #FCA5B1 !important; }
+.faceid-btn { background: transparent !important; border: 1px solid var(--line2) !important; color: var(--text) !important; font-weight: 500 !important; font-size: 13.5px; }
+.faceid-btn:hover { background: #131720 !important; }
+.faceid-btn .fid-ico { font-size: 0; display: inline-flex; color: var(--muted); }
+.faceid-btn .fid-ico svg { width: 16px; height: 16px; }
+.or-line { color: var(--dim); font-size: 12px; }
+.or-line::before, .or-line::after { background: var(--line) !important; }
+#key-form { margin-bottom: 10px; padding: 14px; border: 1px solid var(--line2); border-radius: 10px; background: #0B0D12; }
+#key-form .field input { background: var(--card) !important; font-family: 'JetBrains Mono', ui-monospace, monospace !important; font-size: 12.5px !important; letter-spacing: .02em !important; }
+#key-form .btn { background: #1A1F2A !important; border: 1px solid #3A4357 !important; color: var(--text) !important; }
+#key-form .btn:hover { background: #222838 !important; }
+.key-note { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 2px 2px 10px; }
+.link, .back { color: #9DB4FF !important; font-weight: 500; } .link:hover, .back:hover { color: #C7D4FF !important; }
+.msg.err { color: #FCA5B1; } .msg.ok { color: #6EE7B7; }
+
+/* ---------- Yon menyu ---------- */
+.side { background: var(--panel) !important; border-right: 1px solid var(--line) !important; padding: 20px 14px !important; gap: 2px; }
+.side .brand { margin: 0 6px 18px; }
+.side .brand b { font-size: 14.5px !important; }
+.nav-grp { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); padding: 14px 10px 6px; }
+.nav-grp:first-child { padding-top: 0; }
+.nav { border-radius: 6px !important; font-weight: 500 !important; font-size: 13.5px; padding: 7px 10px !important; color: #AEB5C2 !important; transition: background .15s, color .15s !important; }
+.side .nav .ico { display: none; }
+.side .nav:hover { background: #151922 !important; color: #F3F4F6 !important; }
+.side .nav:hover .ico { transform: none; }
+.side .nav.active { background: #1A1F2A !important; color: #F3F4F6 !important; font-weight: 600 !important; box-shadow: inset 2px 0 0 var(--acc) !important; }
+.side .nav.active::before { display: none !important; }
+.nav:active { transform: none !important; }
+.nav .badge { background: #262C38 !important; color: var(--text) !important; font: 600 11px/1 'JetBrains Mono', ui-monospace, monospace !important; min-width: 18px; height: 18px; border-radius: 5px; padding: 0 5px; animation: none !important; box-shadow: none !important; }
+.nav .badge.red { background: #5B1E28 !important; color: #FFE4E8 !important; }
+#logout-side { margin-top: 10px; border-top: 1px solid var(--line) !important; border-radius: 0 !important; padding-top: 14px !important; }
+#logout-side .ico { display: none; }
+.mobile-tabs .nav { background: transparent !important; border: 1px solid var(--line2) !important; border-radius: 6px !important; color: #AEB5C2 !important; }
+.mobile-tabs .nav .ico { display: none; }
+.mobile-tabs .nav.active { background: #1A1F2A !important; color: #fff !important; border-color: #3A4357 !important; box-shadow: none !important; }
+
+/* ---------- Yuqori panel ---------- */
+.main { max-width: 1240px; }
+.top { border-bottom: 1px solid var(--line) !important; padding-bottom: 14px !important; margin-bottom: 20px; }
+.crumb { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+.top h2 { font-size: 22px !important; font-weight: 700 !important; background: none !important; -webkit-background-clip: border-box !important; background-clip: border-box !important; color: var(--text) !important; animation: none !important; }
+.chip { background: #0F2A22 !important; border: 1px solid #164E3B !important; color: #A7F3D0 !important; font-size: 12px; font-weight: 500; padding: 4px 10px; }
+.chip::before { background: #34D399 !important; animation: none !important; width: 6px; height: 6px; }
+.icon-btn { height: 34px; border-radius: 7px !important; background: #131720 !important; border: 1px solid var(--line2) !important; font-size: 13px; font-weight: 500; }
+.icon-btn:hover { background: #1A1F2A !important; transform: none !important; }
+.panic-btn { background: #1E0F13 !important; border-color: #5B1E28 !important; color: #FCA5B1 !important; font-weight: 600; }
+.panic-btn:hover { background: #2A1217 !important; }
+.panic-btn.on { background: #BE123C !important; border-color: #FB7185 !important; color: #fff !important; }
+#panic-bar { border-radius: 10px; }
+
+/* ---------- Kartalar va ko'rsatkichlar ---------- */
+.kpi, .card, .lock-hero, .feat, .ds-card, .ld-t { background: var(--card) !important; border: 1px solid var(--line) !important; border-radius: 10px !important; box-shadow: none !important; }
+.kpi { padding: 14px 16px !important; }
+.kpi:hover, .card:hover { transform: none !important; border-color: var(--line) !important; box-shadow: none !important; }
+.kpi::before, .kpi::after, .card::before, .card::after { display: none !important; }
+.kpi b, .st-mini-h span, .st-model-v b, .ld-t b { font-family: 'JetBrains Mono', ui-monospace, monospace !important; }
+.kpi b { font-size: 22px !important; font-weight: 600 !important; color: var(--text) !important; background: none !important; -webkit-text-fill-color: currentColor; }
+.kpi small { font-size: 12.5px; color: var(--muted) !important; font-weight: 500; }
+.kpi.accent { background: var(--card) !important; border-color: #2F3A66 !important; }
+.h { font-size: 12px !important; font-weight: 600 !important; letter-spacing: .08em; text-transform: uppercase; color: var(--dim) !important; margin: 22px 0 10px !important; }
+.alert { background: #1C180B !important; border: 1px solid #4A3B12 !important; color: #FCD34D !important; border-radius: 10px !important; font-weight: 500; animation: none !important; }
+.st-model-bar i { background: var(--acc) !important; }
+.st-tip { border-radius: 8px; }
+.m-card { background: var(--card) !important; border: 1px solid var(--line2) !important; border-radius: 12px !important; }
+#toast { border-color: var(--line2) !important; border-radius: 8px !important; }
+.act, .sq { border-radius: 7px !important; background: #131720 !important; border-color: var(--line2) !important; }
+.act:hover, .sq:hover { background: #1A1F2A !important; transform: none !important; }
+.sup-msg.admin { background: var(--acc) !important; }
+.ag-input button { background: var(--acc) !important; }
+.loading { border-radius: 10px; }
+#view.anim > *, #view.anim .kpis > .kpi, #view.anim .card > .row { animation-duration: .25s !important; }
+#view.anim .chart rect, #view.anim .chart path { animation: none !important; }
+</style>
 <script src="/notify.js"></script>
 <script src="/vendor/qrcode-generator-1.4.4.js"></script>
 </head>
@@ -528,27 +643,30 @@ select.inp option { background: #12151c; color: var(--text); }
 <!-- ============ KIRISH ============ -->
 <section id="auth">
     <div class="auth-card" id="step-login">
-        <div class="brand"><div class="logo">⚡</div><div><b>Bilols AI</b><small>Admin panel</small></div></div>
-        <h1>Kirish</h1>
+        <div class="brand"><div class="logo">B</div><div><b>Bilolsai Control</b><small>Boshqaruv markazi</small></div></div>
+        <span class="step-tag">1-BOSQICH · 2</span>
+        <h1>Boshqaruv markaziga kirish</h1>
         <p class="sub">Login va parolni kiriting. So'ng Telegram'ingizga tasdiqlash kodi keladi.</p>
         <form id="login-form" autocomplete="on">
             <div class="field"><input id="a-login" placeholder="Login" autocomplete="username" autocapitalize="off" spellcheck="false"></div>
-            <div class="field"><input id="a-pass" type="password" placeholder="Parol" autocomplete="current-password"><button type="button" class="eye" id="a-eye">👁</button></div>
+            <div class="field"><input id="a-pass" type="password" placeholder="Parol" autocomplete="current-password"><button type="button" class="eye" id="a-eye" aria-label="Parolni ko'rsatish"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
             <button class="btn" id="a-submit">Davom etish</button>
         </form>
         <div class="or-line"><span>yoki</span></div>
-        <button type="button" class="btn faceid-btn" id="a-keybtn"><span class="fid-ico">🗝</span> Maxfiy kalit bilan kirish</button>
-        <button type="button" class="btn faceid-btn" id="a-nfcbtn" style="margin-top:10px"><span class="fid-ico">📶</span> NFC tegizib kirish</button>
+        <button type="button" class="btn faceid-btn" id="a-keybtn"><span class="fid-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3L21 2"/><path d="M16 7l3 3"/><path d="M18.5 4.5l2 2"/></svg></span> Maxfiy kalit bilan kirish</button>
         <form id="key-form" style="display:none;margin-top:12px" autocomplete="off">
             <div class="field"><input id="a-key" placeholder="BLS-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" maxlength="50" autocapitalize="characters" spellcheck="false" style="font-family:'Twemoji', ui-monospace,monospace;letter-spacing:0;font-size:13px;text-transform:uppercase"></div>
-            <button class="btn" id="a-keygo">🗝 Kirish</button>
+            <p class="key-note">Parol va Telegram kodisiz to'g'ridan-to'g'ri kirish. Kalit «Xavfsizlik» bo'limida yaratiladi.</p>
+            <button class="btn" id="a-keygo">Kalit bilan kirish</button>
         </form>
+        <button type="button" class="btn faceid-btn" id="a-nfcbtn" style="margin-top:10px"><span class="fid-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8.5a6 6 0 0 1 0 7"/><path d="M9.5 6a10 10 0 0 1 0 12"/><path d="M13 3.5a14 14 0 0 1 0 17"/></svg></span> NFC tegizib kirish</button>
         <div class="msg" id="a-msg"></div>
     </div>
 
     <div class="auth-card" id="step-code" style="display:none">
-        <div class="brand"><div class="logo">🛡</div><div><b>2-bosqich</b><small>Telegram orqali tasdiqlash</small></div></div>
-        <h1>Kodni kiriting</h1>
+        <div class="brand"><div class="logo">B</div><div><b>Bilolsai Control</b><small>Boshqaruv markazi</small></div></div>
+        <span class="step-tag">2-BOSQICH · 2</span>
+        <h1>Telegram orqali tasdiqlash</h1>
         <p class="sub">Telegram botga 6 xonali kod yuborildi. Kod 5 daqiqa amal qiladi.</p>
         <div class="code-boxes" id="code-boxes"></div>
         <button class="btn" id="c-submit">Tasdiqlash</button>
@@ -561,16 +679,16 @@ select.inp option { background: #12151c; color: var(--text); }
 <section id="app">
     <div class="layout">
         <aside class="side">
-            <div class="brand"><div class="logo">⚡</div><div><b>Bilols AI</b><small>Admin panel</small></div></div>
+            <div class="brand"><div class="logo">B</div><div><b>Bilolsai Control</b><small>Boshqaruv markazi</small></div></div>
             <div id="nav-side"></div>
             <div class="spacer"></div>
-            <button class="nav" id="logout-side"><span class="ico">⎋</span>Chiqish</button>
+            <button class="nav" id="logout-side"><span class="ico">⎋</span>Tizimdan chiqish</button>
         </aside>
         <main class="main">
             <div class="top">
-                <h2 id="page-title">Statistika</h2>
+                <div><span class="crumb">Bilolsai Control</span><h2 id="page-title">Statistika</h2></div>
                 <div class="right">
-                    <button class="icon-btn panic-btn" id="panic-btn" title="Tashvish: hammasini to'xtatish">🚨<span class="lbl"> Tashvish</span></button>
+                    <button class="icon-btn panic-btn" id="panic-btn" title="Favqulodda to'xtatish: hammasini to'xtatish"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><rect x="5" y="5" width="14" height="14" rx="2"/></svg><span class="lbl">Favqulodda to'xtatish</span></button>
                     <span class="chip" id="session-chip">Sessiya faol</span>
                     <button class="icon-btn" id="refresh" title="Yangilash">↻<span class="lbl"> Yangilash</span></button>
                     <button class="icon-btn" id="logout-top">Chiqish</button>
@@ -830,15 +948,20 @@ select.inp option { background: #12151c; color: var(--text); }
     $('logout-side').onclick = function () { logout(false); };
 
     // ================= PANEL =================
+    // Menyu guruhlarga bo'lingan (yon menyuda sarlavha bilan); har bir bo'lim mantig'i o'zgarmagan
     var TABS = [
-        ['stats', '📊', 'Statistika'], ['agent', '🤖', 'Yordamchi'], ['control', '🚦', 'Boshqaruv'], ['orders', '🛒', 'Buyurtmalar'], ['support', '💬', 'Murojaatlar'], ['tx', '🧾', 'Tarix'], ['users', '👥', 'Foydalanuvchilar'], ['test', '🧪', 'Test (taqdimot)'], ['coconut', '🥥', "Coconut o'yini"], ['aud', '📲', 'Ilova va bot'],
-        ['card', '💳', "Karta (avto to'lov)"], ['call', '📞', "AI qo'ng'iroq"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'], ['mahalla', '🏘', 'Mahalla'], ['gift', '🎁', "Sovg'a (Malika)"], ['ai', '🤖', 'AI sozlamalari'], ['notify', '🔔', 'Bildirishnomalar'], ['msg', '📢', 'Xabar yuborish'], ['email', '📧', 'Email xabarlar'], ['settings', '⚙️', 'Sozlamalar'], ['log', '📜', 'Jurnal'], ['nizom', '📕', 'Ichki nizom'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama']
+        ['stats', '📊', 'Statistika', 'Umumiy'], ['agent', '🤖', 'Yordamchi'], ['control', '🚦', 'Boshqaruv'], ['log', '📜', 'Jurnal'],
+        ['orders', '🛒', 'Buyurtmalar', 'Savdo'], ['tx', '🧾', 'Tarix'], ['card', '💳', "Karta (avto to'lov)"], ['promo', '🎟️', 'Promo-kodlar'], ['shop', '🏷', 'Narxlar'],
+        ['users', '👥', 'Foydalanuvchilar', 'Mijozlar'], ['support', '💬', 'Murojaatlar'], ['msg', '📢', 'Xabar yuborish'], ['email', '📧', 'Email xabarlar'], ['notify', '🔔', 'Bildirishnomalar'],
+        ['ai', '🤖', 'AI sozlamalari', 'Mahsulotlar'], ['call', '📞', "AI qo'ng'iroq"], ['aud', '📲', 'Ilova va bot'], ['mahalla', '🏘', 'Mahalla'], ['coconut', '🥥', "Coconut o'yini"], ['gift', '🎁', "Sovg'a (Malika)"], ['test', '🧪', 'Test (taqdimot)'],
+        ['settings', '⚙️', 'Sozlamalar', 'Tizim'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama'], ['nizom', '📕', 'Ichki nizom']
     ];
     var tab = 'stats';
     function buildNav() {
         ['nav-side', 'nav-mobile'].forEach(function (id) {
             var box = $(id); box.innerHTML = '';
             TABS.forEach(function (t) {
+                if (t[3] && id === 'nav-side') box.appendChild(h('div', { class: 'nav-grp', text: t[3] }));
                 var b = h('button', { class: 'nav' + (t[0] === tab ? ' active' : ''), onclick: function () { go(t[0]); } }, [h('span', { class: 'ico', text: t[1] }), t[2]]);
                 if (t[0] === 'orders' && pendingCount) b.appendChild(h('span', { class: 'badge', text: String(pendingCount) }));
                 if (t[0] === 'support' && supportUnread) b.appendChild(h('span', { class: 'badge red', text: String(supportUnread) }));
@@ -886,7 +1009,7 @@ select.inp option { background: #12151c; color: var(--text); }
         panic = p || { on: false };
         var b = $('panic-btn');
         b.classList.toggle('on', !!panic.on);
-        b.querySelector('.lbl').textContent = panic.on ? ' Tashvish yoqiq' : ' Tashvish';
+        b.querySelector('.lbl').textContent = panic.on ? "To'xtatilgan — ochish" : "Favqulodda to'xtatish";
         $('panic-bar').classList.toggle('on', !!panic.on);
         if (panic.on) $('panic-text').textContent = 'Sayt, Android ilova va APK yuklash to\'xtatilgan' + (panic.by === 'agent' ? ' (AI agent yoqdi)' : '') +
             (panic.at ? ' · ' + fmtDate(panic.at) : '') + '. Ekranda: «' + (panic.title || '') + '» — ' + (panic.msg || '');
@@ -1861,7 +1984,7 @@ select.inp option { background: #12151c; color: var(--text); }
             kpi("14 kun savdo, so'm", money(sum('sales'))), kpi("14 kun to'ldirish, so'm", money(sum('topups'))),
             kpi('14 kun buyurtmalar', sum('orders')), kpi('14 kun AI xabarlar', sum('messages')), kpi('14 kun yangi obunalar', sum('subs'))
         ]));
-        var V = '#8b5cf6', G = '#14a37a';
+        var V = '#5B7CFA', G = '#8A93A3';
         view.appendChild(h('div', { class: 'h', text: "Kunlik savdo va to'ldirishlar (so'm)" }));
         view.appendChild(h('div', { class: 'card' }, [chart(days, [{ k: 'sales', c: V, n: 'Savdo' }, { k: 'topups', c: G, n: "To'ldirishlar" }], money),
             h('div', { class: 'legend' }, [h('span', {}, [h('i', { style: 'background:' + V }), 'Savdo']), h('span', {}, [h('i', { style: 'background:' + G }), "To'ldirishlar"])])]));
