@@ -610,6 +610,9 @@ html, body { background: var(--bg); }
 .panic-btn:hover { background: #2A1217 !important; }
 .panic-btn.on { background: #BE123C !important; border-color: #FB7185 !important; color: #fff !important; }
 #panic-bar { border-radius: 10px; }
+.live-chip { font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace; color: #9DB4FF; background: #121A33; border: 1px solid #263566; border-radius: 999px; padding: 6px 10px; white-space: nowrap; cursor: default; }
+.live-chip.off { color: var(--muted); background: #131720; border-color: var(--line2); }
+@media (max-width: 760px) { .live-chip { display: none !important; } }
 
 /* ---------- Kartalar va ko'rsatkichlar ---------- */
 .kpi, .card, .lock-hero, .feat, .ds-card, .ld-t { background: var(--card) !important; border: 1px solid var(--line) !important; border-radius: 10px !important; box-shadow: none !important; }
@@ -689,6 +692,7 @@ html, body { background: var(--bg); }
                 <div><span class="crumb">Bilolsai Control</span><h2 id="page-title">Statistika</h2></div>
                 <div class="right">
                     <button class="icon-btn panic-btn" id="panic-btn" title="Favqulodda to'xtatish: hammasini to'xtatish"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><rect x="5" y="5" width="14" height="14" rx="2"/></svg><span class="lbl">Favqulodda to'xtatish</span></button>
+                    <span class="live-chip" id="live-chip" style="display:none"></span>
                     <span class="chip" id="session-chip">Sessiya faol</span>
                     <button class="icon-btn" id="refresh" title="Yangilash">↻<span class="lbl"> Yangilash</span></button>
                     <button class="icon-btn" id="logout-top">Chiqish</button>
@@ -938,7 +942,7 @@ html, body { background: var(--bg); }
     };
     function logout(expired) {
         if (token && !expired) { goOffline(); post('/api/admin-auth/logout', { token: token }).catch(function () {}); }
-        token = null;
+        token = null; clearInterval(live.timer);
         try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
         $('app').style.display = 'none'; $('auth').style.display = '';
         $('step-code').style.display = 'none'; $('step-login').style.display = ''; $('key-form').style.display = 'none';
@@ -969,7 +973,11 @@ html, body { background: var(--bg); }
             });
         });
     }
+    function viewFn(t) {
+        return { coconut: vCoconut, test: vTest, stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, email: vEmail, support: vSupport, shop: vShop, mahalla: vMahalla, gift: vGift, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
+    }
     function go(t) {
+        live.interacted = false; live.last = Date.now();
         if (t !== 'support') supPhone = null;
         tab = t; buildNav();
         $('page-title').textContent = TABS.filter(function (x) { return x[0] === t; })[0][2];
@@ -977,16 +985,69 @@ html, body { background: var(--bg); }
         // Kirish animatsiyasi faqat sahifa ochilganda (keyingi avto-yangilanishlarda qayta o'ynamaydi)
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
-        var fn = { coconut: vCoconut, test: vTest, stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, email: vEmail, support: vSupport, shop: vShop, mahalla: vMahalla, gift: vGift, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
+        var fn = viewFn(t);
         Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
         window.scrollTo(0, 0);
+        paintLive();
     }
     $('refresh').onclick = function () { go(tab); };
     function enterApp() {
         $('auth').style.display = 'none'; $('app').style.display = 'block';
         go('stats');
         startPing();
+        startLive();
     }
+
+    // ---------- Avto-yangilash: ochiq bo'limdagi ma'lumot o'zi yangilanib turadi ----------
+    // Jim yangilanadi (yuklanish belgisi va animatsiyasiz, aylantirish joyi saqlanadi).
+    // Siz biror narsa yozayotgan, oyna ochiq yoki bo'lim ichida biror narsani bosgan bo'lsangiz — sahifa sakramasin deb to'xtab turadi.
+    var LIVE = { stats: 15, orders: 10, tx: 15, users: 20, log: 10, control: 15, promo: 30, card: 20, call: 20, aud: 30, mahalla: 30, gift: 30, security: 30 };
+    var live = { busy: false, interacted: false, last: 0, timer: null, silent: false };
+    function liveBlocked(v) {
+        if (live.interacted || $('modal').classList.contains('open')) return true;
+        var a = document.activeElement;
+        return !!(a && v.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
+    }
+    function paintLive() {
+        var el = $('live-chip'); if (!el) return;
+        var sec = LIVE[tab];
+        if (!sec) { el.style.display = 'none'; return; }
+        el.style.display = '';
+        var off = liveBlocked($('view'));
+        el.classList.toggle('off', off);
+        var d = new Date(live.last || Date.now());
+        el.textContent = off ? "Avto-yangilash to'xtagan" : 'Jonli · ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+        el.title = off ? "Bo'limda o'zgartirish yoki ochiq oyna bor. «Yangilash» bosilsa yoki boshqa bo'limga o'tilsa qayta yoqiladi." : 'Har ' + sec + ' soniyada o\'zi yangilanadi';
+    }
+    async function liveRefresh(force) {
+        var sec = LIVE[tab];
+        if (!token || !sec || document.hidden || live.busy) return;
+        if (!force && Date.now() - live.last < sec * 1000) return;
+        var old = $('view');
+        if (liveBlocked(old)) { paintLive(); return; }
+        var t = tab, nv = document.createElement('div');
+        nv.id = 'view';
+        live.busy = true; live.silent = true;
+        try { await Promise.resolve(viewFn(t)(nv)); }
+        catch (e) { live.busy = false; live.silent = false; live.last = Date.now(); return; }
+        live.busy = false; live.silent = false; live.last = Date.now();
+        if (t !== tab || $('view') !== old || liveBlocked(old) || !nv.childNodes.length) { paintLive(); return; }
+        var y = window.scrollY;
+        old.replaceWith(nv);
+        window.scrollTo(0, y);
+        paintLive();
+    }
+    function startLive() {
+        clearInterval(live.timer);
+        live.timer = setInterval(function () { liveRefresh(false); }, 2000);
+    }
+    // Bo'lim ichida bosish yoki yozish — o'sha sahifada avto-yangilash to'xtaydi (bo'lim almashganda qayta yoqiladi)
+    document.addEventListener('click', function (e) {
+        var v = $('view');
+        if (v && v.contains(e.target) && e.target.closest('button, a, input, select, textarea, label, [onclick], .click, .row')) { live.interacted = true; setTimeout(paintLive, 0); }
+    }, true);
+    document.addEventListener('input', function (e) { var v = $('view'); if (v && v.contains(e.target)) { live.interacted = true; paintLive(); } }, true);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) liveRefresh(true); });
 
     // ---------- yurak urishi: admin onlayn + yangi murojaatlar ----------
     var pingTimer = null;
@@ -1928,7 +1989,7 @@ html, body { background: var(--bg); }
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     function countUp(el, finalText) {
         var digits = String(finalText).replace(/[\s\u00a0\u202f]/g, '');
-        if (reduceMotion || !/^\d+$/.test(digits)) { el.textContent = finalText; return; }
+        if (reduceMotion || live.silent || !/^\d+$/.test(digits)) { el.textContent = finalText; return; }
         var target = parseInt(digits, 10);
         if (!target) { el.textContent = finalText; return; }
         var t0 = null, dur = 700 + Math.min(500, String(target).length * 60);
