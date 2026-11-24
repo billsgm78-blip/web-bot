@@ -1066,7 +1066,11 @@ html, body { background: var(--bg); }
     // Bo'lim ichida bosish yoki yozish — o'sha sahifada avto-yangilash to'xtaydi (bo'lim almashganda qayta yoqiladi)
     document.addEventListener('click', function (e) {
         var v = $('view');
-        if (v && v.contains(e.target) && e.target.closest('button, a, input, select, textarea, label, [onclick], .click, .row')) { live.interacted = true; setTimeout(paintLive, 0); }
+        if (!v || !v.contains(e.target)) return;
+        // Kalitlar (switch), belgilash katakchalari va boshqa bosiladigan div'lar ham hisoblanadi — aks holda yangilanish bosilgan kalitni qaytarib qo'yadi
+        var hit = e.target.closest('button, a, input, select, textarea, label, [onclick], [role], .click, .row, .switch, .chk, .copy, .sq, .act, .tag, .seg');
+        if (!hit) { var el = e.target; while (el && el !== v) { if (getComputedStyle(el).cursor === 'pointer') { hit = el; break; } el = el.parentElement; } }
+        if (hit) { live.interacted = true; setTimeout(paintLive, 0); }
     }, true);
     document.addEventListener('input', function (e) { var v = $('view'); if (v && v.contains(e.target)) { live.interacted = true; paintLive(); } }, true);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) liveRefresh(true); });
