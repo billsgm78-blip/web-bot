@@ -1049,7 +1049,16 @@ html, body { background: var(--bg); }
         var t = tab, nv = document.createElement('div');
         nv.id = 'view';
         live.busy = true; live.silent = true; live.started = live.tried = Date.now();
-        try { await Promise.resolve(viewFn(t)(nv)); }
+        try {
+            await Promise.resolve(viewFn(t)(nv));
+            // Ba'zi bo'limlar (Foydalanuvchilar, Tarix, Jurnal) ro'yxatni ichkarida alohida yuklaydi —
+            // "yuklanmoqda" belgisi yo'qolguncha kutamiz, aks holda sahifa har soniyada o'chib-yonadi
+            var w0 = Date.now();
+            while (nv.querySelector('.loading')) {
+                if (Date.now() - w0 > 20000) throw new Error('slow');
+                await new Promise(function (r) { setTimeout(r, 60); });
+            }
+        }
         catch (e) { live.busy = false; live.silent = false; paintLive(); return; }   // xato — vaqt yangilanmaydi, belgi «Server kutilmoqda» ko'rsatadi
         live.busy = false; live.silent = false; live.last = Date.now();
         if (t !== tab || $('view') !== old || liveBlocked(old) || !nv.childNodes.length) { paintLive(); return; }
