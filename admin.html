@@ -612,11 +612,47 @@ html, body { background: var(--bg); }
 #panic-bar { border-radius: 10px; }
 .top { flex-wrap: wrap; row-gap: 10px; }
 .top .right { flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
-.layout { grid-template-columns: 240px minmax(0, 1fr); }
+@media (min-width: 861px) { .layout { grid-template-columns: 240px minmax(0, 1fr); } }
 @media (max-width: 1180px) { .top .chip { display: none; } }
 .live-chip { font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace; color: #9DB4FF; background: #121A33; border: 1px solid #263566; border-radius: 999px; padding: 6px 10px; white-space: nowrap; cursor: default; }
 .live-chip.off { color: var(--muted); background: #131720; border-color: var(--line2); }
 @media (max-width: 760px) { .live-chip { display: none !important; } }
+.bottom-nav, .side-scrim { display: none; }
+@media (max-width: 860px) {
+    .mobile-tabs { display: none !important; }
+    /* yon menyu — chapdan chiqadigan oyna */
+    .side { display: flex !important; position: fixed !important; top: 0; bottom: 0; left: 0; width: min(84vw, 300px); height: 100dvh !important; z-index: 70;
+        transform: translateX(-104%); transition: transform .26s cubic-bezier(.2,.8,.2,1); overflow-y: auto; overscroll-behavior: contain;
+        padding-top: calc(18px + env(safe-area-inset-top)) !important; padding-bottom: calc(18px + env(safe-area-inset-bottom)) !important; box-shadow: 20px 0 60px rgba(0,0,0,.5); }
+    body.side-open .side { transform: none; }
+    .side-scrim { display: block; position: fixed; inset: 0; z-index: 65; background: rgba(3,5,10,.6); opacity: 0; pointer-events: none; transition: opacity .2s; }
+    body.side-open .side-scrim { opacity: 1; pointer-events: auto; }
+    body.side-open { overflow: hidden; }
+    .side .nav { padding: 10px 10px !important; font-size: 14.5px; }
+    /* pastki panel */
+    .bottom-nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+        background: #0E1117; border-top: 1px solid var(--line); padding: 4px 4px calc(4px + env(safe-area-inset-bottom)); }
+    .bottom-nav .bn { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 54px; min-width: 0;
+        background: none; border: 0; border-radius: 10px; color: var(--muted); font: 500 11px/1.1 'Inter', system-ui, sans-serif; cursor: pointer; }
+    .bottom-nav .bn span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+    .bottom-nav .bn.active { color: var(--text); }
+    .bottom-nav .bn.active svg { color: var(--acc); }
+    .bottom-nav .bn:active { background: #151922; }
+    .bn-badge { position: absolute; top: 4px; left: calc(50% + 6px); min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: #3A4357; color: #fff;
+        font: 600 10.5px/17px 'JetBrains Mono', ui-monospace, monospace; font-style: normal; text-align: center; }
+    .bn-badge.red { background: #E11D48; }
+    /* yuqori qism ixcham */
+    .main { padding: 12px 14px calc(84px + env(safe-area-inset-bottom)) !important; padding-top: calc(12px + env(safe-area-inset-top)) !important; }
+    .top { flex-wrap: nowrap !important; align-items: center; padding-bottom: 10px !important; margin-bottom: 14px; }
+    .top > div:first-child { min-width: 0; }
+    .crumb { display: none; }
+    .top h2 { font-size: 20px !important; }
+    .top .right { flex-wrap: nowrap !important; gap: 6px; }
+    #logout-top { display: none; }
+    .icon-btn { height: 38px; min-width: 40px; padding: 0 11px; }
+    .kpi b { font-size: 19px !important; }
+    #toast { bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+}
 
 /* ---------- Kartalar va ko'rsatkichlar ---------- */
 .kpi, .card, .lock-hero, .feat, .ds-card, .ld-t { background: var(--card) !important; border: 1px solid var(--line) !important; border-radius: 10px !important; box-shadow: none !important; }
@@ -707,6 +743,8 @@ html, body { background: var(--bg); }
             <div id="view"></div>
         </main>
     </div>
+    <div class="side-scrim" id="side-scrim"></div>
+    <nav class="bottom-nav" id="nav-bottom" aria-label="Asosiy bo'limlar"></nav>
 </section>
 
 <div id="modal"><div class="m-card" id="m-card"></div></div>
@@ -767,7 +805,8 @@ html, body { background: var(--bg); }
         return j;
     }
     async function admin(action, body) {
-        var j = await post('/api/admin/' + action, body, { 'X-Admin-Token': token || '' });
+        // X-Admin-T: so'rov yuborilgan vaqt — server «oflayn»dan oldin yuborilgan so'rovlar bilan adminni qayta onlayn qilmaydi
+        var j = await post('/api/admin/' + action, body, { 'X-Admin-Token': token || '', 'X-Admin-T': String(Date.now()) });
         if (j._status === 401) { logout(true); throw new Error('auth'); }
         return j;
     }
@@ -969,7 +1008,35 @@ html, body { background: var(--bg); }
         ['settings', '⚙️', 'Sozlamalar', 'Tizim'], ['security', '🛡', 'Xavfsizlik'], ['load', '⚡', 'Yuklama'], ['nizom', '📕', 'Ichki nizom']
     ];
     var tab = 'stats';
+    // Telefon: pastki panel (4 ta asosiy bo'lim + Menyu) — Menyu yon oynani ochadi
+    var BOTTOM = [
+        ['stats', 'Statistika', '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'],
+        ['orders', 'Buyurtmalar', '<path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/>'],
+        ['support', 'Murojaatlar', '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>'],
+        ['users', 'Mijozlar', '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>']
+    ];
+    function svgIco(p) { return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>'; }
+    function buildBottom() {
+        var box = $('nav-bottom'); if (!box) return;
+        box.innerHTML = '';
+        var inMenu = !BOTTOM.some(function (b) { return b[0] === tab; });
+        BOTTOM.forEach(function (b) {
+            var btn = h('button', { type: 'button', class: 'bn' + (b[0] === tab ? ' active' : ''), onclick: function () { go(b[0]); } });
+            btn.innerHTML = svgIco(b[2]); btn.appendChild(h('span', { text: b[1] }));
+            var n = b[0] === 'orders' ? pendingCount : b[0] === 'support' ? supportUnread : 0;
+            if (n) btn.appendChild(h('i', { class: 'bn-badge' + (b[0] === 'support' ? ' red' : ''), text: String(n) }));
+            box.appendChild(btn);
+        });
+        var m = h('button', { type: 'button', class: 'bn' + (inMenu ? ' active' : ''), onclick: function () { sideOpen(true); } });
+        m.innerHTML = svgIco('<path d="M4 6h16M4 12h16M4 18h16"/>');
+        m.appendChild(h('span', { text: inMenu ? TABS.filter(function (x) { return x[0] === tab; })[0][2] : 'Menyu' }));
+        box.appendChild(m);
+    }
+    function sideOpen(on) { document.body.classList.toggle('side-open', !!on); }
+    $('side-scrim').onclick = function () { sideOpen(false); };
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') sideOpen(false); });
     function buildNav() {
+        buildBottom();
         ['nav-side', 'nav-mobile'].forEach(function (id) {
             var box = $(id); box.innerHTML = '';
             TABS.forEach(function (t) {
@@ -985,7 +1052,7 @@ html, body { background: var(--bg); }
         return { coconut: vCoconut, test: vTest, stats: vStats, agent: vAgent, control: vControl, orders: vOrders, tx: function (v) { vTx(v, 'all', ''); }, users: function (v) { vUsers(v, ''); }, promo: vPromo, msg: vMsg, email: vEmail, support: vSupport, shop: vShop, mahalla: vMahalla, gift: vGift, card: vCard, call: vCall, ai: vAI, notify: vNotify, settings: vSettings, log: vLog, nizom: vNizom, security: vSecurity, aud: vAud, load: vLoad }[t];
     }
     function go(t) {
-        live.interacted = false; live.last = live.tried = Date.now();
+        live.interacted = false; live.last = live.tried = Date.now(); sideOpen(false);
         if (t !== 'support') supPhone = null;
         tab = t; buildNav();
         $('page-title').textContent = TABS.filter(function (x) { return x[0] === t; })[0][2];
@@ -998,7 +1065,7 @@ html, body { background: var(--bg); }
             if (!e || e.message === 'auth' || t !== tab) return;
             view.innerHTML = '';
             view.appendChild(h('div', { class: 'empty' }, [
-                e.name === 'AbortError' ? "Server 25 soniyada javob bermadi." : "Server bilan bog'lanib bo'lmadi.",
+                e.name === 'AbortError' ? "Server 25 soniyada javob bermadi." : /fetch|network|load failed/i.test(e.message || '') ? "Server bilan bog'lanib bo'lmadi." : "Bo'limni ochishda xato: " + (e.message || ''),
                 h('br'), h('button', { class: 'act', style: 'margin-top:12px', text: 'Qayta urinish', onclick: function () { go(t); } })
             ]));
         });
@@ -1138,7 +1205,7 @@ html, body { background: var(--bg); }
     // panel yopilsa yoki boshqa ilovaga o'tilsa — saytda darhol "oflayn"
     function goOffline() {
         if (!token) return;
-        try { fetch(API + '/api/admin/offline', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ token: token }) }); } catch (e) {}
+        try { fetch(API + '/api/admin/offline', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ token: token, t: Date.now() }) }); } catch (e) {}
     }
     document.addEventListener('visibilitychange', function () { if (document.hidden) goOffline(); else ping(); });
     window.addEventListener('pagehide', goOffline);
