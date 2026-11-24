@@ -610,6 +610,10 @@ html, body { background: var(--bg); }
 .panic-btn:hover { background: #2A1217 !important; }
 .panic-btn.on { background: #BE123C !important; border-color: #FB7185 !important; color: #fff !important; }
 #panic-bar { border-radius: 10px; }
+.top { flex-wrap: wrap; row-gap: 10px; }
+.top .right { flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
+.layout { grid-template-columns: 240px minmax(0, 1fr); }
+@media (max-width: 1180px) { .top .chip { display: none; } }
 .live-chip { font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace; color: #9DB4FF; background: #121A33; border: 1px solid #263566; border-radius: 999px; padding: 6px 10px; white-space: nowrap; cursor: default; }
 .live-chip.off { color: var(--muted); background: #131720; border-color: var(--line2); }
 @media (max-width: 760px) { .live-chip { display: none !important; } }
@@ -752,7 +756,11 @@ html, body { background: var(--bg); }
 
     async function post(path, body, extraHeaders) {
         await apiReady;
-        var r = await fetch(API + path, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, extraHeaders || {}), body: JSON.stringify(body || {}) });
+        // 25 soniyada javob bo'lmasa — to'xtatamiz (sahifa cheksiz "yuklanmoqda"da qolib ketmasin)
+        var ac = window.AbortController ? new AbortController() : null, to = ac && setTimeout(function () { ac.abort(); }, 25000);
+        var r;
+        try { r = await fetch(API + path, { method: 'POST', signal: ac ? ac.signal : undefined, headers: Object.assign({ 'Content-Type': 'application/json' }, extraHeaders || {}), body: JSON.stringify(body || {}) }); }
+        finally { if (to) clearTimeout(to); }
         var j = {};
         try { j = await r.json(); } catch (e) {}
         j._status = r.status;
@@ -986,7 +994,14 @@ html, body { background: var(--bg); }
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
         var fn = viewFn(t);
-        Promise.resolve(fn(view)).catch(function (e) { if (e && e.message !== 'auth') view.innerHTML = '<div class="empty">Server xatosi</div>'; });
+        Promise.resolve(fn(view)).catch(function (e) {
+            if (!e || e.message === 'auth' || t !== tab) return;
+            view.innerHTML = '';
+            view.appendChild(h('div', { class: 'empty' }, [
+                e.name === 'AbortError' ? "Server 25 soniyada javob bermadi." : "Server bilan bog'lanib bo'lmadi.",
+                h('br'), h('button', { class: 'act', style: 'margin-top:12px', text: 'Qayta urinish', onclick: function () { go(t); } })
+            ]));
+        });
         window.scrollTo(0, 0);
         paintLive();
     }
@@ -1001,10 +1016,14 @@ html, body { background: var(--bg); }
     // ---------- Avto-yangilash: ochiq bo'limdagi ma'lumot o'zi yangilanib turadi ----------
     // Jim yangilanadi (yuklanish belgisi va animatsiyasiz, aylantirish joyi saqlanadi).
     // Siz biror narsa yozayotgan, oyna ochiq yoki bo'lim ichida biror narsani bosgan bo'lsangiz — sahifa sakramasin deb to'xtab turadi.
-    var LIVE = { stats: 15, orders: 10, tx: 15, users: 20, log: 10, control: 15, promo: 30, card: 20, call: 20, aud: 30, mahalla: 30, gift: 30, security: 30 };
+    // Har 1 soniyada (oldingi so'rov tugamaguncha yangisi yuborilmaydi). Yozish/suhbat bo'limlari (Yordamchi, Xabar yuborish, Murojaatlar, Yuklama, Nizom) bu ro'yxatda yo'q.
+    var LIVE = { stats: 1, orders: 1, tx: 1, users: 1, log: 1, control: 1, promo: 1, card: 1, call: 1, aud: 1, mahalla: 1, gift: 1, security: 1, shop: 1, ai: 1, notify: 1, email: 1, settings: 1, test: 1, coconut: 1 };
     var live = { busy: false, interacted: false, last: 0, timer: null, silent: false };
     function liveBlocked(v) {
         if (live.interacted || $('modal').classList.contains('open')) return true;
+        if (v.querySelector('.st-chart:hover, .st-tip.on')) return true;   // grafik ustida sichqoncha — maslahat oynasi yo'qolmasin
+        var sel = window.getSelection && window.getSelection();
+        if (sel && !sel.isCollapsed && sel.anchorNode && v.contains(sel.anchorNode)) return true;   // matn belgilangan (nusxa olinmoqda)
         var a = document.activeElement;
         return !!(a && v.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
     }
@@ -1017,12 +1036,12 @@ html, body { background: var(--bg); }
         el.classList.toggle('off', off);
         var d = new Date(live.last || Date.now());
         el.textContent = off ? "Avto-yangilash to'xtagan" : 'Jonli · ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-        el.title = off ? "Bo'limda o'zgartirish yoki ochiq oyna bor. «Yangilash» bosilsa yoki boshqa bo'limga o'tilsa qayta yoqiladi." : 'Har ' + sec + ' soniyada o\'zi yangilanadi';
+        el.title = off ? "Bo'limda o'zgartirish yoki ochiq oyna bor. «Yangilash» bosilsa yoki boshqa bo'limga o'tilsa qayta yoqiladi." : 'Har soniyada o\'zi yangilanadi';
     }
     async function liveRefresh(force) {
         var sec = LIVE[tab];
         if (!token || !sec || document.hidden || live.busy) return;
-        if (!force && Date.now() - live.last < sec * 1000) return;
+        if (!force && Date.now() - live.last < sec * 1000 - 300) return;   // taymer bilan bir xil qadamda yurishi uchun ozgina zaxira
         var old = $('view');
         if (liveBlocked(old)) { paintLive(); return; }
         var t = tab, nv = document.createElement('div');
@@ -1032,6 +1051,7 @@ html, body { background: var(--bg); }
         catch (e) { live.busy = false; live.silent = false; live.last = Date.now(); return; }
         live.busy = false; live.silent = false; live.last = Date.now();
         if (t !== tab || $('view') !== old || liveBlocked(old) || !nv.childNodes.length) { paintLive(); return; }
+        if (nv.innerHTML === old.innerHTML) { paintLive(); return; }   // o'zgarish yo'q — sahifaga tegmaymiz
         var y = window.scrollY;
         old.replaceWith(nv);
         window.scrollTo(0, y);
@@ -1039,7 +1059,7 @@ html, body { background: var(--bg); }
     }
     function startLive() {
         clearInterval(live.timer);
-        live.timer = setInterval(function () { liveRefresh(false); }, 2000);
+        live.timer = setInterval(function () { liveRefresh(false); }, 1000);
     }
     // Bo'lim ichida bosish yoki yozish — o'sha sahifada avto-yangilash to'xtaydi (bo'lim almashganda qayta yoqiladi)
     document.addEventListener('click', function (e) {
@@ -1051,8 +1071,13 @@ html, body { background: var(--bg); }
 
     // ---------- yurak urishi: admin onlayn + yangi murojaatlar ----------
     var pingTimer = null;
+    var pingBusy = false;
     async function ping() {
-        if (!token || document.hidden) return;
+        if (!token || document.hidden || pingBusy) return;
+        pingBusy = true;
+        try { await ping2(); } finally { pingBusy = false; }
+    }
+    async function ping2() {
         try {
             var j = await admin('ping');
             if (!j.success) return;
@@ -1093,7 +1118,7 @@ html, body { background: var(--bg); }
     }
     $('panic-btn').onclick = function () { panic.on ? panicOff() : panicOn(); };
     $('panic-off').onclick = panicOff;
-    function startPing() { clearInterval(pingTimer); ping(); pingTimer = setInterval(ping, 4000); }
+    function startPing() { clearInterval(pingTimer); ping(); pingTimer = setInterval(ping, 1000); }
     // panel yopilsa yoki boshqa ilovaga o'tilsa — saytda darhol "oflayn"
     function goOffline() {
         if (!token) return;
