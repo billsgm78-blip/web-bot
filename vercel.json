@@ -181,25 +181,6 @@
       "has": [
         {
           "type": "host",
-          "value": "admin.bilolsai.uz"
-        }
-      ],
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
           "value": "control.bilolsai.uz"
         }
       ],
@@ -232,6 +213,39 @@
   ],
   "redirects": [
     {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "admin.bilolsai.uz"
+        }
+      ],
+      "destination": "https://control.bilolsai.uz/",
+      "permanent": false
+    },
+    {
+      "source": "/admin",
+      "missing": [
+        {
+          "type": "host",
+          "value": "control.bilolsai.uz"
+        }
+      ],
+      "destination": "https://control.bilolsai.uz/",
+      "permanent": false
+    },
+    {
+      "source": "/admin.html",
+      "missing": [
+        {
+          "type": "host",
+          "value": "control.bilolsai.uz"
+        }
+      ],
+      "destination": "https://control.bilolsai.uz/",
+      "permanent": false
+    },
+    {
       "source": "/",
       "has": [
         {
@@ -251,17 +265,6 @@
         }
       ],
       "destination": "/prezentatsya",
-      "permanent": false
-    },
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "admin.bilolsai.uz"
-        }
-      ],
-      "destination": "/admin",
       "permanent": false
     },
     {

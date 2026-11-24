@@ -842,7 +842,7 @@ html, body { background: var(--bg); }
         if (btn) btn.disabled = false;
     }
 
-    // ---------- NFC: tagda https://www.bilolsai.uz/admin#k=BLS-… havolasi turadi ----------
+    // ---------- NFC: tagda https://control.bilolsai.uz/#k=BLS-… havolasi turadi (eski teglar www.bilolsai.uz/admin#k=… ham ishlaydi — control'ga yo'naltiriladi, #k saqlanadi) ----------
     // iPhone va Android tagga tegizilganda havolani o'zi ochadi (ilova shart emas); Android Chrome'da sahifa ichidan ham o'qiladi.
     var NFC_OK = 'NDEFReader' in window;
     // matn yoki havola: bo'sh joy, qator, tire bo'lsa ham kalit topiladi (Telegram'dan nusxalanganda shunday bo'ladi)
@@ -853,7 +853,7 @@ html, body { background: var(--bg); }
         for (var j = 0; j < 32; j += 4) parts.push(body.slice(j, j + 4));
         return parts.join('-');
     }
-    function nfcUrl(key) { return 'https://www.bilolsai.uz/admin#k=' + key; }
+    function nfcUrl(key) { return 'https://control.bilolsai.uz/#k=' + key; }
     (function hashKey() {
         var m = location.hash.match(/[#&]k=([^&]+)/); if (!m) return;
         var key = nfcKeyFrom(decodeURIComponent(m[1]));
