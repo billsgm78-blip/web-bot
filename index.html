@@ -12097,6 +12097,110 @@ html.lite #auth-modal#auth-modal::before, html.lite #auth-modal#auth-modal::afte
     sync();
 })();
 </script>
+<!-- ============ 🔐 Kirish oynasi yordamchilari: parol kuchi, Caps Lock ogohlantirishi, telefon raqami tekshiruvi (3 tilda) ============ -->
+<style id="auth-helpers-style">
+.ah-hint { font-size: 12.5px; font-weight: 600; line-height: 1.35; margin: -6px 4px 12px; min-height: 0; display: flex; align-items: center; gap: 6px; color: rgba(255, 255, 255, .72); }
+.ah-hint:empty { display: none; }
+.ah-hint.ok { color: #6ee7b7; }
+.ah-hint.warn { color: #fcd34d; }
+.ah-hint.bad { color: #fda4af; }
+#pw-meter { margin: -4px 4px 14px; display: none; }
+#pw-meter.show { display: block; animation: ahIn .25s ease-out; }
+#pw-meter .pw-bars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+#pw-meter .pw-bars i { height: 4px; border-radius: 4px; background: rgba(255, 255, 255, .14); transition: background .25s; }
+#pw-meter .pw-txt { margin-top: 6px; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, .7); }
+#pw-meter .pw-txt b { font-weight: 700; }
+#pw-meter[data-lv="1"] .pw-bars i:nth-child(-n+1) { background: #f43f5e; }
+#pw-meter[data-lv="2"] .pw-bars i:nth-child(-n+2) { background: #f59e0b; }
+#pw-meter[data-lv="3"] .pw-bars i:nth-child(-n+3) { background: #84cc16; }
+#pw-meter[data-lv="4"] .pw-bars i:nth-child(-n+4) { background: #10b981; }
+#pw-meter[data-lv="1"] .pw-txt b { color: #fda4af; }
+#pw-meter[data-lv="2"] .pw-txt b { color: #fcd34d; }
+#pw-meter[data-lv="3"] .pw-txt b { color: #bef264; }
+#pw-meter[data-lv="4"] .pw-txt b { color: #6ee7b7; }
+#auth-modal#auth-modal .auth-field.ah-ok .styled-input { border-color: rgba(110, 231, 183, .7) !important; }
+#auth-modal#auth-modal .auth-field.ah-bad .styled-input { border-color: rgba(253, 164, 175, .75) !important; }
+@keyframes ahIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+</style>
+<script>
+(function () {
+    var phone = document.getElementById('phone-input'), pass = document.getElementById('pass-input');
+    var reg = document.getElementById('tab-register');
+    if (!phone || !pass || !reg) return;
+    function L() { var l = (document.documentElement.lang || 'uz').slice(0, 2); return l === 'ru' || l === 'en' ? l : 'uz'; }
+    function T(uz, en, ru) { var l = L(); return l === 'ru' ? ru : l === 'en' ? en : uz; }
+    function isReg() { return reg.classList.contains('active'); }
+    function hint(id, after) {
+        var h = document.createElement('div'); h.id = id; h.className = 'ah-hint'; h.setAttribute('aria-live', 'polite');
+        after.parentNode.insertBefore(h, after.nextSibling); return h;
+    }
+    function set(h, cls, txt) { h.className = 'ah-hint' + (cls ? ' ' + cls : ''); h.textContent = txt || ''; }
+
+    /* ---------- 1) Parol kuchi (faqat ro'yxatdan o'tishda) ---------- */
+    var passField = pass.closest('.auth-field');
+    var meter = document.createElement('div'); meter.id = 'pw-meter';
+    meter.innerHTML = '<div class="pw-bars"><i></i><i></i><i></i><i></i></div><div class="pw-txt"></div>';
+    passField.parentNode.insertBefore(meter, passField.nextSibling);
+    var COMMON = /^(1234|12345|123456|1234567|12345678|123456789|1234567890|0000|1111|111111|qwerty|qwerty123|password|parol|abc123|admin|987654321)$/i;
+    function score(p) {
+        if (!p) return 0;
+        if (p.length < 4 || COMMON.test(p) || /^(.)\1+$/.test(p)) return 1;
+        var s = 0;
+        if (p.length >= 8) s++;
+        if (p.length >= 12) s++;
+        if (/[a-z]/.test(p) && /[A-Z]/.test(p)) s++;
+        if (/\d/.test(p) && /[^\d]/.test(p)) s++;
+        if (/[^A-Za-z0-9]/.test(p)) s++;
+        return s <= 1 ? 1 : s === 2 ? 2 : s === 3 ? 3 : 4;
+    }
+    function updMeter() {
+        var p = pass.value, lv = score(p);
+        if (!isReg() || !p) { meter.classList.remove('show'); return; }
+        meter.classList.add('show'); meter.setAttribute('data-lv', lv);
+        var names = [null, T('Juda oddiy', 'Too weak', 'Очень слабый'), T("O'rtacha", 'Fair', 'Средний'), T('Yaxshi', 'Good', 'Хороший'), T('Kuchli', 'Strong', 'Надёжный')];
+        var tip = lv <= 2 ? T(' — 8+ belgi, katta harf, raqam va belgi qo\'shing', ' — use 8+ chars, capitals, digits and symbols', ' — 8+ символов, заглавные, цифры и знаки') : '';
+        meter.querySelector('.pw-txt').innerHTML = T('Parol: ', 'Password: ', 'Пароль: ') + '<b>' + names[lv] + '</b>' + tip;
+    }
+    pass.addEventListener('input', updMeter);
+
+    /* ---------- 2) Caps Lock ogohlantirishi ---------- */
+    var capsH = hint('caps-warn', meter);
+    function caps(e) {
+        if (!e.getModifierState) return;
+        var on = e.getModifierState('CapsLock');
+        set(capsH, on ? 'warn' : '', on ? '⇪ ' + T('Caps Lock yoqilgan', 'Caps Lock is on', 'Включён Caps Lock') : '');
+    }
+    pass.addEventListener('keydown', caps); pass.addEventListener('keyup', caps);
+    pass.addEventListener('blur', function () { set(capsH, '', ''); });
+
+    /* ---------- 3) Telefon raqami: jonli tekshiruv ---------- */
+    var phoneField = phone.closest('.auth-field');
+    var phH = hint('phone-hint', phoneField);
+    var CODES = /^(20|33|50|55|61|62|65|66|67|69|7[0-9]|88|9[0-9])/;
+    function local() { var d = phone.value.replace(/\D/g, ''); return d.indexOf('998') === 0 ? d.slice(3) : d; }
+    function updPhone(final) {
+        var d = local(), n = d.length;
+        phoneField.classList.remove('ah-ok', 'ah-bad');
+        if (!n) { set(phH, '', ''); return; }
+        if (n >= 2 && !CODES.test(d)) {
+            phoneField.classList.add('ah-bad');
+            set(phH, 'bad', T("Operator kodi noto'g'ri: ", 'Unknown operator code: ', 'Неверный код оператора: ') + d.slice(0, 2)); return;
+        }
+        if (n >= 9) { phoneField.classList.add('ah-ok'); set(phH, 'ok', '✓ ' + T("Raqam to'g'ri", 'Number looks good', 'Номер верный')); return; }
+        if (final) {
+            phoneField.classList.add('ah-bad');
+            set(phH, 'warn', T('Yana ' + (9 - n) + ' ta raqam kiriting', (9 - n) + ' more digit' + (9 - n > 1 ? 's' : '') + ' needed', 'Введите ещё ' + (9 - n) + ' цифр' + (9 - n === 1 ? 'у' : 9 - n < 5 ? 'ы' : '')));
+        } else set(phH, '', '');
+    }
+    phone.addEventListener('input', function () { updPhone(false); });
+    phone.addEventListener('blur', function () { updPhone(true); });
+
+    /* Tab almashganda va til o'zgarganda yangilash */
+    new MutationObserver(function () { updMeter(); }).observe(reg, { attributes: true, attributeFilter: ['class'] });
+    new MutationObserver(function () { updMeter(); if (phH.textContent) updPhone(true); if (capsH.textContent) set(capsH, 'warn', '⇪ ' + T('Caps Lock yoqilgan', 'Caps Lock is on', 'Включён Caps Lock')); })
+        .observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+})();
+</script>
 <!-- ============ 🚨 Tashvish ekrani — xaker terminali uslubi: qizil ASCII, kod yomg'iri, glitch sarlavha, sabab yozilib boradi ============ -->
 <style id="panic-term-style">
 #site-lock.panic { background: #040404 !important; font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; }
