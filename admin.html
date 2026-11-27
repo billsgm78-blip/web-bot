@@ -610,6 +610,9 @@ html, body { background: var(--bg); }
 .panic-btn:hover { background: #2A1217 !important; }
 .panic-btn.on { background: #BE123C !important; border-color: #FB7185 !important; color: #fff !important; }
 #panic-bar { border-radius: 10px; }
+.fail-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; padding: 12px 14px; border-radius: 10px; background: #2A1217; border: 1px solid #5B1E28; color: #FECDD3; font-size: 13.5px; }
+.fail-bar span { flex: 1; min-width: 200px; }
+.fail-bar .act { margin: 0; }
 .top { flex-wrap: wrap; row-gap: 10px; }
 .top .right { flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
 @media (min-width: 861px) { .layout { grid-template-columns: 240px minmax(0, 1fr); } }
@@ -804,10 +807,13 @@ html, body { background: var(--bg); }
         j._status = r.status;
         return j;
     }
+    var lastFail = { at: 0 };
     async function admin(action, body) {
         // X-Admin-T: so'rov yuborilgan vaqt — server «oflayn»dan oldin yuborilgan so'rovlar bilan adminni qayta onlayn qilmaydi
         var j = await post('/api/admin/' + action, body, { 'X-Admin-Token': token || '', 'X-Admin-T': String(Date.now()) });
         if (j._status === 401) { logout(true); throw new Error('auth'); }
+        // Server xato qaytargan bo'lsa eslab qolamiz: bo'limlar uni "bo'sh ro'yxat" deb ko'rsatib yubormasin
+        if (j && j.success === false && action !== 'ping') lastFail = { at: Date.now(), error: j.error || ('HTTP ' + j._status), action: action };
         return j;
     }
 
@@ -1061,7 +1067,19 @@ html, body { background: var(--bg); }
         view.classList.remove('anim'); void view.offsetWidth; view.classList.add('anim');
         clearTimeout(go._t); go._t = setTimeout(function () { view.classList.remove('anim'); }, 1600);
         var fn = viewFn(t);
-        Promise.resolve(fn(view)).catch(function (e) {
+        var t0 = Date.now();
+        Promise.resolve(fn(view)).then(function () {
+            var waitT = Date.now();
+            (function banner() {   // ichki ro'yxatlar (Foydalanuvchilar, Tarix, Jurnal) yuklanib bo'lgach tekshiramiz
+                if (t !== tab || $('view') !== view) return;
+                if (view.querySelector('.loading') && Date.now() - waitT < 20000) return setTimeout(banner, 80);
+                if (lastFail.at < t0 || view.querySelector('.fail-bar')) return;
+                view.insertBefore(h('div', { class: 'fail-bar' }, [
+                    h('span', { text: "Server xatosi — ma'lumot to'liq emas: " + lastFail.error }),
+                    h('button', { class: 'act', text: 'Qayta yuklash', onclick: function () { go(t); } })
+                ]), view.firstChild);
+            })();
+        }).catch(function (e) {
             if (!e || e.message === 'auth' || t !== tab) return;
             view.innerHTML = '';
             view.appendChild(h('div', { class: 'empty' }, [
@@ -1116,6 +1134,7 @@ html, body { background: var(--bg); }
         var t = tab, nv = document.createElement('div');
         nv.id = 'view';
         live.busy = true; live.silent = true; live.started = live.tried = Date.now();
+        var failMark = lastFail.at;
         try {
             await Promise.resolve(viewFn(t)(nv));
             // Ba'zi bo'limlar (Foydalanuvchilar, Tarix, Jurnal) ro'yxatni ichkarida alohida yuklaydi —
@@ -1127,7 +1146,9 @@ html, body { background: var(--bg); }
             }
         }
         catch (e) { live.busy = false; live.silent = false; paintLive(); return; }   // xato — vaqt yangilanmaydi, belgi «Server kutilmoqda» ko'rsatadi
-        live.busy = false; live.silent = false; live.last = Date.now();
+        live.busy = false; live.silent = false;
+        if (lastFail.at !== failMark) { paintLive(); return; }   // server xato berdi — eski (to'g'ri) ma'lumot joyida qoladi
+        live.last = Date.now();
         if (t !== tab || $('view') !== old || liveBlocked(old) || !nv.childNodes.length) { paintLive(); return; }
         if (nv.innerHTML === old.innerHTML) { paintLive(); return; }   // o'zgarish yo'q — sahifaga tegmaymiz
         var y = window.scrollY;
