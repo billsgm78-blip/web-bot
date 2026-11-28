@@ -1516,14 +1516,31 @@
         function setLive(t) { var tx = live.querySelector('.tx'); if (tx) tx.innerHTML = md(t); scrollChat(); }
         setLive('🤖 ' + L('Kompyuterni boshqarish boshlandi…', 'Начинаю управлять компьютером…', 'Taking control of the computer…'));
         var steps = [], log = [], final = '', fail = null, MAX = 40, ctx = { found: [], explorer: false, shot: null };
+        // Ekran "tinchlanguncha" kutadi: oyna ochilishi/sahifa yuklanishi tugagach rasm oladi (AI eski ekranni ko'rmasin).
+        // Yangi dastur 32x18 imzo (sig) beradi; eskisida JPEG matnining o'zi solishtiriladi.
+        function shotDiff(a, b) {
+            if (a.sig && b.sig && a.sig.length === b.sig.length) { var d = 0; for (var k = 0; k < a.sig.length; k++) d += Math.abs(a.sig[k] - b.sig[k]); return d / a.sig.length; }
+            return a.image === b.image ? 0 : 99;
+        }
+        async function stableShot(first) {
+            var s1 = await pcInv('pc_screenshot');
+            if (first) return s1;
+            for (var k = 0; k < 4; k++) {
+                await pcInv('pc_wait', { ms: 380 });
+                var s2 = await pcInv('pc_screenshot');
+                if (shotDiff(s1, s2) < 2.5) return s2;   // kursor miltillashi kabi mayda farqlar hisobga olinmaydi
+                s1 = s2;
+            }
+            return s1;
+        }
         try {
             await pcInv('pc_begin');
             for (var i = 0; i < MAX; i++) {
                 if (await pcInv('pc_stopped')) { fail = { stopped: true }; break; }
-                var shot = await pcInv('pc_screenshot');
+                var shot = await stableShot(i === 0);
                 var r = await fetch(SITE + '/api/chat', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ history: [], lang: lang, mode: 'pcagent', model: curModel().id, task: task, steps: steps, image: shot.image, phone: state.phone, password: state.pass })
+                    body: JSON.stringify({ history: [], lang: lang, mode: 'pcagent', model: curModel().id, task: task, steps: steps, image: shot.image, screen: { w: shot.w, h: shot.h, scale: shot.scale }, phone: state.phone, password: state.pass })
                 });
                 var j = {}; try { j = await r.json(); } catch (e) {}
                 if (!r.ok || !j.agent) { fail = j && (j.error || j.needSub || j.needLogin) ? j : { error: L("AI javob bermadi", 'ИИ не ответил', 'The AI did not respond') }; break; }
@@ -1610,9 +1627,9 @@
                 }
                 if (j.retry) steps.push('(some actions in the last reply were invalid and skipped)');
                 if (ag.done) { final = ag.say; break; }
-                await pcInv('pc_wait', { ms: 450 });
+                await pcInv('pc_wait', { ms: 200 });   // qolgan kutish — stableShot ichida (ekran tinchlanguncha)
             }
-            if (!final && !fail) final = L("30 ta qadam chegarasiga yetdim — vazifa to'liq bajarilmagan bo'lishi mumkin.", 'Достигнут лимит в 30 шагов — задача могла быть не завершена.', 'Reached the 30-step limit — the task may be unfinished.');
+            if (!final && !fail) final = L(MAX + " ta qadam chegarasiga yetdim — vazifa to'liq bajarilmagan bo'lishi mumkin.", 'Достигнут лимит в ' + MAX + ' шагов — задача могла быть не завершена.', 'Reached the ' + MAX + '-step limit — the task may be unfinished.');
         } catch (e) {
             var es = String(e && e.message || e);
             fail = /stopped/.test(es) ? { stopped: true }

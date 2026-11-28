@@ -167,7 +167,9 @@ function agentAction(a) {
   return act;
 }
 async function runAgentStep(req, res, apiKey, uiLang, langName) {
-  const { task, steps, image } = req.body || {};
+  const { task, steps, image, screen } = req.body || {};
+  const sw = Math.round(Number(screen && screen.w)) || 0, sh = Math.round(Number(screen && screen.h)) || 0;
+  const screenTxt = sw > 0 && sh > 0 && sw < 20000 && sh < 20000 ? ` The real screen is ${sw}x${sh} pixels (the screenshot is scaled down proportionally).` : "";
   const t = String(task || "").slice(0, 1500).trim();
   if (!t || typeof image !== "string" || image.length < 100 || image.length > 3500000 || !/^[A-Za-z0-9+/=]+$/.test(image)) {
     return res.status(400).json({ error: "Noto'g'ri so'rov." });
@@ -177,7 +179,12 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
   const done = st.map((x, i) => `${i + 1}. ${String(x).slice(0, i >= st.length - 3 ? 3500 : 300)}`).join("\n") || "(none yet — this is the first step)";
   const system =
     "You are Bilols AI operating the user's Windows computer WITHOUT a mouse — you can never click; you work only with the tools below and the keyboard. " +
-    "You see a screenshot of the primary screen. Work FAST: do as much as you safely can per reply. " +
+    "You see a screenshot of the primary screen, taken after the screen stopped changing." + screenTxt + " Work FAST but PRECISELY: do as much as you can safely predict per reply. " +
+    "ACCURACY: (1) Before choosing actions, look at the screenshot and check that the LAST actions in PREVIOUS STEPS really worked (the window opened and is in front, the text appeared, the page loaded). If not, do not assume success — fix it first. " +
+    "(2) Read on-screen text carefully and copy names, numbers and results EXACTLY as shown; never guess text you cannot read — wait or zoom in with ctrl+plus instead. " +
+    "(3) Before typing, make sure the right window has focus (it is in front on the screenshot); if not, bring it with find_open/alt+tab and wait, never type blindly. " +
+    "(4) After launch/open/find_open/open_item end the action list (or add wait 1500) so you see the result before continuing. " +
+    "(5) Never repeat the same failing action twice — choose another way. " +
     "Reply with ONLY valid JSON: {\"thought\": string (short, English), \"say\": string (very short status for the user in " + langName + "; when done=true — the final result/answer), " +
     "\"actions\": [ ...1-6 actions executed in order... ], \"done\": boolean}. " +
     "Actions: " +
@@ -217,15 +224,20 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
       ] }
     ],
     response_format: { type: "json_object" },
-    temperature: 0.2,
-    max_tokens: 600
+    temperature: 0.1,
+    reasoning: { max_tokens: 700 },     // qisqa o'ylash: ekranni to'g'ri o'qish va qadamni tekshirish uchun
+    max_tokens: 2200
   };
   try {
     const r = await openrouter(apiKey, body);
     const data = await r.json().catch(() => ({}));
     if (!r.ok) return res.status(502).json({ error: friendlyError(data?.error?.message) });
     let j = null;
-    try { j = JSON.parse(String(data?.choices?.[0]?.message?.content || "").replace(/^```(?:json)?\s*|\s*```$/g, "")); } catch (e) {}
+    const rawTxt = String(data?.choices?.[0]?.message?.content || "").replace(/^```(?:json)?\s*|\s*```$/g, "");
+    try { j = JSON.parse(rawTxt); } catch (e) {
+      const a0 = rawTxt.indexOf("{"), a1 = rawTxt.lastIndexOf("}");   // JSON oldidan/keyin ortiqcha matn bo'lsa ham o'qiladi
+      if (a0 >= 0 && a1 > a0) { try { j = JSON.parse(rawTxt.slice(a0, a1 + 1)); } catch (e2) {} }
+    }
     if (!j || typeof j !== "object") return res.status(200).json({ pc: true, agent: { say: "…", actions: [{ type: "wait", ms: 300 }], done: false }, retry: true });
     const raw = Array.isArray(j.actions) ? j.actions : (j.action ? [j.action] : []);
     const actions = [];
