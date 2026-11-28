@@ -101,7 +101,7 @@ function pcActions(raw) {
 // /usecomputer agenti: bitta qadam. Kiradi: vazifa, oldingi qadamlar, ekran rasmi (JPEG base64).
 // Chiqadi: keyingi bitta amal. Koordinatalar 0..1000 (ekran eni/bo'yiga nisbatan) — dastur o'zi piksellarga o'giradi.
 // Sichqoncha ishlatilmaydi: faqat dastur/fayl ochish, qidirish va klaviatura
-const AGENT_TYPES = new Set(["launch", "open", "find_open", "find", "list", "open_item", "open_found", "type", "key", "wait", "screenshot", "fill_login"]);
+const AGENT_TYPES = new Set(["launch", "open", "find_open", "find", "list", "open_item", "open_found", "type", "key", "wait", "screenshot", "fill_login", "draw"]);
 // Ko'p ishlatiladigan dasturlar: odamcha nom -> exe nomi (dastur ularni qidiruvsiz, to'g'ridan-to'g'ri ochadi)
 const APP_ALIAS = {
   calculator: "calc", kalkulyator: "calc", калькулятор: "calc", notepad: "notepad", bloknot: "notepad", блокнот: "notepad",
@@ -150,6 +150,22 @@ function agentAction(a) {
     act.submit = a.submit !== false;
     act.tabs = Math.max(0, Math.min(8, parseInt(a.tabs, 10) || 0));
   }
+  if (a.type === "draw") {
+    // Chizish (faqat Paint kabi chizish dasturida): shakl + joy [y1,x1,y2,x2] (0..1000) yoki erkin nuqtalar [[y,x],...]
+    const pt = (v) => (Array.isArray(v) && v.length === 2 && v.every((z) => Number.isFinite(Number(z))) ? v.map((z) => Math.max(0, Math.min(1000, Math.round(Number(z))))) : null);
+    const shape = String(a.shape || "").toLowerCase();
+    act.shape = { oval: "ellipse", square: "rect", rectangle: "rect", polyline: "path", freehand: "path", doira: "circle", aylana: "circle" }[shape] || shape;
+    if (!["circle", "ellipse", "rect", "line", "path"].includes(act.shape)) return null;
+    if (act.shape === "path") {
+      act.points = (Array.isArray(a.points) ? a.points : []).map(pt).filter(Boolean).slice(0, 120);
+      if (act.points.length < 2) return null;
+    } else {
+      const b = Array.isArray(a.box) && a.box.length === 4 ? a.box.map((z) => Math.max(0, Math.min(1000, Math.round(Number(z))))) : null;
+      if (!b || b.some((z) => !Number.isFinite(z))) return null;
+      act.box = b;
+    }
+    act.tool_points = (Array.isArray(a.tool_points) ? a.tool_points : a.tool_point ? [a.tool_point] : []).map(pt).filter(Boolean).slice(0, 3);
+  }
   if (a.type === "open_found") { act.type = "open_item"; }
   if (act.type === "list" || act.type === "open_item") {
     // n — oxirgi ro'yxatdagi raqam; yoki path — to'liq yo'l (C:\...), yoki thispc/desktop/documents/downloads/...
@@ -178,7 +194,7 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
   const st = (Array.isArray(steps) ? steps : []).slice(-25);
   const done = st.map((x, i) => `${i + 1}. ${String(x).slice(0, i >= st.length - 3 ? 3500 : 300)}`).join("\n") || "(none yet — this is the first step)";
   const system =
-    "You are Bilols AI operating the user's Windows computer WITHOUT a mouse — you can never click; you work only with the tools below and the keyboard. " +
+    "You are Bilols AI operating the user's Windows computer WITHOUT a mouse — you cannot click freely; you work only with the tools below and the keyboard (the only mouse use is the draw action, for drawing apps). " +
     "You see a screenshot of the primary screen, taken after the screen stopped changing." + screenTxt + " Work FAST but PRECISELY: do as much as you can safely predict per reply. " +
     "ACCURACY: (1) Before choosing actions, look at the screenshot and check that the LAST actions in PREVIOUS STEPS really worked (the window opened and is in front, the text appeared, the page loaded). If not, do not assume success — fix it first. " +
     "(2) Read on-screen text carefully and copy names, numbers and results EXACTLY as shown; never guess text you cannot read — wait or zoom in with ctrl+plus instead. " +
@@ -199,6 +215,11 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     "{\"type\":\"open\",\"url\":\"https://...\"} — open a website in the default browser (direct links: https://www.google.com/search?q=..., https://www.youtube.com/results?search_query=..., https://mail.google.com ...) or ms-settings:..., mailto:, tg://resolve?domain=..., spotify:; " +
     "{\"type\":\"type\",\"text\":\"...\"} — types into the focused window; {\"type\":\"key\",\"keys\":\"enter\"|\"tab\"|\"shift+tab\"|\"esc\"|\"up\"|\"down\"|\"ctrl+l\"|\"ctrl+t\"|\"ctrl+f\"|\"ctrl+s\"|\"ctrl+n\"|\"alt+tab\"|\"alt+f4\"|\"win+d\"|\"f2\"|\"f5\"...}; " +
     "{\"type\":\"wait\",\"ms\":int} — e.g. 1500 after launch/open so the window appears and gets focus. " +
+    "DRAWING (ONLY inside a drawing app such as Paint/mspaint, when the user asks to draw): {\"type\":\"draw\",\"shape\":\"circle\"|\"ellipse\"|\"rect\"|\"line\",\"box\":[y1,x1,y2,x2],\"tool_points\":[[y,x]]} — " +
+    "box is the shape's bounding box in 0..1000 screenshot coordinates and MUST lie inside the white canvas (for line: from [y1,x1] to [y2,x2]); circle = perfect circle centred in the box; " +
+    "or {\"type\":\"draw\",\"shape\":\"path\",\"points\":[[y,x],...]} (2-120 points) for freehand lines, letters, stars, houses etc. — compose complex pictures from several draw actions. " +
+    "tool_points (optional, max 3) are clicked BEFORE drawing — e.g. the Pencil or Brush tool button, or a colour in the palette, exactly as you see them on the CURRENT screenshot. " +
+    "Paint usually starts with the Pencil tool selected; if the user wants a colour or another tool, pick it with tool_points. Open Paint first (launch mspaint, wait 2500, end the list) so you see the canvas before drawing; after drawing, check the result on the next screenshot. " +
     "{\"type\":\"screenshot\"} — saves a full-quality screenshot of the screen and sends it to the user (use when the user asks for a screenshot/photo of the screen, or to show the result; take it AFTER the page/app has loaded). " +
     "SECRETS: the user's passwords are hidden from you as placeholders like {{SECRET1}}. To enter a password type the placeholder exactly ({\"type\":\"type\",\"text\":\"{{SECRET1}}\"}) — the computer replaces it with the real value. Never write placeholders anywhere except the password field and never mention them in say. " +
     "{\"type\":\"fill_login\",\"login\":\"user@mail.com\",\"password\":\"{{SECRET1}}\",\"login_point\":[y,x],\"password_point\":[y,x]} — LOGIN FORMS: the computer clicks the login field (login_point), clears it, types the login, clicks the password field (password_point), clears it, types the password and presses enter — always in this exact order; the mouse returns to its place. " +

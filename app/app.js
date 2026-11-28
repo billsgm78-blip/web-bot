@@ -1586,6 +1586,34 @@
                             else if (/^(thispc|computer)$/i.test(it.path)) { it = { path: 'thispc', name: 'This PC', kind: 'folder' }; res2 = await pcOpenItem(it, ctx); }
                             else res2 = await pcOpenItem(it, ctx);
                         }
+                        else if (a.type === 'draw') {
+                            // Chizish: 0..1000 koordinatalar -> fizik piksellar, keyin bitta "drag" (sichqoncha bosilgan holda yuradi)
+                            var PX = function (p) { return [Math.round(p[1] / 1000 * (shot.w - 1)), Math.round(p[0] / 1000 * (shot.h - 1))]; };
+                            var line = function (A, B, out) { var n = Math.max(2, Math.ceil(Math.hypot(B[0] - A[0], B[1] - A[1]) / 8)); for (var s = 1; s <= n; s++) out.push([Math.round(A[0] + (B[0] - A[0]) * s / n), Math.round(A[1] + (B[1] - A[1]) * s / n)]); };
+                            var pts = [];
+                            if (a.shape === 'path') { var P0 = a.points.map(PX); pts.push(P0[0]); for (var s1 = 1; s1 < P0.length; s1++) line(P0[s1 - 1], P0[s1], pts); }
+                            else {
+                                var A1 = PX([a.box[0], a.box[1]]), B1 = PX([a.box[2], a.box[3]]);
+                                var xa = Math.min(A1[0], B1[0]), xb = Math.max(A1[0], B1[0]), ya = Math.min(A1[1], B1[1]), yb = Math.max(A1[1], B1[1]);
+                                if (a.shape === 'line') { pts.push(A1); line(A1, B1, pts); }
+                                else if (a.shape === 'rect') { var C = [[xa, ya], [xb, ya], [xb, yb], [xa, yb], [xa, ya]]; pts.push(C[0]); for (var s2 = 1; s2 < 5; s2++) line(C[s2 - 1], C[s2], pts); }
+                                else {
+                                    var cx = (xa + xb) / 2, cy = (ya + yb) / 2, rx = (xb - xa) / 2, ry = (yb - ya) / 2;
+                                    if (a.shape === 'circle') rx = ry = Math.min(rx, ry);
+                                    for (var s3 = 0; s3 <= 120; s3++) { var ang = s3 / 120 * Math.PI * 2; pts.push([Math.round(cx + rx * Math.cos(ang)), Math.round(cy + ry * Math.sin(ang))]); }
+                                }
+                            }
+                            if (pts.length < 2) res2 = 'FAILED: shape too small';
+                            else {
+                                for (var tp = 0; tp < (a.tool_points || []).length; tp++) { var T0 = PX(a.tool_points[tp]); await pcInv('pc_act', { action: { type: 'click', x: T0[0], y: T0[1], text: null, keys: null, dy: null } }); await pcInv('pc_wait', { ms: 300 }); }
+                                try { await pcInv('pc_act', { action: { type: 'drag', x: pts[0][0], y: pts[0][1], text: null, keys: null, dy: null, points: pts.slice(0, 800) } }); res2 = 'drew ' + a.shape; }
+                                catch (e5) {
+                                    if (/Noma.?lum amal|unknown|drag/i.test(String(e5))) { fail = { error: L("Chizish uchun kompyuter dasturining yangi versiyasi kerak (1.7.3). Yangilang: [⬇️ yuklab olish](https://www.bilolsai.uz/kompyuter)", 'Для рисования нужна новая версия программы (1.7.3): [⬇️ скачать](https://www.bilolsai.uz/kompyuter)', 'Drawing needs the new app version (1.7.3): [⬇️ download](https://www.bilolsai.uz/kompyuter)') }; break; }
+                                    throw e5;
+                                }
+                                await pcInv('pc_wait', { ms: 250 });
+                            }
+                        }
                         else if (a.type === 'open') { await pcInv('pc_open', { url: a.url }); await pcInv('pc_wait', { ms: 900 }); }
                         else if (a.type === 'wait') await pcInv('pc_wait', { ms: a.ms || 1000 });
                         else if (a.type === 'fill_login') {
@@ -1627,9 +1655,10 @@
                         if (/stopped/.test(String(e2))) throw e2;
                         res2 = 'FAILED: ' + String(e2 && e2.message || e2).slice(0, 120);
                     }
-                    steps.push(a.type + (a.login ? ' ' + a.login + ' / ' + a.password : '') + (a.app ? ' ' + a.app : '') + (a.query ? ' "' + a.query + '"' : '') + (a.n ? ' #' + a.n : '') + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (a.ms ? ' ' + a.ms + 'ms' : '') + ' → ' + res2);
+                    steps.push(a.type + (a.login ? ' ' + a.login + ' / ' + a.password : '') + (a.app ? ' ' + a.app : '') + (a.query ? ' "' + a.query + '"' : '') + (a.n ? ' #' + a.n : '') + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (a.ms ? ' ' + a.ms + 'ms' : '') + (a.shape ? ' ' + a.shape + ' ' + JSON.stringify(a.box || a.points) : '') + ' → ' + res2);
                     if (/^(FAILED|not found)/.test(res2)) break;   // xato — AI yangi ekran rasmini ko'rib boshqa yo'l tanlaydi
                 }
+                if (fail) break;
                 if (j.retry) steps.push('(some actions in the last reply were invalid and skipped)');
                 if (ag.done) { final = ag.say; break; }
                 await pcInv('pc_wait', { ms: 200 });   // qolgan kutish — stableShot ichida (ekran tinchlanguncha)
