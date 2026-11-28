@@ -3100,6 +3100,41 @@ html, body { background: var(--bg); }
 
     // ---------- Xabar yuborish: hammaga yoki bitta odamga ----------
     var msgMode = 'all', msgTarget = null;
+    // ---------- Xabar shablonlari (email va bot uchun umumiy) ----------
+    var TPL_BASE = [
+        { t: '🎉 Yangi imkoniyat', subj: 'Bilols AI — yangi imkoniyat! 🎉', body: "Salom, {name}!\n\nBilols AI'da yangilik: endi [yangi funksiya] ham bor. Hoziroq sinab ko'ring — bilolsai.uz yoki @BilolsAIbot.\n\nSavollar bo'lsa, yordam chatiga yozing.\nHurmat bilan, Bilols AI jamoasi" },
+        { t: '🎟️ Chegirma / promo-kod', subj: 'Siz uchun chegirma — {name}! 🎟️', body: "Salom, {name}!\n\nFaqat shu hafta: promo-kod PROMO20 bilan hisobni to'ldirsangiz +20% bonus olasiz.\n\nKodni ilova yoki botdagi «Promo-kod» bo'limiga kiriting. Muddat cheklangan!\n\nBilols AI jamoasi" },
+        { t: '🛠 Texnik ishlar', subj: 'Bilols AI — qisqa texnik tanaffus', body: "Salom, {name}!\n\nBugun [vaqt] dan [vaqt] gacha texnik ishlar olib boriladi — xizmat qisqa vaqt ishlamasligi mumkin. Balansingiz va ma'lumotlaringiz to'liq saqlanadi.\n\nNoqulaylik uchun uzr so'raymiz.\nBilols AI jamoasi" },
+        { t: '💙 Qaytib keling', subj: "{name}, sizni sog'indik 💙", body: "Salom, {name}!\n\nAnchadan beri ko'rinmayapsiz. Bu orada Bilols AI ancha yaxshilandi: tezroq javoblar, rasm yaratish va yangi imkoniyatlar.\n\nQaytib keling — bilolsai.uz\nBilols AI jamoasi" }
+    ];
+    function tplLoad() { try { return JSON.parse(localStorage.getItem('bc_tpl') || '[]'); } catch (e) { return []; } }
+    function tplSave(a) { try { localStorage.setItem('bc_tpl', JSON.stringify(a)); } catch (e) {} }
+    // onPick(tpl) — tanlanganda; getCur() — {subj, body} — «saqlash» uchun joriy matn
+    function tplBar(onPick, getCur) {
+        var box = h('div', { style: 'display:flex;flex-wrap:wrap;gap:6px' });
+        function paint() {
+            box.innerHTML = '';
+            TPL_BASE.concat(tplLoad().map(function (x) { x.own = true; return x; })).forEach(function (tp, i) {
+                var b = h('button', { class: 'act', type: 'button', style: 'padding:7px 11px;font-size:12.5px', text: tp.t, onclick: function () { onPick(tp); toast('📋 Shablon: ' + tp.t); } });
+                if (tp.own) b.appendChild(h('span', { style: 'margin-left:8px;opacity:.6', text: '✕', title: "Shablonni o'chirish", onclick: async function (e) {
+                    e.stopPropagation();
+                    if (!await dialog({ title: "Shablonni o'chirish", text: tp.t, ok: "O'chirish", danger: true })) return;
+                    var a = tplLoad(); a.splice(i - TPL_BASE.length, 1); tplSave(a); paint();
+                } }));
+                box.appendChild(b);
+            });
+            box.appendChild(h('button', { class: 'act', type: 'button', style: 'padding:7px 11px;font-size:12.5px;border-style:dashed', text: '💾 Joriy matnni saqlash', onclick: async function () {
+                var c = getCur(); if (!c.body.trim()) { toast("Avval matn yozing"); return; }
+                var r = await dialog({ title: 'Shablon sifatida saqlash', fields: [{ label: 'Shablon nomi', placeholder: 'Masalan: Haftalik yangilik' }], ok: 'Saqlash' });
+                if (!r || !r[0].trim()) return;
+                var a = tplLoad(); a.push({ t: '⭐ ' + r[0].trim().slice(0, 40), subj: c.subj, body: c.body }); tplSave(a); paint(); toast('💾 Shablon saqlandi');
+            } }));
+        }
+        paint();
+        return h('div', { class: 'form', style: 'gap:6px' }, [h('div', { class: 'sum', style: 'margin:0', text: '📋 Tayyor shablonlar — bosing, matn joyiga tushadi:' }), box]);
+    }
+    function noName(t) { return String(t || '').replace(/\{name\}/g, "do'stim"); }
+
     function vMsg(view, keepTarget) {
         view.innerHTML = '';
         if (!keepTarget) msgTarget = null;
@@ -3114,15 +3149,26 @@ html, body { background: var(--bg); }
         var prev = h('div', { class: 'preview' }, [h('b', { text: head }), h('span', { text: '…' })]);
         ta.oninput = function () { cnt.textContent = ta.value.length + ' belgi'; prev.lastChild.textContent = ta.value || '…'; };
 
+        var tplSubj = '';
+        var bar = tplBar(function (tp) { tplSubj = tp.subj; ta.value = msgMode === 'all' ? noName(tp.body) : tp.body.replace(/\{name\}/g, (msgTarget && msgTarget.name) || "do'stim"); ta.oninput(); ta.focus(); },
+            function () { return { subj: tplSubj, body: ta.value }; });
         if (msgMode === 'all') {
+            var alsoMail = h('input', { type: 'checkbox' });
             view.appendChild(h('div', { class: 'card form' }, [
                 h('div', { style: 'font-weight:700', text: "Barcha foydalanuvchilarga e'lon (Telegram botga keladi)" }),
-                ta, cnt, h('div', { class: 'sum', text: "Botda shunday ko'rinadi:" }), prev,
+                bar, ta, cnt, h('div', { class: 'sum', text: "Botda shunday ko'rinadi:" }), prev,
+                h('label', { style: 'display:flex;gap:8px;align-items:center;font-size:13.5px;cursor:pointer' }, [alsoMail, "📧 Emailini ulaganlarga xat ham yuborilsin"]),
                 h('button', { class: 'btn', text: '📢 Hammaga yuborish', onclick: async function () {
                     var t = ta.value.trim(); if (!t) { ta.focus(); return; }
-                    if (!await dialog({ title: "E'lonni yuborish", text: "Xabar BARCHA foydalanuvchilarga yuboriladi. Davom etasizmi?", ok: 'Yuborish' })) return;
+                    if (!await dialog({ title: "E'lonni yuborish", text: "Xabar BARCHA foydalanuvchilarga" + (alsoMail.checked ? ' botda va emailda' : '') + " yuboriladi. Davom etasizmi?", ok: 'Yuborish' })) return;
                     var x = await admin('broadcast', { text: t });
-                    if (x.success) { toast(x.queued + ' ta foydalanuvchiga yuborilmoqda. Natija botda keladi.'); ta.value = ''; ta.oninput(); } else toast(x.error || 'Xato');
+                    if (!x.success) { toast(x.error || 'Xato'); return; }
+                    var msg = '📢 Bot: ' + x.queued + ' ta';
+                    if (alsoMail.checked) {
+                        var e = await admin('email_send', { target: 'all', subject: noName(tplSubj) || "Bilols AI — e'lon", body: t });
+                        msg += e.success ? ' · 📧 Email: ' + (e.queued != null ? e.queued : 0) + ' ta' : ' · 📧 Email xato: ' + (e.error || '');
+                    }
+                    toast(msg + '. Natija botda keladi.'); ta.value = ''; tplSubj = ''; ta.oninput();
                 } })
             ]));
             view.appendChild(h('div', { class: 'sum', style: 'margin-top:10px', text: "Saytning o'zida chiqadigan e'lon uchun — 🚦 Boshqaruv bo'limi." }));
@@ -3167,7 +3213,7 @@ html, body { background: var(--bg); }
             h('div', { style: 'font-weight:700', text: 'Kimga yuboramiz?' }),
             search, results, chosen,
             h('div', { style: 'font-weight:700;margin-top:6px', text: 'Xabar' }),
-            ta, cnt, h('div', { class: 'sum', text: "Botda shunday ko'rinadi:" }), prev,
+            bar, ta, cnt, h('div', { class: 'sum', text: "Botda shunday ko'rinadi:" }), prev,
             h('button', { class: 'btn', text: '✉️ Yuborish', onclick: async function () {
                 if (!msgTarget) { toast('Avval foydalanuvchini tanlang'); search.focus(); return; }
                 var t = ta.value.trim(); if (!t) { ta.focus(); return; }
@@ -3216,25 +3262,32 @@ html, body { background: var(--bg); }
                 else toast(x.error || 'Xato');
             } finally { aiBtn.disabled = false; aiBtn.textContent = '✨ AI yozib bersin'; }
         } });
+        var emBar = tplBar(function (tp) { subj.value = tp.subj; body.value = tp.body; paintPrev(); body.focus(); }, function () { return { subj: subj.value, body: body.value }; });
+        var alsoBot = h('input', { type: 'checkbox' }); alsoBot.checked = true;
         var sendBtn = h('button', { class: 'btn', text: emMode === 'all' ? '📢 Hammaga yuborish' : '📧 Yuborish', onclick: async function () {
             var sj = subj.value.trim(), bd = body.value.trim();
             if (!sj) { subj.focus(); return; } if (!bd) { body.focus(); return; }
             var tg = emMode === 'all' ? 'all' : target.value.trim();
             if (!tg) { target.focus(); return; }
             if (emMode === 'test' && tg.indexOf('@') < 0) { toast('Sinov uchun email yozing'); target.focus(); return; }
-            if (emMode === 'all' && !await dialog({ title: 'Hammaga email', text: j.linked + " ta foydalanuvchiga xat yuboriladi. Davom etasizmi?", ok: 'Yuborish' })) return;
+            var bot = emMode === 'all' && alsoBot.checked;
+            if (emMode === 'all' && !await dialog({ title: 'Hammaga email', text: j.linked + " ta foydalanuvchiga xat yuboriladi" + (bot ? " va botdagi BARCHA foydalanuvchilarga e'lon boradi" : '') + ". Davom etasizmi?", ok: 'Yuborish' })) return;
             sendBtn.disabled = true;
             try {
                 var x = await admin('email_send', { target: tg, subject: sj, body: bd });
-                if (x.success) toast(x.queued != null ? '📧 ' + x.queued + ' ta xat yuborilmoqda. Natija Telegram\'ga keladi.' : '✅ Yuborildi' + (x.email ? ': ' + x.email : ''));
-                else toast(x.error || 'Xato');
+                var bmsg = '';
+                if (bot) { var b = await admin('broadcast', { text: noName(sj) + '\n\n' + noName(bd) }); bmsg = b.success ? ' · 📢 Bot: ' + b.queued + ' ta' : ' · 📢 Bot xato: ' + (b.error || ''); }
+                if (x.success) toast((x.queued != null ? '📧 ' + x.queued + ' ta xat yuborilmoqda' : '✅ Yuborildi' + (x.email ? ': ' + x.email : '')) + bmsg + (x.queued != null ? ". Natija Telegram'ga keladi." : ''));
+                else toast((x.error || 'Xato') + bmsg);
             } finally { sendBtn.disabled = false; }
         } });
         view.appendChild(h('div', { class: 'card form', style: 'margin-bottom:12px' }, [
             h('div', { style: 'font-weight:700', text: '✉️ Xat yuborish' }), seg,
             emMode === 'all' ? null : target,
             h('div', { class: 'sum', text: '🤖 AI yordamchi — qisqacha ayting, xatni o\'zi yozadi:' }), aiIn, aiBtn,
-            subj, body, h('div', { class: 'sum', text: 'Ko\'rinishi (namuna: Ali):' }), prev, sendBtn
+            emBar, subj, body, h('div', { class: 'sum', text: 'Ko\'rinishi (namuna: Ali):' }), prev,
+            emMode === 'all' ? h('label', { style: 'display:flex;gap:8px;align-items:center;font-size:13.5px;cursor:pointer' }, [alsoBot, "🤖 Botdan ham hammaga yuborilsin ({name} o'rniga «do'stim»)"]) : null,
+            sendBtn
         ]));
         paintPrev();
 
