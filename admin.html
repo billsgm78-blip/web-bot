@@ -795,6 +795,67 @@ html, body { background: var(--bg); }
     var toastTimer;
     function toast(t) { var el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2600); }
 
+    // ---------- Excel (.xlsx) eksport — tashqi kutubxonasiz ----------
+    // Kichik ZIP yozuvchi (siqmasdan, "stored") + minimal SpreadsheetML. Excel, Google Sheets va telefon ilovalari ochadi.
+    var CRC_T = (function () { var t = [], c; for (var n = 0; n < 256; n++) { c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+    function crc32(b) { var c = 0xFFFFFFFF; for (var i = 0; i < b.length; i++) c = CRC_T[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+    function zipFiles(files) {
+        var enc = new TextEncoder(), parts = [], central = [], off = 0;
+        var d = new Date(), dt = ((d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1)), dd = (((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate());
+        function hdr(size) { return new DataView(new ArrayBuffer(size)); }
+        files.forEach(function (f) {
+            var name = enc.encode(f.name), data = enc.encode(f.data), crc = crc32(data);
+            var l = hdr(30);
+            l.setUint32(0, 0x04034b50, true); l.setUint16(4, 20, true); l.setUint16(6, 0x0800, true); l.setUint16(8, 0, true);
+            l.setUint16(10, dt, true); l.setUint16(12, dd, true); l.setUint32(14, crc, true); l.setUint32(18, data.length, true); l.setUint32(22, data.length, true);
+            l.setUint16(26, name.length, true); l.setUint16(28, 0, true);
+            parts.push(l.buffer, name, data);
+            var c = hdr(46);
+            c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+            c.setUint16(12, dt, true); c.setUint16(14, dd, true); c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, data.length, true);
+            c.setUint16(28, name.length, true); c.setUint32(42, off, true);
+            central.push(c.buffer, name);
+            off += 30 + name.length + data.length;
+        });
+        var csize = central.reduce(function (s, p) { return s + (p.byteLength || p.length); }, 0);
+        var e = hdr(22);
+        e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, csize, true); e.setUint32(16, off, true);
+        return new Blob(parts.concat(central, [e.buffer]), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    }
+    function xesc(s) { return String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function colRef(i) { var s = ''; i++; while (i) { var m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; }
+    function fmtFull(sec) { if (!sec) return ''; var d = new Date(sec * 1000); return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+    // cols: [['Sarlavha', function (row) { return qiymat; }], ...] — raqam bo'lsa son katakchasi, aks holda matn
+    function exportXlsx(fileBase, sheet, cols, rows) {
+        if (!rows || !rows.length) { toast("Yuklash uchun ma'lumot yo'q"); return; }
+        var widths = cols.map(function (c) { return c[0].length; });
+        var body = [cols.map(function (c) { return c[0]; })].concat(rows.map(function (r) { return cols.map(function (c) { var v = c[1](r); return v == null ? '' : v; }); }));
+        var xml = body.map(function (row, ri) {
+            return '<row r="' + (ri + 1) + '">' + row.map(function (v, ci) {
+                var ref = colRef(ci) + (ri + 1), st = ri === 0 ? ' s="1"' : '';
+                widths[ci] = Math.min(60, Math.max(widths[ci], String(v).length));
+                if (ri > 0 && typeof v === 'number' && isFinite(v)) return '<c r="' + ref + '"' + st + '><v>' + v + '</v></c>';
+                return '<c r="' + ref + '" t="inlineStr"' + st + '><is><t xml:space="preserve">' + xesc(v) + '</t></is></c>';
+            }).join('') + '</row>';
+        }).join('');
+        var colsXml = '<cols>' + widths.map(function (w, i) { return '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + (w + 3) + '" customWidth="1"/>'; }).join('') + '</cols>';
+        var X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+        var blob = zipFiles([
+            { name: '[Content_Types].xml', data: X + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>' },
+            { name: '_rels/.rels', data: X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+            { name: 'xl/workbook.xml', data: X + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="' + xesc(sheet.slice(0, 31)) + '" sheetId="1" r:id="rId1"/></sheets></workbook>' },
+            { name: 'xl/_rels/workbook.xml.rels', data: X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' },
+            { name: 'xl/styles.xml', data: X + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF7C5CFF"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>' },
+            { name: 'xl/worksheets/sheet1.xml', data: X + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' + colsXml + '<sheetData>' + xml + '</sheetData><autoFilter ref="A1:' + colRef(cols.length - 1) + body.length + '"/></worksheet>' }
+        ]);
+        var d = new Date(), name = fileBase + '_' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes()) + '.xlsx';
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+        toast('📥 ' + name + ' · ' + rows.length + ' qator');
+    }
+    function xlsxBtn(fn) { return h('button', { class: 'act', type: 'button', text: '📥 Excel', title: "Jadvalni Excel (.xlsx) faylga yuklash", style: 'white-space:nowrap', onclick: fn }); }
+
     async function post(path, body, extraHeaders) {
         await apiReady;
         // 25 soniyada javob bo'lmasa — to'xtatamiz (sahifa cheksiz "yuklanmoqda"da qolib ketmasin)
@@ -2471,7 +2532,13 @@ html, body { background: var(--bg); }
         view.innerHTML = '';
         pendingCount = (j.orders || []).length; buildNav();
         if (!pendingCount) { view.appendChild(h('div', { class: 'empty', text: "Kutilayotgan buyurtma yo'q ✅" })); return; }
-        view.appendChild(h('div', { class: 'sum', text: "Bajarsangiz — mijozga xabar boradi. Bekor qilsangiz — pul qaytadi va xabar boradi." }));
+        view.appendChild(h('div', { style: 'display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:6px' }, [
+            h('div', { class: 'sum', style: 'margin:0', text: "Bajarsangiz — mijozga xabar boradi. Bekor qilsangiz — pul qaytadi va xabar boradi." }),
+            xlsxBtn(function () { exportXlsx('buyurtmalar', 'Buyurtmalar', [
+                ['№', function (o) { return o.id; }], ['Mahsulot', function (o) { return o.item || ''; }], ['Telefon', function (o) { return '+' + o.phone_norm; }],
+                ["Summa (so'm)", function (o) { return Number(o.amount) || 0; }], ['Sana', function (o) { return fmtFull(o.created_at); }]
+            ], j.orders); })
+        ]));
         j.orders.forEach(function (o) {
             var row = h('div', { class: 'row' }, [
                 h('div', { class: 'r-ico out', text: /premium/i.test(o.item) ? '💎' : '⭐' }),
@@ -2511,14 +2578,22 @@ html, body { background: var(--bg); }
         var f = h('div', { class: 'filters' });
         [['all', 'Hammasi'], ['in', 'Kirim'], ['out', 'Xaridlar']].forEach(function (x) { f.appendChild(h('button', { class: dir === x[0] ? 'active' : '', text: x[1], onclick: function () { vTx(view, x[0], inp.value); } })); });
         var inp = h('input', { class: 'inp', placeholder: "🔎 ID yoki telefon bo'yicha qidirish...", inputmode: 'numeric', style: 'margin-bottom:6px' }); inp.value = q || '';
-        var sum = h('div', { class: 'sum' }), list = h('div');
-        view.appendChild(f); view.appendChild(inp); view.appendChild(sum); view.appendChild(list);
+        var sum = h('div', { class: 'sum', style: 'margin:0' }), list = h('div'), txItems = [];
+        var bar = h('div', { style: 'display:flex;gap:10px;align-items:center;justify-content:space-between;margin:4px 0 8px' }, [sum, xlsxBtn(function () {
+            exportXlsx('tarix', 'Tarix', [
+                ['ID', function (t) { return t.pid || ''; }], ['Telefon', function (t) { return '+' + t.phone_norm; }],
+                ['Turi', function (t) { return t.kind === 'topup' ? 'Kirim' : 'Chiqim'; }], ['Nomi', function (t) { return t.item || (t.kind === 'topup' ? "Hisob to'ldirildi" : 'Xarid'); }],
+                ["Summa (so'm)", function (t) { return (t.kind === 'topup' ? 1 : -1) * (Number(t.amount) || 0); }], ['Manba', function (t) { return t.source || ''; }],
+                ['Holat', function (t) { return t.status && ST[t.status] ? ST[t.status][0].replace(/^\S+\s/, '') : (t.status || ''); }], ['Sana', function (t) { return fmtFull(t.created_at); }]
+            ], txItems);
+        })]);
+        view.appendChild(f); view.appendChild(inp); view.appendChild(bar); view.appendChild(list);
         var timer; inp.oninput = function () { clearTimeout(timer); timer = setTimeout(load, 350); };
         async function load() {
             list.innerHTML = '<div class="loading">⏳</div>';
             var j = await admin('transactions', { direction: dir, q: inp.value });
             list.innerHTML = '';
-            var items = j.items || [], tin = 0, tout = 0;
+            var items = j.items || [], tin = 0, tout = 0; txItems = items;
             items.forEach(function (t) { if (t.kind === 'topup') tin += t.amount; else tout += t.amount; list.appendChild(txRow(t, true)); });
             sum.textContent = items.length + ' ta · kirim +' + money(tin) + ' · chiqim −' + money(tout);
             if (!items.length) list.appendChild(h('div', { class: 'empty', text: "Hech narsa yo'q" }));
@@ -2529,14 +2604,21 @@ html, body { background: var(--bg); }
     // ---------- Foydalanuvchilar ----------
     function vUsers(view, q) {
         view.innerHTML = '';
-        var inp = h('input', { class: 'inp', placeholder: '🔎 ID (masalan 1042), telefon yoki ism...', style: 'margin-bottom:6px' }); inp.value = q || '';
-        var list = h('div');
-        view.appendChild(inp); view.appendChild(list);
+        var inp = h('input', { class: 'inp', placeholder: '🔎 ID (masalan 1042), telefon yoki ism...', style: 'margin:0;flex:1' }); inp.value = q || '';
+        var list = h('div'), uItems = [];
+        view.appendChild(h('div', { style: 'display:flex;gap:10px;align-items:center;margin-bottom:6px' }, [inp, xlsxBtn(function () {
+            exportXlsx('foydalanuvchilar', 'Foydalanuvchilar', [
+                ['ID', function (u) { return u.pid || ''; }], ['Ism', function (u) { return u.name || "Noma'lum"; }], ['Telefon', function (u) { return '+' + u.phone; }],
+                ["Balans (so'm)", function (u) { return Number(u.balance) || 0; }], ['Obuna', function (u) { return u.sub_until * 1000 > Date.now() ? fmtDay(u.sub_until) + ' gacha' : "yo'q"; }],
+                ['Holat', function (u) { return u.banned ? 'Bloklangan' : 'Faol'; }]
+            ], uItems);
+        })]));
+        view.appendChild(list);
         var timer; inp.oninput = function () { clearTimeout(timer); timer = setTimeout(function () { load(inp.value); }, 300); };
         async function load(query) {
             list.innerHTML = '<div class="loading">⏳</div>';
             var j = await admin('users', { q: query });
-            list.innerHTML = '';
+            list.innerHTML = ''; uItems = j.users || [];
             var exact = /^\s*#?\s*(id)?\s*\d{1,7}\s*$/i.test(query || '') && (j.users || [])[0] && String((j.users || [])[0].pid) === String(query).replace(/\D/g, '');
             if (exact) list.appendChild(h('div', { class: 'sum', style: 'margin:4px 0 8px;color:#34d399', text: '✅ ID ' + j.users[0].pid + ' — ' + (j.users[0].name || "Noma'lum") }));
             (j.users || []).forEach(function (u) {
@@ -3934,14 +4016,21 @@ html, body { background: var(--bg); }
         [['', '📜 Hammasi'], ['user', '👤 Foydalanuvchilar'], ['admin', '🛡 Admin']].forEach(function (x) {
             seg.appendChild(h('button', { class: logKind === x[0] ? 'active' : '', text: x[1], onclick: function () { logKind = x[0]; vLog(view); } }));
         });
-        var search = h('input', { class: 'inp', placeholder: 'Qidirish: ism, ID, telefon, email yoki IP', value: logQ, style: 'margin-bottom:10px' });
-        var list = h('div', {}, [h('div', { class: 'loading', text: '⏳' })]);
-        view.appendChild(seg); view.appendChild(search); view.appendChild(list);
+        var search = h('input', { class: 'inp', placeholder: 'Qidirish: ism, ID, telefon, email yoki IP', value: logQ, style: 'margin:0;flex:1' });
+        var list = h('div', {}, [h('div', { class: 'loading', text: '⏳' })]), logItems = [];
+        view.appendChild(seg);
+        view.appendChild(h('div', { style: 'display:flex;gap:10px;align-items:center;margin-bottom:10px' }, [search, xlsxBtn(function () {
+            exportXlsx('jurnal', 'Jurnal', [
+                ['Sana', function (x) { return fmtFull(x.at); }], ['Kim', function (x) { return x.action.indexOf('u_') === 0 ? 'Foydalanuvchi' : 'Admin'; }],
+                ['Harakat', function (x) { return (LOG[x.action] || ['', x.action])[1]; }], ['Tafsilot', function (x) { return x.detail || ''; }], ['IP', function (x) { return x.ip || ''; }]
+            ], logItems);
+        })]));
+        view.appendChild(list);
         var tm;
         search.oninput = function () { clearTimeout(tm); tm = setTimeout(function () { logQ = search.value.trim(); load(); }, 350); };
         async function load() {
             var j = await admin('log', { kind: logKind, q: logQ });
-            list.innerHTML = '';
+            list.innerHTML = ''; logItems = j.items || [];
             if (!(j.items || []).length) { list.appendChild(h('div', { class: 'empty', text: logQ ? 'Topilmadi' : "Jurnal bo'sh" })); return; }
             j.items.forEach(function (x) {
                 var m = LOG[x.action] || ['•', x.action], user = x.action.indexOf('u_') === 0;
