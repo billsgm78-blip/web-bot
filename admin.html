@@ -679,6 +679,35 @@ html, body { background: var(--bg); }
 .loading { border-radius: 10px; }
 #view.anim > *, #view.anim .kpis > .kpi, #view.anim .card > .row { animation-duration: .25s !important; }
 #view.anim .chart rect, #view.anim .chart path { animation: none !important; }
+
+/* ---------- Kirish animatsiyasi: «Boshqaruv markaziga xush kelibsiz» ---------- */
+#intro { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 22px;
+    background: radial-gradient(1200px 700px at 50% 40%, #171037 0%, #070814 55%, #04050b 100%); color: #fff; text-align: center; padding: 24px;
+    transition: opacity .7s ease, transform .7s ease, filter .7s ease; cursor: pointer; overflow: hidden; }
+#intro.out { opacity: 0; transform: scale(1.06); filter: blur(6px); pointer-events: none; }
+#intro .i-grid { position: absolute; inset: -50%; background-image: linear-gradient(rgba(124,92,255,.10) 1px, transparent 1px), linear-gradient(90deg, rgba(124,92,255,.10) 1px, transparent 1px);
+    background-size: 46px 46px; transform: perspective(600px) rotateX(58deg) translateY(-8%); animation: iGrid 6s linear infinite; mask-image: radial-gradient(closest-side, #000 30%, transparent 75%); -webkit-mask-image: radial-gradient(closest-side, #000 30%, transparent 75%); }
+@keyframes iGrid { to { background-position: 0 46px, 0 0; } }
+#intro .i-logo { position: relative; width: 96px; height: 96px; display: grid; place-items: center; }
+#intro .i-logo b { position: relative; z-index: 2; width: 76px; height: 76px; border-radius: 24px; display: grid; place-items: center; font-size: 38px; font-weight: 800;
+    background: linear-gradient(135deg, #7c5cff, #22d3ee); box-shadow: 0 0 40px rgba(124,92,255,.65), inset 0 1px 0 rgba(255,255,255,.35); animation: iPop .8s cubic-bezier(.2,1.4,.4,1) both; }
+#intro .i-logo i { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(124,92,255,.55); animation: iRing 1.8s ease-out .3s infinite; }
+#intro .i-logo i + i { animation-delay: .9s; border-color: rgba(34,211,238,.5); }
+@keyframes iPop { from { transform: scale(.2) rotate(-25deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes iRing { from { transform: scale(.7); opacity: .9; } to { transform: scale(2.1); opacity: 0; } }
+#intro .i-hi { position: relative; font-size: 13px; letter-spacing: .32em; text-transform: uppercase; color: #a5b4fc; opacity: 0; animation: iUp .6s ease .45s both; }
+#intro h1 { position: relative; margin: 0; font-size: clamp(24px, 6vw, 44px); line-height: 1.15; font-weight: 800; max-width: 760px; }
+#intro h1 span { display: inline-block; opacity: 0; transform: translateY(18px); filter: blur(6px); animation: iWord .55s cubic-bezier(.2,.8,.2,1) both; }
+#intro h1 .g { background: linear-gradient(90deg, #a78bfa, #22d3ee, #a78bfa); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: iWord .55s cubic-bezier(.2,.8,.2,1) both, iShine 2.4s linear infinite; }
+@keyframes iWord { to { opacity: 1; transform: none; filter: none; } }
+@keyframes iShine { to { background-position: -200% 0; } }
+@keyframes iUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+#intro .i-sub { position: relative; color: #94a3b8; font-size: 14px; opacity: 0; animation: iUp .6s ease 1.25s both; }
+#intro .i-bar { position: relative; width: min(260px, 70vw); height: 3px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; opacity: 0; animation: iUp .4s ease 1.1s both; }
+#intro .i-bar::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #7c5cff, #22d3ee); transform-origin: left; animation: iLoad 1.5s cubic-bezier(.6,0,.2,1) 1.1s both; }
+@keyframes iLoad { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+#intro .i-skip { position: absolute; bottom: calc(18px + env(safe-area-inset-bottom)); font-size: 12px; color: #475569; }
+@media (prefers-reduced-motion: reduce) { #intro *, #intro *::after { animation-duration: .01s !important; animation-delay: 0s !important; } }
 </style>
 <script src="/notify.js"></script>
 <script src="/vendor/qrcode-generator-1.4.4.js"></script>
@@ -1152,7 +1181,31 @@ html, body { background: var(--bg); }
         paintLive();
     }
     $('refresh').onclick = function () { go(tab); };
+    // Kirishda «Boshqaruv markaziga xush kelibsiz» animatsiyasi — markaz ortida yuklanadi, so'ng ochiladi (bosilsa — darhol)
+    function playIntro() {
+        var old = $('intro'); if (old) old.remove();
+        var hr = new Date().getHours();
+        var hi = hr < 5 ? 'Xayrli tun' : hr < 11 ? 'Xayrli tong' : hr < 17 ? 'Xayrli kun' : 'Xayrli kech';
+        var words = ['Boshqaruv', 'markaziga', 'xush', 'kelibsiz'];
+        var h1 = h('h1');
+        words.forEach(function (w, i) { h1.appendChild(h('span', { class: i < 2 ? 'g' : '', style: 'animation-delay:' + (0.55 + i * 0.14).toFixed(2) + 's' + (i < 2 ? ',' + (0.55 + i * 0.14).toFixed(2) + 's' : ''), text: w })); if (i < words.length - 1) h1.appendChild(document.createTextNode(' ')); });
+        var logo = h('div', { class: 'i-logo' }, [h('i'), h('i'), h('b', { text: 'B' })]);
+        var el = h('div', { id: 'intro', role: 'status', 'aria-label': 'Boshqaruv markaziga xush kelibsiz' }, [
+            h('div', { class: 'i-grid' }), logo, h('div', { class: 'i-hi', text: hi + ' 👋' }), h1,
+            h('div', { class: 'i-sub', text: 'Bilolsai Control · tizim tayyorlanmoqda' }), h('div', { class: 'i-bar' }),
+            h('div', { class: 'i-skip', text: 'Bosing — darhol ochiladi' })
+        ]);
+        var done = false;
+        function close() { if (done) return; done = true; el.classList.add('out'); setTimeout(function () { el.remove(); }, 750); }
+        el.onclick = close;
+        document.addEventListener('keydown', function k(e) { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') { close(); document.removeEventListener('keydown', k); } });
+        document.body.appendChild(el);
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        setTimeout(function () { var sub = el.querySelector('.i-sub'); if (sub) sub.textContent = '✅ Markaz tayyor'; }, reduce ? 300 : 2500);
+        setTimeout(close, reduce ? 900 : 3000);
+    }
     function enterApp() {
+        playIntro();
         $('auth').style.display = 'none'; $('app').style.display = 'block';
         go('stats');
         startPing();
