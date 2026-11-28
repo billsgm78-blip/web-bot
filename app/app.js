@@ -1590,7 +1590,7 @@
                             // Chizish: 0..1000 koordinatalar -> fizik piksellar, keyin bitta "drag" (sichqoncha bosilgan holda yuradi)
                             var PX = function (p) { return [Math.round(p[1] / 1000 * (shot.w - 1)), Math.round(p[0] / 1000 * (shot.h - 1))]; };
                             var line = function (A, B, out) { var n = Math.max(2, Math.ceil(Math.hypot(B[0] - A[0], B[1] - A[1]) / 8)); for (var s = 1; s <= n; s++) out.push([Math.round(A[0] + (B[0] - A[0]) * s / n), Math.round(A[1] + (B[1] - A[1]) * s / n)]); };
-                            var pts = [];
+                            var pts = [], fillPts = [];
                             if (a.shape === 'path') { var P0 = a.points.map(PX); pts.push(P0[0]); for (var s1 = 1; s1 < P0.length; s1++) line(P0[s1 - 1], P0[s1], pts); }
                             else {
                                 var A1 = PX([a.box[0], a.box[1]]), B1 = PX([a.box[2], a.box[3]]);
@@ -1602,11 +1602,35 @@
                                     if (a.shape === 'circle') rx = ry = Math.min(rx, ry);
                                     for (var s3 = 0; s3 <= 120; s3++) { var ang = s3 / 120 * Math.PI * 2; pts.push([Math.round(cx + rx * Math.cos(ang)), Math.round(cy + ry * Math.sin(ang))]); }
                                 }
+                                // fill: konturdan keyin ichi zigzag bilan to'ldiriladi (qatorlar orasi ~1 px, bitta sudrashda; Paint nuqtalar orasini chiziq bilan to'ldiradi)
+                                if (a.fill && a.shape !== 'line') {
+                                    var rows = Math.max(2, Math.min(1400, yb - ya)), dir = 1;
+                                    for (var rr = 0; rr <= rows; rr++) {
+                                        var yy = ya + (yb - ya) * rr / rows, half;
+                                        if (a.shape === 'rect') half = (xb - xa) / 2;
+                                        else { var ccx = (xa + xb) / 2, ccy = (ya + yb) / 2, Rx = (xb - xa) / 2, Ry = (yb - ya) / 2; if (a.shape === 'circle') Rx = Ry = Math.min(Rx, Ry);
+                                            var dyy = (yy - ccy) / (Ry || 1); if (Math.abs(dyy) > 1) continue; half = Rx * Math.sqrt(1 - dyy * dyy); }
+                                        var mid = a.shape === 'rect' ? (xa + xb) / 2 : (xa + xb) / 2, X1 = Math.round(mid - half), X2 = Math.round(mid + half), Y = Math.round(yy);
+                                        if (dir > 0) { fillPts.push([X1, Y]); fillPts.push([X2, Y]); } else { fillPts.push([X2, Y]); fillPts.push([X1, Y]); }
+                                        dir = -dir;
+                                    }
+                                }
                             }
                             if (pts.length < 2) res2 = 'FAILED: shape too small';
+                            else if ((a.tool_points || []).length) {
+                                // Asbob/rang bosiladi va TO'XTALADI: AI yangi ekranda to'g'ri tanlanganini (dialog ochilmaganini) ko'rib, keyin chizadi
+                                for (var tp = 0; tp < a.tool_points.length; tp++) { var T0 = PX(a.tool_points[tp]); await pcInv('pc_act', { action: { type: 'click', x: T0[0], y: T0[1], text: null, keys: null, dy: null } }); await pcInv('pc_wait', { ms: 300 }); }
+                                res2 = 'STOPPED AFTER CLICKING tool/colour (draw NOT done yet): check the new screenshot — if the right tool/colour is selected and no dialog is open, send the same draw again WITHOUT tool_points; if a dialog opened, press esc first';
+                            }
                             else {
-                                for (var tp = 0; tp < (a.tool_points || []).length; tp++) { var T0 = PX(a.tool_points[tp]); await pcInv('pc_act', { action: { type: 'click', x: T0[0], y: T0[1], text: null, keys: null, dy: null } }); await pcInv('pc_wait', { ms: 300 }); }
-                                try { await pcInv('pc_act', { action: { type: 'drag', x: pts[0][0], y: pts[0][1], text: null, keys: null, dy: null, points: pts.slice(0, 800) } }); res2 = 'drew ' + a.shape; }
+                                try {
+                                    // kontur, keyin bo'yash — har biri 800 nuqtagacha bo'laklarda (dastur bitta sudrashda 800 tagacha qabul qiladi)
+                                    var chunks = [];
+                                    for (var c0 = 0; c0 < pts.length; c0 += 799) chunks.push(pts.slice(Math.max(0, c0 - 1), c0 + 799));
+                                    for (var c1 = 0; c1 < fillPts.length; c1 += 800) chunks.push(fillPts.slice(c1, c1 + 800));
+                                    for (var c2 = 0; c2 < chunks.length; c2++) if (chunks[c2].length >= 2) await pcInv('pc_act', { action: { type: 'drag', x: chunks[c2][0][0], y: chunks[c2][0][1], text: null, keys: null, dy: null, points: chunks[c2] } });
+                                    res2 = 'drew ' + a.shape + (a.fill ? ' (filled)' : '');
+                                }
                                 catch (e5) {
                                     if (/Noma.?lum amal|unknown|drag/i.test(String(e5))) { fail = { error: L("Chizish uchun kompyuter dasturining yangi versiyasi kerak (1.7.3). Yangilang: [⬇️ yuklab olish](https://www.bilolsai.uz/kompyuter)", 'Для рисования нужна новая версия программы (1.7.3): [⬇️ скачать](https://www.bilolsai.uz/kompyuter)', 'Drawing needs the new app version (1.7.3): [⬇️ download](https://www.bilolsai.uz/kompyuter)') }; break; }
                                     throw e5;
@@ -1656,7 +1680,7 @@
                         res2 = 'FAILED: ' + String(e2 && e2.message || e2).slice(0, 120);
                     }
                     steps.push(a.type + (a.login ? ' ' + a.login + ' / ' + a.password : '') + (a.app ? ' ' + a.app : '') + (a.query ? ' "' + a.query + '"' : '') + (a.n ? ' #' + a.n : '') + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (a.ms ? ' ' + a.ms + 'ms' : '') + (a.shape ? ' ' + a.shape + ' ' + JSON.stringify(a.box || a.points) : '') + ' → ' + res2);
-                    if (/^(FAILED|not found)/.test(res2)) break;   // xato — AI yangi ekran rasmini ko'rib boshqa yo'l tanlaydi
+                    if (/^(FAILED|not found|STOPPED)/.test(res2)) break;   // xato yoki tekshirish kerak — AI yangi ekran rasmini ko'rib davom etadi
                 }
                 if (fail) break;
                 if (j.retry) steps.push('(some actions in the last reply were invalid and skipped)');

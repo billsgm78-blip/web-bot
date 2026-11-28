@@ -165,6 +165,7 @@ function agentAction(a) {
       act.box = b;
     }
     act.tool_points = (Array.isArray(a.tool_points) ? a.tool_points : a.tool_point ? [a.tool_point] : []).map(pt).filter(Boolean).slice(0, 3);
+    act.fill = a.fill === true && ["circle", "ellipse", "rect"].includes(act.shape);   // ichini to'liq bo'yash
   }
   if (a.type === "open_found") { act.type = "open_item"; }
   if (act.type === "list" || act.type === "open_item") {
@@ -218,8 +219,11 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     "DRAWING (ONLY inside a drawing app such as Paint/mspaint, when the user asks to draw): {\"type\":\"draw\",\"shape\":\"circle\"|\"ellipse\"|\"rect\"|\"line\",\"box\":[y1,x1,y2,x2],\"tool_points\":[[y,x]]} — " +
     "box is the shape's bounding box in 0..1000 screenshot coordinates and MUST lie inside the white canvas (for line: from [y1,x1] to [y2,x2]); circle = perfect circle centred in the box; " +
     "or {\"type\":\"draw\",\"shape\":\"path\",\"points\":[[y,x],...]} (2-120 points) for freehand lines, letters, stars, houses etc. — compose complex pictures from several draw actions. " +
-    "tool_points (optional, max 3) are clicked BEFORE drawing — e.g. the Pencil or Brush tool button, or a colour in the palette, exactly as you see them on the CURRENT screenshot. " +
-    "Paint usually starts with the Pencil tool selected; if the user wants a colour or another tool, pick it with tool_points. Open Paint first (launch mspaint, wait 2500, end the list) so you see the canvas before drawing; after drawing, check the result on the next screenshot. " +
+    "Add \"fill\":true to circle/ellipse/rect to paint the whole inside in the current colour (solid shapes, flags, suns...), e.g. Japan flag = rect outline in black, then a RED circle with fill:true in its centre. " +
+    "COLOURS/TOOLS: tool_points (max 3, [y,x] 0..1000) are clicked and then the computer STOPS so you can check the new screenshot — draw is NOT performed in that reply; next reply send draw again WITHOUT tool_points. " +
+    "To choose a colour click its small coloured SQUARE in the colour palette of the toolbar (the grid of colour squares at the top), never the 'Edit colours' / colour-picker / rainbow button. " +
+    "If any dialog or menu is open (e.g. 'Edit colours'), close it with key esc before drawing. Paint usually starts with the Pencil tool and black colour. " +
+    "Open Paint first (launch mspaint, wait 2500, end the list) so you see the canvas before drawing. Never set done=true in the same reply as a draw — the computer will show you the result first; set done only after you saw the finished drawing on the screenshot. " +
     "{\"type\":\"screenshot\"} — saves a full-quality screenshot of the screen and sends it to the user (use when the user asks for a screenshot/photo of the screen, or to show the result; take it AFTER the page/app has loaded). " +
     "SECRETS: the user's passwords are hidden from you as placeholders like {{SECRET1}}. To enter a password type the placeholder exactly ({\"type\":\"type\",\"text\":\"{{SECRET1}}\"}) — the computer replaces it with the real value. Never write placeholders anywhere except the password field and never mention them in say. " +
     "{\"type\":\"fill_login\",\"login\":\"user@mail.com\",\"password\":\"{{SECRET1}}\",\"login_point\":[y,x],\"password_point\":[y,x]} — LOGIN FORMS: the computer clicks the login field (login_point), clears it, types the login, clicks the password field (password_point), clears it, types the password and presses enter — always in this exact order; the mouse returns to its place. " +
@@ -264,7 +268,8 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     const actions = [];
     let dropped = 0;
     for (const a of raw.slice(0, 6)) { const v = agentAction(a); if (v) actions.push(v); else dropped++; }
-    const isDone = j.done === true || !!(j.action && j.action.type === "done");
+    // Chizish bo'lgan javobda "tayyor" qabul qilinmaydi: AI natijani keyingi ekran rasmida ko'rib tekshirishi shart
+    const isDone = (j.done === true || !!(j.action && j.action.type === "done")) && !actions.some((x) => x.type === "draw");
     const say = String(j.say || (isDone ? { uz: "Tayyor.", ru: "Готово.", en: "Done." }[uiLang] : "…")).slice(0, 600);
     return res.status(200).json({ pc: true, agent: { say, actions, done: isDone, thought: String(j.thought || "").slice(0, 300) }, ...(dropped ? { retry: true } : {}) });
   } catch (e) {
