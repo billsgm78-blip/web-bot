@@ -530,9 +530,14 @@
             var gUrl = SITE + '/?gauth=' + encodeURIComponent(id);
             var TI = window.__TAURI_INTERNALS__, opened = true;
             if (TI && TI.invoke) {
-                // Kompyuter dasturi bilolsai.uz havolalarini o'z oynasida ochadi — Google tizim brauzerida ochilishi shart
-                try { await TI.invoke('pc_open', { url: gUrl }); }
-                catch (e) { opened = false; authMsg(L("Brauzer ochilmadi. Shu havolani brauzerda oching: ", "Браузер не открылся. Откройте ссылку в браузере: ", "The browser did not open. Open this link in a browser: ") + gUrl, 'err'); }
+                // Kompyuter dasturi bilolsai.uz havolalarini o'z oynasida ochadi — Google tizim brauzerida ochilishi shart.
+                // 1) open_external (1.7.2+), 2) pc_open (eski dastur: faqat /usecomputer paytida ishlardi),
+                // 3) server orqali: tashqi manzilni dastur o'zi tizim brauzeriga beradi, u bilolsai.uz/?gauth=ID ga o'tkazadi.
+                opened = false;
+                try { await TI.invoke('open_external', { url: gUrl }); opened = true; } catch (e) {}
+                if (!opened) { try { await TI.invoke('pc_open', { url: gUrl }); opened = true; } catch (e) {} }
+                if (!opened) { try { location.href = RAIL + '/go/gauth?id=' + encodeURIComponent(id); opened = true; } catch (e) {} }
+                if (!opened) authMsg(L("Brauzer ochilmadi. Shu havolani brauzerda oching: ", "Браузер не открылся. Откройте ссылку в браузере: ", "The browser did not open. Open this link in a browser: ") + gUrl, 'err');
             } else openExternal(gUrl);
             if (opened) authMsg(L("Brauzerda Google hisobingizni tanlang — keyin shu yerga qayting, ilova o'zi kiradi.", 'Выберите аккаунт Google в браузере — затем вернитесь сюда, приложение войдёт само.', 'Choose your Google account in the browser — then come back, the app will log in by itself.'), 'ok');
             btn.disabled = false;
