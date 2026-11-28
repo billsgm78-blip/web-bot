@@ -1527,6 +1527,37 @@
             if (a.sig && b.sig && a.sig.length === b.sig.length) { var d = 0; for (var k = 0; k < a.sig.length; k++) d += Math.abs(a.sig[k] - b.sig[k]); return d / a.sig.length; }
             return a.image === b.image ? 0 : 99;
         }
+        // AI chizgan SVG: faqat ruxsat etilgan shakl/rang/matn qoladi (skript, havola, tashqi resurs, on*-hodisalar olib tashlanadi)
+        var SVG_TAGS = { svg: 1, g: 1, rect: 1, circle: 1, ellipse: 1, line: 1, polyline: 1, polygon: 1, path: 1, text: 1, tspan: 1, defs: 1, lineargradient: 1, radialgradient: 1, stop: 1 };
+        var SVG_ATTRS = /^(viewbox|width|height|x|y|x1|y1|x2|y2|cx|cy|r|rx|ry|d|points|fill|fill-opacity|fill-rule|stroke|stroke-width|stroke-opacity|stroke-linecap|stroke-linejoin|opacity|transform|font-size|font-family|font-weight|text-anchor|dominant-baseline|offset|stop-color|stop-opacity|id|gradientunits|gradienttransform|fx|fy|xmlns|preserveaspectratio)$/;
+        function cleanSvg(src) {
+            var doc = new DOMParser().parseFromString(String(src || ''), 'image/svg+xml'), root = doc.documentElement;
+            if (!root || root.nodeName.toLowerCase() !== 'svg' || doc.getElementsByTagName('parsererror').length) return null;
+            (function walk(el) {
+                for (var i = el.children.length - 1; i >= 0; i--) { var c = el.children[i]; if (!SVG_TAGS[c.nodeName.toLowerCase()]) c.remove(); else walk(c); }
+                for (var k = el.attributes.length - 1; k >= 0; k--) {
+                    var at = el.attributes[k], nm = at.name.toLowerCase();
+                    if (!SVG_ATTRS.test(nm) || /url\((?!#)|javascript:|data:|expression/i.test(at.value)) el.removeAttribute(at.name);
+                }
+            })(root);
+            root.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            return root;
+        }
+        // SVG -> PNG (oq fonda, katta tomoni 1200 px gacha) -> Paint'da ochiladi
+        async function svgToPng(src) {
+            var root = cleanSvg(src); if (!root) throw new Error('bad svg');
+            var vb = (root.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number), w = vb.length === 4 && vb[2] > 0 ? vb[2] : parseFloat(root.getAttribute('width')) || 600, h = vb.length === 4 && vb[3] > 0 ? vb[3] : parseFloat(root.getAttribute('height')) || 400;
+            if (!(vb.length === 4 && vb[2] > 0)) root.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+            var k = 1200 / Math.max(w, h), W = Math.max(8, Math.round(w * k)), H = Math.max(8, Math.round(h * k));
+            root.setAttribute('width', W); root.setAttribute('height', H);
+            var url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(root)], { type: 'image/svg+xml' }));
+            try {
+                var img = await new Promise(function (ok, no) { var im = new Image(); im.onload = function () { ok(im); }; im.onerror = function () { no(new Error('svg render')); }; im.src = url; });
+                var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+                var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H); cx.drawImage(img, 0, 0, W, H);
+                return cv.toDataURL('image/png').split(',')[1];
+            } finally { URL.revokeObjectURL(url); }
+        }
         async function stableShot(first) {
             var s1 = await pcInv('pc_screenshot');
             if (first) return s1;
@@ -1585,6 +1616,17 @@
                             if (!it) res2 = 'FAILED: no item #' + a.n + ' in the last list';
                             else if (/^(thispc|computer)$/i.test(it.path)) { it = { path: 'thispc', name: 'This PC', kind: 'folder' }; res2 = await pcOpenItem(it, ctx); }
                             else res2 = await pcOpenItem(it, ctx);
+                        }
+                        else if (a.type === 'picture') {
+                            var png = null;
+                            try { png = await svgToPng(a.svg); } catch (e6) { res2 = 'FAILED: the SVG could not be drawn — send simpler valid SVG'; }
+                            if (png) {
+                                try { var pi = await pcInv('pc_paint_image', { png: png }); res2 = 'picture opened in Paint' + (pi && pi.saved ? ' (saved to ' + pi.saved + ')' : ''); await pcInv('pc_wait', { ms: 2500 }); }
+                                catch (e7) {
+                                    if (/stopped/.test(String(e7))) throw e7;
+                                    res2 = /not found|not allowed|denied|unknown command/i.test(String(e7)) ? 'FAILED: this app version cannot open pictures — open Paint and draw it with draw actions instead (pick the colour first)' : 'FAILED: ' + String(e7).slice(0, 120);
+                                }
+                            }
                         }
                         else if (a.type === 'draw') {
                             // Chizish: 0..1000 koordinatalar -> fizik piksellar, keyin bitta "drag" (sichqoncha bosilgan holda yuradi)
@@ -1679,7 +1721,7 @@
                         if (/stopped/.test(String(e2))) throw e2;
                         res2 = 'FAILED: ' + String(e2 && e2.message || e2).slice(0, 120);
                     }
-                    steps.push(a.type + (a.login ? ' ' + a.login + ' / ' + a.password : '') + (a.app ? ' ' + a.app : '') + (a.query ? ' "' + a.query + '"' : '') + (a.n ? ' #' + a.n : '') + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (a.ms ? ' ' + a.ms + 'ms' : '') + (a.shape ? ' ' + a.shape + ' ' + JSON.stringify(a.box || a.points) : '') + ' → ' + res2);
+                    steps.push(a.type + (a.login ? ' ' + a.login + ' / ' + a.password : '') + (a.app ? ' ' + a.app : '') + (a.query ? ' "' + a.query + '"' : '') + (a.n ? ' #' + a.n : '') + (a.keys ? ' ' + a.keys : '') + (a.text ? ' "' + a.text.slice(0, 80) + '"' : '') + (a.url ? ' ' + a.url : '') + (a.x != null ? ' at ' + a.x + ',' + a.y : '') + (a.ms ? ' ' + a.ms + 'ms' : '') + (a.shape ? ' ' + a.shape + (a.fill ? ' filled' : '') + ' ' + JSON.stringify(a.box || a.points) : '') + (a.type === 'picture' ? ' (' + String(a.svg || '').length + ' chars SVG)' : '') + ' → ' + res2);
                     if (/^(FAILED|not found|STOPPED)/.test(res2)) break;   // xato yoki tekshirish kerak — AI yangi ekran rasmini ko'rib davom etadi
                 }
                 if (fail) break;

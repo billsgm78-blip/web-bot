@@ -101,7 +101,7 @@ function pcActions(raw) {
 // /usecomputer agenti: bitta qadam. Kiradi: vazifa, oldingi qadamlar, ekran rasmi (JPEG base64).
 // Chiqadi: keyingi bitta amal. Koordinatalar 0..1000 (ekran eni/bo'yiga nisbatan) — dastur o'zi piksellarga o'giradi.
 // Sichqoncha ishlatilmaydi: faqat dastur/fayl ochish, qidirish va klaviatura
-const AGENT_TYPES = new Set(["launch", "open", "find_open", "find", "list", "open_item", "open_found", "type", "key", "wait", "screenshot", "fill_login", "draw"]);
+const AGENT_TYPES = new Set(["launch", "open", "find_open", "find", "list", "open_item", "open_found", "type", "key", "wait", "screenshot", "fill_login", "draw", "picture"]);
 // Ko'p ishlatiladigan dasturlar: odamcha nom -> exe nomi (dastur ularni qidiruvsiz, to'g'ridan-to'g'ri ochadi)
 const APP_ALIAS = {
   calculator: "calc", kalkulyator: "calc", калькулятор: "calc", notepad: "notepad", bloknot: "notepad", блокнот: "notepad",
@@ -167,6 +167,13 @@ function agentAction(a) {
     act.tool_points = (Array.isArray(a.tool_points) ? a.tool_points : a.tool_point ? [a.tool_point] : []).map(pt).filter(Boolean).slice(0, 3);
     act.fill = a.fill === true && ["circle", "ellipse", "rect"].includes(act.shape);   // ichini to'liq bo'yash
   }
+  if (a.type === "picture") {
+    // Rangli rasm: AI SVG beradi, dastur PNG qilib Paint'da ochadi. Bu yerda faqat qo'pol tekshiruv — to'liq tozalash dasturda.
+    const svg = String(a.svg || "").trim();
+    if (svg.length < 30 || svg.length > 30000 || !/^<svg[\s>]/i.test(svg) || !/<\/svg>\s*$/i.test(svg)) return null;
+    if (/<script|<foreignObject|<iframe|\son[a-z]+\s*=|javascript:|<image|<use|xlink:href|href\s*=/i.test(svg)) return null;
+    act.svg = svg;
+  }
   if (a.type === "open_found") { act.type = "open_item"; }
   if (act.type === "list" || act.type === "open_item") {
     // n — oxirgi ro'yxatdagi raqam; yoki path — to'liq yo'l (C:\...), yoki thispc/desktop/documents/downloads/...
@@ -216,7 +223,12 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     "{\"type\":\"open\",\"url\":\"https://...\"} — open a website in the default browser (direct links: https://www.google.com/search?q=..., https://www.youtube.com/results?search_query=..., https://mail.google.com ...) or ms-settings:..., mailto:, tg://resolve?domain=..., spotify:; " +
     "{\"type\":\"type\",\"text\":\"...\"} — types into the focused window; {\"type\":\"key\",\"keys\":\"enter\"|\"tab\"|\"shift+tab\"|\"esc\"|\"up\"|\"down\"|\"ctrl+l\"|\"ctrl+t\"|\"ctrl+f\"|\"ctrl+s\"|\"ctrl+n\"|\"alt+tab\"|\"alt+f4\"|\"win+d\"|\"f2\"|\"f5\"...}; " +
     "{\"type\":\"wait\",\"ms\":int} — e.g. 1500 after launch/open so the window appears and gets focus. " +
-    "DRAWING (ONLY inside a drawing app such as Paint/mspaint, when the user asks to draw): {\"type\":\"draw\",\"shape\":\"circle\"|\"ellipse\"|\"rect\"|\"line\",\"box\":[y1,x1,y2,x2],\"tool_points\":[[y,x]]} — " +
+    "PICTURES (BEST way to draw/paint anything — flags, suns, houses, logos, cards, any coloured picture): {\"type\":\"picture\",\"svg\":\"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'>...</svg>\"} — " +
+    "the computer turns your SVG into an image with EXACT colours and opens it in Paint by itself (no need to open Paint or pick colours first). " +
+    "Use only rect, circle, ellipse, line, polyline, polygon, path, text, g, linearGradient/radialGradient; solid hex colours; a white or coloured background rect first; no images, links or scripts. " +
+    "Get real-world facts exactly right: flag proportions and official colours (Japan 3:2 white with a red #BC002D circle of diameter 3/5 of the height in the exact centre; Uzbekistan 2:1 blue #0099B5 / white / green #1EB53A stripes with thin red #CE1126 lines, white crescent and 12 white stars on the blue stripe; etc.), symmetric and centred shapes. " +
+    "After a picture, look at the next screenshot: if something is wrong, send a corrected picture. " +
+    "MOUSE DRAWING (only when the user explicitly wants to draw by hand/with the pencil, or to add to a drawing already open in Paint): {\"type\":\"draw\",\"shape\":\"circle\"|\"ellipse\"|\"rect\"|\"line\",\"box\":[y1,x1,y2,x2],\"tool_points\":[[y,x]]} — " +
     "box is the shape's bounding box in 0..1000 screenshot coordinates and MUST lie inside the white canvas (for line: from [y1,x1] to [y2,x2]); circle = perfect circle centred in the box; " +
     "or {\"type\":\"draw\",\"shape\":\"path\",\"points\":[[y,x],...]} (2-120 points) for freehand lines, letters, stars, houses etc. — compose complex pictures from several draw actions. " +
     "Add \"fill\":true to circle/ellipse/rect to paint the whole inside in the current colour (solid shapes, flags, suns...), e.g. Japan flag = rect outline in black, then a RED circle with fill:true in its centre. " +
@@ -269,7 +281,7 @@ async function runAgentStep(req, res, apiKey, uiLang, langName) {
     let dropped = 0;
     for (const a of raw.slice(0, 6)) { const v = agentAction(a); if (v) actions.push(v); else dropped++; }
     // Chizish bo'lgan javobda "tayyor" qabul qilinmaydi: AI natijani keyingi ekran rasmida ko'rib tekshirishi shart
-    const isDone = (j.done === true || !!(j.action && j.action.type === "done")) && !actions.some((x) => x.type === "draw");
+    const isDone = (j.done === true || !!(j.action && j.action.type === "done")) && !actions.some((x) => x.type === "draw" || x.type === "picture");
     const say = String(j.say || (isDone ? { uz: "Tayyor.", ru: "Готово.", en: "Done." }[uiLang] : "…")).slice(0, 600);
     return res.status(200).json({ pc: true, agent: { say, actions, done: isDone, thought: String(j.thought || "").slice(0, 300) }, ...(dropped ? { retry: true } : {}) });
   } catch (e) {
